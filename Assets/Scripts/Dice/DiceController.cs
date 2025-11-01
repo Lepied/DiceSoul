@@ -3,21 +3,31 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// [수정] Instantiate/Destroy 대신 WaveGenerator의 오브젝트 풀링을 사용합니다.
+/// </summary>
 public class DiceController : MonoBehaviour
 {
+    [Header("프리팹 및 UI 설정")]
+    [Tooltip("BoxCollider2D와 DiceKeep.cs가 포함된 주사위 프리팹")]
+    public GameObject dicePrefab; 
 
-    public GameObject dicePrefab;
-    public Transform diceContainer;
-    public Button rollButtonUI;
-    public Sprite[] diceFaceSprites;
+    [Tooltip("생성된 주사위들이 배치될 부모 오브젝트 (Hierarchy 정리용)")]
+    public Transform diceContainer; 
 
-    public int initialDiceCount = 5; // 시작할 때 생성할 주사위 개수
+    [Tooltip("UI 캔버스의 굴림 버튼")]
+    public Button rollButtonUI; 
+
+    [Header("스프라이트 에셋")]
+    [Tooltip("주사위 1~6 윗면 스프라이트 (6개 할당)")]
+    public Sprite[] diceFaceSprites; 
+
+    [Header("게임 로직 설정")]
+    [Tooltip("기본 최대 굴림 횟수")]
     public int baseMaxRolls = 3; 
+    
+    // '현재' 최대 굴림 횟수 (유물 효과 적용됨)
     public int maxRolls { get; private set; } 
-
-    // --- 현재 상태 변수 ---
-    private List<SpriteRenderer> diceRenderers = new List<SpriteRenderer>();
-    private List<DiceKeep> diceKeepScripts = new List<DiceKeep>();
 
     [Header("배치 설정")]
     [Tooltip("주사위 사이의 가로 간격 (예: 2.0)")]
@@ -25,18 +35,19 @@ public class DiceController : MonoBehaviour
     [Tooltip("주사위가 생성될 Y 위치")]
     public float yPosition = 0f;
 
-    public int currentRollCount { get; private set; }
+    
+    private List<SpriteRenderer> diceRenderers = new List<SpriteRenderer>();
+    private List<DiceKeep> diceKeepScripts = new List<DiceKeep>();
+
+    private List<string> playerDiceDeck = new List<string>();
+
+    public int currentRollCount { get; private set; } 
     public bool isRolling { get; private set; } = false;
-    public List<int> currentValues { get; private set; }
-    public List<bool> isKept { get; set; }
+    public List<int> currentValues { get; private set; } = new List<int>();
+    public List<bool> isKept { get; set; } = new List<bool>();
 
     void Start()
     {
-        // 1. 리스트 초기화 (시작 개수 기준)
-        currentValues = new List<int>(new int[initialDiceCount]);
-        isKept = new List<bool>(new bool[initialDiceCount]);
-
-        // 2. UI 버튼 리스너 연결
         if (rollButtonUI != null)
         {
             rollButtonUI.onClick.AddListener(OnRollButton);
@@ -45,49 +56,52 @@ public class DiceController : MonoBehaviour
         {
             Debug.LogError("Roll Button UI가 DiceController에 연결되지 않았습니다!");
         }
-
-        // 3. 프리팹으로 주사위 생성
-        SpawnDice();
-
-        // 4. 새 턴 준비
-        PrepareNewTurn();
     }
-
+    
     /// <summary>
-    /// 설정된 개수만큼 주사위 프리팹을 생성하고 초기화합니다.
+    /// [새 함수] GameManager로부터 덱 정보를 받아 주사위를 스폰합니다.
     /// </summary>
-    private void SpawnDice()
+    public void SetDiceDeck(List<string> deck)
     {
         if (dicePrefab == null)
         {
             Debug.LogError("Dice Prefab이 연결되지 않았습니다!");
             return;
         }
+        
+        // 1. 덱 정보 저장 및 리스트 초기화
+        this.playerDiceDeck = deck;
+        currentValues = new List<int>(new int[deck.Count]);
+        isKept = new List<bool>(new bool[deck.Count]);
 
-        float totalWidth = (initialDiceCount - 1) * horizontalSpacing;
-
+        // 2. 스폰 위치 계산
+        float totalWidth = (deck.Count - 1) * horizontalSpacing;
         float startX = -totalWidth / 2.0f;
 
-        for (int i = 0; i < initialDiceCount; i++)
+        // 3. 새 주사위 스폰
+        for (int i = 0; i < deck.Count; i++)
         {
             float posX = startX + (i * horizontalSpacing);
-
             Vector3 spawnLocalPosition = new Vector3(posX, yPosition, 0);
-
-            // 프리팹 생성, diceContainer를 부모로 설정
-            GameObject diceGO = Instantiate(dicePrefab, diceContainer);
-            diceGO.transform.localPosition = spawnLocalPosition;
+            
+            // [!!! 핵심 수정 1 !!!]
+            // Instantiate -> SpawnFromPool
+            if (WaveGenerator.Instance == null)
+            {
+                Debug.LogError("WaveGenerator가 씬에 없습니다!");
+                return;
+            }
+            GameObject diceGO = WaveGenerator.Instance.SpawnFromPool(dicePrefab, spawnLocalPosition, Quaternion.identity);
+            diceGO.transform.SetParent(diceContainer); // 부모 설정
+            diceGO.transform.localPosition = spawnLocalPosition; 
             diceGO.name = "Dice_" + i;
 
-            // 생성된 프리팹에서 스크립트와 렌더러 가져오기
             SpriteRenderer sr = diceGO.GetComponent<SpriteRenderer>();
             DiceKeep keepScript = diceGO.GetComponent<DiceKeep>();
 
             if (sr != null && keepScript != null)
             {
                 keepScript.Initialize(this, i);
-
-                // 관리 리스트에 추가
                 diceRenderers.Add(sr);
                 diceKeepScripts.Add(keepScript);
             }
@@ -96,55 +110,75 @@ public class DiceController : MonoBehaviour
                 Debug.LogError("Dice Prefab에 SpriteRenderer나 DiceKeep 스크립트가 없습니다!");
             }
         }
-    }
 
-    // --- (OnRollButton, RollAnimation, SetRollButtonInteractable 함수는 이전과 동일) ---
-    // (아래에 복사해 두었습니다)
+        // 4. 새 덱 개수로 UI 업데이트
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdateRollCount(currentRollCount, maxRolls);
+        }
+    }
 
     private void OnRollButton()
     {
-        if (isRolling) return;
-        if (currentRollCount >= maxRolls) return;
+        if (isRolling) return; 
+        if (currentRollCount >= maxRolls) return; 
 
-        currentRollCount++;
-        UIManager.Instance.UpdateRollCount(currentRollCount, maxRolls);
+        currentRollCount++; 
+        
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdateRollCount(currentRollCount, maxRolls);
+        }
+        
         StartCoroutine(RollAnimation());
     }
 
+    /// <summary>
+    /// [수정] 턴 시작 시, 기존에 스폰된 주사위들을 모두 '풀(Pool)로 반환'합니다.
+    /// </summary>
     public void PrepareNewTurn()
     {
+        // 1. 기존 주사위 오브젝트를 풀로 반환
+        foreach (SpriteRenderer renderer in diceRenderers)
+        {
+            if (renderer != null && renderer.gameObject.activeSelf)
+            {
+                // [!!! 핵심 수정 2 !!!]
+                // Destroy -> ReturnToPool
+                if (WaveGenerator.Instance != null)
+                {
+                    WaveGenerator.Instance.ReturnToPool(renderer.gameObject);
+                }
+                else
+                {
+                    // (폴백) 웨이브 제너레이터가 없으면 그냥 파괴
+                    Destroy(renderer.gameObject);
+                }
+            }
+        }
+        
+        // 2. 모든 리스트 초기화
+        diceRenderers.Clear();
+        diceKeepScripts.Clear();
+        currentValues.Clear();
+        isKept.Clear();
+        playerDiceDeck.Clear();
+
+        // 3. 턴 상태 초기화
         currentRollCount = 0;
         isRolling = false;
         SetRollButtonInteractable(true);
 
-        maxRolls = baseMaxRolls;
-        
-
-        // 생성된 주사위 개수(diceRenderers.Count)만큼 반복
-        for (int i = 0; i < diceRenderers.Count; i++)
-        {
-            isKept[i] = false;
-            currentValues[i] = 0;
-
-            // DiceKeep 스크립트 리스트에서 가져와서 시각 효과 리셋
-            if (diceKeepScripts[i] != null)
-            {
-                diceKeepScripts[i].UpdateVisual(false);
-            }
-
-            if (diceFaceSprites != null && diceFaceSprites.Length > 0)
-            {
-                diceRenderers[i].sprite = diceFaceSprites[0];
-            }
-        }
+        maxRolls = baseMaxRolls; 
     }
 
+    // ... (RollAnimation 함수는 이전과 동일) ...
     private IEnumerator RollAnimation()
     {
         isRolling = true;
-        SetRollButtonInteractable(false);
+        SetRollButtonInteractable(false); 
 
-        float rollDuration = 0.5f;
+        float rollDuration = 0.5f; 
         float timer = 0f;
 
         while (timer < rollDuration)
@@ -155,29 +189,46 @@ public class DiceController : MonoBehaviour
                 {
                     if (diceFaceSprites != null && diceFaceSprites.Length > 0)
                     {
-                        int randomFace = Random.Range(0, diceFaceSprites.Length);
+                        int randomFace = Random.Range(0, diceFaceSprites.Length); 
                         diceRenderers[i].sprite = diceFaceSprites[randomFace];
                     }
                 }
             }
             timer += Time.deltaTime;
-            yield return null;
+            yield return null; 
         }
 
         for (int i = 0; i < diceRenderers.Count; i++)
         {
-            if (!isKept[i])
+            if (!isKept[i]) 
             {
-                int finalValue = Random.Range(1, 7);
-                currentValues[i] = finalValue;
+                string diceType = playerDiceDeck[i];
+                int finalValue;
 
-                if (diceFaceSprites != null && diceFaceSprites.Length >= finalValue)
+                switch (diceType)
                 {
-                    diceRenderers[i].sprite = diceFaceSprites[finalValue - 1];
+                    case "D4":
+                        finalValue = Random.Range(1, 5); // 1~4
+                        break;
+                    case "D8":
+                        finalValue = Random.Range(1, 9); // 1~8
+                        break;
+                    case "D20":
+                        finalValue = Random.Range(1, 21); // 1~20
+                        break;
+                    case "D6":
+                    default:
+                        finalValue = Random.Range(1, 7); // 1~6
+                        break;
                 }
+
+                currentValues[i] = finalValue;
+                
+                int spriteIndex = Mathf.Clamp(finalValue - 1, 0, diceFaceSprites.Length - 1);
+                diceRenderers[i].sprite = diceFaceSprites[spriteIndex];
             }
         }
-
+        
         isRolling = false;
 
         if (StageManager.Instance != null)
@@ -197,10 +248,11 @@ public class DiceController : MonoBehaviour
             rollButtonUI.interactable = interactable;
         }
     }
-    //유물용 함수
+    
     public void ApplyRollBonus(int amount)
     {
         maxRolls += amount;
         Debug.Log($"유물 효과 적용: 최대 굴림 +{amount}. (현재: {maxRolls})");
     }
 }
+

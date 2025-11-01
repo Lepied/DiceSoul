@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 1ca506c8c7aee424aabf19d82d614940
+guid: b7a01b3cc0ba8b440926e4f1f4544829
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5014751948883790133
-    second: d6_03 1_0
+      213: 7021083274107601241
+    second: living armor_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: d6_03 1_0
+      name: living armor_0
       rect:
         serializedVersion: 2
-        x: 31
-        y: 24
-        width: 438
-        height: 449
+        x: 45
+        y: 29
+        width: 457
+        height: 554
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5398ae5045af79540800000000000000
-      internalID: 5014751948883790133
+      spriteID: 951ce9bd906ef6160800000000000000
+      internalID: 7021083274107601241
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      d6_03 1_0: 5014751948883790133
+      living armor_0: 7021083274107601241
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
