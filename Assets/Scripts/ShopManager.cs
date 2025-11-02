@@ -1,17 +1,20 @@
 using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine.UI; // Button 처리를 위해
+using System.Linq; // Linq 사용
 
 /// <summary>
-/// 상점에서 판매할 아이템을 생성하고,
-/// 구매 요청을 처리하는 싱글톤 매니저입니다.
+/// [수정] 
+/// 1. GenerateShopItems에 "유물 판매" 로직 추가
+/// 2. RelicDatabase 참조
 /// </summary>
 public class ShopManager : MonoBehaviour
 {
     public static ShopManager Instance { get; private set; }
 
-    // (나중에 유물처럼 상점 아이템도 데이터베이스화 할 수 있습니다)
-    // public List<ShopItem> availableUpgrades; 
+    [Tooltip("상점에 한 번에 표시될 아이템 개수")]
+    public int shopItemCount = 3;
+
+    public List<ShopItem> currentShopItems = new List<ShopItem>();
 
     void Awake()
     {
@@ -26,99 +29,107 @@ public class ShopManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// GameManager가 호출. 현재 존(Zone) 레벨에 맞는 상점 아이템 리스트를 생성합니다.
-    /// </summary>
-    public List<ShopItem> GenerateShopItems(int currentZone)
+    public void GenerateShopItems()
     {
-        List<ShopItem> items = new List<ShopItem>();
+        currentShopItems.Clear();
+        if (GameManager.Instance == null || RelicDB.Instance == null)
+        {
+             Debug.LogError("GameManager 또는 RelicDatabase가 없습니다!");
+            return;
+        }
 
-        // 1. 유물 1개 추가 (예: 가격 = 200 * 존 레벨)
-        Relic randomRelic = RelicDB.Instance.GetRandomRelics(1)[0];
-        items.Add(new ShopItem(
-            randomRelic.Name, 
-            randomRelic.Description, 
-            200 * currentZone, 
-            ShopItemType.Relic, 
-            randomRelic
+        List<ShopItem> itemPool = new List<ShopItem>();
+
+        // --- 아이템 풀(Pool) 생성 ---
+
+        // 1. 체력 회복 아이템
+        itemPool.Add(new ShopItem(
+            "체력 5 회복", 
+            "플레이어 체력을 5 회복합니다.", 
+            50,
+            () => { GameManager.Instance.HealPlayer(5); } 
         ));
 
-        // 2. 체력 회복 추가 (예: 100점)
-        items.Add(new ShopItem(
-            "체력 10 회복", 
-            "플레이어의 체력을 10 회복합니다.", 
-            100, 
-            ShopItemType.Heal
-        ));
+        // 2. 주사위 추가 아이템 (최대 8개 제한)
+        if (GameManager.Instance.playerDiceDeck.Count < 8)
+        {
+            itemPool.Add(new ShopItem(
+                "새 주사위 (D6)",
+                "주사위 슬롯을 1개 추가합니다. (기본 D6)",
+                300, 
+                () => { GameManager.Instance.AddDiceToDeck("D6"); } 
+            ));
+        }
 
-        // 3. 주사위 업그레이드 추가 (예: 400점)
-        // (TODO: 이미 D8이면 D10이 나오게 하는 등 확장 필요)
-        items.Add(new ShopItem(
-            "주사위 업그레이드 (D8)", 
-            "기본 D6 주사위 1개를 D8로 바꿉니다.", 
-            400, 
-            ShopItemType.DiceUpgrade
-        ));
+        // 3. 주사위 업그레이드 아이템
+        List<int> upgradableDiceIndices = new List<int>();
+        for (int i = 0; i < GameManager.Instance.playerDiceDeck.Count; i++)
+        {
+            if (GameManager.Instance.playerDiceDeck[i] != "D20")
+            {
+                upgradableDiceIndices.Add(i);
+            }
+        }
+        if (upgradableDiceIndices.Count > 0)
+        {
+            int diceIndexToUpgrade = upgradableDiceIndices[Random.Range(0, upgradableDiceIndices.Count)];
+            string currentType = GameManager.Instance.playerDiceDeck[diceIndexToUpgrade];
+            string newType = (currentType == "D6" || currentType == "D4") ? "D8" : "D20";
+            int price = (newType == "D8") ? 150 : 250;
 
-        return items;
+            itemPool.Add(new ShopItem(
+                $"{diceIndexToUpgrade + 1}번 주사위 업그레이드 ({newType})",
+                $"{diceIndexToUpgrade + 1}번 주사위({currentType})를 {newType}(으)로 교체합니다.",
+                price,
+                () => { GameManager.Instance.UpgradeSingleDice(diceIndexToUpgrade, newType); } 
+            ));
+        }
+
+        // 4. [!!! 신규 !!!] 유물 판매 아이템
+        // (이미 획득한 유물은 제외하고 뽑으면 더 좋지만, 일단 랜덤 1개)
+        Relic randomRelic = RelicDB.Instance.GetRandomRelics(1).FirstOrDefault();
+        if (randomRelic != null)
+        {
+            itemPool.Add(new ShopItem(
+                $"유물: {randomRelic.Name}",
+                randomRelic.Description,
+                400, // 유물 고정 가격 (예시)
+                () => { GameManager.Instance.AddRelic(randomRelic); } // <-- 이게 효과(Action)입니다.
+            ));
+        }
+
+
+        // --- 아이템 풀에서 랜덤 선택 ---
+        for (int i = 0; i < shopItemCount; i++)
+        {
+            if (itemPool.Count == 0) break; 
+            ShopItem chosenItem = itemPool[Random.Range(0, itemPool.Count)];
+            currentShopItems.Add(chosenItem);
+            itemPool.Remove(chosenItem); 
+        }
     }
 
-    /// <summary>
-    /// UIManager가 호출. 아이템 구매를 시도합니다.
-    /// </summary>
-    public void BuyItem(ShopItem item, Button clickedButton)
+    public void BuyItem(ShopItem item)
     {
-        GameManager gm = GameManager.Instance;
-        if (gm == null) return;
-
-        // 1. 점수(재화)가 충분한지 확인
-        if (gm.CurrentScore >= item.Price)
+        // [수정] GameManager의 SubtractScore 함수를 먼저 호출
+        if (GameManager.Instance.SubtractScore(item.Price))
         {
-            // 2. 점수 차감
-            gm.SpendScore(item.Price);
-            Debug.Log($"{item.ItemName} 구매 완료! (가격: {item.Price})");
+            // 1. 점수 차감 성공
+            Debug.Log($"{item.Name} 구매 성공!");
 
-            // 3. 아이템 효과 적용
-            ApplyItemEffect(item);
+            // 2. 아이템 효과 실행
+            item.ExecuteEffect();
 
-            // 4. 구매한 아이템 버튼 비활성화 (매진 처리)
-            if (clickedButton != null)
-            {
-                clickedButton.interactable = false; 
-            }
+            // 3. 구매한 아이템은 상점에서 제거
+            currentShopItems.Remove(item);
+            
+            // 4. UIManager에게 상점 화면을 새로고침하라고 지시
+            UIManager.Instance.ShowMaintenanceScreen(currentShopItems);
         }
         else
         {
-            Debug.Log($"구매 실패: 점수가 부족합니다. (현재: {gm.CurrentScore} / 필요: {item.Price})");
-            // (TODO: 점수 부족 UI 피드백)
-        }
-    }
-
-    /// <summary>
-    /// 구매한 아이템의 효과를 GameManager에 적용
-    /// </summary>
-    private void ApplyItemEffect(ShopItem item)
-    {
-        GameManager gm = GameManager.Instance;
-        if (gm == null) return;
-
-        switch (item.ItemType)
-        {
-            case ShopItemType.Relic:
-                gm.AddRelic(item.RelicData); // (이 함수는 새로 만들어야 함)
-                break;
-            case ShopItemType.DiceUpgrade:
-                gm.UpgradeDice("D8"); // (이 함수는 새로 만들어야 함)
-                break;
-            case ShopItemType.DiceAdd:
-                // (TODO)
-                break;
-            case ShopItemType.Heal:
-                gm.HealPlayer(10); // (이 함수는 새로 만들어야 함)
-                break;
-            case ShopItemType.RerollShop:
-                // (TODO)
-                break;
+            Debug.Log("점수가 부족합니다!");
         }
     }
 }
+

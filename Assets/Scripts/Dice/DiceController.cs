@@ -1,10 +1,12 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
-using System.Collections.Generic;
+using System.Collections.Generic; // List<T>
 
 /// <summary>
-/// [수정] Instantiate/Destroy 대신 WaveGenerator의 오브젝트 풀링을 사용합니다.
+/// [수정] 
+/// 1. SetDiceDeck이 덱을 참조하지 않고 '새로 복사(Copy)'하도록 변경
+/// 2. PrepareNewTurn이 GameManager의 덱을 비우지 않도록 playerDiceDeck.Clear() 제거
 /// </summary>
 public class DiceController : MonoBehaviour
 {
@@ -25,8 +27,6 @@ public class DiceController : MonoBehaviour
     [Header("게임 로직 설정")]
     [Tooltip("기본 최대 굴림 횟수")]
     public int baseMaxRolls = 3; 
-    
-    // '현재' 최대 굴림 횟수 (유물 효과 적용됨)
     public int maxRolls { get; private set; } 
 
     [Header("배치 설정")]
@@ -34,12 +34,15 @@ public class DiceController : MonoBehaviour
     public float horizontalSpacing = 2.0f;
     [Tooltip("주사위가 생성될 Y 위치")]
     public float yPosition = 0f;
+    [Tooltip("스폰될 주사위의 크기 (기본값 0.4)")]
+    public float diceScale = 0.4f;
 
     
     private List<SpriteRenderer> diceRenderers = new List<SpriteRenderer>();
     private List<DiceKeep> diceKeepScripts = new List<DiceKeep>();
-
-    private List<string> playerDiceDeck = new List<string>();
+    
+    // 이 컨트롤러가 '이번 턴'에 굴릴 주사위 덱 (GameManager 덱의 '복사본')
+    private List<string> playerDiceDeck = new List<string>(); 
 
     public int currentRollCount { get; private set; } 
     public bool isRolling { get; private set; } = false;
@@ -59,9 +62,9 @@ public class DiceController : MonoBehaviour
     }
     
     /// <summary>
-    /// [새 함수] GameManager로부터 덱 정보를 받아 주사위를 스폰합니다.
+    /// [수정] GameManager로부터 덱 정보를 '복사(Copy)'하여 주사위를 스폰합니다.
     /// </summary>
-    public void SetDiceDeck(List<string> deck)
+    public void SetDiceDeck(List<string> deckFromGameManager)
     {
         if (dicePrefab == null)
         {
@@ -69,39 +72,42 @@ public class DiceController : MonoBehaviour
             return;
         }
         
-        // 1. 덱 정보 저장 및 리스트 초기화
-        this.playerDiceDeck = deck;
-        currentValues = new List<int>(new int[deck.Count]);
-        isKept = new List<bool>(new bool[deck.Count]);
+        // 1. [!!! 핵심 수정 !!!]
+        // 덱을 참조(this.playerDiceDeck = deck)하는 대신,
+        // '새 리스트'로 '복사'합니다.
+        this.playerDiceDeck = new List<string>(deckFromGameManager);
+        
+        currentValues = new List<int>(new int[playerDiceDeck.Count]);
+        isKept = new List<bool>(new bool[playerDiceDeck.Count]);
 
         // 2. 스폰 위치 계산
-        float totalWidth = (deck.Count - 1) * horizontalSpacing;
+        float totalWidth = (playerDiceDeck.Count - 1) * horizontalSpacing;
         float startX = -totalWidth / 2.0f;
 
         // 3. 새 주사위 스폰
-        for (int i = 0; i < deck.Count; i++)
+        for (int i = 0; i < playerDiceDeck.Count; i++)
         {
             float posX = startX + (i * horizontalSpacing);
             Vector3 spawnLocalPosition = new Vector3(posX, yPosition, 0);
             
-            // [!!! 핵심 수정 1 !!!]
-            // Instantiate -> SpawnFromPool
-            if (WaveGenerator.Instance == null)
-            {
-                Debug.LogError("WaveGenerator가 씬에 없습니다!");
-                return;
-            }
-            GameObject diceGO = WaveGenerator.Instance.SpawnFromPool(dicePrefab, spawnLocalPosition, Quaternion.identity);
-            diceGO.transform.SetParent(diceContainer); // 부모 설정
-            diceGO.transform.localPosition = spawnLocalPosition; 
-            diceGO.name = "Dice_" + i;
+            GameObject diceGO = WaveGenerator.Instance.SpawnFromPool(dicePrefab, Vector3.zero, Quaternion.identity);
+            
+            diceGO.transform.SetParent(diceContainer);
+            diceGO.transform.localPosition = spawnLocalPosition;
+            diceGO.transform.localScale = new Vector3(diceScale, diceScale, diceScale);
 
             SpriteRenderer sr = diceGO.GetComponent<SpriteRenderer>();
             DiceKeep keepScript = diceGO.GetComponent<DiceKeep>();
 
             if (sr != null && keepScript != null)
             {
-                keepScript.Initialize(this, i);
+                if (diceFaceSprites != null && diceFaceSprites.Length > 0)
+                {
+                    sr.sprite = diceFaceSprites[0]; 
+                }
+                keepScript.Initialize(this, i); 
+                keepScript.UpdateVisual(false); 
+                
                 diceRenderers.Add(sr);
                 diceKeepScripts.Add(keepScript);
             }
@@ -134,26 +140,16 @@ public class DiceController : MonoBehaviour
     }
 
     /// <summary>
-    /// [수정] 턴 시작 시, 기존에 스폰된 주사위들을 모두 '풀(Pool)로 반환'합니다.
+    /// [수정] 턴 시작 시, playerDiceDeck.Clear()를 제거합니다.
     /// </summary>
     public void PrepareNewTurn()
     {
-        // 1. 기존 주사위 오브젝트를 풀로 반환
+        // 1. 기존 주사위 오브젝트 풀로 반환
         foreach (SpriteRenderer renderer in diceRenderers)
         {
-            if (renderer != null && renderer.gameObject.activeSelf)
+            if (renderer != null)
             {
-                // [!!! 핵심 수정 2 !!!]
-                // Destroy -> ReturnToPool
-                if (WaveGenerator.Instance != null)
-                {
-                    WaveGenerator.Instance.ReturnToPool(renderer.gameObject);
-                }
-                else
-                {
-                    // (폴백) 웨이브 제너레이터가 없으면 그냥 파괴
-                    Destroy(renderer.gameObject);
-                }
+                WaveGenerator.Instance.ReturnToPool(renderer.gameObject);
             }
         }
         
@@ -162,17 +158,19 @@ public class DiceController : MonoBehaviour
         diceKeepScripts.Clear();
         currentValues.Clear();
         isKept.Clear();
-        playerDiceDeck.Clear();
+        
+        // [!!! 핵심 수정 !!!]
+        // 이 리스트를 여기서 Clear하면 GameManager의 덱을 참조할 때 문제가 됩니다.
+        // 어차피 SetDiceDeck에서 새로 덮어쓰므로 Clear할 필요가 없습니다.
+        // playerDiceDeck.Clear(); 
 
         // 3. 턴 상태 초기화
         currentRollCount = 0;
         isRolling = false;
         SetRollButtonInteractable(true);
-
         maxRolls = baseMaxRolls; 
     }
 
-    // ... (RollAnimation 함수는 이전과 동일) ...
     private IEnumerator RollAnimation()
     {
         isRolling = true;
@@ -202,6 +200,12 @@ public class DiceController : MonoBehaviour
         {
             if (!isKept[i]) 
             {
+                if (i >= playerDiceDeck.Count)
+                {
+                    Debug.LogError($"playerDiceDeck 인덱스 오류! i:{i}, 덱 크기:{playerDiceDeck.Count}");
+                    continue; 
+                }
+
                 string diceType = playerDiceDeck[i];
                 int finalValue;
 
@@ -221,11 +225,20 @@ public class DiceController : MonoBehaviour
                         finalValue = Random.Range(1, 7); // 1~6
                         break;
                 }
+                
+                if (i >= currentValues.Count)
+                {
+                    Debug.LogError($"currentValues 인덱스 오류! i:{i}, 밸류 크기:{currentValues.Count}");
+                    continue;
+                }
 
                 currentValues[i] = finalValue;
-                
                 int spriteIndex = Mathf.Clamp(finalValue - 1, 0, diceFaceSprites.Length - 1);
-                diceRenderers[i].sprite = diceFaceSprites[spriteIndex];
+                
+                if (diceFaceSprites.Length > spriteIndex)
+                {
+                    diceRenderers[i].sprite = diceFaceSprites[spriteIndex];
+                }
             }
         }
         

@@ -1,41 +1,49 @@
 using UnityEngine;
 
-// 나중에 유물 효과를 구분하기 위한 Enum(열거형)
-// 2단계(지금)에서는 선언만 해두고, 3단계(다음)에서 이 효과를 실제로 구현합니다.
+/// <summary>
+/// 유물이 가질 수 있는 '지속 효과'의 종류를 정의합니다.
+/// GameManager의 ApplyAllRelicEffects 함수가 이 타입을 읽어들입니다.
+/// </summary>
 public enum RelicEffectType
 {
-    // 점수/계산 관련
-    AddScoreMultiplier,     // 점수 배율 추가
-    ModifyDiceValue,        // 특정 주사위 값 변경 (예: '1'을 '7'로)
-    
-    // 주사위/굴림 관련
+    // 굴림/주사위 관련
     AddMaxRolls,            // 최대 굴림 횟수 +1
     AddDice,                // 주사위 개수 +1
-    KeepDiceOnFail,         // 실패 시 '킵'한 주사위 유지
     
-    // 재화/상점 관련
-    AddGoldPerWin,          // 승리 시 골드 추가
-    ShopDiscount            // 상점 할인
+    // 점수/데미지 관련
+    AddScoreMultiplier,     // 점수 배율 추가 (예: 1.5f)
+    ModifyDiceValue,        // 특정 주사위 값 변경 (예: '1'을 '7'로)
+    AddBaseDamage,          // 모든 족보의 기본 데미지 +5
+
+    // 기타
+    None // 효과 없음 (데이터만)
 }
 
-// SO 대신 사용할 유물 데이터 클래스
+/// <summary>
+/// '지속 효과'를 가지는 유물 데이터 클래스입니다.
+/// </summary>
 public class Relic
 {
+    public string ID { get; private set; } // "RELIC_CLOVER", "RELIC_GOLD_DICE"
     public string Name { get; private set; }
     public string Description { get; private set; }
-    public RelicEffectType EffectType { get; private set; } // 이 유물의 핵심 효과
+    public RelicEffectType EffectType { get; private set; }
     
-    // 효과에 필요한 값 (예: 배율 +2, 굴림 +1)
-    public float EffectValue { get; private set; }
-    public int EffectIntValue { get; private set; } // (정수 값이 필요할 경우)
+    // 효과에 필요한 값들
+    public int IntValue { get; private set; } // (예: 굴림 +1)
+    public float FloatValue { get; private set; } // (예: 배율 1.5f)
+    public string StringValue { get; private set; } // (예: "D8")
 
     // 생성자
-    public Relic(string name, string description, RelicEffectType effectType, float effectValue = 0, int effectIntValue = 0)
+    public Relic(string id, string name, string description, RelicEffectType effectType, 
+                 int intValue = 0, float floatValue = 0f, string stringValue = null)
     {
+        this.ID = id;
         this.Name = name;
         this.Description = description;
         this.EffectType = effectType;
-        this.EffectValue = effectValue;
-        this.EffectIntValue = effectIntValue;
+        this.IntValue = intValue;
+        this.FloatValue = floatValue;
+        this.StringValue = stringValue;
     }
 }

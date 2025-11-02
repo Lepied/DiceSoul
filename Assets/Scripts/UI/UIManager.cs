@@ -1,42 +1,61 @@
 using UnityEngine;
-using TMPro; 
-using System.Collections.Generic; 
-using UnityEngine.UI; 
+using TMPro; // TextMeshPro 사용
+using System.Collections.Generic; // List 사용
+using UnityEngine.UI; // Button 사용
 
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
 
     [Header("기본 UI 텍스트 요소")]
-    public TextMeshProUGUI waveText; 
+    [Tooltip("현재 웨이브/존을 표시할 텍스트")]
+    public TextMeshProUGUI waveText;
+    [Tooltip("현재 총 점수(재화)를 표시할 텍스트")]
+    public TextMeshProUGUI totalScoreText;
+    [Tooltip("굴림 횟수를 표시할 텍스트 (예: 1/3)")]
     public TextMeshProUGUI rollCountText;
+    [Tooltip("플레이어 체력을 표시할 텍스트 (예: 10/10)")]
     public TextMeshProUGUI healthText;
-    public TextMeshProUGUI totalScoreText; 
 
-    [Header("보상 화면 UI")]
+    [Header("보상 화면 UI (웨이브 클리어)")]
+    [Tooltip("보상 선택 화면 전체 Panel")]
     public GameObject rewardScreenPanel;
+    [Tooltip("유물 선택지 3개를 담을 버튼 배열")]
     public Button[] relicChoiceButtons; 
+    [Tooltip("유물 버튼의 '이름' 텍스트 (TextMeshPro)")]
     public TextMeshProUGUI[] relicNameTexts;
+    [Tooltip("유물 버튼의 '설명' 텍스트 (TextMeshPro)")]
     public TextMeshProUGUI[] relicDescriptionTexts;
     
-    [Header("공격 선택 UI")]
+    [Header("공격 선택 UI (굴림 이후)")]
+    [Tooltip("공격 족보 선택 Panel")]
     public GameObject attackOptionsPanel;
+    [Tooltip("공격 족보 버튼 배열")]
     public Button[] attackOptionButtons;
+    [Tooltip("공격 족보 이름 텍스트 배열")]
     public TextMeshProUGUI[] attackNameTexts;
+    [Tooltip("공격 족보 데미지/점수 텍스트 배열")]
     public TextMeshProUGUI[] attackValueTexts;
 
-    [Header("정비 (상점) UI")]
+    [Header("정비 (상점) UI (존 클리어)")]
+    [Tooltip("상점 화면 전체 Panel")]
     public GameObject maintenancePanel;
+    [Tooltip("상점 아이템 버튼 배열 (예: 3개)")]
     public Button[] shopItemButtons;
+    [Tooltip("상점 아이템 이름 텍스트 배열")]
     public TextMeshProUGUI[] shopItemNameTexts;
+    [Tooltip("상점 아이템 가격 텍스트 배열")]
     public TextMeshProUGUI[] shopItemPriceTexts;
+    [Tooltip("상점 나가기 버튼")]
     public Button exitShopButton;
+
 
     void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
+            // DontDestroyOnLoad(gameObject); // Canvas는 씬과 함께 로드/언로드되는 것이 일반적
         }
         else
         {
@@ -46,24 +65,19 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
-        if (rewardScreenPanel != null)
+        // 모든 패널을 끈 상태로 시작
+        if (rewardScreenPanel != null) rewardScreenPanel.SetActive(false);
+        if (attackOptionsPanel != null) attackOptionsPanel.SetActive(false);
+        if (maintenancePanel != null) maintenancePanel.SetActive(false);
+
+        // 상점 나가기 버튼 이벤트 연결
+        if (exitShopButton != null)
         {
-            rewardScreenPanel.SetActive(false);
-        }
-        if (attackOptionsPanel != null)
-        {
-            attackOptionsPanel.SetActive(false);
-        }
-        if (maintenancePanel != null)
-        {
-            maintenancePanel.SetActive(false);
-        }
-        if (totalScoreText != null)
-        {
-            totalScoreText.text = "점수: 0";
+            exitShopButton.onClick.AddListener(OnExitShopButton);
         }
     }
 
+    // --- 기본 UI 업데이트 ---
     public void UpdateWaveText(int zone, int wave)
     {
         if (waveText != null)
@@ -71,6 +85,15 @@ public class UIManager : MonoBehaviour
             waveText.text = $"Zone {zone} - Wave {wave}";
         }
     }
+    
+    public void UpdateScore(int totalScore)
+    {
+        if (totalScoreText != null)
+        {
+            totalScoreText.text = $"Score: {totalScore}";
+        }
+    }
+
     public void UpdateRollCount(int current, int max)
     {
         if (rollCountText != null)
@@ -78,6 +101,7 @@ public class UIManager : MonoBehaviour
             rollCountText.text = $"굴림 횟수: {current} / {max}";
         }
     }
+
     public void UpdateHealth(int currentHealth, int maxHealth)
     {
         if (healthText != null)
@@ -85,28 +109,26 @@ public class UIManager : MonoBehaviour
             healthText.text = $"체력: {currentHealth} / {maxHealth}";
         }
     }
-    public void UpdateScore(int totalScore)
-    {
-        if (totalScoreText != null)
-        {
-            totalScoreText.text = $"점수: {totalScore}";
-        }
-    }
     
+    public void ClearScoreText() // (점수 계산기용 - 현재 미사용)
+    {
+        // (이전 점수 시스템의 잔재)
+    }
+
+    // --- 1. 유물 보상 화면 (웨이브 클리어) ---
     public void ShowRewardScreen(List<Relic> relicOptions)
     {
         if (rewardScreenPanel == null) return;
-        
         rewardScreenPanel.SetActive(true);
+
         for (int i = 0; i < relicChoiceButtons.Length; i++)
         {
             if (i < relicOptions.Count)
             {
                 Relic relic = relicOptions[i];
-                if (relicNameTexts[i] != null)
-                    relicNameTexts[i].text = relic.Name;
-                if (relicDescriptionTexts[i] != null)
-                    relicDescriptionTexts[i].text = relic.Description;
+                if (relicNameTexts[i] != null) relicNameTexts[i].text = relic.Name;
+                if (relicDescriptionTexts[i] != null) relicDescriptionTexts[i].text = relic.Description;
+
                 relicChoiceButtons[i].onClick.RemoveAllListeners(); 
                 relicChoiceButtons[i].onClick.AddListener(() => {
                     SelectRelic(relic);
@@ -119,33 +141,33 @@ public class UIManager : MonoBehaviour
             }
         }
     }
-    
+
     private void SelectRelic(Relic chosenRelic)
     {
-        if (rewardScreenPanel != null)
-        {
-            rewardScreenPanel.SetActive(false);
-        }
+        if (rewardScreenPanel != null) rewardScreenPanel.SetActive(false);
+        
+        // [!!! 오류 수정 3 !!!]
+        // GameManager의 함수 이름이 OnRelicSelected -> AddRelic 으로 변경되었습니다.
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.OnRelicSelected(chosenRelic);
+            GameManager.Instance.AddRelic(chosenRelic);
         }
     }
 
-    public void ShowAttackOptions(List<AttackJokbo> attackOptions)
+    // --- 2. 공격 선택 화면 (굴림 이후) ---
+    public void ShowAttackOptions(List<AttackJokbo> jokbos)
     {
         if (attackOptionsPanel == null) return;
-        
         attackOptionsPanel.SetActive(true);
+
         for (int i = 0; i < attackOptionButtons.Length; i++)
         {
-            if (i < attackOptions.Count)
+            if (i < jokbos.Count)
             {
-                AttackJokbo jokbo = attackOptions[i];
-                if (attackNameTexts[i] != null)
-                    attackNameTexts[i].text = jokbo.Description;
-                if (attackValueTexts[i] != null)
-                    attackValueTexts[i].text = $"데미지: {jokbo.BaseDamage}\n점수: {jokbo.BaseScore}";
+                AttackJokbo jokbo = jokbos[i];
+                if (attackNameTexts[i] != null) attackNameTexts[i].text = jokbo.Description;
+                if (attackValueTexts[i] != null) attackValueTexts[i].text = $"피해량: {jokbo.BaseDamage} / 점수: {jokbo.BaseScore}";
+
                 attackOptionButtons[i].onClick.RemoveAllListeners();
                 attackOptionButtons[i].onClick.AddListener(() => {
                     SelectAttack(jokbo);
@@ -158,105 +180,94 @@ public class UIManager : MonoBehaviour
             }
         }
     }
-    
+
     private void SelectAttack(AttackJokbo chosenJokbo)
     {
-        if (attackOptionsPanel != null)
-        {
-            attackOptionsPanel.SetActive(false);
-        }
+        if (attackOptionsPanel != null) attackOptionsPanel.SetActive(false);
         if (StageManager.Instance != null)
         {
             StageManager.Instance.ProcessAttack(chosenJokbo);
         }
     }
 
-    // --- [!!! 핵심 수정 (상점)] ---
+    // --- 3. 정비 (상점) 화면 (존 클리어) ---
 
     /// <summary>
-    /// [수정] GameManager가 호출. '진짜' 상점 아이템 리스트로 UI를 켭니다.
+    /// [!!! 오류 수정 2 !!!]
+    /// GameManager가 호출할 StartMaintenancePhase 함수를 새로 생성합니다.
     /// </summary>
-    public void ShowMaintenanceScreen(List<ShopItem> shopItems)
+    public void StartMaintenancePhase()
     {
-        if (maintenancePanel == null)
+        if (ShopManager.Instance == null)
         {
-            Debug.LogError("Maintenance Panel이 UIManager에 연결되지 않았습니다!");
+            Debug.LogError("ShopManager가 없습니다!");
             return;
         }
         
-        maintenancePanel.SetActive(true);
+        // 1. ShopManager에게 아이템 리스트를 생성하라고 지시
+        ShopManager.Instance.GenerateShopItems();
         
-        // 1. GameManager로부터 'ShopItem' 리스트를 받아와서 버튼 설정
-        for(int i=0; i < shopItemButtons.Length; i++)
+        // 2. 생성된 아이템 리스트로 상점 화면을 켬
+        ShowMaintenanceScreen(ShopManager.Instance.currentShopItems);
+    }
+    
+    public void ShowMaintenanceScreen(List<ShopItem> items)
+    {
+        if (maintenancePanel == null) return;
+        maintenancePanel.SetActive(true);
+
+        for (int i = 0; i < shopItemButtons.Length; i++)
         {
-            // (아이템이 3개 미만일 수 있으므로)
-            if (i < shopItems.Count)
+            if (i < items.Count)
             {
-                ShopItem item = shopItems[i]; // (지역 변수로 캡처해야 함)
-                Button button = shopItemButtons[i]; // (버튼도 캡처)
-
-                // 2. 텍스트 설정
-                if (shopItemNameTexts[i] != null)
-                    shopItemNameTexts[i].text = item.ItemName;
-                if (shopItemPriceTexts[i] != null)
-                    shopItemPriceTexts[i].text = item.Price.ToString() + "점";
+                ShopItem item = items[i];
                 
-                // 3. 구매 가능 여부 확인 (점수)
-                bool canAfford = (GameManager.Instance.CurrentScore >= item.Price);
-                button.interactable = canAfford;
+                // [!!! 오류 수정 1 !!!]
+                // item.ItemName -> item.Name (ShopItem.cs의 프로퍼티 이름)
+                if (shopItemNameTexts[i] != null) shopItemNameTexts[i].text = item.Name;
+                if (shopItemPriceTexts[i] != null) shopItemPriceTexts[i].text = $"{item.Price} 점수";
 
-                // 4. 버튼 클릭 이벤트 연결
-                button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(() => {
-                    SelectShopItem(item, button); // (아이템과 버튼 객체 전달)
+                shopItemButtons[i].onClick.RemoveAllListeners();
+                shopItemButtons[i].onClick.AddListener(() => {
+                    SelectShopItem(item);
                 });
-                
-                button.gameObject.SetActive(true);
+                shopItemButtons[i].gameObject.SetActive(true);
             }
             else
             {
-                // (아이템이 모자라면 남는 버튼 끄기)
                 shopItemButtons[i].gameObject.SetActive(false);
             }
         }
-        
-        // 5. 상점 나가기 버튼 연결
-        if (exitShopButton != null)
-        {
-            exitShopButton.onClick.RemoveAllListeners();
-            exitShopButton.onClick.AddListener(CloseMaintenanceScreen);
-        }
     }
-    
-    /// <summary>
-    /// [수정] 상점 아이템을 클릭했을 때 ShopManager 호출
-    /// </summary>
-    private void SelectShopItem(ShopItem item, Button button)
+
+    private void SelectShopItem(ShopItem item)
     {
         if (ShopManager.Instance == null) return;
         
-        ShopManager.Instance.BuyItem(item, button);
+        // [!!! 오류 수정 1 !!!]
+        // BuyItem은 인자를 1개(item)만 받습니다.
+        ShopManager.Instance.BuyItem(item);
+    }
+
+    private void OnExitShopButton()
+    {
+        if (maintenancePanel != null) maintenancePanel.SetActive(false);
         
-        // (구매 후 즉시 점수 UI 갱신)
-        UpdateScore(GameManager.Instance.CurrentScore);
-        
-        // (TODO: 점수가 모자라게 된 다른 버튼들 비활성화 갱신)
+        // 상점이 닫혔으므로, StageManager에게 다음 웨이브(다음 존의 첫 웨이브)를 준비시킴
+        if (StageManager.Instance != null)
+        {
+            StageManager.Instance.PrepareNextWave();
+        }
     }
 
     /// <summary>
-    /// 상점 나가기 버튼을 클릭했을 때 (변경 없음)
+    /// [!!! 오류 수정 1 !!!]
+    /// GameManager가 상점 상태를 확인할 수 있도록 IsShopOpen 함수를 새로 생성합니다.
     /// </summary>
-    private void CloseMaintenanceScreen()
+    public bool IsShopOpen()
     {
-        if (maintenancePanel != null)
-        {
-            maintenancePanel.SetActive(false);
-        }
-
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.EndMaintenancePhase();
-        }
+        if (maintenancePanel == null) return false;
+        return maintenancePanel.activeSelf;
     }
 }
 
