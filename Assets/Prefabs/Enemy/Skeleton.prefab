@@ -104,11 +104,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be134b8f434729c49b2dbd5025ea53f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Skeleton
-  enemyName: Enemy
-  maxHP: 10
-  enemyType: 0
+  enemyName: "\uC2A4\uCF08\uB808\uD1A4"
+  maxHP: 40
+  enemyType: 2
   isBoss: 0
-  difficultyCost: 1
+  difficultyCost: 8
   minZoneLevel: 1
   hpText: {fileID: 7570529984672884213}
   hpSlider: {fileID: 3693382790821817236}

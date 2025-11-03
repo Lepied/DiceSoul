@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 3655426023589534718}
   - component: {fileID: 3252906354995160926}
-  - component: {fileID: 446212065034723985}
+  - component: {fileID: -3709783410509988194}
   m_Layer: 0
-  m_Name: Goblin
+  m_Name: LivingArmor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -81,7 +81,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 2572365745140355499, guid: 5b33216e0fbe4eb4cb6fd7826c51b1cf, type: 3}
+  m_Sprite: {fileID: 7021083274107601241, guid: b7a01b3cc0ba8b440926e4f1f4544829, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -92,7 +92,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &446212065034723985
+--- !u!114 &-3709783410509988194
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -101,15 +101,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 354087232363995093}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c81a791b73c78824d8ed10042f4436a1, type: 3}
+  m_Script: {fileID: 11500000, guid: cfec803ca998c654a8367229b980f558, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Goblin
-  enemyName: "\uACE0\uBE14\uB9B0"
-  maxHP: 30
-  enemyType: 0
-  isBoss: 1
-  difficultyCost: 5
-  minZoneLevel: 1
+  m_EditorClassIdentifier: Assembly-CSharp::LivingArmor
+  enemyName: "\uB9AC\uBE59 \uC544\uBA38"
+  maxHP: 80
+  enemyType: 3
+  isBoss: 0
+  difficultyCost: 12
+  minZoneLevel: 2
   hpText: {fileID: 2732612995263361356}
   hpSlider: {fileID: 3628779937239865213}
 --- !u!1 &1971125274588165703

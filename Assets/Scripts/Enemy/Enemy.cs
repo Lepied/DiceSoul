@@ -1,87 +1,88 @@
 using UnityEngine;
-using TMPro; // TextMeshPro (UI)
-using UnityEngine.UI; // Slider (UI)
-using System.Collections.Generic; // List (OnPlayerRoll)
+using TMPro;
+using UnityEngine.UI;
+using System.Collections.Generic;
 
-// 적의 기본 타입을 정의 (Boss는 isBoss 플래그로 분리)
 public enum EnemyType { Biological, Spirit, Undead, Armored }
 
 /// <summary>
-/// [수정] 오브젝트 풀링을 위해 OnEnable에서 스탯을 리셋하도록 변경
+/// [!!! 핵심 수정 !!!]
+/// "인스펙터 우선" 방식으로 변경합니다.
+/// 1. 스탯 변수(maxHP, isBoss 등)가 'public'으로 변경되어 인스펙터에서 보입니다.
+/// 2. SetupStats() 함수가 삭제되었습니다.
+/// 3. 모든 스탯은 '프리팹의 인스펙터'에서 직접 설정해야 합니다.
 /// </summary>
 public class Enemy : MonoBehaviour
 {
-    [Header("기본 스탯 (자식 클래스가 덮어씀)")]
+    // [!!! 핵심 수정 1 !!!]
+    // 이 변수들은 이제 'public'이므로 인스펙터에서 직접 설정해야 합니다.
+    [Header("핵심 스탯 (인스펙터에서 설정)")]
     public string enemyName = "Enemy";
     public int maxHP = 10;
     public EnemyType enemyType = EnemyType.Biological;
-    
-    [Tooltip("이 적이 보스인지 여부 (True/False)")]
     public bool isBoss = false; 
-
-    [Header("웨이브 생성용 데이터 (자식 클래스가 덮어씀)")]
-    [Tooltip("이 적을 스폰하는 데 필요한 '난이도 비용'")]
     public int difficultyCost = 1; 
-    [Tooltip("이 적이 등장하기 시작하는 최소 존(Zone) 레벨")]
     public int minZoneLevel = 1;
 
+    // [유지] UI 연결 변수
     [Header("UI 연결 (공통)")]
     public TextMeshProUGUI hpText;
     public Slider hpSlider;
 
     // 공통 상태 변수
-    public int currentHP { get; protected set; } 
+    public int currentHP { get; protected set; }
     public bool isDead { get; protected set; } = false;
 
-    // --- 1. 초기화 로직 (Awake -> SetupStats -> Start) ---
-    void Awake()
-    {
-        // 1. 자식 클래스가 정의한 고유 스탯을 먼저 설정
-        SetupStats(); 
-        // 2. [수정] 체력 초기화는 OnEnable에서 수행
-        // currentHP = maxHP; 
-        
-        if (hpSlider == null) hpSlider = GetComponentInChildren<Slider>();
-        if (hpText == null) hpText = GetComponentInChildren<TextMeshProUGUI>();
-    }
-
+    
     /// <summary>
-    /// [신규] 오브젝트 풀에서 활성화될 때마다 호출됩니다.
-    /// 스탯을 리셋합니다.
+    /// [!!! 핵심 수정 2 !!!]
+    /// OnEnable()이 더 이상 SetupStats()를 호출하지 않습니다.
+    /// 인스펙터의 maxHP 값을 읽어 체력을 초기화합니다.
     /// </summary>
     void OnEnable()
     {
-        currentHP = maxHP;
+        // 1. 인스펙터에 설정된 maxHP로 현재 체력 초기화
+        currentHP = maxHP; 
         isDead = false;
+        
+        // 2. UI 컴포넌트 찾기
+        if (hpSlider == null) hpSlider = GetComponentInChildren<Slider>();
+        if (hpText == null) hpText = GetComponentInChildren<TextMeshProUGUI>();
+        
+        // 3. UI 업데이트
         UpdateUI();
     }
+    
+    // [!!! 핵심 수정 3 !!!]
+    // SetupStats() 함수 삭제
+    // protected virtual void SetupStats() { ... }
 
-    void Start()
-    {
-        // Start는 오브젝트 생성 시 '한 번'만 호출됩니다.
-        // OnEnable이 UI 업데이트를 처리하므로 Start에서 UI를 부를 필요가 없습니다.
-        // UpdateUI(); 
-    }
 
     /// <summary>
-    /// [핵심 1] 자식 클래스(Goblin, Skeleton)가 이 함수를 'override'(재정의)하여
-    /// 자신만의 고유 스탯을 설정합니다.
+    /// UIManager가 호출할, 이 적의 기믹/내성 설명문.
+    /// (자식 클래스가 이 함수를 재정의(override)할 수 있음)
     /// </summary>
-    protected virtual void SetupStats()
+    public virtual string GetGimmickDescription()
     {
-        this.enemyName = "Default Enemy";
-        this.maxHP = 10;
-        this.enemyType = EnemyType.Biological;
-        this.isBoss = false;
-        this.difficultyCost = 1;
-        this.minZoneLevel = 1;
+        // (이 로직은 인스펙터의 enemyType을 기반으로 작동)
+        switch (enemyType)
+        {
+            case EnemyType.Biological:
+                return "생체: 모든 족보에 100% 피해를 받습니다.";
+            case EnemyType.Spirit:
+                return "영혼: '총합'에 면역, '마법' 족보에 150% 피해.";
+            case EnemyType.Undead:
+                return "언데드: 고급 족보(트리플+) 150% 피해, 그 외 50% 피해.";
+            case EnemyType.Armored:
+                return "장갑: 단순 족보(총합, 트리플) 50% 피해.";
+            default:
+                return "특성 없음.";
+        }
     }
 
-    // --- 2. 데미지 계산 로직 ---
-
     /// <summary>
-    /// [핵심 2] 데미지 계산 로직.
-    /// 자식 클래스가 이 함수를 'override'하여 내성/약점을 구현합니다.
+    /// 데미지 계산 로직.
+    /// (자식 클래스가 이 함수를 'override'하여 내성/약점을 구현합니다)
     /// </summary>
     public virtual int CalculateDamageTaken(AttackJokbo jokbo)
     {
@@ -99,7 +100,6 @@ public class Enemy : MonoBehaviour
         currentHP -= finalDamage;
         Debug.Log($"{enemyName} 피격! 데미지: {finalDamage}. 남은 체력: {currentHP}/{maxHP}");
 
-        // [효과 발동] 데미지를 입었을 때 발동하는 효과 (예: 격노)
         OnDamageTaken(finalDamage, attackerJokbo);
 
         if (currentHP <= 0)
@@ -113,11 +113,6 @@ public class Enemy : MonoBehaviour
         return isDead;
     }
 
-    // --- 3. UI 및 사망 로직 (공통) ---
-
-    /// <summary>
-    /// 체력 바와 텍스트를 업데이트합니다.
-    /// </summary>
     protected void UpdateUI()
     {
         if (hpText != null)
@@ -133,42 +128,15 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 적이 사망했을 때 호출됩니다.
-    /// </summary>
     protected virtual void OnDeath()
     {
         Debug.Log($"{enemyName}이(가) 처치되었습니다!");
-        // [수정] Destroy 대신 풀에 반환하도록 StageManager가 관리.
-        // 여기서는 비활성화만.
-        // (StageManager가 ReturnToPool을 호출하면 어차피 비활성화됨)
-        // gameObject.SetActive(false); // -> ReturnToPool이 처리
+        gameObject.SetActive(false); 
     }
 
-    // --- 4. 특수 기믹/효과용 빈 가상 함수들 ---
-
-    /// <summary>
-    /// [효과 함수 1] 웨이브가 시작될 때 (적이 스폰될 때) 한 번 호출됩니다.
-    /// </summary>
-    public virtual void OnWaveStart(List<Enemy> allies)
-    {
-        // (보스 등이 이 함수를 재정의하여 사용)
-    }
-
-    /// <summary>
-    /// [효과 함수 2] 플레이어가 주사위를 '굴릴 때마다' 호출됩니다.
-    /// </summary>
-    public virtual void OnPlayerRoll(List<int> diceValues)
-    {
-        // (보스 등이 이 함수를 재정의하여 사용)
-    }
-
-    /// <summary>
-    /// [효과 함수 3] 이 적이 데미지를 '입은 직후' 호출됩니다.
-    /// </summary>
-    public virtual void OnDamageTaken(int damageTaken, AttackJokbo jokbo)
-    {
-        // (보스 등이 이 함수를 재정의하여 사용)
-    }
+    // --- 특수 기믹/효과용 빈 가상 함수들 (유지) ---
+    public virtual void OnWaveStart(List<Enemy> allies) {}
+    public virtual void OnPlayerRoll(List<int> diceValues) {}
+    public virtual void OnDamageTaken(int damageTaken, AttackJokbo jokbo) {}
 }
 

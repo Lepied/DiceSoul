@@ -7,8 +7,10 @@ using UnityEngine;
 public class Goblin : Enemy
 {
     /// <summary>
-    /// 'Enemy' 부모의 SetupStats 함수를 덮어쓰기(override)
+    /// 나중에 넣을 거 있으면 넣기
     /// </summary>
+    /// 
+    /*
     protected override void SetupStats()
     {
         this.enemyName = "고블린";
@@ -17,4 +19,6 @@ public class Goblin : Enemy
         this.difficultyCost = 5;
         this.minZoneLevel = 1;
     }
+    */
+    ///
 }

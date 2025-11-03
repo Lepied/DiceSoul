@@ -1,61 +1,62 @@
 using UnityEngine;
-using TMPro; // TextMeshPro 사용
-using System.Collections.Generic; // List 사용
-using UnityEngine.UI; // Button 사용
+using TMPro; 
+using System.Collections.Generic;
+using UnityEngine.UI;
+using System.Linq; // GroupBy 사용
+using UnityEngine.EventSystems; // EventTrigger 사용
 
+/// <summary>
+/// [수정] 
+/// 1. 'enemyDetailType' (TextMeshProUGUI) 변수 추가
+/// 2. 'ShowEnemyDetail' 함수가 'enemyDetailType' 텍스트를 적의 타입으로 설정
+/// </summary>
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
 
-    [Header("기본 UI 텍스트 요소")]
-    [Tooltip("현재 웨이브/존을 표시할 텍스트")]
+    [Header("기본 UI 텍스트")]
     public TextMeshProUGUI waveText;
-    [Tooltip("현재 총 점수(재화)를 표시할 텍스트")]
     public TextMeshProUGUI totalScoreText;
-    [Tooltip("굴림 횟수를 표시할 텍스트 (예: 1/3)")]
-    public TextMeshProUGUI rollCountText;
-    [Tooltip("플레이어 체력을 표시할 텍스트 (예: 10/10)")]
     public TextMeshProUGUI healthText;
+    public TextMeshProUGUI rollCountText;
 
-    [Header("보상 화면 UI (웨이브 클리어)")]
-    [Tooltip("보상 선택 화면 전체 Panel")]
-    public GameObject rewardScreenPanel;
-    [Tooltip("유물 선택지 3개를 담을 버튼 배열")]
-    public Button[] relicChoiceButtons; 
-    [Tooltip("유물 버튼의 '이름' 텍스트 (TextMeshPro)")]
-    public TextMeshProUGUI[] relicNameTexts;
-    [Tooltip("유물 버튼의 '설명' 텍스트 (TextMeshPro)")]
-    public TextMeshProUGUI[] relicDescriptionTexts;
-    
-    [Header("공격 선택 UI (굴림 이후)")]
-    [Tooltip("공격 족보 선택 Panel")]
+    [Header("공격 선택 UI")]
     public GameObject attackOptionsPanel;
-    [Tooltip("공격 족보 버튼 배열")]
-    public Button[] attackOptionButtons;
-    [Tooltip("공격 족보 이름 텍스트 배열")]
+    public Button[] attackOptionButtons; 
     public TextMeshProUGUI[] attackNameTexts;
-    [Tooltip("공격 족보 데미지/점수 텍스트 배열")]
     public TextMeshProUGUI[] attackValueTexts;
 
-    [Header("정비 (상점) UI (존 클리어)")]
-    [Tooltip("상점 화면 전체 Panel")]
+    [Header("보상/상점 UI")]
+    public GameObject rewardScreenPanel;
+    public Button[] relicChoiceButtons; 
+    public TextMeshProUGUI[] relicNameTexts;
+    public TextMeshProUGUI[] relicDescriptionTexts;
+    
     public GameObject maintenancePanel;
-    [Tooltip("상점 아이템 버튼 배열 (예: 3개)")]
     public Button[] shopItemButtons;
-    [Tooltip("상점 아이템 이름 텍스트 배열")]
     public TextMeshProUGUI[] shopItemNameTexts;
-    [Tooltip("상점 아이템 가격 텍스트 배열")]
     public TextMeshProUGUI[] shopItemPriceTexts;
-    [Tooltip("상점 나가기 버튼")]
     public Button exitShopButton;
 
-
+    [Header("적 정보 UI")]
+    public Button waveInfoToggleButton; 
+    public GameObject waveInfoPanel;
+    public GameObject enemyInfoIconPrefab;
+    public GameObject enemyDetailPopup;
+    public Image enemyDetailIcon;
+    public TextMeshProUGUI enemyDetailName;
+    public TextMeshProUGUI enemyDetailHP;
+    
+    [Tooltip("적의 타입을 표시할 텍스트 (예: '타입: Undead')")]
+    public TextMeshProUGUI enemyDetailType; // [!!! 신규 추가 !!!]
+    
+    public TextMeshProUGUI enemyDetailGimmick; 
+    
     void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            // DontDestroyOnLoad(gameObject); // Canvas는 씬과 함께 로드/언로드되는 것이 일반적
         }
         else
         {
@@ -65,19 +66,25 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
-        // 모든 패널을 끈 상태로 시작
-        if (rewardScreenPanel != null) rewardScreenPanel.SetActive(false);
         if (attackOptionsPanel != null) attackOptionsPanel.SetActive(false);
+        if (rewardScreenPanel != null) rewardScreenPanel.SetActive(false);
         if (maintenancePanel != null) maintenancePanel.SetActive(false);
-
-        // 상점 나가기 버튼 이벤트 연결
-        if (exitShopButton != null)
+        if (waveInfoPanel != null) waveInfoPanel.SetActive(false);
+        if (enemyDetailPopup != null) enemyDetailPopup.SetActive(false); 
+        if (waveInfoToggleButton != null)
         {
-            exitShopButton.onClick.AddListener(OnExitShopButton);
+            waveInfoToggleButton.onClick.AddListener(ToggleWaveInfoPanel);
         }
     }
 
-    // --- 기본 UI 업데이트 ---
+    public void ToggleWaveInfoPanel()
+    {
+        if (waveInfoPanel != null)
+        {
+            waveInfoPanel.SetActive(!waveInfoPanel.activeSelf);
+        }
+    }
+
     public void UpdateWaveText(int zone, int wave)
     {
         if (waveText != null)
@@ -85,89 +92,140 @@ public class UIManager : MonoBehaviour
             waveText.text = $"Zone {zone} - Wave {wave}";
         }
     }
-    
-    public void UpdateScore(int totalScore)
+    public void UpdateScore(int score)
     {
         if (totalScoreText != null)
         {
-            totalScoreText.text = $"Score: {totalScore}";
+            totalScoreText.text = $"Score: {score}";
         }
     }
-
+    public void ClearScoreText() { }
+    public void UpdateHealth(int current, int max)
+    {
+        if (healthText != null)
+        {
+            healthText.text = $"Health: {current} / {max}";
+        }
+    }
     public void UpdateRollCount(int current, int max)
     {
         if (rollCountText != null)
         {
-            rollCountText.text = $"굴림 횟수: {current} / {max}";
+            rollCountText.text = $"Roll: {current} / {max}";
         }
     }
 
-    public void UpdateHealth(int currentHealth, int maxHealth)
+
+    public void UpdateWaveInfoPanel(List<Enemy> activeEnemies)
     {
-        if (healthText != null)
+        if (waveInfoPanel == null || enemyInfoIconPrefab == null) return;
+
+        foreach (Transform child in waveInfoPanel.transform)
         {
-            healthText.text = $"체력: {currentHealth} / {maxHealth}";
+            Destroy(child.gameObject);
         }
-    }
-    
-    public void ClearScoreText() // (점수 계산기용 - 현재 미사용)
-    {
-        // (이전 점수 시스템의 잔재)
-    }
 
-    // --- 1. 유물 보상 화면 (웨이브 클리어) ---
-    public void ShowRewardScreen(List<Relic> relicOptions)
-    {
-        if (rewardScreenPanel == null) return;
-        rewardScreenPanel.SetActive(true);
+        var enemyGroups = activeEnemies.Where(e => e != null)
+                                       .GroupBy(e => e.enemyName)
+                                       .OrderBy(g => g.First().isBoss); 
 
-        for (int i = 0; i < relicChoiceButtons.Length; i++)
+        foreach (var group in enemyGroups)
         {
-            if (i < relicOptions.Count)
-            {
-                Relic relic = relicOptions[i];
-                if (relicNameTexts[i] != null) relicNameTexts[i].text = relic.Name;
-                if (relicDescriptionTexts[i] != null) relicDescriptionTexts[i].text = relic.Description;
+            Enemy enemyData = group.First(); 
+            int count = group.Count(); 
 
-                relicChoiceButtons[i].onClick.RemoveAllListeners(); 
-                relicChoiceButtons[i].onClick.AddListener(() => {
-                    SelectRelic(relic);
-                });
-                relicChoiceButtons[i].gameObject.SetActive(true);
-            }
-            else
+            GameObject iconGO = Instantiate(enemyInfoIconPrefab, waveInfoPanel.transform);
+            
+            Image faceImage = iconGO.GetComponentInChildren<Image>();
+            SpriteRenderer enemySprite = enemyData.GetComponent<SpriteRenderer>();
+            if (faceImage != null && enemySprite != null)
             {
-                relicChoiceButtons[i].gameObject.SetActive(false);
+                faceImage.sprite = enemySprite.sprite; 
             }
+
+            TextMeshProUGUI countText = iconGO.GetComponentInChildren<TextMeshProUGUI>();
+            if (countText != null)
+            {
+                countText.text = (count > 1) ? $"x{count}" : ""; 
+            }
+
+            EventTrigger trigger = iconGO.GetComponent<EventTrigger>();
+            if (trigger == null) trigger = iconGO.AddComponent<EventTrigger>(); 
+
+            EventTrigger.Entry entryEnter = new EventTrigger.Entry();
+            entryEnter.eventID = EventTriggerType.PointerEnter;
+            entryEnter.callback.AddListener((data) => { 
+                ShowEnemyDetail(enemyData, iconGO.GetComponent<RectTransform>()); 
+            });
+            trigger.triggers.Add(entryEnter);
+
+            EventTrigger.Entry entryExit = new EventTrigger.Entry();
+            entryExit.eventID = EventTriggerType.PointerExit;
+            entryExit.callback.AddListener((data) => { 
+                HideEnemyDetail(); 
+            });
+            trigger.triggers.Add(entryExit);
         }
     }
 
-    private void SelectRelic(Relic chosenRelic)
+    /// <summary>
+    /// [수정] 적 상세정보 팝업에 '타입' 정보를 추가합니다.
+    /// </summary>
+    public void ShowEnemyDetail(Enemy enemy, RectTransform iconRect)
     {
-        if (rewardScreenPanel != null) rewardScreenPanel.SetActive(false);
+        if (enemyDetailPopup == null) return;
+
+        // 1. 팝업 UI에 적 정보 채우기
+        if (enemyDetailIcon != null)
+        {
+            SpriteRenderer enemySprite = enemy.GetComponent<SpriteRenderer>();
+            if (enemySprite != null) enemyDetailIcon.sprite = enemySprite.sprite; 
+        }
+        if (enemyDetailName != null) enemyDetailName.text = enemy.enemyName + (enemy.isBoss ? " (Boss)" : "");
+        if (enemyDetailHP != null) enemyDetailHP.text = $"HP: {enemy.maxHP}";
         
-        // [!!! 오류 수정 3 !!!]
-        // GameManager의 함수 이름이 OnRelicSelected -> AddRelic 으로 변경되었습니다.
-        if (GameManager.Instance != null)
+        // [!!! 신규 추가 !!!]
+        if (enemyDetailType != null)
         {
-            GameManager.Instance.AddRelic(chosenRelic);
+            // (EnemyType.Biological -> "Biological" 문자열로 변환)
+            enemyDetailType.text = $"타입: {enemy.enemyType.ToString()}";
+        }
+
+        if (enemyDetailGimmick != null)
+        {
+            enemyDetailGimmick.text = enemy.GetGimmickDescription();
+        }
+
+        // 2. 팝업 위치를 아이콘의 '월드 위치'로 이동
+        enemyDetailPopup.transform.position = iconRect.transform.position;
+        
+        float offset = (iconRect.rect.width / 2) + (enemyDetailPopup.GetComponent<RectTransform>().rect.width / 2) + 10f;
+        enemyDetailPopup.transform.position += new Vector3(offset, 0, 0);
+
+        // 3. 팝업 켜기
+        enemyDetailPopup.SetActive(true);
+    }
+
+    public void HideEnemyDetail()
+    {
+        if (enemyDetailPopup != null)
+        {
+            enemyDetailPopup.SetActive(false);
         }
     }
 
-    // --- 2. 공격 선택 화면 (굴림 이후) ---
+    // --- (이하 공격/보상/상점 함수들은 변경점 없음) ---
     public void ShowAttackOptions(List<AttackJokbo> jokbos)
     {
         if (attackOptionsPanel == null) return;
         attackOptionsPanel.SetActive(true);
-
         for (int i = 0; i < attackOptionButtons.Length; i++)
         {
             if (i < jokbos.Count)
             {
                 AttackJokbo jokbo = jokbos[i];
-                if (attackNameTexts[i] != null) attackNameTexts[i].text = jokbo.Description;
-                if (attackValueTexts[i] != null) attackValueTexts[i].text = $"피해량: {jokbo.BaseDamage} / 점수: {jokbo.BaseScore}";
-
+                attackNameTexts[i].text = jokbo.Description;
+                attackValueTexts[i].text = $"Dmg: {jokbo.BaseDamage} / Score: {jokbo.BaseScore}";
                 attackOptionButtons[i].onClick.RemoveAllListeners();
                 attackOptionButtons[i].onClick.AddListener(() => {
                     SelectAttack(jokbo);
@@ -180,53 +238,55 @@ public class UIManager : MonoBehaviour
             }
         }
     }
-
-    private void SelectAttack(AttackJokbo chosenJokbo)
+    private void SelectAttack(AttackJokbo jokbo)
     {
-        if (attackOptionsPanel != null) attackOptionsPanel.SetActive(false);
+        attackOptionsPanel.SetActive(false);
         if (StageManager.Instance != null)
         {
-            StageManager.Instance.ProcessAttack(chosenJokbo);
+            StageManager.Instance.ProcessAttack(jokbo);
         }
     }
-
-    // --- 3. 정비 (상점) 화면 (존 클리어) ---
-
-    /// <summary>
-    /// [!!! 오류 수정 2 !!!]
-    /// GameManager가 호출할 StartMaintenancePhase 함수를 새로 생성합니다.
-    /// </summary>
+    public void ShowRewardScreen(List<Relic> relicOptions)
+    {
+        if (rewardScreenPanel == null) return;
+        rewardScreenPanel.SetActive(true);
+        for (int i = 0; i < relicChoiceButtons.Length; i++)
+        {
+            if (i < relicOptions.Count)
+            {
+                Relic relic = relicOptions[i];
+                relicNameTexts[i].text = relic.Name;
+                relicDescriptionTexts[i].text = relic.Description;
+                relicChoiceButtons[i].onClick.RemoveAllListeners();
+                relicChoiceButtons[i].onClick.AddListener(() => {
+                    GameManager.Instance.AddRelic(relic);
+                    rewardScreenPanel.SetActive(false);
+                });
+                relicChoiceButtons[i].gameObject.SetActive(true);
+            }
+            else
+            {
+                relicChoiceButtons[i].gameObject.SetActive(false);
+            }
+        }
+    }
     public void StartMaintenancePhase()
     {
-        if (ShopManager.Instance == null)
-        {
-            Debug.LogError("ShopManager가 없습니다!");
-            return;
-        }
-        
-        // 1. ShopManager에게 아이템 리스트를 생성하라고 지시
+        if (ShopManager.Instance == null) return;
         ShopManager.Instance.GenerateShopItems();
-        
-        // 2. 생성된 아이템 리스트로 상점 화면을 켬
         ShowMaintenanceScreen(ShopManager.Instance.currentShopItems);
     }
-    
     public void ShowMaintenanceScreen(List<ShopItem> items)
     {
         if (maintenancePanel == null) return;
         maintenancePanel.SetActive(true);
-
         for (int i = 0; i < shopItemButtons.Length; i++)
         {
             if (i < items.Count)
             {
                 ShopItem item = items[i];
-                
-                // [!!! 오류 수정 1 !!!]
-                // item.ItemName -> item.Name (ShopItem.cs의 프로퍼티 이름)
-                if (shopItemNameTexts[i] != null) shopItemNameTexts[i].text = item.Name;
-                if (shopItemPriceTexts[i] != null) shopItemPriceTexts[i].text = $"{item.Price} 점수";
-
+                shopItemNameTexts[i].text = item.Name;
+                shopItemPriceTexts[i].text = $"{item.Price} Score";
                 shopItemButtons[i].onClick.RemoveAllListeners();
                 shopItemButtons[i].onClick.AddListener(() => {
                     SelectShopItem(item);
@@ -238,36 +298,27 @@ public class UIManager : MonoBehaviour
                 shopItemButtons[i].gameObject.SetActive(false);
             }
         }
+        exitShopButton.onClick.RemoveAllListeners();
+        exitShopButton.onClick.AddListener(ExitShop);
     }
-
     private void SelectShopItem(ShopItem item)
     {
-        if (ShopManager.Instance == null) return;
-        
-        // [!!! 오류 수정 1 !!!]
-        // BuyItem은 인자를 1개(item)만 받습니다.
-        ShopManager.Instance.BuyItem(item);
+        if (ShopManager.Instance != null)
+        {
+            ShopManager.Instance.BuyItem(item);
+        }
     }
-
-    private void OnExitShopButton()
+    private void ExitShop()
     {
-        if (maintenancePanel != null) maintenancePanel.SetActive(false);
-        
-        // 상점이 닫혔으므로, StageManager에게 다음 웨이브(다음 존의 첫 웨이브)를 준비시킴
+        maintenancePanel.SetActive(false);
         if (StageManager.Instance != null)
         {
             StageManager.Instance.PrepareNextWave();
         }
     }
-
-    /// <summary>
-    /// [!!! 오류 수정 1 !!!]
-    /// GameManager가 상점 상태를 확인할 수 있도록 IsShopOpen 함수를 새로 생성합니다.
-    /// </summary>
     public bool IsShopOpen()
     {
-        if (maintenancePanel == null) return false;
-        return maintenancePanel.activeSelf;
+        return maintenancePanel != null && maintenancePanel.activeSelf;
     }
 }
 

@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 3655426023589534718}
   - component: {fileID: 3252906354995160926}
-  - component: {fileID: 446212065034723985}
+  - component: {fileID: -3978154412619962465}
   m_Layer: 0
-  m_Name: Goblin
+  m_Name: Troll
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -28,7 +28,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.3, y: 0.3, z: 1}
+  m_LocalScale: {x: 0.4, y: 0.4, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7800900277655068043}
@@ -81,7 +81,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 2572365745140355499, guid: 5b33216e0fbe4eb4cb6fd7826c51b1cf, type: 3}
+  m_Sprite: {fileID: 4189353577452319699, guid: 9aa3798c5a8ce77458d61c7f3fe0d3d7, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -92,7 +92,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &446212065034723985
+--- !u!114 &-3978154412619962465
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -101,14 +101,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 354087232363995093}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c81a791b73c78824d8ed10042f4436a1, type: 3}
+  m_Script: {fileID: 11500000, guid: c3b5f6509ce44ad4c855c638cd17ba43, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Goblin
-  enemyName: "\uACE0\uBE14\uB9B0"
-  maxHP: 30
+  m_EditorClassIdentifier: Assembly-CSharp::Troll
+  enemyName: "\uD2B8\uB864"
+  maxHP: 200
   enemyType: 0
   isBoss: 1
-  difficultyCost: 5
+  difficultyCost: 50
   minZoneLevel: 1
   hpText: {fileID: 2732612995263361356}
   hpSlider: {fileID: 3628779937239865213}

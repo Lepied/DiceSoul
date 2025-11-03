@@ -6,9 +6,7 @@ using UnityEngine;
 /// </summary>
 public class Skeleton : Enemy
 {
-    /// <summary>
-    /// 'Enemy' 부모의 SetupStats 함수를 덮어쓰기(override)
-    /// </summary>
+    /*
     protected override void SetupStats()
     {
         this.enemyName = "스켈레톤";
@@ -17,9 +15,9 @@ public class Skeleton : Enemy
         this.difficultyCost = 8;
         this.minZoneLevel = 1; // (나중에 2존부터 나오게 할 수도 있음)
     }
+    */
 
     /// <summary>
-    /// [!!! 핵심 !!!]
     /// 'Enemy' 부모의 데미지 계산 함수를 덮어쓰기(override)
     /// </summary>
     public override int CalculateDamageTaken(AttackJokbo jokbo)
