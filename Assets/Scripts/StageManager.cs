@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 
 /// <summary>
-/// [수정] PrepareNextWave 함수가 '보스 웨이브' 여부를 판단하여
-/// WaveGenerator.GenerateWave 함수에 (isBossWave) bool 값을 전달합니다.
+/// [!!! 핵심 수정 !!!]
+/// 1. CheckWaveStatus 함수가 '남은 굴림 횟수(rollsRemaining)'를 계산
+/// 2. GameManager.ProcessWaveClear(isSuccess, rollsRemaining)을 호출 (인자 2개)
 /// </summary>
 public class StageManager : MonoBehaviour
 {
@@ -40,7 +41,6 @@ public class StageManager : MonoBehaviour
 
     void Start()
     {
-        // ... (연결 로직 동일) ...
         if (diceController == null)
         {
             diceController = FindObjectOfType<DiceController>();
@@ -69,7 +69,6 @@ public class StageManager : MonoBehaviour
         PrepareNextWave();
     }
 
-    // ... (OnRollFinished, ProcessAttack, CheckWaveStatus 함수는 모두 동일) ...
     public void OnRollFinished(List<int> currentDiceValues)
     {
         foreach (Enemy enemy in activeEnemies.Where(e => e != null && !e.isDead))
@@ -89,7 +88,25 @@ public class StageManager : MonoBehaviour
             isWaitingForAttackChoice = true;
             if (UIManager.Instance != null)
             {
-                UIManager.Instance.ShowAttackOptions(achievableJokbos);
+                List<AttackJokbo> previewJokbos = new List<AttackJokbo>();
+                foreach (var jokbo in achievableJokbos)
+                {
+                    int baseDamage = jokbo.BaseDamage;
+                    int bonusDamage = GameManager.Instance.GetAttackDamageModifiers(jokbo);
+                    int finalBaseDamage = baseDamage + bonusDamage;
+
+                    int baseScore = jokbo.BaseScore;
+                    int bonusScore = GameManager.Instance.GetAttackScoreBonus(jokbo); 
+                    int finalBaseScore = baseScore + bonusScore;
+
+                    previewJokbos.Add(new AttackJokbo(
+                        jokbo.Description,
+                        finalBaseDamage,
+                        finalBaseScore, 
+                        jokbo.CheckLogic
+                    ));
+                }
+                UIManager.Instance.ShowAttackOptions(previewJokbos); 
             }
             else
             {
@@ -99,11 +116,12 @@ public class StageManager : MonoBehaviour
         }
         else
         {
-            if (diceController.currentRollCount >= diceController.maxRolls) // (오타 수정: maxRolls)
+            if (diceController.currentRollCount >= diceController.maxRolls)
             {
                 Debug.Log("굴림 횟수 소진. 웨이브 실패.");
                 diceController.SetRollButtonInteractable(false);
-                GameManager.Instance.ProcessWaveClear(false); 
+                // [수정] 실패 시 0 전달
+                GameManager.Instance.ProcessWaveClear(false, 0); 
             }
             else
             {
@@ -112,62 +130,67 @@ public class StageManager : MonoBehaviour
             }
         }
     }
+    
     public void ProcessAttack(AttackJokbo chosenJokbo)
     {
         if (!isWaitingForAttackChoice) return;
+        
         int baseDamage = chosenJokbo.BaseDamage;
-        int baseScore = chosenJokbo.BaseScore;
-        int bonusDamage = GameManager.Instance.GetAttackDamageBonus();
-        int finalBaseDamage = baseDamage + bonusDamage;
-        Debug.Log($"광역 공격: [{chosenJokbo.Description}] (기본: {baseDamage}, 보너스: {bonusDamage}, 총: {finalBaseDamage})");
-        AttackJokbo modifiedJokbo = new AttackJokbo(
-            chosenJokbo.Description,
-            finalBaseDamage, 
-            baseScore,       
-            chosenJokbo.CheckLogic
-        );
+        int baseScore = chosenJokbo.BaseScore; 
+        int finalBaseDamage = baseDamage;
+
+        Debug.Log($"광역 공격: [{chosenJokbo.Description}] (최종 데미지: {finalBaseDamage})");
+        
+        AttackJokbo modifiedJokbo = chosenJokbo;
+
         foreach (Enemy enemy in activeEnemies.Where(e => e != null && !e.isDead))
         {
             int damageToTake = enemy.CalculateDamageTaken(modifiedJokbo);
             enemy.TakeDamage(damageToTake, modifiedJokbo);
         }
-        GameManager.Instance.AddScore(baseScore);
+
+        GameManager.Instance.AddScore(baseScore, chosenJokbo);
+        
         isWaitingForAttackChoice = false;
         CheckWaveStatus();
     }
+
+    /// <summary>
+    /// [!!! 핵심 수정 !!!]
+    /// 남은 굴림 횟수를 계산하여 GameManager에게 전달합니다.
+    /// </summary>
     private void CheckWaveStatus()
     {
+        // 1. 모든 적이 죽었는지 확인
         if (activeEnemies.All(e => e == null || e.isDead))
         {
-            GameManager.Instance.ProcessWaveClear(true); 
+            // [수정] 남은 굴림 횟수 계산
+            int rollsRemaining = diceController.maxRolls - diceController.currentRollCount;
+            GameManager.Instance.ProcessWaveClear(true, rollsRemaining); // 성공 + 남은 횟수 전달
         }
-        else 
+        else // 2. 아직 적이 남음
         {
-            if (diceController.currentRollCount >= diceController.maxRolls) 
+            if (diceController.currentRollCount >= diceController.maxRolls)
             {
+                // [수정] 굴림 횟수 없음 = 실패
                 Debug.Log("굴림 횟수 소진. 웨이브 실패.");
                 diceController.SetRollButtonInteractable(false);
-                GameManager.Instance.ProcessWaveClear(false);
+                GameManager.Instance.ProcessWaveClear(false, 0); // 실패 + 0 전달
             }
             else
             {
+                // 굴림 횟수 남음 = 턴 계속
                 Debug.Log("적이 남았습니다. 다시 굴리세요.");
                 diceController.SetRollButtonInteractable(true); 
             }
         }
     }
 
-
-    /// <summary>
-    /// [!!! 핵심 수정 !!!]
-    /// 'isBossWave' 변수를 계산하여 WaveGenerator에게 전달합니다.
-    /// </summary>
     public void PrepareNextWave()
     {
         Debug.Log("StageManager: 다음 웨이브 준비 중...");
         isWaitingForAttackChoice = false; 
         
-        // 1. 이전 웨이브 적들 정리
         foreach (Enemy enemy in activeEnemies)
         {
             if (enemy != null && enemy.gameObject.activeSelf)
@@ -177,34 +200,21 @@ public class StageManager : MonoBehaviour
         }
         activeEnemies.Clear();
 
-        // 2. [변경] WaveGenerator에게 전달할 정보 수집
         if (WaveGenerator.Instance == null)
         {
             Debug.LogError("WaveGenerator가 씬에 없습니다!");
             return;
         }
-        if (GameManager.Instance == null)
-        {
-            Debug.LogError("GameManager가 없습니다!");
-            return;
-        }
-
         int currentZone = GameManager.Instance.CurrentZone;
         int currentWave = GameManager.Instance.CurrentWave;
-        
-        // [!!!] 'wavesPerZone' 변수(GameManager에 있어야 함)를 기준으로 보스 웨이브 여부 판단
         bool isBossWave = (currentWave == GameManager.Instance.wavesPerZone); 
-        
-        // [변경] GenerateWave 함수에 3번째 인자로 'isBossWave' 전달
         List<GameObject> enemiesToSpawn = WaveGenerator.Instance.GenerateWave(currentZone, currentWave, isBossWave);
-
         if (enemySpawnPoints.Length == 0)
         {
             Debug.LogError("적 스폰 포인트가 1개 이상 필요합니다!");
             return;
         }
         
-        // 3. 새 적 스폰
         for (int i = 0; i < enemiesToSpawn.Count; i++)
         {
             int spawnIndex = Random.Range(0, enemySpawnPoints.Length);
@@ -217,7 +227,7 @@ public class StageManager : MonoBehaviour
                 spawnPos.x = Mathf.Clamp(spawnPos.x, minViewBoundary.x, maxViewBoundary.x);
                 spawnPos.y = Mathf.Clamp(spawnPos.y, minViewBoundary.y, maxViewBoundary.y);
             }
-            GameObject enemyGO = WaveGenerator.Instance.SpawnFromPool(enemiesToSpawn[i], spawnPos,Quaternion.identity);
+            GameObject enemyGO = WaveGenerator.Instance.SpawnFromPool(enemiesToSpawn[i], spawnPos, Quaternion.identity);
             Enemy newEnemy = enemyGO.GetComponent<Enemy>();
             if (newEnemy != null)
             {
@@ -225,7 +235,6 @@ public class StageManager : MonoBehaviour
             }
         }
         
-        // 4. 스폰된 모든 적에게 OnWaveStart 이벤트 전달
         foreach (Enemy enemy in activeEnemies)
         {
             if (enemy != null)
@@ -234,13 +243,11 @@ public class StageManager : MonoBehaviour
             }
         }
 
-        // 5. UIManager에게 적 정보 업데이트 알림
         if (UIManager.Instance != null)
         {
             UIManager.Instance.UpdateWaveInfoPanel(activeEnemies);
         }
         
-        // 6. DiceController 초기화 (순서 중요)
         GameManager.Instance.StartNewWave();
         if (diceController != null)
         {
@@ -259,5 +266,36 @@ public class StageManager : MonoBehaviour
             UIManager.Instance.ClearScoreText();
         }
     }
-}
 
+    
+    public void ShowAttackPreview(AttackJokbo jokbo)
+    {
+        int baseDamage = jokbo.BaseDamage;
+        int baseScore = jokbo.BaseScore;
+        int bonusDamage = GameManager.Instance.GetAttackDamageModifiers(jokbo);
+        int bonusScore = GameManager.Instance.GetAttackScoreBonus(jokbo); 
+        
+        int finalBaseDamage = baseDamage + bonusDamage;
+        int finalBaseScore = baseScore + bonusScore; 
+
+        AttackJokbo modifiedJokbo = new AttackJokbo(
+            jokbo.Description,
+            finalBaseDamage, 
+            finalBaseScore, 
+            jokbo.CheckLogic
+        );
+
+        foreach (Enemy enemy in activeEnemies.Where(e => e != null && !e.isDead))
+        {
+            enemy.ShowDamagePreview(modifiedJokbo);
+        }
+    }
+
+    public void HideAllAttackPreviews()
+    {
+        foreach (Enemy enemy in activeEnemies.Where(e => e != null && !e.isDead))
+        {
+            enemy.HideDamagePreview();
+        }
+    }
+}

@@ -1,49 +1,74 @@
 using UnityEngine;
 
 /// <summary>
-/// 유물이 가질 수 있는 '지속 효과'의 종류를 정의합니다.
-/// GameManager의 ApplyAllRelicEffects 함수가 이 타입을 읽어들입니다.
+/// [!!! 핵심 수정 !!!]
+/// 1. 'public Sprite Icon' 프로퍼티 추가
+/// 2. 생성자가 Icon을 받도록 수정
 /// </summary>
 public enum RelicEffectType
 {
-    // 굴림/주사위 관련
-    AddMaxRolls,            // 최대 굴림 횟수 +1
-    AddDice,                // 주사위 개수 +1
+    // 스탯 (매 턴 적용)
+    AddMaxRolls,
+    AddBaseDamage,        // 모든 족보 데미지 +
     
-    // 점수/데미지 관련
-    AddScoreMultiplier,     // 점수 배율 추가 (예: 1.5f)
-    ModifyDiceValue,        // 특정 주사위 값 변경 (예: '1'을 '7'로)
-    AddBaseDamage,          // 모든 족보의 기본 데미지 +5
+    // 주사위 덱 (획득 시 적용)
+    AddDice,              // 덱에 주사위 추가
+    
+    // 주사위 굴림 (굴림 시 적용)
+    ModifyDiceValue,      // '1'을 '7'로, '홀수' 다시 굴리기 등
 
-    // 기타
-    None // 효과 없음 (데이터만)
+    // 점수/데미지 (판정 시 적용)
+    AddScoreMultiplier,   // 모든 점수 배율
+    
+    JokboDamageAdd,       // '특정' 족보 데미지 +
+    JokboScoreMultiplier  // '특정' 족보 점수 배율 x
 }
 
-/// <summary>
-/// '지속 효과'를 가지는 유물 데이터 클래스입니다.
-/// </summary>
 public class Relic
 {
-    public string ID { get; private set; } // "RELIC_CLOVER", "RELIC_GOLD_DICE"
+    public string RelicID { get; private set; }
     public string Name { get; private set; }
     public string Description { get; private set; }
+    public Sprite Icon { get; private set; } // [!!! 신규 추가 !!!]
     public RelicEffectType EffectType { get; private set; }
     
-    // 효과에 필요한 값들
-    public int IntValue { get; private set; } // (예: 굴림 +1)
-    public float FloatValue { get; private set; } // (예: 배율 1.5f)
-    public string StringValue { get; private set; } // (예: "D8")
+    public int IntValue { get; private set; }
+    public float FloatValue { get; private set; }
+    public string StringValue { get; private set; }
+    public int MaxCount { get; private set; } 
 
-    // 생성자
-    public Relic(string id, string name, string description, RelicEffectType effectType, 
-                 int intValue = 0, float floatValue = 0f, string stringValue = null)
+    /// <summary>
+    /// 기본 생성자 (int 또는 float 값 사용)
+    /// </summary>
+    public Relic(string relicID, string name, string description, Sprite icon, 
+                 RelicEffectType effectType, int intValue = 0, float floatValue = 0f, int maxCount = 0)
     {
-        this.ID = id;
+        this.RelicID = relicID;
         this.Name = name;
         this.Description = description;
+        this.Icon = icon; // [!!! 신규 추가 !!!]
+        this.EffectType = effectType;
+        this.IntValue = intValue;
+        this.FloatValue = floatValue;
+        this.StringValue = string.Empty;
+        this.MaxCount = maxCount;
+    }
+
+    /// <summary>
+    /// 문자열 값(StringValue)을 받는 생성자 (Jokbo, AddDice 등)
+    /// </summary>
+    public Relic(string relicID, string name, string description, Sprite icon, 
+                 RelicEffectType effectType, string stringValue, int intValue = 0, float floatValue = 0f, int maxCount = 0)
+    {
+        this.RelicID = relicID;
+        this.Name = name;
+        this.Description = description;
+        this.Icon = icon; // [!!! 신규 추가 !!!]
         this.EffectType = effectType;
         this.IntValue = intValue;
         this.FloatValue = floatValue;
         this.StringValue = stringValue;
+        this.MaxCount = maxCount;
     }
 }
+

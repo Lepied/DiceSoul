@@ -18,8 +18,8 @@ public class WaveGenerator : MonoBehaviour
     private List<Enemy> enemyDataCache = new List<Enemy>();
 
     [Header("난이도 설정")]
-    public int baseBudgetPerZone = 15;
-    public int budgetBonusPerWave = 3;
+    public int baseBudgetPerZone = 40;
+    public int budgetBonusPerWave = 10;
 
     void Awake()
     {

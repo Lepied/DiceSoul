@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq; // Linq 사용
 
 /// <summary>
-/// [수정] 
-/// 1. GenerateShopItems에 "유물 판매" 로직 추가
-/// 2. RelicDatabase 참조
+/// [!!! 핵심 수정 !!!]
+/// 1. GenerateShopItems 함수가 'RelicDatabase'를 호출하여
+///    '필터링된' 유물 1개를 상점 목록에 추가합니다.
 /// </summary>
 public class ShopManager : MonoBehaviour
 {
@@ -29,14 +29,13 @@ public class ShopManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// [수정] '유물' 아이템을 상점 풀에 추가합니다.
+    /// </summary>
     public void GenerateShopItems()
     {
         currentShopItems.Clear();
-        if (GameManager.Instance == null || RelicDB.Instance == null)
-        {
-             Debug.LogError("GameManager 또는 RelicDatabase가 없습니다!");
-            return;
-        }
+        if (GameManager.Instance == null) return;
 
         List<ShopItem> itemPool = new List<ShopItem>();
 
@@ -81,21 +80,28 @@ public class ShopManager : MonoBehaviour
                 $"{diceIndexToUpgrade + 1}번 주사위 업그레이드 ({newType})",
                 $"{diceIndexToUpgrade + 1}번 주사위({currentType})를 {newType}(으)로 교체합니다.",
                 price,
-                () => { GameManager.Instance.UpgradeSingleDice(diceIndexToUpgrade, newType); } 
+                () => { GameManager.Instance.UpgradeSingleDice(diceIndexToUpgrade, newType); }
             ));
         }
 
-        // 4. [!!! 신규 !!!] 유물 판매 아이템
-        // (이미 획득한 유물은 제외하고 뽑으면 더 좋지만, 일단 랜덤 1개)
-        Relic randomRelic = RelicDB.Instance.GetRandomRelics(1).FirstOrDefault();
-        if (randomRelic != null)
+        // 4. [!!! 신규 추가 !!!] 유물 아이템 1개 추가
+        if (RelicDB.Instance != null)
         {
-            itemPool.Add(new ShopItem(
-                $"유물: {randomRelic.Name}",
-                randomRelic.Description,
-                400, // 유물 고정 가격 (예시)
-                () => { GameManager.Instance.AddRelic(randomRelic); } // <-- 이게 효과(Action)입니다.
-            ));
+            // GetRandomRelics는 이제 획득 한도를 초과한 유물을 '알아서' 제외합니다.
+            List<Relic> randomRelics = RelicDB.Instance.GetRandomRelics(1);
+            if (randomRelics.Count > 0)
+            {
+                Relic relicToSell = randomRelics[0];
+                int relicPrice = 200; // (TODO: 유물 등급별 가격 책정)
+
+                itemPool.Add(new ShopItem(
+                    $"[유물] {relicToSell.Name}",
+                    relicToSell.Description,
+                    relicPrice,
+                    // [핵심] 이 아이템의 효과(Effect)는 GameManager에 유물을 '추가'하는 것입니다.
+                    () => { GameManager.Instance.AddRelic(relicToSell); }
+                ));
+            }
         }
 
 
@@ -109,21 +115,20 @@ public class ShopManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// [변경 없음] BuyItem 로직은 이미 Action 기반이라 수정할 필요가 없습니다.
+    /// </summary>
     public void BuyItem(ShopItem item)
     {
-        // [수정] GameManager의 SubtractScore 함수를 먼저 호출
-        if (GameManager.Instance.SubtractScore(item.Price))
+        if (GameManager.Instance.SubtractScore(item.Price)) // [수정] 점수 차감 로직 변경
         {
-            // 1. 점수 차감 성공
-            Debug.Log($"{item.Name} 구매 성공!");
-
-            // 2. 아이템 효과 실행
+            // 1. [변경 없음] 아이템이 가진 '효과'를 그냥 실행!
             item.ExecuteEffect();
 
-            // 3. 구매한 아이템은 상점에서 제거
+            // 2. 구매한 아이템은 상점에서 제거
             currentShopItems.Remove(item);
             
-            // 4. UIManager에게 상점 화면을 새로고침하라고 지시
+            // 3. UIManager에게 상점 화면을 새로고침하라고 지시
             UIManager.Instance.ShowMaintenanceScreen(currentShopItems);
         }
         else
