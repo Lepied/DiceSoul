@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 
 /// <summary>
-/// [!!! 핵심 수정 !!!]
-/// 1. CheckWaveStatus 함수가 '남은 굴림 횟수(rollsRemaining)'를 계산
-/// 2. GameManager.ProcessWaveClear(isSuccess, rollsRemaining)을 호출 (인자 2개)
+/// [!!! CS7036 오류 수정 !!!]
+/// 1. 'GetPreviewValues(AttackJokbo jokbo)' 헬퍼 함수를 'public'으로 새로 추가
+///    (UIManager.ShowAttackOptions가 호출할 수 있도록)
+/// 2. [버그 수정] ProcessAttack이 GetPreviewValues를 재사용하여
+///    데미지/점수 계산이 '명함' 유물과 일관되게 작동하도록 수정
 /// </summary>
 public class StageManager : MonoBehaviour
 {
@@ -69,6 +71,9 @@ public class StageManager : MonoBehaviour
         PrepareNextWave();
     }
 
+    /// <summary>
+    /// [수정] UIManager.ShowAttackOptions가 '원본 족보' 리스트를 받도록 수정
+    /// </summary>
     public void OnRollFinished(List<int> currentDiceValues)
     {
         foreach (Enemy enemy in activeEnemies.Where(e => e != null && !e.isDead))
@@ -76,37 +81,22 @@ public class StageManager : MonoBehaviour
             enemy.OnPlayerRoll(currentDiceValues);
         }
         List<int> modifiedValues = GameManager.Instance.ApplyDiceModificationRelics(currentDiceValues);
+        
         if (AttackDB.Instance == null)
         {
-            Debug.LogError("AttackDB 씬에 없습니다!");
+            Debug.LogError("AttackDB가 씬에 없습니다!");
             return;
         }
         List<AttackJokbo> achievableJokbos = AttackDB.Instance.GetAchievableJokbos(modifiedValues);
+
         if (achievableJokbos.Count > 0)
         {
             diceController.SetRollButtonInteractable(false);
             isWaitingForAttackChoice = true;
             if (UIManager.Instance != null)
             {
-                List<AttackJokbo> previewJokbos = new List<AttackJokbo>();
-                foreach (var jokbo in achievableJokbos)
-                {
-                    int baseDamage = jokbo.BaseDamage;
-                    int bonusDamage = GameManager.Instance.GetAttackDamageModifiers(jokbo);
-                    int finalBaseDamage = baseDamage + bonusDamage;
-
-                    int baseScore = jokbo.BaseScore;
-                    int bonusScore = GameManager.Instance.GetAttackScoreBonus(jokbo); 
-                    int finalBaseScore = baseScore + bonusScore;
-
-                    previewJokbos.Add(new AttackJokbo(
-                        jokbo.Description,
-                        finalBaseDamage,
-                        finalBaseScore, 
-                        jokbo.CheckLogic
-                    ));
-                }
-                UIManager.Instance.ShowAttackOptions(previewJokbos); 
+                // [!!!] UIManager에게 '원본' 족보 리스트를 전달
+                UIManager.Instance.ShowAttackOptions(achievableJokbos); 
             }
             else
             {
@@ -120,7 +110,6 @@ public class StageManager : MonoBehaviour
             {
                 Debug.Log("굴림 횟수 소진. 웨이브 실패.");
                 diceController.SetRollButtonInteractable(false);
-                // [수정] 실패 시 0 전달
                 GameManager.Instance.ProcessWaveClear(false, 0); 
             }
             else
@@ -131,55 +120,58 @@ public class StageManager : MonoBehaviour
         }
     }
     
+    /// <summary>
+    /// [수정] '원본 족보'를 받아 '최종 데미지/점수'를 계산
+    /// </summary>
     public void ProcessAttack(AttackJokbo chosenJokbo)
     {
         if (!isWaitingForAttackChoice) return;
         
-        int baseDamage = chosenJokbo.BaseDamage;
-        int baseScore = chosenJokbo.BaseScore; 
-        int finalBaseDamage = baseDamage;
-
-        Debug.Log($"광역 공격: [{chosenJokbo.Description}] (최종 데미지: {finalBaseDamage})");
+        // 1. [!!!] UIManager가 '원본 족보'를 전달
+        // 2. [!!!] GetPreviewValues를 '재사용'하여 최종 데미지/점수 계산
+        (int finalDamage, int finalScore) = GetPreviewValues(chosenJokbo);
         
-        AttackJokbo modifiedJokbo = chosenJokbo;
+        Debug.Log($"광역 공격: [{chosenJokbo.Description}] (최종 데미지: {finalDamage})");
 
+        // 3. 계산된 최종 데미지로 '수정된 족보' 생성
+        AttackJokbo modifiedJokbo = new AttackJokbo(
+            chosenJokbo.Description,
+            finalDamage, 
+            finalScore, // (점수도 최종 점수를 전달)     
+            chosenJokbo.CheckLogic
+        );
+        
+        // 4. 적 공격
         foreach (Enemy enemy in activeEnemies.Where(e => e != null && !e.isDead))
         {
             int damageToTake = enemy.CalculateDamageTaken(modifiedJokbo);
             enemy.TakeDamage(damageToTake, modifiedJokbo);
         }
 
-        GameManager.Instance.AddScore(baseScore, chosenJokbo);
-        
+        // 5. GameManager에게 '최종 점수'와 '원본 족보' 전달
+        GameManager.Instance.AddScore(finalScore, chosenJokbo);
+
         isWaitingForAttackChoice = false;
         CheckWaveStatus();
     }
 
-    /// <summary>
-    /// [!!! 핵심 수정 !!!]
-    /// 남은 굴림 횟수를 계산하여 GameManager에게 전달합니다.
-    /// </summary>
     private void CheckWaveStatus()
     {
-        // 1. 모든 적이 죽었는지 확인
         if (activeEnemies.All(e => e == null || e.isDead))
         {
-            // [수정] 남은 굴림 횟수 계산
             int rollsRemaining = diceController.maxRolls - diceController.currentRollCount;
-            GameManager.Instance.ProcessWaveClear(true, rollsRemaining); // 성공 + 남은 횟수 전달
+            GameManager.Instance.ProcessWaveClear(true, rollsRemaining); 
         }
-        else // 2. 아직 적이 남음
+        else 
         {
             if (diceController.currentRollCount >= diceController.maxRolls)
             {
-                // [수정] 굴림 횟수 없음 = 실패
                 Debug.Log("굴림 횟수 소진. 웨이브 실패.");
                 diceController.SetRollButtonInteractable(false);
-                GameManager.Instance.ProcessWaveClear(false, 0); // 실패 + 0 전달
+                GameManager.Instance.ProcessWaveClear(false, 0); 
             }
             else
             {
-                // 굴림 횟수 남음 = 턴 계속
                 Debug.Log("적이 남았습니다. 다시 굴리세요.");
                 diceController.SetRollButtonInteractable(true); 
             }
@@ -268,16 +260,44 @@ public class StageManager : MonoBehaviour
     }
 
     
-    public void ShowAttackPreview(AttackJokbo jokbo)
+    /// <summary>
+    /// UIManager.ShowAttackOptions가 '최종 값'을 표시하기 위해 호출하는 헬퍼 함수.
+    /// '명함' (첫 굴림 2배) 등 모든 보너스를 계산하여 (데미지, 점수)를 반환합니다.
+    /// </summary>
+    public (int finalDamage, int finalScore) GetPreviewValues(AttackJokbo jokbo)
     {
+        // 1. 족보의 '원본' 데미지/점수
         int baseDamage = jokbo.BaseDamage;
         int baseScore = jokbo.BaseScore;
+
+        // 2. GameManager에게 '보너스' 데미지/점수 요청
         int bonusDamage = GameManager.Instance.GetAttackDamageModifiers(jokbo);
         int bonusScore = GameManager.Instance.GetAttackScoreBonus(jokbo); 
         
         int finalBaseDamage = baseDamage + bonusDamage;
         int finalBaseScore = baseScore + bonusScore; 
+        
+        // 3. [!!! "명함" 효과 적용 !!!]
+        var (rollDamageMult, rollScoreMult) = GameManager.Instance.GetRollCountBonuses(diceController.currentRollCount);
 
+        if (rollDamageMult > 1.0f || rollScoreMult > 1.0f)
+        {
+            finalBaseDamage = (int)(finalBaseDamage * rollDamageMult);
+            finalBaseScore = (int)(finalBaseScore * rollScoreMult); 
+        }
+        
+        return (finalBaseDamage, finalBaseScore);
+    }
+    
+    /// <summary>
+    /// 족보 미리보기를 표시합니다. (GetPreviewValues 로직을 사용)
+    /// </summary>
+    public void ShowAttackPreview(AttackJokbo jokbo)
+    {
+        // 1. [!!!] GetPreviewValues 헬퍼 함수를 사용하여 '최종 값' 계산
+        (int finalBaseDamage, int finalBaseScore) = GetPreviewValues(jokbo);
+
+        // 2. 계산된 최종 데미지/점수로 '임시' 족보 객체를 만듭니다.
         AttackJokbo modifiedJokbo = new AttackJokbo(
             jokbo.Description,
             finalBaseDamage, 
@@ -285,6 +305,7 @@ public class StageManager : MonoBehaviour
             jokbo.CheckLogic
         );
 
+        // 3. 모든 적에게 '수정된 족보'로 프리뷰를 표시하라고 지시
         foreach (Enemy enemy in activeEnemies.Where(e => e != null && !e.isDead))
         {
             enemy.ShowDamagePreview(modifiedJokbo);

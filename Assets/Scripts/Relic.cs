@@ -2,26 +2,35 @@ using UnityEngine;
 
 /// <summary>
 /// [!!! 핵심 수정 !!!]
-/// 1. 'public Sprite Icon' 프로퍼티 추가
-/// 2. 생성자가 Icon을 받도록 수정
+/// 1. 'RelicEffectType' Enum에 6개의 새로운 기믹 타입 추가
+///    (JokboScoreAdd, ModifyHealth, ModifyMaxRolls, RemoveDice, DynamicDamage_Score, DynamicDamage_LostHealth)
 /// </summary>
 public enum RelicEffectType
 {
     // 스탯 (매 턴 적용)
     AddMaxRolls,
-    AddBaseDamage,        // 모든 족보 데미지 +
+    AddBaseDamage,        
     
     // 주사위 덱 (획득 시 적용)
-    AddDice,              // 덱에 주사위 추가
+    AddDice,              
     
     // 주사위 굴림 (굴림 시 적용)
-    ModifyDiceValue,      // '1'을 '7'로, '홀수' 다시 굴리기 등
+    ModifyDiceValue,      
 
     // 점수/데미지 (판정 시 적용)
-    AddScoreMultiplier,   // 모든 점수 배율
+    AddScoreMultiplier,   
+    JokboDamageAdd,       
+    JokboScoreMultiplier, 
     
-    JokboDamageAdd,       // '특정' 족보 데미지 +
-    JokboScoreMultiplier  // '특정' 족보 점수 배율 x
+
+    JokboScoreAdd,            // (RLC_RUSTY_GEAR) '특정' 족보 점수 +
+    ModifyHealth,             // (RLC_GLASS_CANNON) 획득 시 최대 체력 변경
+    ModifyMaxRolls,           // (RLC_HEAVY_DICE) 획득 시 최대 굴림 횟수 변경
+    RemoveDice,               // (RLC_FOCUS) 획득 시 덱에서 주사위 제거
+    DynamicDamage_Score,      // (RLC_PLUTOCRACY) 점수 비례 데미지
+    DynamicDamage_LostHealth,  // (RLC_BLOODLUST) 잃은 체력 비례 데미지
+
+    RollCountBonus // 특정 굴림에서 데미지나 점수 보너스
 }
 
 public class Relic
@@ -29,7 +38,7 @@ public class Relic
     public string RelicID { get; private set; }
     public string Name { get; private set; }
     public string Description { get; private set; }
-    public Sprite Icon { get; private set; } // [!!! 신규 추가 !!!]
+    public Sprite Icon { get; private set; } 
     public RelicEffectType EffectType { get; private set; }
     
     public int IntValue { get; private set; }
@@ -46,7 +55,7 @@ public class Relic
         this.RelicID = relicID;
         this.Name = name;
         this.Description = description;
-        this.Icon = icon; // [!!! 신규 추가 !!!]
+        this.Icon = icon; 
         this.EffectType = effectType;
         this.IntValue = intValue;
         this.FloatValue = floatValue;
@@ -63,7 +72,7 @@ public class Relic
         this.RelicID = relicID;
         this.Name = name;
         this.Description = description;
-        this.Icon = icon; // [!!! 신규 추가 !!!]
+        this.Icon = icon; 
         this.EffectType = effectType;
         this.IntValue = intValue;
         this.FloatValue = floatValue;
@@ -71,4 +80,3 @@ public class Relic
         this.MaxCount = maxCount;
     }
 }
-
