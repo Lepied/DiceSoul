@@ -4059,14 +4059,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4806bee5ca8f024b9e3de1c8d6c4e1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WaveGenerator
-  enemyPrefabPool:
-  - {fileID: 354087232363995093, guid: a8350030111bf7d44acf6180b0258ac2, type: 3}
-  - {fileID: 354087232363995093, guid: d1f3c795ec33bd143beef86ef67aea31, type: 3}
-  - {fileID: 354087232363995093, guid: 2f1d18c09dc5a4047b87ffa88798802b, type: 3}
-  - {fileID: 354087232363995093, guid: 71a2b43ec279ec84d9766afde54d2a74, type: 3}
-  - {fileID: 354087232363995093, guid: 747d89baa9c7e1f4b96d23148962d8de, type: 3}
-  baseBudgetPerZone: 15
-  budgetBonusPerWave: 3
+  allGameZones:
+  - {fileID: 11400000, guid: 6573da7daf175de41b74a162c95be0ae, type: 2}
 --- !u!4 &985795678
 Transform:
   m_ObjectHideFlags: 0
@@ -7100,6 +7094,7 @@ MonoBehaviour:
   bonusPerRollRemaining: 5
   wavesPerZone: 5
   maxDiceCount: 8
+  minDiceCount: 3
   CurrentZone: 1
   CurrentWave: 1
   metaCurrencySaveKey: MetaCurrency

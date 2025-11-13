@@ -1,25 +1,39 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq; // Where, OrderBy 등 Linq를 사용하기 위해 필요
+using System.Linq; // Linq를 사용하기 위해 필요
 
 /// <summary>
-/// [수정] GenerateWave 함수가 'isBossWave' bool 값을 받아,
-/// 보스 웨이브에는 보스만, 일반 웨이브에는 일반 적만 스폰하도록 수정
+/// [!!! 핵심 수정 (SO + 인스펙터 방식) !!!]
+/// 1. 'allGameZones' (List<ZoneData>) 변수를 인스펙터에서 받습니다.
+/// 2. 'CacheEnemyData' 함수가 부활: 게임 시작 시 ZoneData/WaveData를 모두 스캔하여,
+///    프리팹의 'Enemy.cs' 인스펙터에서 'difficultyCost' 등을 읽어와 '메뉴판'(Cache)을 만듭니다.
+/// 3. 'GenerateWave' 함수가 이 '메뉴판'을 기반으로 "필수 스폰 + 추가 예산" 로직을 실행하고,
+///    'List<GameObject>' (프리팹 리스트)를 반환합니다.
 /// </summary>
 public class WaveGenerator : MonoBehaviour
 {
     public static WaveGenerator Instance { get; private set; }
 
-    [Header("적 프리팹 풀")]
-    [Tooltip("게임에 등장할 '모든' 적 프리팹(Goblin, Skeleton, Troll 등)을 여기에 등록합니다.")]
-    public List<GameObject> enemyPrefabPool;
+    [Header("존(Zone) 데이터")]
+    [Tooltip("게임에 등장할 '모든' ZoneData.asset 파일을 여기에 등록합니다.")]
+    public List<ZoneData> allGameZones; 
 
-    private Dictionary<string, Queue<GameObject>> poolDictionary;
-    private List<Enemy> enemyDataCache = new List<Enemy>();
+    // [신규] 프리팹(Key)과 '캐시된 데이터'(Value)를 매칭하는 메뉴판
+    private class CachedEnemyData
+    {
+        public GameObject prefab;
+        public int cost;
+        public int minZoneLevel;
+        public bool isBoss;
+    }
+    private Dictionary<string, CachedEnemyData> enemyDataCache = new Dictionary<string, CachedEnemyData>();
+    
+    // [신규] '존(Zone)'별 랜덤 스폰풀을 캐시
+    private Dictionary<string, List<CachedEnemyData>> zoneGeneralPoolCache = new Dictionary<string, List<CachedEnemyData>>();
 
-    [Header("난이도 설정")]
-    public int baseBudgetPerZone = 40;
-    public int budgetBonusPerWave = 10;
+    // 오브젝트 풀링용 딕셔너리
+    private Dictionary<string, Queue<GameObject>> poolDictionary = new Dictionary<string, Queue<GameObject>>();
+
 
     void Awake()
     {
@@ -27,7 +41,7 @@ public class WaveGenerator : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            CacheEnemyData();
+            CacheEnemyData(); // [!!!] 프리팹 스탯을 읽어 메뉴판 생성
         }
         else
         {
@@ -35,114 +49,176 @@ public class WaveGenerator : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// [!!! 핵심 수정 !!!]
+    /// 'allGameZones' SO를 모두 스캔하여, 프리팹 인스펙터의 'Enemy.cs' 스탯을 읽어와
+    /// 'enemyDataCache' (메뉴판)을 생성합니다.
+    /// </summary>
     private void CacheEnemyData()
     {
         enemyDataCache.Clear();
-        poolDictionary = new Dictionary<string, Queue<GameObject>>();
+        poolDictionary.Clear();
+        zoneGeneralPoolCache.Clear();
 
-        foreach (GameObject prefab in enemyPrefabPool)
+        if (allGameZones == null) return;
+
+        // 모든 존(Zone) SO 순회
+        foreach (ZoneData zone in allGameZones)
         {
-            Enemy enemy = prefab.GetComponent<Enemy>();
-            if (enemy != null)
+            if (zone == null) continue;
+            
+            // 1. '일반 스폰 풀' 캐시
+            List<CachedEnemyData> generalPool = new List<CachedEnemyData>();
+            if (zone.generalEnemies != null)
             {
-                enemyDataCache.Add(enemy);
-                string key = prefab.name;
-                if (!poolDictionary.ContainsKey(key))
+                foreach (GameObject prefab in zone.generalEnemies)
                 {
-                    poolDictionary.Add(key, new Queue<GameObject>());
+                    CachedEnemyData data = AddOrGetCachedData(prefab);
+                    if(data != null) generalPool.Add(data);
                 }
             }
-            else
+            zoneGeneralPoolCache.Add(zone.name, generalPool); // (존 이름으로 캐시)
+
+            // 2. '필수 스폰' 프리팹 캐시
+            if (zone.waves != null)
             {
-                Debug.LogWarning($"[WaveGenerator] {prefab.name} 프리팹에 Enemy 스크립트가 없습니다.");
+                foreach (WaveData wave in zone.waves)
+                {
+                    if (wave == null) continue;
+                    if (wave.mandatorySpawns != null)
+                    {
+                        foreach (var mandatory in wave.mandatorySpawns)
+                        {
+                            if (mandatory != null)
+                                AddOrGetCachedData(mandatory.enemyPrefab);
+                        }
+                    }
+                }
             }
         }
     }
-
-    private int CalculateBudget(int currentZone, int currentWave)
+    
+    /// <summary>
+    /// [신규 헬퍼] 프리팹을 캐시에 등록하고, 풀(Pool)을 초기화하는 함수
+    /// </summary>
+    private CachedEnemyData AddOrGetCachedData(GameObject prefab)
     {
-        return (currentZone * baseBudgetPerZone) + (currentWave * budgetBonusPerWave);
+        if (prefab == null) return null;
+        string key = prefab.name;
+
+        // 1. 이미 캐시(메뉴판)에 있으면 바로 반환
+        if (enemyDataCache.ContainsKey(key))
+        {
+            return enemyDataCache[key];
+        }
+
+        // 2. 캐시에 없으면, 'GetComponent'로 인스펙터 값 읽기
+        Enemy enemyScript = prefab.GetComponent<Enemy>();
+        if (enemyScript == null)
+        {
+            Debug.LogError($"[WaveGenerator] {key} 프리팹에 Enemy 스크립트가 없습니다!");
+            return null;
+        }
+
+        // 3. '인스펙터 값'으로 '메뉴판' 데이터 생성
+        CachedEnemyData newData = new CachedEnemyData
+        {
+            prefab = prefab,
+            cost = enemyScript.difficultyCost,
+            minZoneLevel = enemyScript.minZoneLevel,
+            isBoss = enemyScript.isBoss
+        };
+        
+        enemyDataCache.Add(key, newData); // 메뉴판(캐시)에 등록
+        
+        // 4. 오브젝트 풀(Pool) 등록
+        if (!poolDictionary.ContainsKey(key))
+        {
+            poolDictionary.Add(key, new Queue<GameObject>());
+            Debug.Log($"[WaveGenerator] 오브젝트 풀 등록: {key}");
+        }
+        
+        return newData;
     }
+
 
     /// <summary>
     /// [!!! 핵심 수정 !!!]
-    /// (int currentZone, int currentWave, bool isBossWave) 3개의 인자를 받습니다.
+    /// SO와 캐시(메뉴판)를 읽어 '필수 스폰 + 추가 예산' 로직을 실행합니다.
     /// </summary>
-    public List<GameObject> GenerateWave(int currentZone, int currentWave, bool isBossWave)
+    public List<GameObject> GenerateWave(int currentZone, int currentWave)
     {
-        int budget = CalculateBudget(currentZone, currentWave);
         List<GameObject> enemiesToSpawn = new List<GameObject>();
 
-        // 1. [!!! 핵심 수정 !!!]
-        // 필터링: 최소 존 레벨을 만족하고, 'isBoss' 상태가 요청된 상태와 일치하는 적만
-        List<Enemy> availableEnemies = enemyDataCache
-            .Where(e => e.minZoneLevel <= currentZone && e.isBoss == isBossWave)
-            .OrderBy(e => e.difficultyCost)
-            .ToList();
-
-        if (availableEnemies.Count == 0)
+        // 1. 현재 존(Zone) 데이터 찾기
+        int zoneIndex = currentZone - 1;
+        if (allGameZones == null || allGameZones.Count <= zoneIndex || allGameZones[zoneIndex] == null)
         {
-            string waveType = isBossWave ? "보스" : "일반";
-            Debug.LogError($"[WaveGenerator] Zone {currentZone}에서 스폰 가능한 '{waveType}' 적이 없습니다! (minZoneLevel 또는 isBoss 설정을 확인하세요)");
-            return enemiesToSpawn; // 빈 리스트 반환
+             Debug.LogError($"[WaveGenerator] Zone {currentZone}에 해당하는 'ZoneData.asset'이 allGameZones 리스트에 등록되지 않았습니다!");
+             return enemiesToSpawn;
         }
+        ZoneData zoneData = allGameZones[zoneIndex];
 
-        int safetyNet = 100;
-
-        while (budget > 0 && safetyNet > 0)
+        // 2. 현재 웨이브(Wave) 데이터 찾기
+        int waveIndex = currentWave - 1;
+        if (zoneData.waves == null || zoneData.waves.Count <= waveIndex || zoneData.waves[waveIndex] == null)
         {
-            // 3. 이 예산으로 '살 수 있는' 적들만 다시 필터링
-            List<Enemy> purchasableEnemies = availableEnemies
-                .Where(e => e.difficultyCost <= budget)
-                .ToList();
+             Debug.LogError($"[WaveGenerator] {zoneData.name}에 Wave {currentWave}에 해당하는 'WaveData.asset'이 등록되지 않았습니다!");
+             return enemiesToSpawn;
+        }
+        WaveData waveData = zoneData.waves[waveIndex];
 
-            if (purchasableEnemies.Count == 0)
-            {
-                // (보스 웨이브인데 예산이 부족할 경우)
-                if (isBossWave && enemiesToSpawn.Count == 0)
-                {
-                    Debug.LogWarning($"[WaveGenerator] 보스 웨이브 예산({budget})이 부족하여 가장 저렴한 보스({availableEnemies[0].enemyName})를 강제 스폰합니다.");
-                    enemiesToSpawn.Add(availableEnemies[0].gameObject);
-                    budget -= availableEnemies[0].difficultyCost;
-                }
-                break; // 살 수 있는 적이 없으면 종료
-            }
-
-            // 4. 랜덤으로 적 하나 선택
-            Enemy chosenEnemyData = purchasableEnemies[Random.Range(0, purchasableEnemies.Count)];
+        // 3. '필수 스폰' 목록(MandatorySpawns)을 리스트에 추가
+        foreach (var spawnData in waveData.mandatorySpawns)
+        {
+            if (spawnData == null || spawnData.enemyPrefab == null) continue;
             
-            enemiesToSpawn.Add(chosenEnemyData.gameObject); 
-            budget -= chosenEnemyData.difficultyCost;
-            safetyNet--;
-
-            // [추가] 보스 웨이브는 보스 1마리만 스폰
-            if (isBossWave)
+            for(int i=0; i < spawnData.count; i++)
             {
-                break;
+                enemiesToSpawn.Add(spawnData.enemyPrefab); // 프리팹을 리스트에 추가
             }
         }
         
-        if (safetyNet <= 0) {
-             Debug.LogWarning("[WaveGenerator] 웨이브 생성 중 무한 루프 방지 장치가 발동했습니다.");
+        // 4. '추가 예산(BonusBudget)'으로 '랜덤 스폰'
+        int budget = waveData.bonusBudget;
+        if (budget > 0 && zoneGeneralPoolCache.ContainsKey(zoneData.name))
+        {
+            // [!!!] '메뉴판(캐시)'에서 이 존의 랜덤 스폰풀을 가져옴
+             List<CachedEnemyData> availableEnemies = zoneGeneralPoolCache[zoneData.name]
+                .Where(e => e.minZoneLevel <= currentZone && 
+                            e.cost > 0 && 
+                            !e.isBoss) // (일반몹만)
+                .ToList();
+
+            if (availableEnemies.Count > 0)
+            {
+                int safetyNet = 50;
+                while (budget > 0 && safetyNet > 0)
+                {
+                    List<CachedEnemyData> purchasable = availableEnemies.Where(e => e.cost <= budget).ToList();
+                    if (purchasable.Count == 0) break; 
+                    
+                    CachedEnemyData chosenData = purchasable[Random.Range(0, purchasable.Count)];
+                    enemiesToSpawn.Add(chosenData.prefab); // 프리팹을 리스트에 추가
+                    budget -= chosenData.cost;
+                    safetyNet--;
+                }
+            }
         }
 
-        Debug.Log($"[WaveGenerator] 웨이브 생성 완료 (Zone {currentZone}, Wave {currentWave}, Boss: {isBossWave}). 예산: {CalculateBudget(currentZone, currentWave)} / 스폰: {enemiesToSpawn.Count}마리");
+        Debug.Log($"[WaveGenerator] 웨이브 생성 완료 ({zoneData.name} - Wave {currentWave}). / 총 {enemiesToSpawn.Count}마리");
         return enemiesToSpawn;
     }
 
     // --- 오브젝트 풀링 함수들 (변경 없음) ---
-
     public GameObject SpawnFromPool(GameObject prefab, Vector3 position, Quaternion rotation)
     {
         string key = prefab.name; 
-
-        // [수정] 풀이 동적으로 생성될 때 경고 로그
         if (!poolDictionary.ContainsKey(key))
         {
             Debug.LogWarning($"[WaveGenerator] 풀에 {key} 키가 없습니다. 동적으로 새 풀을 생성합니다.");
             poolDictionary.Add(key, new Queue<GameObject>());
         }
-
         if (poolDictionary[key].Count > 0)
         {
             GameObject objFromPool = poolDictionary[key].Dequeue();
@@ -151,7 +227,6 @@ public class WaveGenerator : MonoBehaviour
             objFromPool.SetActive(true); 
             return objFromPool;
         }
-
         GameObject newObj = Instantiate(prefab, position, rotation);
         newObj.name = key; 
         return newObj;
@@ -160,15 +235,12 @@ public class WaveGenerator : MonoBehaviour
     public void ReturnToPool(GameObject objectToReturn)
     {
         string key = objectToReturn.name; 
-
         if (!poolDictionary.ContainsKey(key))
         {
             Debug.LogWarning($"[WaveGenerator] 풀에 {key} 키가 없습니다. 새로 추가합니다.");
             poolDictionary.Add(key, new Queue<GameObject>());
         }
-
         objectToReturn.SetActive(false); 
         poolDictionary[key].Enqueue(objectToReturn);
     }
 }
-

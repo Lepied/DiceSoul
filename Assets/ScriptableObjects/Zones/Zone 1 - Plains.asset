@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b503c177ece661e428431017ed9cf007, type: 3}
+  m_Name: Zone 1 - Plains
+  m_EditorClassIdentifier: Assembly-CSharp::ZoneData
+  zoneName: "\uD3C9\uC6D0"
+  zoneTier: 1
+  waves:
+  - {fileID: 11400000, guid: aef8be572ada86e4c8350384768334d4, type: 2}
+  - {fileID: 11400000, guid: 51a71b1c45d1748409f39fd4b8120f3d, type: 2}
+  - {fileID: 11400000, guid: 12ba6073c6671ad4fb63d3ed8a1e3931, type: 2}
+  - {fileID: 11400000, guid: f9c073c87ad4ea549be9068ba91f1fc0, type: 2}
+  - {fileID: 11400000, guid: 8bc327bcf74b6f443b62bbb15a46e162, type: 2}
+  generalEnemies:
+  - {fileID: 354087232363995093, guid: d1f3c795ec33bd143beef86ef67aea31, type: 3}
+  - {fileID: 354087232363995093, guid: a8350030111bf7d44acf6180b0258ac2, type: 3}
