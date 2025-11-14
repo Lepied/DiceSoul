@@ -14,5 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WaveData
   mandatorySpawns:
   - enemyPrefab: {fileID: 354087232363995093, guid: d1f3c795ec33bd143beef86ef67aea31, type: 3}
-    count: 4
-  bonusBudget: 20
+    count: 3
+  - enemyPrefab: {fileID: 354087232363995093, guid: 06c8ca367d833de4c8d50ce10b6bb098, type: 3}
+    count: 1
+  bonusBudget: 15
