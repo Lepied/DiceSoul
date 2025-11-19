@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Linq; 
 using UnityEngine.EventSystems; 
-using UnityEngine.SceneManagement; // [!!! 신규 추가 !!!] 씬 이동
+using UnityEngine.SceneManagement; 
 
 /// <summary>
 /// [!!! 핵심 수정 !!!]
-/// 1. '게임 오버 UI' 섹션 (gameOverPanel, earnedCurrencyText 등) 변수 추가
-/// 2. 'ShowGameOverScreen' 함수 추가 (GameManager가 호출)
-/// 3. 'OnMainMenuButton' 함수 추가 (메인 메뉴 씬 로드)
+/// 1. ShowAttackOptions: '명함' 보너스 계산 로직을 'StageManager'로 이동
+/// 2. UIManager는 '원본 족보'를 받고, 'ShowAttackPreview'를 즉시 호출하여
+///    '최종 계산된' 데미지/점수를 텍스트에 표시하도록 수정
 /// </summary>
 public class UIManager : MonoBehaviour
 {
@@ -57,16 +57,11 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI relicDetailName;
     public TextMeshProUGUI relicDetailDescription;
 
-    // [!!! 신규 추가 !!!]
     [Header("게임 오버 UI")]
-    [Tooltip("게임 오버 시 활성화될 패널")]
     public GameObject gameOverPanel;
-    [Tooltip("획득한 영구 재화를 표시할 텍스트")]
     public TextMeshProUGUI earnedCurrencyText;
-    [Tooltip("메인 메뉴 씬으로 돌아갈 버튼")]
     public Button mainMenuButton;
-    [Tooltip("돌아갈 메인 메뉴 씬의 이름")]
-    public string mainMenuSceneName = "MainMenu"; // (씬 이름이 다르면 수정)
+    public string mainMenuSceneName = "MainMenu"; 
 
 
     void Awake()
@@ -96,7 +91,6 @@ public class UIManager : MonoBehaviour
         if (relicPanel != null) relicPanel.SetActive(true); 
         if (relicDetailPopup != null) relicDetailPopup.SetActive(false); 
         
-        // [신규] 게임 오버 UI 초기화
         if (gameOverPanel != null) gameOverPanel.SetActive(false);
         if (mainMenuButton != null)
         {
@@ -123,10 +117,6 @@ public class UIManager : MonoBehaviour
     public void UpdateScore(int score) 
     {
         if (totalScoreText != null) totalScoreText.text = $"Score: {score}";
-    }
-    public void ClearScoreText() 
-    { 
-        if (totalScoreText != null) totalScoreText.text = "Score: 0";
     }
     public void UpdateHealth(int current, int max) 
     {
@@ -213,48 +203,38 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // ... (보유 유물 UI 함수들은 동일) ...
     public void UpdateRelicPanel(List<Relic> playerRelics)
     {
         if (relicPanel == null || relicIconPrefab == null) return;
-
         foreach (Transform child in relicPanel.transform)
         {
             Destroy(child.gameObject);
         }
-
         var relicGroups = playerRelics.GroupBy(r => r.RelicID);
-
         foreach (var group in relicGroups)
         {
             Relic relicData = group.First(); 
             int count = group.Count(); 
-
             GameObject iconGO = Instantiate(relicIconPrefab, relicPanel.transform);
-            
             Image relicImage = iconGO.GetComponent<Image>();
             if (relicImage != null)
             {
                 relicImage.sprite = relicData.Icon;
             }
-
             TextMeshProUGUI countText = iconGO.GetComponentInChildren<TextMeshProUGUI>();
             if (countText != null)
             {
                 countText.text = (count > 1) ? $"x{count}" : ""; 
             }
-
             EventTrigger trigger = iconGO.GetComponent<EventTrigger>();
             if (trigger == null) trigger = iconGO.AddComponent<EventTrigger>(); 
             trigger.triggers.Clear();
-
             EventTrigger.Entry entryEnter = new EventTrigger.Entry();
             entryEnter.eventID = EventTriggerType.PointerEnter;
             entryEnter.callback.AddListener((data) => { 
                 ShowRelicDetail(relicData, iconGO.GetComponent<RectTransform>()); 
             });
             trigger.triggers.Add(entryEnter);
-
             EventTrigger.Entry entryExit = new EventTrigger.Entry();
             entryExit.eventID = EventTriggerType.PointerExit;
             entryExit.callback.AddListener((data) => { 
@@ -266,15 +246,13 @@ public class UIManager : MonoBehaviour
     public void ShowRelicDetail(Relic relic, RectTransform iconRect)
     {
         if (relicDetailPopup == null) return;
-
         relicDetailPopup.SetActive(true);
-        
         if (relicDetailName != null) relicDetailName.text = relic.Name;
         if (relicDetailDescription != null) relicDetailDescription.text = relic.Description;
-
         Vector3 iconBottomPosition = iconRect.transform.position - new Vector3(0, iconRect.rect.height / 2 * iconRect.lossyScale.y, 0);
-        
         relicDetailPopup.transform.position = iconBottomPosition;
+        float yOffset = (relicDetailPopup.GetComponent<RectTransform>().rect.height / 2 * relicDetailPopup.GetComponent<RectTransform>().lossyScale.y) + 5f;
+        relicDetailPopup.transform.position -= new Vector3(0, yOffset, 0); 
     }
     public void HideRelicDetail()
     {
@@ -284,39 +262,64 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // ... (공격/보상/상점 함수들은 동일) ...
+
+    /// <summary>
+    /// [!!! 핵심 수정 !!!]
+    /// 1. '원본 족보' 리스트(jokbos)를 받습니다.
+    /// 2. 텍스트를 채울 때, StageManager.ShowAttackPreview()를 '임시'로 호출하여
+    ///    '최종 계산된' 데미지/점수를 가져와 텍스트에 표시합니다.
+    /// </summary>
     public void ShowAttackOptions(List<AttackJokbo> jokbos) 
     {
         if (attackOptionsPanel == null) return;
         attackOptionsPanel.SetActive(true);
+
+        if(StageManager.Instance != null) StageManager.Instance.HideAllAttackPreviews();
+
         for (int i = 0; i < attackOptionButtons.Length; i++)
         {
             if (i < jokbos.Count)
             {
-                AttackJokbo jokbo = jokbos[i]; 
+                AttackJokbo jokbo = jokbos[i]; // (이것은 '원본' 족보)
+                
+                // 1. [!!!] 텍스트 설정을 위해 '최종' 데미지/점수를 '미리' 계산합니다.
+                // (StageManager의 ShowAttackPreview 로직을 일부 가져옴)
+                (int finalBaseDamage, int finalBaseScore) = 
+                    StageManager.Instance.GetPreviewValues(jokbo); // [!!!] StageManager에 새 헬퍼 함수 요청
+
+                // 2. '최종 계산된' 값으로 텍스트 설정
                 attackNameTexts[i].text = jokbo.Description;
-                attackValueTexts[i].text = $"Dmg: {jokbo.BaseDamage} / Score: {jokbo.BaseScore}";
+                attackValueTexts[i].text = $"Dmg: {finalBaseDamage} / Score: {finalBaseScore}";
+                
+                // 3. EventTrigger 가져오기
                 EventTrigger trigger = attackOptionButtons[i].GetComponent<EventTrigger>();
                 if (trigger == null) trigger = attackOptionButtons[i].gameObject.AddComponent<EventTrigger>();
                 trigger.triggers.Clear(); 
+
+                // 4. PointerEnter (마우스 올림) 이벤트 -> '원본' 족보 전달
                 EventTrigger.Entry entryEnter = new EventTrigger.Entry();
                 entryEnter.eventID = EventTriggerType.PointerEnter;
                 entryEnter.callback.AddListener((data) => { 
                     if(StageManager.Instance != null) StageManager.Instance.ShowAttackPreview(jokbo); 
                 });
                 trigger.triggers.Add(entryEnter);
+
+                // 5. PointerExit (마우스 벗어남) 이벤트
                 EventTrigger.Entry entryExit = new EventTrigger.Entry();
                 entryExit.eventID = EventTriggerType.PointerExit;
                 entryExit.callback.AddListener((data) => { 
                     if(StageManager.Instance != null) StageManager.Instance.HideAllAttackPreviews(); 
                 });
                 trigger.triggers.Add(entryExit);
+                
+                // 6. PointerClick (클릭) 이벤트 -> '원본' 족보 전달
                 EventTrigger.Entry entryClick = new EventTrigger.Entry();
                 entryClick.eventID = EventTriggerType.PointerClick;
                 entryClick.callback.AddListener((data) => { 
                     SelectAttack(jokbo); 
                 });
                 trigger.triggers.Add(entryClick);
+
                 attackOptionButtons[i].gameObject.SetActive(true);
             }
             else
@@ -325,15 +328,17 @@ public class UIManager : MonoBehaviour
             }
         }
     }
-    private void SelectAttack(AttackJokbo jokbo) 
+    
+    private void SelectAttack(AttackJokbo jokbo) // (원본 족보가 전달됨)
     {
         attackOptionsPanel.SetActive(false);
         if(StageManager.Instance != null)
         {
             StageManager.Instance.HideAllAttackPreviews(); 
-            StageManager.Instance.ProcessAttack(jokbo); 
+            StageManager.Instance.ProcessAttack(jokbo); // 원본 족보로 공격 실행
         }
     }
+    
     public void ShowRewardScreen(List<Relic> relicOptions) 
     {
         if (rewardScreenPanel == null) return;
@@ -409,41 +414,25 @@ public class UIManager : MonoBehaviour
         return maintenancePanel != null && maintenancePanel.activeSelf;
     }
 
-
-    // [!!! 신규 추가 !!!]
-    /// <summary>
-    /// (GameManager가 호출) 게임 오버 패널을 띄웁니다.
-    /// </summary>
     public void ShowGameOverScreen(int earnedCurrency)
     {
         if (gameOverPanel == null) return;
-
-        // 다른 모든 UI 패널 숨기기
         if (attackOptionsPanel != null) attackOptionsPanel.SetActive(false);
         if (rewardScreenPanel != null) rewardScreenPanel.SetActive(false);
         if (maintenancePanel != null) maintenancePanel.SetActive(false);
         if (waveInfoPanel != null) waveInfoPanel.SetActive(false);
         if (enemyDetailPopup != null) enemyDetailPopup.SetActive(false);
         if (relicDetailPopup != null) relicDetailPopup.SetActive(false);
-
-        // 게임 오버 패널 켜기
         gameOverPanel.SetActive(true);
-
-        // 획득 재화 텍스트 설정
         if (earnedCurrencyText != null)
         {
             earnedCurrencyText.text = $"획득한 영혼의 파편: {earnedCurrency}";
         }
     }
 
-    /// <summary>
-    /// (메인 메뉴 버튼 클릭 시) 메인 메뉴 씬을 로드합니다.
-    /// </summary>
     private void OnMainMenuButton()
     {
-        // (참고) 씬을 로드하기 전에 DOTween 트윈을 모두 멈추는 것이 좋습니다.
         DG.Tweening.DOTween.KillAll();
-        
         SceneManager.LoadScene(mainMenuSceneName);
     }
 }

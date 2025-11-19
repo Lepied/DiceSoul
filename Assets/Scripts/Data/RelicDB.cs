@@ -261,8 +261,8 @@ public class RelicDB : MonoBehaviour
         // (2. D6 제거 효과는 GameManager.AddRelic에서 따로 처리)
         ));
         AddRelicToDB(new Relic(
-            "RLC_FIRST_IMPRESSION", "명함", "첫 번째 굴림(1/N)으로 공격할 경우, 해당 족보의 데미지와 점수가 2배가 됩니다.",
-            LoadRelicIcon("RLC_FIRST_IMPRESSION"), // (아이콘 필요)
+            "RLC_BUSINESS_CARD", "명함", "첫 번째 굴림(1/N)으로 공격할 경우, 해당 족보의 데미지와 점수가 2배가 됩니다.",
+            LoadRelicIcon("RLC_BUSINESS_CARD"), // (아이콘 필요)
             RelicEffectType.RollCountBonus, // (새 EffectType 추가)
             floatValue: 2.0f,
             maxCount: 1

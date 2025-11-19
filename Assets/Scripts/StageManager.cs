@@ -1,12 +1,12 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.UI; // [!!!] Image 대신 SpriteRenderer를 쓸 것이므로, 이 줄은 없어도 됩니다.
 
 /// <summary>
-/// [!!! 핵심 수정 (SO + 인스펙터 방식) !!!]
-/// 1. WaveGenerator가 'List<GameObject>' (프리팹)를 반환합니다.
-/// 2. 스폰 시 'Initialize(data)' 함수를 호출할 필요가 없습니다.
-///    (스탯은 이미 프리팹의 인스펙터에 저장되어 있습니다.)
+/// [!!! 핵심 수정 (배경 가림 문제) !!!]
+/// 1. 'backgroundUI' (Image) 변수를 'backgroundRenderer' (SpriteRenderer)로 변경
+/// 2. PrepareNextWave: backgroundRenderer.sprite를 'zoneData.zoneBackground'로 교체
 /// </summary>
 public class StageManager : MonoBehaviour
 {
@@ -15,8 +15,14 @@ public class StageManager : MonoBehaviour
     [Header("연결")]
     public DiceController diceController;
 
+    [Header("UI 연결")]
+    // [!!! 수정 !!!] Image -> SpriteRenderer
+    [Tooltip("존(Zone)이 바뀔 때 교체될 배경 SpriteRenderer (GameObject)")]
+    public SpriteRenderer backgroundRenderer; 
+
     [Header("웨이브/적 설정")]
     public Transform[] enemySpawnPoints; 
+// ... (이하 217행까지 님 코드와 동일) ...
     public float spawnSpreadRadius = 0.5f;
     public float screenEdgePadding = 1.0f; 
 
@@ -70,7 +76,6 @@ public class StageManager : MonoBehaviour
         PrepareNextWave();
     }
 
-    // ... (OnRollFinished, ProcessAttack, CheckWaveStatus 함수는 모두 동일) ...
     public void OnRollFinished(List<int> currentDiceValues)
     {
         foreach (Enemy enemy in activeEnemies.Where(e => e != null && !e.isDead))
@@ -127,6 +132,7 @@ public class StageManager : MonoBehaviour
             }
         }
     }
+    
     public void ProcessAttack(AttackJokbo chosenJokbo)
     {
         if (!isWaitingForAttackChoice) return;
@@ -153,6 +159,7 @@ public class StageManager : MonoBehaviour
         isWaitingForAttackChoice = false;
         CheckWaveStatus();
     }
+
     private void CheckWaveStatus()
     {
         if (activeEnemies.All(e => e == null || e.isDead))
@@ -178,15 +185,16 @@ public class StageManager : MonoBehaviour
 
     /// <summary>
     /// [!!! 핵심 수정 !!!]
-    /// 1. WaveGenerator가 'List<GameObject>' (프리팹)를 반환
-    /// 2. 스폰 시 'Initialize(data)' 함수를 호출할 필요가 없음
+    /// 1. 'isBossWave' bool 변수 삭제
+    /// 2. WaveGenerator.GetCurrentZoneData() (public 함수) 호출
+    /// 3. [!!!] backgroundUI.sprite -> backgroundRenderer.sprite로 변경
+    /// 4. WaveGenerator.GenerateWave(zone, wave) (인자 2개) 호출
     /// </summary>
     public void PrepareNextWave()
     {
         Debug.Log("StageManager: 다음 웨이브 준비 중...");
         isWaitingForAttackChoice = false; 
         
-        // 1. 이전 웨이브 적들 정리
         foreach (Enemy enemy in activeEnemies)
         {
             if (enemy != null && enemy.gameObject.activeSelf)
@@ -196,7 +204,6 @@ public class StageManager : MonoBehaviour
         }
         activeEnemies.Clear();
 
-        // 2. WaveGenerator에게 새 적 리스트 요청
         if (WaveGenerator.Instance == null || GameManager.Instance == null)
         {
             Debug.LogError("WaveGenerator 또는 GameManager가 씬에 없습니다!");
@@ -205,7 +212,23 @@ public class StageManager : MonoBehaviour
         int currentZone = GameManager.Instance.CurrentZone;
         int currentWave = GameManager.Instance.CurrentWave;
         
-        // [!!!] 'List<GameObject>' (프리팹 리스트)를 받음
+        // [!!!] 'GetCurrentZoneData' (public 함수) 호출
+        ZoneData currentZoneData = WaveGenerator.Instance.GetCurrentZoneData(currentZone);
+        
+        // [!!! 배경 교체 로직 수정 !!!]
+        if (currentWave == 1 && currentZoneData != null && backgroundRenderer != null)
+        {
+            if (currentZoneData.zoneBackground != null)
+            {
+                backgroundRenderer.sprite = currentZoneData.zoneBackground;
+                Debug.Log($"[StageManager] 배경 변경: {currentZoneData.zoneName}");
+            }
+            else
+            {
+                Debug.LogWarning($"[StageManager] {currentZoneData.name}에 'zoneBackground' 스프라이트가 없습니다.");
+            }
+        }
+        
         List<GameObject> enemiesToSpawn = WaveGenerator.Instance.GenerateWave(currentZone, currentWave);
 
         if (enemySpawnPoints.Length == 0)
@@ -214,15 +237,10 @@ public class StageManager : MonoBehaviour
             return;
         }
         
-        // 3. 새 적 스폰 (위치 고정 포함)
-        foreach (GameObject enemyPrefab in enemiesToSpawn) // [!!!] 프리팹 리스트를 순회
+        // 4. 새 적 스폰 (이하 동일)
+        foreach (GameObject enemyPrefab in enemiesToSpawn) 
         {
-            if (enemyPrefab == null)
-            {
-                Debug.LogWarning("[StageManager] 스폰할 프리팹이 null입니다.");
-                continue;
-            }
-
+            if (enemyPrefab == null) continue;
             int spawnIndex = Random.Range(0, enemySpawnPoints.Length);
             Vector3 spawnPos = enemySpawnPoints[spawnIndex].position;
             Vector2 randomOffset = Random.insideUnitCircle * spawnSpreadRadius;
@@ -234,12 +252,8 @@ public class StageManager : MonoBehaviour
                 spawnPos.y = Mathf.Clamp(spawnPos.y, minViewBoundary.y, maxViewBoundary.y);
             }
             
-            // 4. [!!!] 스폰
             GameObject enemyGO = WaveGenerator.Instance.SpawnFromPool(enemyPrefab, spawnPos, Quaternion.identity);
             Enemy newEnemy = enemyGO.GetComponent<Enemy>();
-            
-            // 5. [!!!] 스탯 주입(Initialize) 로직 삭제
-            // (스탯은 프리팹의 인스펙터에 이미 저장되어 있음)
             
             if (newEnemy != null)
             {
@@ -251,8 +265,7 @@ public class StageManager : MonoBehaviour
             }
         }
         
-        // 6. 스폰된 모든 적에게 OnWaveStart 이벤트 전달
-        foreach (Enemy enemy in activeEnemies)
+        foreach (Enemy enemy in activeEnemies.ToArray())
         {
             if (enemy != null)
             {
@@ -260,7 +273,6 @@ public class StageManager : MonoBehaviour
             }
         }
 
-        // 7. UI 및 DiceController 초기화
         if (UIManager.Instance != null)
         {
             UIManager.Instance.UpdateWaveInfoPanel(activeEnemies);
@@ -278,48 +290,90 @@ public class StageManager : MonoBehaviour
         {
             diceController.SetDiceDeck(GameManager.Instance.playerDiceDeck);
         }
-        if (UIManager.Instance != null)
-        {
-            UIManager.Instance.ClearScoreText();
-        }
     }
-
-    // ... (GetPreviewValues, ShowAttackPreview, HideAllAttackPreviews 함수는 모두 동일) ...
+    
     public (int finalDamage, int finalScore) GetPreviewValues(AttackJokbo jokbo)
     {
         int baseDamage = jokbo.BaseDamage;
         int baseScore = jokbo.BaseScore;
+
         int bonusDamage = GameManager.Instance.GetAttackDamageModifiers(jokbo);
         int bonusScore = GameManager.Instance.GetAttackScoreBonus(jokbo); 
+        
         int finalBaseDamage = baseDamage + bonusDamage;
         int finalBaseScore = baseScore + bonusScore; 
+        
         var (rollDamageMult, rollScoreMult) = GameManager.Instance.GetRollCountBonuses(diceController.currentRollCount);
+
         if (rollDamageMult > 1.0f || rollScoreMult > 1.0f)
         {
             finalBaseDamage = (int)(finalBaseDamage * rollDamageMult);
             finalBaseScore = (int)(finalBaseScore * rollScoreMult); 
         }
+        
         return (finalBaseDamage, finalBaseScore);
     }
+    
     public void ShowAttackPreview(AttackJokbo jokbo)
     {
         (int finalBaseDamage, int finalBaseScore) = GetPreviewValues(jokbo);
+
         AttackJokbo modifiedJokbo = new AttackJokbo(
             jokbo.Description,
             finalBaseDamage, 
             finalBaseScore, 
             jokbo.CheckLogic
         );
+
         foreach (Enemy enemy in activeEnemies.Where(e => e != null && !e.isDead))
         {
             enemy.ShowDamagePreview(modifiedJokbo);
         }
     }
+
     public void HideAllAttackPreviews()
     {
         foreach (Enemy enemy in activeEnemies.Where(e => e != null && !e.isDead))
         {
             enemy.HideDamagePreview();
+        }
+    }
+
+    public void SpawnEnemiesForBoss(GameObject prefab, int count)
+    {
+        if (prefab == null)
+        {
+            Debug.LogError("[StageManager] 보스가 소환할 프리팹이 null입니다.");
+            return;
+        }
+        Debug.Log($"[StageManager] 보스 기믹으로 {prefab.name} {count}마리 추가 스폰");
+        for (int i = 0; i < count; i++)
+        {
+            if (enemySpawnPoints.Length == 0)
+            {
+                Debug.LogError("적 스폰 포인트가 없습니다!");
+                return;
+            }
+            int spawnIndex = Random.Range(0, enemySpawnPoints.Length);
+            Vector3 spawnPos = enemySpawnPoints[spawnIndex].position;
+            Vector2 randomOffset = Random.insideUnitCircle * spawnSpreadRadius;
+            spawnPos.x += randomOffset.x;
+            spawnPos.y += randomOffset.y;
+            if (mainCam != null)
+            {
+                spawnPos.x = Mathf.Clamp(spawnPos.x, minViewBoundary.x, maxViewBoundary.x);
+                spawnPos.y = Mathf.Clamp(spawnPos.y, minViewBoundary.y, maxViewBoundary.y);
+            }
+            GameObject enemyGO = WaveGenerator.Instance.SpawnFromPool(prefab, spawnPos, Quaternion.identity);
+            Enemy newEnemy = enemyGO.GetComponent<Enemy>();
+            if (newEnemy != null)
+            {
+                activeEnemies.Add(newEnemy);
+            }
+        }
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdateWaveInfoPanel(activeEnemies);
         }
     }
 }

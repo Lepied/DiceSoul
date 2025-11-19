@@ -8,6 +8,7 @@ using System.Linq; // Linq 사용
 /// 2. GetAttackDamageModifiers() 함수: '금권 정치'(점수비례), '피의 갈증'(잃은체력비례) 효과 구현
 /// 3. GetAttackScoreBonus() 함수: '녹슨 톱니'(점수+) 효과 구현
 /// </summary>
+[DefaultExecutionOrder(-50)] //현재 WaveGenerator(-100) 다음, StageManager(0) 이전
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
@@ -60,6 +61,11 @@ public class GameManager : MonoBehaviour
 
         playerDiceDeck.Clear();
         activeRelics.Clear();
+
+        if (WaveGenerator.Instance != null)
+        {
+            WaveGenerator.Instance.BuildRunZoneOrder();
+        }
 
         string selectedDeck = PlayerPrefs.GetString(selectedDeckKey, "Default");
         Debug.Log($"[GameManager] '{selectedDeck}' 덱으로 새 런을 시작합니다.");

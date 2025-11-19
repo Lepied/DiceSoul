@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq; // Linq를 사용하기 위해 필요
 
 /// <summary>
-/// [!!! 핵심 수정 (SO + 인스펙터 방식) !!!]
-/// 1. 'allGameZones' (List<ZoneData>) 변수를 인스펙터에서 받습니다.
-/// 2. 'CacheEnemyData' 함수가 부활: 게임 시작 시 ZoneData/WaveData를 모두 스캔하여,
-///    프리팹의 'Enemy.cs' 인스펙터에서 'difficultyCost' 등을 읽어와 '메뉴판'(Cache)을 만듭니다.
-/// 3. 'GenerateWave' 함수가 이 '메뉴판'을 기반으로 "필수 스폰 + 추가 예산" 로직을 실행하고,
-///    'List<GameObject>' (프리팹 리스트)를 반환합니다.
+/// [!!! CS0122 오류 수정 !!!]
+/// 1. 'GetCurrentZoneData(int currentZone)' 함수 (159행)를
+///    'private'에서 'public'으로 변경 (StageManager가 배경을 읽을 수 있도록)
+/// 2. GenerateWave(int, int) 함수 (219행)는 'public'으로 유지 (올바른 버전)
 /// </summary>
+[DefaultExecutionOrder(-100)] //Awake같은거 먼저 실행시키기
 public class WaveGenerator : MonoBehaviour
 {
     public static WaveGenerator Instance { get; private set; }
@@ -18,7 +17,7 @@ public class WaveGenerator : MonoBehaviour
     [Tooltip("게임에 등장할 '모든' ZoneData.asset 파일을 여기에 등록합니다.")]
     public List<ZoneData> allGameZones; 
 
-    // [신규] 프리팹(Key)과 '캐시된 데이터'(Value)를 매칭하는 메뉴판
+    // (캐시) 프리팹 이름(Key)과 '인스펙터 스탯'
     private class CachedEnemyData
     {
         public GameObject prefab;
@@ -28,11 +27,14 @@ public class WaveGenerator : MonoBehaviour
     }
     private Dictionary<string, CachedEnemyData> enemyDataCache = new Dictionary<string, CachedEnemyData>();
     
-    // [신규] '존(Zone)'별 랜덤 스폰풀을 캐시
+    // (캐시) 존(Zone) 이름(Key)과 '랜덤 스폰 풀'
     private Dictionary<string, List<CachedEnemyData>> zoneGeneralPoolCache = new Dictionary<string, List<CachedEnemyData>>();
 
     // 오브젝트 풀링용 딕셔너리
     private Dictionary<string, Queue<GameObject>> poolDictionary = new Dictionary<string, Queue<GameObject>>();
+
+    // [!!!] 이번 런(Run)에서 플레이할 5개 존의 '셔플된' 순서
+    private List<ZoneData> currentRunZoneOrder = new List<ZoneData>();
 
 
     void Awake()
@@ -41,7 +43,7 @@ public class WaveGenerator : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            CacheEnemyData(); // [!!!] 프리팹 스탯을 읽어 메뉴판 생성
+            CacheEnemyData(); 
         }
         else
         {
@@ -50,24 +52,65 @@ public class WaveGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// [!!! 핵심 수정 !!!]
-    /// 'allGameZones' SO를 모두 스캔하여, 프리팹 인스펙터의 'Enemy.cs' 스탯을 읽어와
-    /// 'enemyDataCache' (메뉴판)을 생성합니다.
+    /// (GameManager.StartNewRun()이 호출)
+    /// 새 런(Run)을 위해 Zone Tier 2, 3 리스트를 셔플합니다.
+    /// </summary>
+    public void BuildRunZoneOrder()
+    {
+        currentRunZoneOrder.Clear();
+        if (allGameZones == null || allGameZones.Count == 0)
+        {
+            Debug.LogError("[WaveGenerator] 'allGameZones' 리스트가 비어있어 런을 빌드할 수 없습니다!");
+            return;
+        }
+
+        // Linq를 사용하여 티어(Tier)별로 분류
+        var zonesByTier = allGameZones.Where(z => z != null)
+                                      .GroupBy(z => z.zoneTier)
+                                      .ToDictionary(g => g.Key, g => g.ToList());
+
+        // (기획서: 1-2-2-3-3 순서)
+        
+        // --- Zone 1 (Tier 1) ---
+        if (zonesByTier.ContainsKey(1) && zonesByTier[1].Count > 0)
+        {
+            List<ZoneData> tier1 = zonesByTier[1].OrderBy(z => Random.value).ToList(); 
+            currentRunZoneOrder.Add(tier1[0]); 
+        } else { Debug.LogError("Tier 1 존이 없습니다!"); }
+
+        // --- Zone 2 & 3 (Tier 2) ---
+        if (zonesByTier.ContainsKey(2) && zonesByTier[2].Count >= 2)
+        {
+            List<ZoneData> tier2 = zonesByTier[2].OrderBy(z => Random.value).ToList(); 
+            currentRunZoneOrder.Add(tier2[0]); 
+            currentRunZoneOrder.Add(tier2[1]);
+        } else { Debug.LogError("Tier 2 존이 2개 미만입니다! (묘지, 고블린 소굴 필요)"); }
+        
+        // --- Zone 4 & 5 (Tier 3) ---
+        if (zonesByTier.ContainsKey(3) && zonesByTier[3].Count >= 2)
+        {
+            List<ZoneData> tier3 = zonesByTier[3].OrderBy(z => Random.value).ToList(); 
+            currentRunZoneOrder.Add(tier3[0]); 
+            currentRunZoneOrder.Add(tier3[1]);
+        } else { Debug.LogError("Tier 3 존이 2개 미만입니다! (악마성, 얼음동굴 필요)"); }
+        
+        Debug.Log($"[WaveGenerator] 새 런(Run) 존 순서 생성 완료 (총 {currentRunZoneOrder.Count}개 존): " +
+                  string.Join(" -> ", currentRunZoneOrder.Select(z => z.zoneName)));
+    }
+
+
+    /// <summary>
+    /// 'allGameZones' SO를 모두 스캔하여 'enemyDataCache' (메뉴판)을 생성합니다.
     /// </summary>
     private void CacheEnemyData()
     {
         enemyDataCache.Clear();
         poolDictionary.Clear();
         zoneGeneralPoolCache.Clear();
-
         if (allGameZones == null) return;
-
-        // 모든 존(Zone) SO 순회
         foreach (ZoneData zone in allGameZones)
         {
             if (zone == null) continue;
-            
-            // 1. '일반 스폰 풀' 캐시
             List<CachedEnemyData> generalPool = new List<CachedEnemyData>();
             if (zone.generalEnemies != null)
             {
@@ -77,9 +120,7 @@ public class WaveGenerator : MonoBehaviour
                     if(data != null) generalPool.Add(data);
                 }
             }
-            zoneGeneralPoolCache.Add(zone.name, generalPool); // (존 이름으로 캐시)
-
-            // 2. '필수 스폰' 프리팹 캐시
+            zoneGeneralPoolCache.Add(zone.name, generalPool); 
             if (zone.waves != null)
             {
                 foreach (WaveData wave in zone.waves)
@@ -98,29 +139,20 @@ public class WaveGenerator : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// [신규 헬퍼] 프리팹을 캐시에 등록하고, 풀(Pool)을 초기화하는 함수
-    /// </summary>
     private CachedEnemyData AddOrGetCachedData(GameObject prefab)
     {
         if (prefab == null) return null;
         string key = prefab.name;
-
-        // 1. 이미 캐시(메뉴판)에 있으면 바로 반환
         if (enemyDataCache.ContainsKey(key))
         {
             return enemyDataCache[key];
         }
-
-        // 2. 캐시에 없으면, 'GetComponent'로 인스펙터 값 읽기
         Enemy enemyScript = prefab.GetComponent<Enemy>();
         if (enemyScript == null)
         {
             Debug.LogError($"[WaveGenerator] {key} 프리팹에 Enemy 스크립트가 없습니다!");
             return null;
         }
-
-        // 3. '인스펙터 값'으로 '메뉴판' 데이터 생성
         CachedEnemyData newData = new CachedEnemyData
         {
             prefab = prefab,
@@ -128,36 +160,50 @@ public class WaveGenerator : MonoBehaviour
             minZoneLevel = enemyScript.minZoneLevel,
             isBoss = enemyScript.isBoss
         };
-        
-        enemyDataCache.Add(key, newData); // 메뉴판(캐시)에 등록
-        
-        // 4. 오브젝트 풀(Pool) 등록
+        enemyDataCache.Add(key, newData); 
         if (!poolDictionary.ContainsKey(key))
         {
             poolDictionary.Add(key, new Queue<GameObject>());
             Debug.Log($"[WaveGenerator] 오브젝트 풀 등록: {key}");
         }
-        
         return newData;
+    }
+
+    
+    /// <summary>
+    /// [!!! CS0122 오류 수정 !!!]
+    /// StageManager가 호출할 수 있도록 'private' -> 'public'으로 변경
+    /// </summary>
+    public ZoneData GetCurrentZoneData(int currentZone)
+    {
+        // (기획서: Zone 1 (Tier 1), Zone 2/3 (Tier 2), Zone 4/5 (Tier 3))
+        int zoneIndex = currentZone - 1; // (Zone 1 -> 인덱스 0)
+
+        if (currentRunZoneOrder == null || currentRunZoneOrder.Count <= zoneIndex || currentRunZoneOrder[zoneIndex] == null)
+        {
+            Debug.LogError($"[WaveGenerator] 'currentRunZoneOrder'에서 Zone {currentZone} (인덱스 {zoneIndex})에 해당하는 ZoneData를 찾을 수 없습니다.");
+            return null; 
+        }
+
+        return currentRunZoneOrder[zoneIndex];
     }
 
 
     /// <summary>
-    /// [!!! 핵심 수정 !!!]
-    /// SO와 캐시(메뉴판)를 읽어 '필수 스폰 + 추가 예산' 로직을 실행합니다.
+    /// [!!! CS7036 오류 수정 !!!]
+    /// (int currentZone, int currentWave) 2개의 인자만 받습니다.
     /// </summary>
     public List<GameObject> GenerateWave(int currentZone, int currentWave)
     {
         List<GameObject> enemiesToSpawn = new List<GameObject>();
 
-        // 1. 현재 존(Zone) 데이터 찾기
-        int zoneIndex = currentZone - 1;
-        if (allGameZones == null || allGameZones.Count <= zoneIndex || allGameZones[zoneIndex] == null)
+        // 1. [변경] '셔플된' 런 순서에서 현재 존(Zone) 데이터 찾기
+        ZoneData zoneData = GetCurrentZoneData(currentZone);
+        if (zoneData == null)
         {
-             Debug.LogError($"[WaveGenerator] Zone {currentZone}에 해당하는 'ZoneData.asset'이 allGameZones 리스트에 등록되지 않았습니다!");
+             Debug.LogError($"[WaveGenerator] Zone {currentZone}에 해당하는 'ZoneData'를 찾을 수 없습니다! (InitializeNewRun() 또는 allGameZones 인스펙터를 확인하세요)");
              return enemiesToSpawn;
         }
-        ZoneData zoneData = allGameZones[zoneIndex];
 
         // 2. 현재 웨이브(Wave) 데이터 찾기
         int waveIndex = currentWave - 1;
@@ -175,7 +221,7 @@ public class WaveGenerator : MonoBehaviour
             
             for(int i=0; i < spawnData.count; i++)
             {
-                enemiesToSpawn.Add(spawnData.enemyPrefab); // 프리팹을 리스트에 추가
+                enemiesToSpawn.Add(spawnData.enemyPrefab); 
             }
         }
         
@@ -183,11 +229,10 @@ public class WaveGenerator : MonoBehaviour
         int budget = waveData.bonusBudget;
         if (budget > 0 && zoneGeneralPoolCache.ContainsKey(zoneData.name))
         {
-            // [!!!] '메뉴판(캐시)'에서 이 존의 랜덤 스폰풀을 가져옴
              List<CachedEnemyData> availableEnemies = zoneGeneralPoolCache[zoneData.name]
                 .Where(e => e.minZoneLevel <= currentZone && 
                             e.cost > 0 && 
-                            !e.isBoss) // (일반몹만)
+                            !e.isBoss) 
                 .ToList();
 
             if (availableEnemies.Count > 0)
@@ -199,7 +244,7 @@ public class WaveGenerator : MonoBehaviour
                     if (purchasable.Count == 0) break; 
                     
                     CachedEnemyData chosenData = purchasable[Random.Range(0, purchasable.Count)];
-                    enemiesToSpawn.Add(chosenData.prefab); // 프리팹을 리스트에 추가
+                    enemiesToSpawn.Add(chosenData.prefab); 
                     budget -= chosenData.cost;
                     safetyNet--;
                 }

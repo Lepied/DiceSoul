@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b503c177ece661e428431017ed9cf007, type: 3}
+  m_Name: Zone 2 - Cemetery
+  m_EditorClassIdentifier: Assembly-CSharp::ZoneData
+  zoneName: "\uBB18\uC9C0"
+  zoneTier: 2
+  zoneBackground: {fileID: 5535881783676608107, guid: 13c73bd39a860e54fba9396d081dc348, type: 3}
+  waves:
+  - {fileID: 11400000, guid: 722f9507aa8428248985ba40aea643ae, type: 2}
+  - {fileID: 11400000, guid: 4cdc5b661a1785343911bd9f43e6a089, type: 2}
+  - {fileID: 11400000, guid: d0fa72f9ad179c54dabb9811a4d082d7, type: 2}
+  - {fileID: 11400000, guid: 088f99ed0a8d89e4cb4e03359571919d, type: 2}
+  - {fileID: 11400000, guid: a6a73746218538844922611c13357d65, type: 2}
+  generalEnemies:
+  - {fileID: 354087232363995093, guid: a8350030111bf7d44acf6180b0258ac2, type: 3}
+  - {fileID: 354087232363995093, guid: 06c8ca367d833de4c8d50ce10b6bb098, type: 3}
+  - {fileID: 354087232363995093, guid: 747d89baa9c7e1f4b96d23148962d8de, type: 3}

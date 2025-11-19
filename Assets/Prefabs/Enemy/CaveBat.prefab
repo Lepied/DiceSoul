@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 3655426023589534718}
   - component: {fileID: 3252906354995160926}
-  - component: {fileID: 6489840061799718697}
+  - component: {fileID: -5563956294618338109}
   m_Layer: 0
-  m_Name: Slime
+  m_Name: CaveBat
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -81,7 +81,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 368543389579951487, guid: 71b1c6f85ac87e144bf86c4175985ac7, type: 3}
+  m_Sprite: {fileID: -671583076500848588, guid: d0a333e7697d17541932d9abb2695baf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -92,7 +92,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &6489840061799718697
+--- !u!114 &-5563956294618338109
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -101,18 +101,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 354087232363995093}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ea26c24167390f48858c54bcdad88ee, type: 3}
+  m_Script: {fileID: 11500000, guid: e39d8e21b9a2791479212e1234e96b45, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Slime
-  enemyName: "\uC2AC\uB77C\uC784"
-  maxHP: 60
+  m_EditorClassIdentifier: Assembly-CSharp::CaveBat
+  enemyName: "\uB3D9\uAD74 \uBC15\uC950"
+  maxHP: 80
   enemyType: 0
   isBoss: 0
   difficultyCost: 10
-  minZoneLevel: 1
+  minZoneLevel: 2
   hpText: {fileID: 2732612995263361356}
   hpSlider: {fileID: 3628779937239865213}
   damagePreviewSlider: {fileID: 4458117452962411878}
+  dodgeChance: 0.5
 --- !u!1 &382477599371347607
 GameObject:
   m_ObjectHideFlags: 0
@@ -148,7 +149,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 40}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 500, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &4458117452962411878
@@ -634,7 +635,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 40}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 500, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &3628779937239865213
