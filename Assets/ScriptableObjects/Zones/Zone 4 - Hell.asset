@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b503c177ece661e428431017ed9cf007, type: 3}
+  m_Name: Zone 4 - Hell
+  m_EditorClassIdentifier: Assembly-CSharp::ZoneData
+  zoneName: "\uC9C0\uC625"
+  zoneTier: 3
+  zoneBackground: {fileID: -661766990909252259, guid: 97c3dbdf495b2084cb893fbda287b713, type: 3}
+  waves:
+  - {fileID: 11400000, guid: d4a6a0b20cf6fa24fbea42c288e15e9c, type: 2}
+  - {fileID: 11400000, guid: 2847f898c205df249b36d815db32daf5, type: 2}
+  - {fileID: 11400000, guid: a2bb14f952423534fbd9bab77a1742ef, type: 2}
+  - {fileID: 11400000, guid: f55db178224b999478a8bd668dc838cd, type: 2}
+  - {fileID: 11400000, guid: f1b6c602470c5c7439c1b28a82469f17, type: 2}
+  generalEnemies:
+  - {fileID: 354087232363995093, guid: 56d3947e98bf51a4e8b015cc134feb62, type: 3}
+  - {fileID: 354087232363995093, guid: 02a4d96514a608845b9551d23999f6a8, type: 3}
+  - {fileID: 354087232363995093, guid: 2f1d18c09dc5a4047b87ffa88798802b, type: 3}
+  - {fileID: 354087232363995093, guid: a8350030111bf7d44acf6180b0258ac2, type: 3}

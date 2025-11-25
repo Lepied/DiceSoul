@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b503c177ece661e428431017ed9cf007, type: 3}
+  m_Name: Zone 5 - Iceberg
+  m_EditorClassIdentifier: Assembly-CSharp::ZoneData
+  zoneName: "\uBE59\uD558"
+  zoneTier: 3
+  zoneBackground: {fileID: 6175064692937923731, guid: 6ae59ae4b20bda9409f7b7fbba951270, type: 3}
+  waves:
+  - {fileID: 11400000, guid: b68d715357056254ba42dc6d0a19e4fc, type: 2}
+  - {fileID: 11400000, guid: 9367fae8e3d6a004fb02a3888208ef14, type: 2}
+  - {fileID: 11400000, guid: 09a7f1c089c14b84e953ee9deaf20a9c, type: 2}
+  - {fileID: 11400000, guid: 9285bfaaeff16fc44b4cdf677e68abc2, type: 2}
+  - {fileID: 11400000, guid: e01fdb649cad1f54e8b080324da39e5a, type: 2}
+  generalEnemies:
+  - {fileID: 354087232363995093, guid: ef2c29d5a349b644b8e5311a531d6906, type: 3}
+  - {fileID: 354087232363995093, guid: 2d8cea53d2373f145a93e7cad62312e0, type: 3}
+  - {fileID: 354087232363995093, guid: c0a5192e94e266548b76d7144d29a74a, type: 3}
+  - {fileID: 354087232363995093, guid: a8350030111bf7d44acf6180b0258ac2, type: 3}

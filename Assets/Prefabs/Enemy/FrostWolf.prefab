@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 3655426023589534718}
   - component: {fileID: 3252906354995160926}
-  - component: {fileID: -3709783410509988194}
+  - component: {fileID: 6461423267752734501}
   m_Layer: 0
-  m_Name: LivingArmor
+  m_Name: FrostWolf
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -81,7 +81,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7021083274107601241, guid: b7a01b3cc0ba8b440926e4f1f4544829, type: 3}
+  m_Sprite: {fileID: 3859680241712615114, guid: 9007e5dd1feb06c40a97d23880f828fa, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -92,7 +92,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &-3709783410509988194
+--- !u!114 &6461423267752734501
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -101,18 +101,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 354087232363995093}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfec803ca998c654a8367229b980f558, type: 3}
+  m_Script: {fileID: 11500000, guid: a7a8ee4f74f696648aa66022ed56738e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LivingArmor
-  enemyName: "\uB9AC\uBE59 \uC544\uBA38"
-  maxHP: 150
-  enemyType: 3
+  m_EditorClassIdentifier: Assembly-CSharp::FrostWolf
+  enemyName: "\uC11C\uB9AC \uB291\uB300"
+  maxHP: 200
+  enemyType: 0
   isBoss: 0
-  difficultyCost: 20
+  difficultyCost: 15
   minZoneLevel: 3
   hpText: {fileID: 6166942275768172032}
   hpSlider: {fileID: 3325079089081980418}
   damagePreviewSlider: {fileID: 4619757558335903610}
+  damageReductionPerStack: 20
 --- !u!1 &553198092765252911
 GameObject:
   m_ObjectHideFlags: 0
@@ -697,7 +698,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 125}
+  m_AnchoredPosition: {x: 0, y: 50}
   m_SizeDelta: {x: 500, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &3325079089081980418
@@ -786,7 +787,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 125}
+  m_AnchoredPosition: {x: 0, y: 50}
   m_SizeDelta: {x: 500, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &4619757558335903610

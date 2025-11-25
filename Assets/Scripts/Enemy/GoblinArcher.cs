@@ -13,7 +13,7 @@ public class GoblinArcher : Enemy
     /// 플레이어가 주사위를 굴릴 때마다 30% 확률로 1의 피해를 줍니다.
     public override void OnPlayerRoll(List<int> diceValues)
     {
-        base.OnPlayerRoll(diceValues); // 부모 로직 호출
+        base.OnPlayerRoll(diceValues); 
 
         if (isDead) return;
 

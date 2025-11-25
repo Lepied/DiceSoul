@@ -80,6 +80,25 @@ public class GameManager : MonoBehaviour
                 playerDiceDeck.Add("D6");
                 break;
 
+            case "도박사":
+                playerDiceDeck.Add("D20");
+                playerDiceDeck.Add("D4");
+                playerDiceDeck.Add("D4");
+                playerDiceDeck.Add("D4");
+                playerDiceDeck.Add("D4");
+                break;
+            
+            case "마법사":
+                for (int i = 0; i < 4; i++)
+                {
+                    playerDiceDeck.Add("D6");
+                }
+                if(RelicDB.Instance != null)
+                {
+                    Relic lodestone = RelicDB.Instance.GetRelicByID("RLC_LODESTONE");
+                    if (lodestone != null) AddRelic(lodestone);
+                }
+                break;
             case "Default":
             default:
                 for (int i = 0; i < 5; i++)
@@ -87,6 +106,10 @@ public class GameManager : MonoBehaviour
                     playerDiceDeck.Add("D6");
                 }
                 break;
+        }
+        if (WaveGenerator.Instance != null)
+        {
+            WaveGenerator.Instance.BuildRunZoneOrder();
         }
 
         if (UIManager.Instance != null)
