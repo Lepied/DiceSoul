@@ -4,61 +4,66 @@ using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
-/// <summary>
-/// [!!! 핵심 수정 !!!]
-/// 1. 'DeckInfo' 클래스(Serializable)를 사용하여 여러 덱을 리스트로 관리합니다.
-/// 2. 덱 선택 / 해금 로직을 자동화했습니다. (인스펙터에서 설정 가능)
-/// 3. StartGame 시 선택된 덱(Key)을 저장합니다.
-/// </summary>
 public class MainMenuManager : MonoBehaviour
 {
-    [System.Serializable]
-    public class DeckInfo
-    {
-        public string deckKey;      // 예: "Default", "단골", "도박사", "마법사"
-        public string deckName;     // 표시 이름
-        public int unlockCost;      // 해금 비용 (0이면 기본 해금)
-        public string unlockKey;    // PlayerPrefs 키 (예: "Unlocked_Gambler")
-
-        [Header("UI 연결")]
-        public Button selectButton;       // 덱 선택 버튼
-        public GameObject lockedOverlay;  // 잠김 상태일 때 덮을 패널
-        public Button unlockButton;       // 해금 버튼
-        public TextMeshProUGUI costText;  // 비용 텍스트
-        public GameObject selectedHighlight; // 선택됨 표시
-    }
-
     [Header("씬 설정")]
     public string gameSceneName = "Game";
 
-    [Header("재화")]
+    [Header("영구 재화")]
     public TextMeshProUGUI metaCurrencyText;
     public string metaCurrencyKey = "MetaCurrency";
-
-    [Header("메인 버튼")]
+    
+    [Header("메인 화면 버튼")]
     public Button startGameButton;
+    public Button openShopButton; 
+    public Button openDeckButton; //  덱 관리 패널 열기 버튼
     public Button quitGameButton;
 
-    [Header("덱 목록 설정")]
-    public List<DeckInfo> deckList; // [!!!] 여기서 모든 덱을 관리
+    [Header("덱 선택/해금 UI (별도 패널)")]
+    public GameObject deckSelectionPanel; // 덱 목록이 뜨는 팝업창
+    public Button closeDeckButton;        //  덱 패널 닫기
+    public Transform deckListContent;     // (ScrollView의 Content)
+    
+    [Tooltip("덱 리스트 아이템 프리팹")]
+    public GameObject deckListItemPrefab;
 
-    // 내부 변수
+    [Tooltip("게임에 등장할 모든 덱 데이터 (SO)")]
+    public List<DeckData> allDecks; 
+
+    // (기존 상점 UI - 덱 이외의 강화를 위해 남겨둠, 필요 없으면 무시 가능)
+    [Header("일반 상점 UI (옵션)")]
+    public GameObject upgradeShopPanel;
+    public Button closeShopButton;
+
+    // 생성된 아이템들의 리스트 (관리용)
+    private List<DeckListItem> spawnedItems = new List<DeckListItem>();
     private int totalMetaCurrency;
-    private string selectedDeckKey = "SelectedDeck";
-    private string currentSelectedDeck = "Default";
+    
+    // 키 값
+    public string SelectedDeckKey { get; private set; } = "SelectedDeck";
 
     void Start()
     {
         LoadMetaCurrency();
         
+        // 패널 초기화 (모두 닫기)
+        if (deckSelectionPanel != null) deckSelectionPanel.SetActive(false);
+        if (upgradeShopPanel != null) upgradeShopPanel.SetActive(false);
+
         // 버튼 리스너 연결
         if (startGameButton != null) startGameButton.onClick.AddListener(OnStartGame);
         if (quitGameButton != null) quitGameButton.onClick.AddListener(OnQuitGame);
+        
+        // [신규] 덱 버튼 연결
+        if (openDeckButton != null) openDeckButton.onClick.AddListener(OnOpenDeckPanel);
+        if (closeDeckButton != null) closeDeckButton.onClick.AddListener(OnCloseDeckPanel);
 
-        // 저장된 '마지막 선택 덱' 불러오기
-        currentSelectedDeck = PlayerPrefs.GetString(selectedDeckKey, "Default");
+        // (기존) 상점 버튼 연결
+        if (openShopButton != null) openShopButton.onClick.AddListener(OnOpenShop);
+        if (closeShopButton != null) closeShopButton.onClick.AddListener(OnCloseShop);
 
-        InitializeDeckUI();
+        // 덱 목록 생성 (미리 생성해둠)
+        GenerateDeckList();
     }
 
     void LoadMetaCurrency()
@@ -66,101 +71,111 @@ public class MainMenuManager : MonoBehaviour
         totalMetaCurrency = PlayerPrefs.GetInt(metaCurrencyKey, 0);
         if (metaCurrencyText != null)
         {
-            metaCurrencyText.text = $"{totalMetaCurrency}";
+            metaCurrencyText.text = $"보유 파편: {totalMetaCurrency}";
         }
     }
 
     /// <summary>
-    /// 모든 덱의 UI 상태(잠김/해금/선택됨)를 갱신합니다.
+    /// DeckData 리스트를 순회하며 UI를 생성합니다.
+    /// (이제 deckSelectionPanel 안의 Content에 생성됩니다)
     /// </summary>
-    void InitializeDeckUI()
+    void GenerateDeckList()
     {
-        foreach (var deck in deckList)
+        if (deckListContent == null) return;
+
+        // 기존 아이템 정리
+        foreach (Transform child in deckListContent)
         {
-            // 1. 해금 여부 확인
-            // (비용이 0이면 기본 해금, 아니면 PlayerPrefs 확인)
-            bool isUnlocked = (deck.unlockCost == 0) || (PlayerPrefs.GetInt(deck.unlockKey, 0) == 1);
+            Destroy(child.gameObject);
+        }
+        spawnedItems.Clear();
 
-            if (isUnlocked)
+        // 현재 선택된 덱 키 로드
+        string currentSelected = PlayerPrefs.GetString(SelectedDeckKey, "Default");
+
+        // 데이터 기반 생성
+        foreach (DeckData data in allDecks)
+        {
+            if (data == null) continue;
+
+            GameObject itemObj = Instantiate(deckListItemPrefab, deckListContent);
+            DeckListItem itemScript = itemObj.GetComponent<DeckListItem>();
+            
+            if (itemScript != null)
             {
-                // [해금됨]
-                if (deck.lockedOverlay != null) deck.lockedOverlay.SetActive(false);
-                if (deck.selectButton != null)
-                {
-                    deck.selectButton.interactable = true;
-                    // 선택 버튼 클릭 시 -> 이 덱을 선택
-                    deck.selectButton.onClick.RemoveAllListeners();
-                    deck.selectButton.onClick.AddListener(() => OnSelectDeck(deck.deckKey));
-                }
-                
-                // 선택 상태 표시
-                bool isSelected = (deck.deckKey == currentSelectedDeck);
-                if (deck.selectedHighlight != null) deck.selectedHighlight.SetActive(isSelected);
-            }
-            else
-            {
-                // [잠김]
-                if (deck.lockedOverlay != null) deck.lockedOverlay.SetActive(true);
-                if (deck.selectButton != null) deck.selectButton.interactable = false; // 선택 불가
-                
-                if (deck.unlockButton != null)
-                {
-                    // 돈이 충분한지 확인
-                    deck.unlockButton.interactable = (totalMetaCurrency >= deck.unlockCost);
-                    
-                    deck.unlockButton.onClick.RemoveAllListeners();
-                    deck.unlockButton.onClick.AddListener(() => OnUnlockDeck(deck));
-                }
-                if (deck.costText != null)
-                {
-                    deck.costText.text = $"{deck.unlockCost}";
-                }
-                if (deck.selectedHighlight != null) deck.selectedHighlight.SetActive(false);
+                itemScript.Setup(data, this);
+                spawnedItems.Add(itemScript);
             }
         }
     }
 
-    /// <summary>
-    /// 덱 선택 처리
-    /// </summary>
-    public void OnSelectDeck(string deckKey)
+    // --- 덱 패널 제어 ---
+    public void OnOpenDeckPanel()
     {
-        currentSelectedDeck = deckKey;
-        PlayerPrefs.SetString(selectedDeckKey, currentSelectedDeck);
+        if (deckSelectionPanel != null) deckSelectionPanel.SetActive(true);
+    }
+
+    public void OnCloseDeckPanel()
+    {
+        if (deckSelectionPanel != null) deckSelectionPanel.SetActive(false);
+    }
+
+    // --- 덱 로직 ---
+
+    public void SelectDeck(string deckKey)
+    {
+        PlayerPrefs.SetString(SelectedDeckKey, deckKey);
         PlayerPrefs.Save();
         
-        // UI 갱신 (하이라이트 이동)
-        InitializeDeckUI();
+        // 모든 UI 갱신
+        RefreshAllItems();
     }
 
-    /// <summary>
-    /// 덱 해금 처리
-    /// </summary>
-    public void OnUnlockDeck(DeckInfo deck)
+    public void UnlockDeck(DeckData data)
     {
-        if (totalMetaCurrency >= deck.unlockCost)
+        if (totalMetaCurrency >= data.unlockCost)
         {
-            totalMetaCurrency -= deck.unlockCost;
+            totalMetaCurrency -= data.unlockCost;
             
             PlayerPrefs.SetInt(metaCurrencyKey, totalMetaCurrency);
-            PlayerPrefs.SetInt(deck.unlockKey, 1); // 해금 저장
+            PlayerPrefs.SetInt(data.unlockKey, 1);
             PlayerPrefs.Save();
 
-            LoadMetaCurrency();
-            InitializeDeckUI(); // UI 갱신
+            LoadMetaCurrency(); // 돈 갱신
+            RefreshAllItems();  // 버튼 상태 갱신
             
-            // 해금 즉시 선택해 주는 센스
-            OnSelectDeck(deck.deckKey);
+            // 해금 즉시 선택
+            SelectDeck(data.deckKey);
         }
     }
+
+    private void RefreshAllItems()
+    {
+        foreach (var item in spawnedItems)
+        {
+            item.RefreshState();
+        }
+    }
+
+    // --- 게임 실행 ---
 
     public void OnStartGame()
     {
         SceneManager.LoadScene(gameSceneName);
     }
-
+    
     public void OnQuitGame()
     {
         Application.Quit();
+    }
+
+    // --- (기존 상점 로직 유지 - 필요 시 사용) ---
+    public void OnOpenShop()
+    {
+        if (upgradeShopPanel != null) upgradeShopPanel.SetActive(true);
+    }
+    public void OnCloseShop()
+    {
+        if (upgradeShopPanel != null) upgradeShopPanel.SetActive(false);
     }
 }
