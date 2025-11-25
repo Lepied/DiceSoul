@@ -30,7 +30,7 @@ public class DeckListItem : MonoBehaviour
         {
             // 가격이 0원이면 텍스트를 끄거나 "무료"로 표시
             if (data.unlockCost > 0)
-                costText.text = $"🔒 {data.unlockCost}";
+                costText.text = $"ㅁ {data.unlockCost}";
             else
                 costText.text = "Free";
         }

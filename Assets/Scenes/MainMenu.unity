@@ -190,7 +190,7 @@ MonoBehaviour:
   m_Content: {fileID: 1167333248}
   m_Horizontal: 1
   m_Vertical: 0
-  m_MovementType: 1
+  m_MovementType: 2
   m_Elasticity: 0.1
   m_Inertia: 0
   m_DecelerationRate: 0.135
@@ -1498,6 +1498,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 81750ad92db6e7344994dee9be781e91, type: 2}
   - {fileID: 11400000, guid: 77636cae5761e2e4e9e8ccf6626aab76, type: 2}
   - {fileID: 11400000, guid: 33e766e3aadff544fa2c06e2813d270e, type: 2}
+  - {fileID: 11400000, guid: 84a399e6af3a3d44aaa9a5910887abc9, type: 2}
   snapScroller: {fileID: 60255577}
   actionButton: {fileID: 1598685504}
   actionButtonText: {fileID: 502960027}
@@ -1660,8 +1661,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.HorizontalLayoutGroup
   m_Padding:
-    m_Left: 200
-    m_Right: 200
+    m_Left: 810
+    m_Right: 810
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 4
