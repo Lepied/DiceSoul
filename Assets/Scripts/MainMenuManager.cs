@@ -16,53 +16,60 @@ public class MainMenuManager : MonoBehaviour
     [Header("메인 화면 버튼")]
     public Button startGameButton;
     public Button openShopButton; 
-    public Button openDeckButton; //  덱 관리 패널 열기 버튼
+    public Button openDeckButton; // 덱 선택 패널 열기
     public Button quitGameButton;
 
-    [Header("덱 선택/해금 UI (별도 패널)")]
-    public GameObject deckSelectionPanel; // 덱 목록이 뜨는 팝업창
-    public Button closeDeckButton;        //  덱 패널 닫기
-    public Transform deckListContent;     // (ScrollView의 Content)
+    [Header("덱 선택 UI (Carousel)")]
+    public GameObject deckSelectionPanel; 
+    public Button closeDeckButton;        // 덱 패널 닫기
+    public Transform deckListContent;     // ScrollView의 Content
+    public GameObject deckListItemPrefab; 
     
-    [Tooltip("덱 리스트 아이템 프리팹")]
-    public GameObject deckListItemPrefab;
+    [Tooltip("모든 덱 데이터 (ScriptableObject)")]
+    public List<DeckData> allDecks;
 
-    [Tooltip("게임에 등장할 모든 덱 데이터 (SO)")]
-    public List<DeckData> allDecks; 
+    [Header("캐러셀 & 액션 버튼")]
+    [Tooltip("새로 만든 DeckSnapScroller 스크립트를 연결하세요")]
+    public DeckSnapScroller snapScroller; 
 
-    // (기존 상점 UI - 덱 이외의 강화를 위해 남겨둠, 필요 없으면 무시 가능)
+    [Tooltip("패널 하단 중앙에 고정된 기능 수행 버튼")]
+    public Button actionButton;       
+    public TextMeshProUGUI actionButtonText; 
+    public GameObject lockIcon;       // 버튼 옆 자물쇠 아이콘 (선택사항)
+
     [Header("일반 상점 UI (옵션)")]
     public GameObject upgradeShopPanel;
     public Button closeShopButton;
 
-    // 생성된 아이템들의 리스트 (관리용)
+    // 내부 상태 변수
     private List<DeckListItem> spawnedItems = new List<DeckListItem>();
+    private DeckListItem currentFocusedItem; // 현재 중앙에 포커스된 아이템
     private int totalMetaCurrency;
     
-    // 키 값
+    // 키 값 프로퍼티
     public string SelectedDeckKey { get; private set; } = "SelectedDeck";
 
     void Start()
     {
         LoadMetaCurrency();
         
-        // 패널 초기화 (모두 닫기)
+        // 패널 초기화
         if (deckSelectionPanel != null) deckSelectionPanel.SetActive(false);
         if (upgradeShopPanel != null) upgradeShopPanel.SetActive(false);
 
-        // 버튼 리스너 연결
+        // 메인 버튼 리스너 연결
         if (startGameButton != null) startGameButton.onClick.AddListener(OnStartGame);
         if (quitGameButton != null) quitGameButton.onClick.AddListener(OnQuitGame);
         
-        // [신규] 덱 버튼 연결
+        // 덱 패널 버튼 연결
         if (openDeckButton != null) openDeckButton.onClick.AddListener(OnOpenDeckPanel);
         if (closeDeckButton != null) closeDeckButton.onClick.AddListener(OnCloseDeckPanel);
 
-        // (기존) 상점 버튼 연결
+        // 상점 버튼 연결
         if (openShopButton != null) openShopButton.onClick.AddListener(OnOpenShop);
         if (closeShopButton != null) closeShopButton.onClick.AddListener(OnCloseShop);
 
-        // 덱 목록 생성 (미리 생성해둠)
+        // 덱 목록 생성
         GenerateDeckList();
     }
 
@@ -76,24 +83,20 @@ public class MainMenuManager : MonoBehaviour
     }
 
     /// <summary>
-    /// DeckData 리스트를 순회하며 UI를 생성합니다.
-    /// (이제 deckSelectionPanel 안의 Content에 생성됩니다)
+    /// 덱 목록을 생성하고 스냅 스크롤러를 초기화합니다.
     /// </summary>
     void GenerateDeckList()
     {
         if (deckListContent == null) return;
 
-        // 기존 아이템 정리
+        // 1. 기존 아이템 삭제
         foreach (Transform child in deckListContent)
         {
             Destroy(child.gameObject);
         }
         spawnedItems.Clear();
 
-        // 현재 선택된 덱 키 로드
-        string currentSelected = PlayerPrefs.GetString(SelectedDeckKey, "Default");
-
-        // 데이터 기반 생성
+        // 2. 아이템 생성
         foreach (DeckData data in allDecks)
         {
             if (data == null) continue;
@@ -107,12 +110,133 @@ public class MainMenuManager : MonoBehaviour
                 spawnedItems.Add(itemScript);
             }
         }
+
+        // 3. 스크롤러 초기화 (생성된 리스트 전달)
+        // (잠시 대기 후 초기화하여 레이아웃이 잡힌 뒤 스냅하도록 함)
+        if (snapScroller != null)
+        {
+            snapScroller.Initialize(spawnedItems);
+        }
     }
 
-    // --- 덱 패널 제어 ---
+    // --- 캐러셀 연동 로직 (DeckSnapScroller가 호출) ---
+
+    /// <summary>
+    /// 스크롤러가 "이 아이템이 중앙에 왔어"라고 알려줄 때 호출됩니다.
+    /// </summary>
+    public void OnDeckFocused(DeckListItem focusedItem)
+    {
+        currentFocusedItem = focusedItem;
+        
+        // 포커스된 아이템에 맞춰 하단 버튼 상태 갱신
+        UpdateActionButtonUI();
+
+        // (선택사항) 포커스된 아이템만 확대하거나 강조하는 연출
+        foreach(var item in spawnedItems)
+        {
+            bool isCenter = (item == focusedItem);
+            // item.SetFocusScale(isCenter); // DeckListItem에 해당 함수 구현 필요 시 사용
+        }
+    }
+
+    /// <summary>
+    /// 현재 중앙에 있는 덱의 상태(잠김/해금/장착중)에 따라 하단 버튼을 갱신합니다.
+    /// </summary>
+    private void UpdateActionButtonUI()
+    {
+        if (currentFocusedItem == null || actionButton == null) return;
+
+        DeckData data = currentFocusedItem.Data;
+        
+        // 해금 여부 확인
+        bool isUnlocked = (data.unlockCost == 0) || (PlayerPrefs.GetInt(data.unlockKey, 0) == 1);
+        
+        // 현재 장착 중인지 확인
+        string currentSelected = PlayerPrefs.GetString(SelectedDeckKey, "Default");
+        bool isSelected = (data.deckKey == currentSelected);
+
+        // 기존 리스너 제거
+        actionButton.onClick.RemoveAllListeners();
+
+        if (isUnlocked)
+        {
+            // [상태 1: 이미 해금됨]
+            if (lockIcon != null) lockIcon.SetActive(false);
+
+            if (isSelected)
+            {
+                // [상태 1-A: 이미 장착 중]
+                actionButton.interactable = false;
+                if(actionButtonText) actionButtonText.text = "장착 중";
+            }
+            else
+            {
+                // [상태 1-B: 장착 가능]
+                actionButton.interactable = true;
+                if(actionButtonText) actionButtonText.text = "선택하기";
+                actionButton.onClick.AddListener(() => SelectDeck(data.deckKey));
+            }
+        }
+        else
+        {
+            // [상태 2: 잠김 (해금 필요)]
+            if (lockIcon != null) lockIcon.SetActive(true);
+
+            int currentMoney = PlayerPrefs.GetInt(metaCurrencyKey, 0);
+            bool canAfford = currentMoney >= data.unlockCost;
+
+            actionButton.interactable = canAfford;
+            if(actionButtonText) actionButtonText.text = $"해금하기 ({data.unlockCost})";
+            
+            actionButton.onClick.AddListener(() => {
+                UnlockDeck(data);
+            });
+        }
+    }
+
+    // --- 덱 선택 및 해금 로직 ---
+
+    public void SelectDeck(string deckKey)
+    {
+        PlayerPrefs.SetString(SelectedDeckKey, deckKey);
+        PlayerPrefs.Save();
+        
+        // 버튼 상태 즉시 갱신 (선택하기 -> 장착 중)
+        UpdateActionButtonUI();
+        
+        // 모든 리스트 아이템의 비주얼 갱신 (테두리 표시 등)
+        foreach (var item in spawnedItems) item.RefreshVisuals();
+    }
+
+    public void UnlockDeck(DeckData data)
+    {
+        if (totalMetaCurrency >= data.unlockCost)
+        {
+            // 1. 재화 차감 및 저장
+            totalMetaCurrency -= data.unlockCost;
+            PlayerPrefs.SetInt(metaCurrencyKey, totalMetaCurrency);
+            PlayerPrefs.SetInt(data.unlockKey, 1);
+            PlayerPrefs.Save();
+
+            // 2. UI 갱신
+            LoadMetaCurrency(); // 상단 재화 텍스트 갱신
+            currentFocusedItem.RefreshVisuals(); // 해당 아이템의 자물쇠 오버레이 제거
+            
+            // 3. 버튼 상태 갱신 (해금하기 -> 선택하기/장착중)
+            // 해금 후 바로 선택되게 하고 싶으면 여기서 SelectDeck 호출
+            UpdateActionButtonUI(); 
+        }
+    }
+
+    // --- 패널 제어 ---
     public void OnOpenDeckPanel()
     {
-        if (deckSelectionPanel != null) deckSelectionPanel.SetActive(true);
+        if (deckSelectionPanel != null) 
+        {
+            deckSelectionPanel.SetActive(true);
+            // 패널이 열릴 때, 현재 선택된 덱이나 첫 번째 덱으로 스크롤 이동하면 좋음
+            // snapScroller.SnapToItem(0); 
+        }
     }
 
     public void OnCloseDeckPanel()
@@ -120,45 +244,17 @@ public class MainMenuManager : MonoBehaviour
         if (deckSelectionPanel != null) deckSelectionPanel.SetActive(false);
     }
 
-    // --- 덱 로직 ---
-
-    public void SelectDeck(string deckKey)
+    // --- 상점 패널 제어 ---
+    public void OnOpenShop()
     {
-        PlayerPrefs.SetString(SelectedDeckKey, deckKey);
-        PlayerPrefs.Save();
-        
-        // 모든 UI 갱신
-        RefreshAllItems();
+        if (upgradeShopPanel != null) upgradeShopPanel.SetActive(true);
     }
-
-    public void UnlockDeck(DeckData data)
+    public void OnCloseShop()
     {
-        if (totalMetaCurrency >= data.unlockCost)
-        {
-            totalMetaCurrency -= data.unlockCost;
-            
-            PlayerPrefs.SetInt(metaCurrencyKey, totalMetaCurrency);
-            PlayerPrefs.SetInt(data.unlockKey, 1);
-            PlayerPrefs.Save();
-
-            LoadMetaCurrency(); // 돈 갱신
-            RefreshAllItems();  // 버튼 상태 갱신
-            
-            // 해금 즉시 선택
-            SelectDeck(data.deckKey);
-        }
-    }
-
-    private void RefreshAllItems()
-    {
-        foreach (var item in spawnedItems)
-        {
-            item.RefreshState();
-        }
+        if (upgradeShopPanel != null) upgradeShopPanel.SetActive(false);
     }
 
     // --- 게임 실행 ---
-
     public void OnStartGame()
     {
         SceneManager.LoadScene(gameSceneName);
@@ -167,15 +263,5 @@ public class MainMenuManager : MonoBehaviour
     public void OnQuitGame()
     {
         Application.Quit();
-    }
-
-    // --- (기존 상점 로직 유지 - 필요 시 사용) ---
-    public void OnOpenShop()
-    {
-        if (upgradeShopPanel != null) upgradeShopPanel.SetActive(true);
-    }
-    public void OnCloseShop()
-    {
-        if (upgradeShopPanel != null) upgradeShopPanel.SetActive(false);
     }
 }

@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c37abc6f21881264396a7d36c8436f4e, type: 3}
+  m_Name: Wizard
+  m_EditorClassIdentifier: Assembly-CSharp::DeckData
+  deckKey: "\uB9C8\uBC95\uC0AC"
+  deckName: "\uB9C8\uBC95\uC0AC"
+  description: "\uAE30\uBCF8 \uC8FC\uC0AC\uC704(D6) 5\uAC1C\uC640 \uD640\uC218\uB97C
+    \uB2E4\uC2DC \uAD74\uB9AC\uB294 '\uC790\uCCA0\uC11D' \uC720\uBB3C\uC744 \uAC00\uC9C0\uACE0
+    \uC2DC\uC791"
+  unlockCost: 2000
+  unlockKey: Unlocked_Wizard
+  displayDice:
+  - D6
+  - D6
+  - D6
+  - D6
+  - D6
+  displayRelicID: RLC_LODESTONE

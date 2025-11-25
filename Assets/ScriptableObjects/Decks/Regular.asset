@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c37abc6f21881264396a7d36c8436f4e, type: 3}
+  m_Name: Regular
+  m_EditorClassIdentifier: Assembly-CSharp::DeckData
+  deckKey: "\uB2E8\uACE8"
+  deckName: "\uB2E8\uACE8"
+  description: "D8 \uD558\uB098\uC640 \uC548\uC815\uC801\uC778 D6\uB4E4\uB85C \uAD6C\uC131\uB41C
+    \uB371"
+  unlockCost: 1000
+  unlockKey: Unlocked_Regular
+  displayDice:
+  - D8
+  - D6
+  - D6
+  - D6
+  - D6
+  displayRelicID: 
