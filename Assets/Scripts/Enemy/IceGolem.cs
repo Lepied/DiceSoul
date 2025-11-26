@@ -14,7 +14,7 @@ public class IceGolem : Enemy
         // 마법 족보(짝수/홀수)에 면역
         if (desc.Contains("짝수") || desc.Contains("홀수"))
         {
-            EffectManager.Instance.ShowText(transform.position, "면역!", Color.grey);
+            EffectManager.Instance.ShowText(transform, "면역!", Color.grey);
             return 0;
         }
 

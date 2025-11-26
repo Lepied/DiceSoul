@@ -32,8 +32,8 @@ public class Lich : Enemy
         int healAmount = diceValues.Max(); 
         currentHP = Mathf.Min(currentHP + healAmount, maxHP);
 
-        EffectManager.Instance.ShowHeal(transform.position, healAmount);
-        
+        EffectManager.Instance.ShowHeal(transform, healAmount);
+
         Debug.Log($"{enemyName}이(가) [영혼 흡수]로 체력을 {healAmount} 회복합니다! (현재: {currentHP})");
         UpdateUI(); 
     }

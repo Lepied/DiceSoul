@@ -1,13 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq; // Linq를 사용하기 위해 필요
+using System.Linq; 
 
-/// <summary>
-/// [!!! CS0122 오류 수정 !!!]
-/// 1. 'GetCurrentZoneData(int currentZone)' 함수 (159행)를
-///    'private'에서 'public'으로 변경 (StageManager가 배경을 읽을 수 있도록)
-/// 2. GenerateWave(int, int) 함수 (219행)는 'public'으로 유지 (올바른 버전)
-/// </summary>
+
 [DefaultExecutionOrder(-100)] //Awake같은거 먼저 실행시키기
 public class WaveGenerator : MonoBehaviour
 {
@@ -25,6 +20,9 @@ public class WaveGenerator : MonoBehaviour
         public int minZoneLevel;
         public bool isBoss;
     }
+
+    public Transform enemyContainer; 
+
     private Dictionary<string, CachedEnemyData> enemyDataCache = new Dictionary<string, CachedEnemyData>();
     
     // (캐시) 존(Zone) 이름(Key)과 '랜덤 스폰 풀'
@@ -261,7 +259,6 @@ public class WaveGenerator : MonoBehaviour
         string key = prefab.name; 
         if (!poolDictionary.ContainsKey(key))
         {
-            Debug.LogWarning($"[WaveGenerator] 풀에 {key} 키가 없습니다. 동적으로 새 풀을 생성합니다.");
             poolDictionary.Add(key, new Queue<GameObject>());
         }
         if (poolDictionary[key].Count > 0)
@@ -269,10 +266,12 @@ public class WaveGenerator : MonoBehaviour
             GameObject objFromPool = poolDictionary[key].Dequeue();
             objFromPool.transform.position = position;
             objFromPool.transform.rotation = rotation;
+            objFromPool.transform.SetParent(enemyContainer);
             objFromPool.SetActive(true); 
             return objFromPool;
         }
         GameObject newObj = Instantiate(prefab, position, rotation);
+        newObj.transform.SetParent(enemyContainer);
         newObj.name = key; 
         return newObj;
     }

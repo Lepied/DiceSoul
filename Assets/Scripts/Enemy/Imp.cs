@@ -23,8 +23,8 @@ public class Imp : Enemy
         if (desc.Contains("총합"))
         {
 
-            EffectManager.Instance.ShowText(transform.position, "ABSORB", Color.green);
-            EffectManager.Instance.ShowHeal(transform.position, jokbo.BaseDamage);
+            EffectManager.Instance.ShowText(transform, "ABSORB", Color.green);
+            EffectManager.Instance.ShowHeal(transform, jokbo.BaseDamage);
             HealSelf(jokbo.BaseDamage);
             return 0;
         }

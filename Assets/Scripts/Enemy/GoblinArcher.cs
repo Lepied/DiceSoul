@@ -21,7 +21,7 @@ public class GoblinArcher : Enemy
         {
             if (GameManager.Instance != null)
             {
-                EffectManager.Instance.ShowText(transform.position, "저격!", Color.red);
+                EffectManager.Instance.ShowText(transform, "저격!", Color.red);
                 GameManager.Instance.HealPlayer(-1);
             }
         }

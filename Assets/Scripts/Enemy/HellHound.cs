@@ -22,7 +22,7 @@ public class Hellhound : Enemy
             if (GameManager.Instance != null)
             {
                 Debug.Log($"{enemyName}의 [지옥불]! 플레이어가 화상 피해를 입습니다.");
-                EffectManager.Instance.ShowText(transform.position, "지옥불!", Color.red);
+                EffectManager.Instance.ShowText(transform, "지옥불!", Color.red);
                 GameManager.Instance.HealPlayer(-burnDamage);
             }
         }

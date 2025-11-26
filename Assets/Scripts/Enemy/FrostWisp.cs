@@ -28,8 +28,8 @@ public class FrostWisp : Enemy
             if (DiceController.Instance != null)
             {
                 Debug.Log($"[{enemyName}] '빙결' 효과 발동! 주사위가 얼어붙습니다.");
-                EffectManager.Instance.ShowText(transform.position, "빙결!", Color.cyan);
-                // (Slime과 동일하게 강제 킵 기능을 사용하여 '얼림'을 구현)
+                EffectManager.Instance.ShowText(transform, "빙결!", Color.cyan);
+                // Slime과 동일하게 강제 킵
                 DiceController.Instance.ForceKeepRandomDice();
             }
         }

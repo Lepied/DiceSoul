@@ -32,8 +32,7 @@ public class Troll : Enemy
 
         currentHP = Mathf.Min(currentHP + regenerationAmount, maxHP);
         
-        Debug.Log($"{enemyName}이(가) [재생]하여 체력을 {regenerationAmount} 회복합니다! (현재: {currentHP})");
-        EffectManager.Instance.ShowHeal(transform.position, regenerationAmount);
+        EffectManager.Instance.ShowHeal(transform, regenerationAmount);
         UpdateUI(); // (UpdateUI는 부모(Enemy.cs)의 protected 함수)
     }
 
@@ -55,6 +54,4 @@ public class Troll : Enemy
         base.OnDeath(); 
     }
 
-    // (참고: CalculateDamageTaken은 덮어쓰지 않았으므로,
-    // 부모(Enemy.cs)의 기본 로직(생체 타입)을 따라 100% 데미지를 받습니다.)
 }

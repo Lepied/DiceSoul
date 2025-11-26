@@ -19,7 +19,7 @@ public class Slime : Enemy
             if (DiceController.Instance != null)
             {
                 
-                EffectManager.Instance.ShowText(transform.position, "끈끈이!", Color.green);
+                EffectManager.Instance.ShowText(transform, "끈끈이!", Color.green);
                 DiceController.Instance.ForceKeepRandomDice();
             }
         }

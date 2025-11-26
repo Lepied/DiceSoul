@@ -13,6 +13,9 @@ public class Enemy : MonoBehaviour
     public string enemyName = "Enemy";
     public int maxHP = 10;
     public EnemyType enemyType = EnemyType.Biological;
+    private EnemyType originalType;
+
+    [Header("기본 설정")]
     public bool isBoss = false;
     public int difficultyCost = 1;
     public int minZoneLevel = 1;
@@ -26,6 +29,7 @@ public class Enemy : MonoBehaviour
     [Tooltip("예상 데미지")]
     public Slider damagePreviewSlider;
 
+    private bool isInitialized = false;
 
     // 공통 상태 변수
     public int currentHP { get; protected set; }
@@ -35,17 +39,33 @@ public class Enemy : MonoBehaviour
     private Tween blinkTween;
     private Image damagePreviewFillImage;
 
-
+    void Awake() // 또는 Start
+    {
+        // 게임 시작 시 프리팹에 설정된 타입을 원본으로 저장
+        if (!isInitialized)
+        {
+            originalType = enemyType;
+            isInitialized = true;
+        }
+    }
     void OnEnable()
     {
         currentHP = maxHP;
         isDead = false;
+        if (isInitialized)
+        {
+            enemyType = originalType;
+        }
 
         if (hpSlider == null) hpSlider = GetComponentInChildren<Slider>();
         if (hpText == null) hpText = GetComponentInChildren<TextMeshProUGUI>();
 
         blinkTween?.Kill();
         UpdateUI();
+    }
+    void OnDisable()
+    {
+        EffectManager.Instance.RemoveQueue(this.transform);
     }
 
     public virtual string GetGimmickDescription()
@@ -102,7 +122,7 @@ public class Enemy : MonoBehaviour
                 if (desc.Contains("총합") || desc.Contains("트리플"))
                 {
                     finalDamage = (int)(finalDamage * 0.5f);
-                    EffectManager.Instance.ShowText(transform.position, "저항", Color.grey);
+                    EffectManager.Instance.ShowText(transform, "저항", Color.grey);
                 }
                 break;
         }
@@ -116,12 +136,12 @@ public class Enemy : MonoBehaviour
         if (finalDamage > 0)
         {
             // 크리티컬 판정 만약 나중에 생기면 여기에 넣어야
-            EffectManager.Instance.ShowDamage(transform.position, finalDamage);
+            EffectManager.Instance.ShowDamage(transform, finalDamage);
         }
         else
         {
             // 일단 0 이면 면역 띄우기. 아마 몹별로 따로따로 해야할거같은데? ex) 면역이면 면역, 방어면 방어 등등
-            EffectManager.Instance.ShowText(transform.position, "면역", Color.gray);
+            EffectManager.Instance.ShowText(transform, "면역", Color.gray);
         }
 
         currentHP -= finalDamage;

@@ -2,8 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// (신규 파일) 예티 (Zone 3: 얼음 동굴 보스)
-/// '생체' 타입, 'isBoss' = true
+/// 예티 
 /// [기믹 1]: 동면 - 체력이 50% 이하로 떨어지면, 다음 턴 시작 시 체력 50 회복 (1회 한정)
 /// [기믹 2]: 분노 - '스트레이트'로 피격 시, 다음 턴까지 '총합' 족보에 면역
 /// </summary>
@@ -40,7 +39,7 @@ public class Yeti : Enemy
             currentHP = Mathf.Min(currentHP + hibernateHealAmount, maxHP);
             
             Debug.Log($"[{enemyName}]이(가) 위기를 느끼고 [동면]합니다! 체력 회복: +{currentHP - prevHP}");
-            EffectManager.Instance.ShowHeal(transform.position, currentHP - prevHP);
+            EffectManager.Instance.ShowHeal(transform, currentHP - prevHP);
             UpdateUI();
         }
     }
@@ -57,7 +56,7 @@ public class Yeti : Enemy
         if (jokbo.Description.Contains("스트레이트"))
         {
             isEnraged = true;
-            EffectManager.Instance.ShowText(transform.position, "분노!", Color.red);
+            EffectManager.Instance.ShowText(transform, "분노!", Color.red);
             Debug.Log($"[{enemyName}]이(가) 강력한 공격에 [분노]합니다! (다음 턴 '총합' 면역)");
         }
     }
@@ -71,11 +70,10 @@ public class Yeti : Enemy
         // 분노 상태 + 총합 공격 = 면역
         if (isEnraged && jokbo.Description.Contains("총합"))
         {
-            EffectManager.Instance.ShowText(transform.position, "면역!", Color.grey);
+            EffectManager.Instance.ShowText(transform, "면역!", Color.grey);
             return 0;
         }
 
-        // 그 외에는 생체(Biological) 기본 로직 (100%)
         return base.CalculateDamageTaken(jokbo);
     }
 
