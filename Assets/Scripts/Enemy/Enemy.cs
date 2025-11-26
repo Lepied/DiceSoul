@@ -2,34 +2,29 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using DG.Tweening; // DOTween 사용
+using DG.Tweening;
 
 public enum EnemyType { Biological, Spirit, Undead, Armored }
 
-/// <summary>
-/// [!!! 핵심 수정 !!!]
-/// - ShowDamagePreview 함수에 'damagePreviewFillImage'가 null일 때
-///   '왜' null인지 상세한 에러 로그를 출력하는 디버깅 코드 추가
-/// </summary>
 public class Enemy : MonoBehaviour
 {
     // [인스펙터 설정]
-    [Header("핵심 스탯 (인스펙터에서 설정)")]
+    [Header("스탯")]
     public string enemyName = "Enemy";
     public int maxHP = 10;
     public EnemyType enemyType = EnemyType.Biological;
-    public bool isBoss = false; 
-    public int difficultyCost = 1; 
+    public bool isBoss = false;
+    public int difficultyCost = 1;
     public int minZoneLevel = 1;
 
-    [Header("UI 연결 (공통)")]
+    [Header("UI 연결")]
     public TextMeshProUGUI hpText;
-    
-    [Tooltip("현재 체력 (예: 초록색, 전경)")]
-    public Slider hpSlider; 
-    
-    [Tooltip("예상 데미지 (예: 빨간색, 배경)")]
-    public Slider damagePreviewSlider; 
+
+    [Tooltip("현재 체력")]
+    public Slider hpSlider;
+
+    [Tooltip("예상 데미지")]
+    public Slider damagePreviewSlider;
 
 
     // 공통 상태 변수
@@ -38,26 +33,21 @@ public class Enemy : MonoBehaviour
 
     // 애니메이션 관리를 위한 Tween 변수
     private Tween blinkTween;
-    private Image damagePreviewFillImage; // 깜빡임 효과를 위한 Fill 이미지
+    private Image damagePreviewFillImage;
 
 
     void OnEnable()
     {
-        currentHP = maxHP; 
+        currentHP = maxHP;
         isDead = false;
-        
+
         if (hpSlider == null) hpSlider = GetComponentInChildren<Slider>();
         if (hpText == null) hpText = GetComponentInChildren<TextMeshProUGUI>();
-        
-        // [수정] damagePreviewFillImage를 찾는 로직을 OnEnable에서 분리
-        // (UpdateUI에서 매번 null 체크를 하도록 변경 - 더 안전함)
-        // if (damagePreviewSlider != null)
-        // { ... }
-        
+
         blinkTween?.Kill();
-        UpdateUI(); 
+        UpdateUI();
     }
-    
+
     public virtual string GetGimmickDescription()
     {
         switch (enemyType)
@@ -77,12 +67,62 @@ public class Enemy : MonoBehaviour
 
     public virtual int CalculateDamageTaken(AttackJokbo jokbo)
     {
-        return jokbo.BaseDamage;
+
+        int finalDamage = jokbo.BaseDamage;
+        string desc = jokbo.Description;
+
+        // 1. 타입별 공통 데미지 공식 
+        switch (enemyType)
+        {
+            case EnemyType.Biological:
+                // 생체: 100% (변동 없음)
+                break;
+
+            case EnemyType.Undead:
+                // 언데드: 고급 족보에 약함 (150%), 기본 족보에 강함 (50%)
+                if (desc.Contains("트리플") || desc.Contains("포카드") || desc.Contains("풀 하우스") || desc.Contains("야찌") || desc.Contains("스트레이트"))
+                {
+                    finalDamage = (int)(finalDamage * 1.5f);
+                    // (약점 텍스트 띄우고 싶으면 여기서 EffectManager 호출 가능)
+                }
+                else
+                {
+                    finalDamage = (int)(finalDamage * 0.5f);
+                }
+                break;
+
+            case EnemyType.Spirit:
+                // 영혼: 물리(총합) 면역, 마법(홀/짝) 약점
+                if (desc.Contains("총합")) return 0; // 0 데미지
+                if (desc.Contains("모두")) finalDamage = (int)(finalDamage * 1.5f);
+                break;
+
+            case EnemyType.Armored:
+                // 장갑: 단순 족보(총합, 트리플) 반감
+                if (desc.Contains("총합") || desc.Contains("트리플"))
+                {
+                    finalDamage = (int)(finalDamage * 0.5f);
+                    EffectManager.Instance.ShowText(transform.position, "저항", Color.grey);
+                }
+                break;
+        }
+
+        return finalDamage;
     }
 
     public bool TakeDamage(int finalDamage, AttackJokbo attackerJokbo)
     {
         if (isDead) return true;
+        if (finalDamage > 0)
+        {
+            // 크리티컬 판정 만약 나중에 생기면 여기에 넣어야
+            EffectManager.Instance.ShowDamage(transform.position, finalDamage);
+        }
+        else
+        {
+            // 일단 0 이면 면역 띄우기. 아마 몹별로 따로따로 해야할거같은데? ex) 면역이면 면역, 방어면 방어 등등
+            EffectManager.Instance.ShowText(transform.position, "면역", Color.gray);
+        }
 
         currentHP -= finalDamage;
         Debug.Log($"{enemyName} 피격! 데미지: {finalDamage}. 남은 체력: {currentHP}/{maxHP}");
@@ -95,14 +135,11 @@ public class Enemy : MonoBehaviour
             isDead = true;
             OnDeath();
         }
-        
-        UpdateUI(); 
+
+        UpdateUI();
         return isDead;
     }
 
-    /// <summary>
-    /// [수정] UpdateUI는 즉시 값을 설정
-    /// </summary>
     protected void UpdateUI()
     {
         blinkTween?.Kill();
@@ -118,13 +155,12 @@ public class Enemy : MonoBehaviour
         {
             hpSlider.value = hpPercent;
         }
-        
+
         if (damagePreviewSlider != null)
         {
             damagePreviewSlider.value = hpPercent;
         }
-        
-        // [수정] damagePreviewFillImage가 null이면 찾아옴 (더 안전한 방식)
+
         if (damagePreviewFillImage == null && damagePreviewSlider != null && damagePreviewSlider.fillRect != null)
         {
             damagePreviewFillImage = damagePreviewSlider.fillRect.GetComponent<Image>();
@@ -133,7 +169,7 @@ public class Enemy : MonoBehaviour
         if (damagePreviewFillImage != null)
         {
             Color c = damagePreviewFillImage.color;
-            c.a = 1f; // 알파(투명도) 값을 100%로 설정
+            c.a = 1f;
             damagePreviewFillImage.color = c;
         }
     }
@@ -142,21 +178,17 @@ public class Enemy : MonoBehaviour
     {
         Debug.Log($"{enemyName}이(가) 처치되었습니다!");
         blinkTween?.Kill();
-        gameObject.SetActive(false); 
+        gameObject.SetActive(false);
     }
 
-    public virtual void OnWaveStart(List<Enemy> allies) {}
-    public virtual void OnPlayerRoll(List<int> diceValues) {}
-    public virtual void OnDamageTaken(int damageTaken, AttackJokbo jokbo) {}
+    public virtual void OnWaveStart(List<Enemy> allies) { }
+    public virtual void OnPlayerRoll(List<int> diceValues) { }
+    public virtual void OnDamageTaken(int damageTaken, AttackJokbo jokbo) { }
 
-    /// <summary>
-    /// [!!! 핵심 수정 !!!]
-    /// damagePreviewFillImage가 왜 null인지 상세히 디버깅합니다.
-    /// </summary>
     public virtual void ShowDamagePreview(AttackJokbo jokbo)
     {
         if (isDead || hpSlider == null || damagePreviewSlider == null) return;
-        
+
         blinkTween?.Kill();
 
         float hpPercent = (maxHP > 0) ? (float)currentHP / maxHP : 0;
@@ -166,49 +198,40 @@ public class Enemy : MonoBehaviour
         int previewHP = Mathf.Max(0, currentHP - damageToTake);
         float previewPercent = (maxHP > 0) ? (float)previewHP / maxHP : 0;
 
-        // 5. 초록색 바(전경)를 예상 체력(예: 50%)으로 '즉시' 낮춤
         hpSlider.value = previewPercent;
 
-        // 6. [!!! 디버깅 코드 추가 !!!]
-        // 빨간색 바의 Fill 이미지를 '빠르고 선명하게' 깜빡이게
-        
-        // (안전) 만약 OnEnable에서 못 찾았다면, 여기서 한 번 더 찾기
         if (damagePreviewFillImage == null && damagePreviewSlider.fillRect != null)
         {
-             damagePreviewFillImage = damagePreviewSlider.fillRect.GetComponent<Image>();
+            damagePreviewFillImage = damagePreviewSlider.fillRect.GetComponent<Image>();
         }
 
-        // [!!!] 최종 확인
         if (damagePreviewFillImage != null)
         {
 
             Color c = damagePreviewFillImage.color;
-            c.a = 1f; 
+            c.a = 1f;
             damagePreviewFillImage.color = c;
-            
+
             blinkTween = damagePreviewFillImage.DOFade(0.1f, 1f)
                                               .SetLoops(-1, LoopType.Yoyo)
                                               .SetEase(Ease.Linear);
         }
     }
 
-    /// <summary>
-    /// [수정] hpSlider.value를 즉시 설정
-    /// </summary>
     public virtual void HideDamagePreview()
     {
         if (isDead || hpSlider == null) return;
-        
+
         blinkTween?.Kill();
 
         float hpPercent = (maxHP > 0) ? (float)currentHP / maxHP : 0;
-        
+
         hpSlider.value = hpPercent;
 
         if (damagePreviewFillImage != null)
         {
             Color c = damagePreviewFillImage.color;
-            c.a = 1f; 
+            c.a = 1f;
             damagePreviewFillImage.color = c;
         }
     }

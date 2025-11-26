@@ -138,7 +138,7 @@ public class GameManager : MonoBehaviour
         }
 
         float jokboMultiplier = GetJokboScoreMultiplier(jokbo);
-        // [수정] 족보별 '보너스 점수' 추가 (예: 녹슨 톱니)
+        // 족보별 '보너스 점수' 추가 (예: 녹슨 톱니)
         int bonusScore = GetAttackScoreBonus(jokbo);
 
         int finalScore = (int)((scoreToAdd + bonusScore) * globalMultiplier * jokboMultiplier);
@@ -274,7 +274,6 @@ public class GameManager : MonoBehaviour
                 }
                 break;
 
-            // [!!! 신규 추가 !!!]
             case RelicEffectType.ModifyHealth: // (예: 유리 대포)
                 ModifyMaxHealth(chosenRelic.IntValue); // (음수 값 전달)
                 break;

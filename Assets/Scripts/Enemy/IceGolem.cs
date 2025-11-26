@@ -14,7 +14,7 @@ public class IceGolem : Enemy
         // 마법 족보(짝수/홀수)에 면역
         if (desc.Contains("짝수") || desc.Contains("홀수"))
         {
-            Debug.Log($"{enemyName}의 [빙결 장갑]이 마법 공격을 튕겨냈습니다! (0 데미지)");
+            EffectManager.Instance.ShowText(transform.position, "면역!", Color.grey);
             return 0;
         }
 

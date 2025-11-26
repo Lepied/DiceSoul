@@ -40,6 +40,7 @@ public class Yeti : Enemy
             currentHP = Mathf.Min(currentHP + hibernateHealAmount, maxHP);
             
             Debug.Log($"[{enemyName}]이(가) 위기를 느끼고 [동면]합니다! 체력 회복: +{currentHP - prevHP}");
+            EffectManager.Instance.ShowHeal(transform.position, currentHP - prevHP);
             UpdateUI();
         }
     }
@@ -56,6 +57,7 @@ public class Yeti : Enemy
         if (jokbo.Description.Contains("스트레이트"))
         {
             isEnraged = true;
+            EffectManager.Instance.ShowText(transform.position, "분노!", Color.red);
             Debug.Log($"[{enemyName}]이(가) 강력한 공격에 [분노]합니다! (다음 턴 '총합' 면역)");
         }
     }
@@ -69,7 +71,7 @@ public class Yeti : Enemy
         // 분노 상태 + 총합 공격 = 면역
         if (isEnraged && jokbo.Description.Contains("총합"))
         {
-            Debug.Log($"[{enemyName}]은(는) 분노 상태라 작은 공격(총합)은 통하지 않습니다! (0 데미지)");
+            EffectManager.Instance.ShowText(transform.position, "면역!", Color.grey);
             return 0;
         }
 

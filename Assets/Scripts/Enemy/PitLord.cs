@@ -21,6 +21,7 @@ public class PitLord : Enemy
         {
             currentResistance += 0.1f;
             Debug.Log($"{enemyName}의 피부가 단단해집니다! (총합 저항: {currentResistance * 100:F0}%)");
+            EffectManager.Instance.ShowText(transform.position, "강화", Color.grey);
         }
     }
 
@@ -32,14 +33,14 @@ public class PitLord : Enemy
         if (jokbo.Description.Contains("총합"))
         {
             // 기본 Armored는 50% 데미지만 받음. 여기에 추가 저항 적용
-            // 예: 50% 기본 저항 + 10% 추가 저항 = 60% 저항 (40% 데미지)
+            
             float multiplier = 0.5f - currentResistance; 
             if (multiplier < 0) multiplier = 0;
 
             return (int)(baseDmg * multiplier);
         }
 
-        // 그 외에는 부모(Armored) 로직 (트리플 50%, 나머지 100%)
+        
         return base.CalculateDamageTaken(jokbo);
     }
 

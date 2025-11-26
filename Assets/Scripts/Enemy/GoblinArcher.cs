@@ -21,7 +21,7 @@ public class GoblinArcher : Enemy
         {
             if (GameManager.Instance != null)
             {
-                Debug.Log($"{enemyName}의 [기회 공격]! 플레이어 1 데미지!");
+                EffectManager.Instance.ShowText(transform.position, "저격!", Color.red);
                 GameManager.Instance.HealPlayer(-1);
             }
         }

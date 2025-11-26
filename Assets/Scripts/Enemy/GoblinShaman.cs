@@ -29,7 +29,7 @@ public class GoblinShaman : Enemy
                 // 2. 타입 강제 변경
                 ally.enemyType = EnemyType.Spirit;
                 
-                Debug.Log($"... {ally.enemyName}이 'Spirit' 타입이 되었습니다!");
+                EffectManager.Instance.ShowText(ally.transform.position, "영혼 보호막!", Color.magenta);
                 // (TODO: 1턴 버프 이펙트/UI 표시)
             }
         }

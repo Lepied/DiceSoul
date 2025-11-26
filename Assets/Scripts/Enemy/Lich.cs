@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 /// <summary>
-/// (신규 파일) 리치 (Zone 2: 묘지 보스)
+/// 리치 (Zone 2: 묘지 보스)
 /// '언데드' 타입, 'isBoss' = true
 /// [기믹 1]: OnPlayerRoll - 굴린 주사위의 '최대값'만큼 체력 회복
 /// [기믹 2]: OnWaveStart - '스켈레톤' 2마리 소환
@@ -15,26 +15,27 @@ public class Lich : Enemy
     public GameObject minionPrefab;
     public int minionsToSpawn = 2;
 
-    // (스탯은 인스펙터에서 직접 설정)
-    // 예: maxHP: 300, enemyType: Undead, isBoss: true,
+    // 
+    // maxHP: 300, enemyType: Undead, isBoss: true,
     //     difficultyCost: 100, minZoneLevel: 2
 
-    /// <summary>
-    /// [보스 기믹 1: 영혼 흡수]
-    /// 플레이어가 주사위를 굴릴 때마다, 굴린 주사위의 '최대값'만큼 체력을 회복합니다.
-    /// </summary>
+    // [보스 기믹 1: 영혼 흡수]
+    // 플레이어가 주사위를 굴릴 때마다, 굴린 주사위의 '최대값'만큼 체력을 회복합니다.
+
     public override void OnPlayerRoll(List<int> diceValues)
     {
-        base.OnPlayerRoll(diceValues); // (혹시 부모에도 로직이 있을까봐)
+        base.OnPlayerRoll(diceValues); 
         
         if (isDead || diceValues == null || diceValues.Count == 0) return;
 
         // 굴린 주사위 중 가장 높은 값만큼 회복
         int healAmount = diceValues.Max(); 
         currentHP = Mathf.Min(currentHP + healAmount, maxHP);
+
+        EffectManager.Instance.ShowHeal(transform.position, healAmount);
         
         Debug.Log($"{enemyName}이(가) [영혼 흡수]로 체력을 {healAmount} 회복합니다! (현재: {currentHP})");
-        UpdateUI(); // HP Bar 갱신
+        UpdateUI(); 
     }
 
     /// <summary>
@@ -43,7 +44,7 @@ public class Lich : Enemy
     /// </summary>
     public override void OnWaveStart(List<Enemy> allies)
     {
-        base.OnWaveStart(allies); // (부모 호출)
+        base.OnWaveStart(allies); 
 
         if (isDead) return;
 

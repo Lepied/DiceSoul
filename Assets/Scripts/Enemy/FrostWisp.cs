@@ -10,7 +10,7 @@ public class FrostWisp : Enemy
 {
     [Header("서리 위스프 기믹")]
     [Range(0, 1)]
-    public float freezeChance = 0.25f; // 25%
+    public float freezeChance = 0.5f; 
 
     /// <summary>
     /// [기믹: 빙결]
@@ -28,6 +28,7 @@ public class FrostWisp : Enemy
             if (DiceController.Instance != null)
             {
                 Debug.Log($"[{enemyName}] '빙결' 효과 발동! 주사위가 얼어붙습니다.");
+                EffectManager.Instance.ShowText(transform.position, "빙결!", Color.cyan);
                 // (Slime과 동일하게 강제 킵 기능을 사용하여 '얼림'을 구현)
                 DiceController.Instance.ForceKeepRandomDice();
             }

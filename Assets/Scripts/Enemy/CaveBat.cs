@@ -13,7 +13,7 @@ public class CaveBat : Enemy
         // "총합" 족보이고, 50% 확률에 당첨되면
         if (jokbo.Description.Contains("총합") && Random.value < dodgeChance)
         {
-            Debug.Log($"{enemyName}이(가) [총합] 공격을 [회피]했습니다! (0 데미지)");
+            EffectManager.Instance.ShowText(transform.position, "회피!", Color.cyan);
             return 0; // 데미지 무시
         }
 

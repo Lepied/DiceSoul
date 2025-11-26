@@ -113,7 +113,7 @@ MonoBehaviour:
   hpText: {fileID: 6166942275768172032}
   hpSlider: {fileID: 3325079089081980418}
   damagePreviewSlider: {fileID: 4619757558335903610}
-  freezeChance: 0.25
+  freezeChance: 0.55
 --- !u!1 &553198092765252911
 GameObject:
   m_ObjectHideFlags: 0
