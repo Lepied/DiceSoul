@@ -24,8 +24,10 @@ public class DiceController : MonoBehaviour
     public Button rollButtonUI;
 
     [Header("스프라이트 에셋")]
-    [Tooltip("주사위 1~6 윗면 스프라이트 (6개 할당)")]
     public Sprite[] diceFaceSprites;
+
+    [Header("사운드 설정")]
+    public AudioClip rollSound;
 
     [Header("게임 로직 설정")]
     [Tooltip("기본 최대 굴림 횟수")]
@@ -141,6 +143,10 @@ public class DiceController : MonoBehaviour
 
         currentRollCount++;
 
+        if (SoundManager.Instance != null && rollSound != null)
+        {
+            SoundManager.Instance.PlayRandomPitchSFX(rollSound);
+        }
         if (UIManager.Instance != null)
         {
             UIManager.Instance.UpdateRollCount(currentRollCount, maxRolls);

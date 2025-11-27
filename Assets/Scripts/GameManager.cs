@@ -1,13 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq; // Linq 사용
+using System.Linq; 
 
-/// <summary>
-/// [!!! 핵심 수정 !!!]
-/// 1. AddRelic() 함수: '유리 대포'(체력-), '집중'(덱제거), '무거운 주사위'(굴림-) 효과 구현
-/// 2. GetAttackDamageModifiers() 함수: '금권 정치'(점수비례), '피의 갈증'(잃은체력비례) 효과 구현
-/// 3. GetAttackScoreBonus() 함수: '녹슨 톱니'(점수+) 효과 구현
-/// </summary>
 [DefaultExecutionOrder(-50)] //현재 WaveGenerator(-100) 다음, StageManager(0) 이전
 public class GameManager : MonoBehaviour
 {
@@ -49,6 +43,100 @@ public class GameManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
+        }
+    }
+
+    void Start()
+    {
+        
+        if (SaveManager.shouldLoadSave)
+        {
+            LoadRun();
+            SaveManager.shouldLoadSave = false; // 플래그 리셋
+        }
+        else
+        {
+            StartNewRun(); 
+        }
+    }
+    public void SaveCurrentRun()
+    {
+        GameData data = new GameData();
+        data.currentHealth = PlayerHealth;
+        data.maxHealth = MaxPlayerHealth;
+        data.currentScore = CurrentScore;
+        data.currentZone = CurrentZone;
+        data.currentWave = CurrentWave;
+        
+        data.myDeck = new List<string>(playerDiceDeck);
+        
+        // 유물은 ID만 추출해서 저장
+        data.myRelicIDs = new List<string>();
+        foreach(var relic in activeRelics)
+        {
+            data.myRelicIDs.Add(relic.RelicID);
+        }
+
+        SaveManager.Instance.SaveGame(data);
+    }
+
+    //불러오기 기능 
+    private void LoadRun()
+    {
+        GameData data = SaveManager.Instance.LoadGame();
+        if (data == null) 
+        {
+            StartNewRun(); 
+            return;
+        }
+
+        Debug.Log("저장된 게임을 불러옵니다...");
+
+        // 1. 기본 스탯 복구
+        PlayerHealth = data.currentHealth;
+        MaxPlayerHealth = data.maxHealth;
+        CurrentScore = data.currentScore;
+        CurrentZone = data.currentZone;
+        CurrentWave = data.currentWave;
+
+        // 2. 덱 복구
+        playerDiceDeck = new List<string>(data.myDeck);
+
+        // 3. 유물 복구 (ID로 찾아서 다시 생성)
+        activeRelics.Clear();
+        if (RelicDB.Instance != null)
+        {
+            foreach (string id in data.myRelicIDs)
+            {
+                Relic relicData = RelicDB.Instance.GetRelicByID(id);
+                if (relicData != null)
+                {
+                    // AddRelic()을 그냥 부르면 얻을때 되는 효과가
+                    // 중복 적용될 수 있으므로, 리스트에만 담고 패시브 효과만 갱신해야 합니다.
+                    // 여기서는 간단히 activeRelics에만 넣고 효과 갱신 함수를 호출합니다.
+                    activeRelics.Add(relicData); 
+                }
+            }
+        }
+
+        // 4. 웨이브 생성 및 UI 갱신
+        if (WaveGenerator.Instance != null)
+        {
+            WaveGenerator.Instance.BuildRunZoneOrder(); //존순서같은것도 저장해야하는데 일단 랜덤으로두기
+        }
+        
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdateHealth(PlayerHealth, MaxPlayerHealth);
+            UIManager.Instance.UpdateScore(CurrentScore);
+            UIManager.Instance.UpdateRelicPanel(activeRelics);
+            UIManager.Instance.UpdateWaveText(CurrentZone, CurrentWave);
+        }
+
+        // 5. 스테이지 준비
+        if (StageManager.Instance != null)
+        {
+            StageManager.Instance.PrepareNextWave();
         }
     }
 
@@ -201,6 +289,8 @@ public class GameManager : MonoBehaviour
                 Debug.Log("웨이브 클리어! 유물 보상.");
                 ShowRewardScreen();
             }
+
+            SaveCurrentRun();
         }
         else
         {
@@ -222,7 +312,7 @@ public class GameManager : MonoBehaviour
                 {
                     UIManager.Instance.ShowGameOverScreen(earnedCurrency);
                 }
-
+                SaveManager.Instance.DeleteSaveFile(); // 한 게임의 데이터는 삭제
                 return;
             }
 

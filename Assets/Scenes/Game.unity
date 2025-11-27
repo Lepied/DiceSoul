@@ -7253,6 +7253,7 @@ MonoBehaviour:
   - {fileID: -573441712502597224, guid: 4a6861f26f0abfb46abc4b0ec542e4c7, type: 3}
   - {fileID: 7161740088646490646, guid: bdd751254d10d25428297ecae25bda60, type: 3}
   - {fileID: -4931478591210665043, guid: 87b53cb05ce7f0648ac4b0ffb598820f, type: 3}
+  rollSound: {fileID: 8300000, guid: 7f605d0e9cb039f4ab9d90cfe9c31aa7, type: 3}
   baseMaxRolls: 3
   horizontalSpacing: 2
   yPosition: 0

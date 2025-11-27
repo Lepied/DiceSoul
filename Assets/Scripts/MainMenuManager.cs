@@ -15,6 +15,7 @@ public class MainMenuManager : MonoBehaviour
     
     [Header("메인 화면 버튼")]
     public Button startGameButton;
+    public Button continueButton;
     public Button openShopButton; 
     public Button openDeckButton; // 덱 선택 패널 열기
     public Button quitGameButton;
@@ -60,6 +61,12 @@ public class MainMenuManager : MonoBehaviour
         // 메인 버튼 리스너 연결
         if (startGameButton != null) startGameButton.onClick.AddListener(OnStartGame);
         if (quitGameButton != null) quitGameButton.onClick.AddListener(OnQuitGame);
+        if (continueButton != null)
+        {
+            bool hasSave = SaveManager.Instance.HasSaveFile();
+            continueButton.interactable = hasSave; // 파일 없으면 비활성화
+            continueButton.onClick.AddListener(OnContinueGame);
+        }
         
         // 덱 패널 버튼 연결
         if (openDeckButton != null) openDeckButton.onClick.AddListener(OnOpenDeckPanel);
@@ -119,11 +126,7 @@ public class MainMenuManager : MonoBehaviour
         }
     }
 
-    // --- 캐러셀 연동 로직 (DeckSnapScroller가 호출) ---
-
-    /// <summary>
-    /// 스크롤러가 "이 아이템이 중앙에 왔어"라고 알려줄 때 호출됩니다.
-    /// </summary>
+    //캐러셀 연동 로직
     public void OnDeckFocused(DeckListItem focusedItem)
     {
         currentFocusedItem = focusedItem;
@@ -131,11 +134,11 @@ public class MainMenuManager : MonoBehaviour
         // 포커스된 아이템에 맞춰 하단 버튼 상태 갱신
         UpdateActionButtonUI();
 
-        // (선택사항) 포커스된 아이템만 확대하거나 강조하는 연출
+        //  포커스된 아이템만 확대하거나 강조하는 연출
         foreach(var item in spawnedItems)
         {
             bool isCenter = (item == focusedItem);
-            // item.SetFocusScale(isCenter); // DeckListItem에 해당 함수 구현 필요 시 사용
+            item.SetFocusScale(isCenter);
         }
     }
 
@@ -259,7 +262,11 @@ public class MainMenuManager : MonoBehaviour
     {
         SceneManager.LoadScene(gameSceneName);
     }
-    
+    public void OnContinueGame()
+    {
+        SaveManager.shouldLoadSave = true; 
+        SceneManager.LoadScene(gameSceneName); 
+    }
     public void OnQuitGame()
     {
         Application.Quit();
