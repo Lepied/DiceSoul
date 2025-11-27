@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq; 
+using System.Linq;
 
 [DefaultExecutionOrder(-50)] //현재 WaveGenerator(-100) 다음, StageManager(0) 이전
 public class GameManager : MonoBehaviour
@@ -48,7 +48,7 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        
+
         if (SaveManager.shouldLoadSave)
         {
             LoadRun();
@@ -56,7 +56,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            StartNewRun(); 
+            StartNewRun();
         }
     }
     public void SaveCurrentRun()
@@ -67,12 +67,12 @@ public class GameManager : MonoBehaviour
         data.currentScore = CurrentScore;
         data.currentZone = CurrentZone;
         data.currentWave = CurrentWave;
-        
+
         data.myDeck = new List<string>(playerDiceDeck);
-        
+
         // 유물은 ID만 추출해서 저장
         data.myRelicIDs = new List<string>();
-        foreach(var relic in activeRelics)
+        foreach (var relic in activeRelics)
         {
             data.myRelicIDs.Add(relic.RelicID);
         }
@@ -84,9 +84,9 @@ public class GameManager : MonoBehaviour
     private void LoadRun()
     {
         GameData data = SaveManager.Instance.LoadGame();
-        if (data == null) 
+        if (data == null)
         {
-            StartNewRun(); 
+            StartNewRun();
             return;
         }
 
@@ -114,7 +114,7 @@ public class GameManager : MonoBehaviour
                     // AddRelic()을 그냥 부르면 얻을때 되는 효과가
                     // 중복 적용될 수 있으므로, 리스트에만 담고 패시브 효과만 갱신해야 합니다.
                     // 여기서는 간단히 activeRelics에만 넣고 효과 갱신 함수를 호출합니다.
-                    activeRelics.Add(relicData); 
+                    activeRelics.Add(relicData);
                 }
             }
         }
@@ -124,7 +124,7 @@ public class GameManager : MonoBehaviour
         {
             WaveGenerator.Instance.BuildRunZoneOrder(); //존순서같은것도 저장해야하는데 일단 랜덤으로두기
         }
-        
+
         if (UIManager.Instance != null)
         {
             UIManager.Instance.UpdateHealth(PlayerHealth, MaxPlayerHealth);
@@ -175,13 +175,13 @@ public class GameManager : MonoBehaviour
                 playerDiceDeck.Add("D4");
                 playerDiceDeck.Add("D4");
                 break;
-            
+
             case "마법사":
                 for (int i = 0; i < 4; i++)
                 {
                     playerDiceDeck.Add("D6");
                 }
-                if(RelicDB.Instance != null)
+                if (RelicDB.Instance != null)
                 {
                     Relic lodestone = RelicDB.Instance.GetRelicByID("RLC_LODESTONE");
                     if (lodestone != null) AddRelic(lodestone);
@@ -202,6 +202,8 @@ public class GameManager : MonoBehaviour
 
         if (UIManager.Instance != null)
         {
+            UIManager.Instance.FadeIn();
+            UIManager.Instance.ShowZoneTitle("Zone 1: 평원");
             UIManager.Instance.UpdateHealth(PlayerHealth, MaxPlayerHealth);
             UIManager.Instance.UpdateScore(CurrentScore);
             UIManager.Instance.UpdateRelicPanel(activeRelics);
@@ -275,14 +277,15 @@ public class GameManager : MonoBehaviour
 
             if (CurrentWave > wavesPerZone)
             {
-                Debug.Log("존 클리어! 정비(상점) 단계 시작.");
-                CurrentZone++;
-                CurrentWave = 1;
-
-                if (UIManager.Instance != null && UIManager.Instance.gameObject.activeInHierarchy)
+                UIManager.Instance.FadeOut(1.0f, () =>
                 {
+                    CurrentZone++;
+                    CurrentWave = 1;
+
                     UIManager.Instance.StartMaintenancePhase();
-                }
+
+                    UIManager.Instance.FadeIn();
+                });
             }
             else
             {

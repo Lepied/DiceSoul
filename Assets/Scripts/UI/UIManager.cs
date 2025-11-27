@@ -5,13 +5,8 @@ using UnityEngine.UI;
 using System.Linq; 
 using UnityEngine.EventSystems; 
 using UnityEngine.SceneManagement; 
+using DG.Tweening;
 
-/// <summary>
-/// [!!! 핵심 수정 !!!]
-/// 1. ShowAttackOptions: '명함' 보너스 계산 로직을 'StageManager'로 이동
-/// 2. UIManager는 '원본 족보'를 받고, 'ShowAttackPreview'를 즉시 호출하여
-///    '최종 계산된' 데미지/점수를 텍스트에 표시하도록 수정
-/// </summary>
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
@@ -57,6 +52,11 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI relicDetailName;
     public TextMeshProUGUI relicDetailDescription;
 
+    [Header("전환 연출")]
+    public CanvasGroup fadeCanvasGroup; 
+    public CanvasGroup zoneTitleGroup; 
+    public TextMeshProUGUI zoneTitleText;
+
     [Header("게임 오버 UI")]
     public GameObject gameOverPanel;
     public TextMeshProUGUI earnedCurrencyText;
@@ -98,7 +98,6 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // ... (기본 UI 함수들은 동일) ...
     public void ToggleWaveInfoPanel() 
     {
         if (waveInfoPanel != null)
@@ -127,7 +126,42 @@ public class UIManager : MonoBehaviour
         if (rollCountText != null) rollCountText.text = $"Roll: {current} / {max}";
     }
 
-    // ... (적 정보 UI 함수들은 동일) ...
+    public void FadeIn(float duration = 1.0f)
+    {
+        fadeCanvasGroup.alpha = 1f; // 검은색 상태에서 시작
+        fadeCanvasGroup.blocksRaycasts = true; // 터치 막기
+        fadeCanvasGroup.DOFade(0f, duration).OnComplete(() => {
+            fadeCanvasGroup.blocksRaycasts = false; // 끝나면 터치 허용
+        });
+    }
+
+    public void FadeOut(float duration = 1.0f, System.Action onComplete = null)
+    {
+        fadeCanvasGroup.blocksRaycasts = true;
+        fadeCanvasGroup.DOFade(1f, duration).OnComplete(() => {
+            onComplete?.Invoke(); // 다 어두워지면 실행할 함수 뭐 씬이동같은거
+        });
+    }
+
+    public void ShowZoneTitle(string zoneName)
+    {
+        zoneTitleText.text = zoneName;
+
+        Sequence seq = DOTween.Sequence();
+        // 1. 텍스트 등장 
+        zoneTitleGroup.alpha = 0;
+        zoneTitleGroup.transform.localScale = Vector3.one * 1.2f;
+        
+        seq.Append(zoneTitleGroup.DOFade(1, 0.5f));
+        seq.Join(zoneTitleGroup.transform.DOScale(1f, 0.5f).SetEase(Ease.OutBack));
+        
+        // 2. 잠시 대기
+        seq.AppendInterval(2.0f);
+        
+        // 3. 사라짐
+        seq.Append(zoneTitleGroup.DOFade(0, 0.5f));
+    }
+
     public void UpdateWaveInfoPanel(List<Enemy> activeEnemies) 
     {
         if (waveInfoPanel == null || enemyInfoIconPrefab == null) return;
