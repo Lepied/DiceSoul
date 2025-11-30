@@ -199,11 +199,13 @@ public class GameManager : MonoBehaviour
         {
             WaveGenerator.Instance.BuildRunZoneOrder();
         }
+        ZoneData startingZone = WaveGenerator.Instance.GetCurrentZoneData(1);
+        string zoneName = startingZone != null ? startingZone.zoneName : "평원";
 
         if (UIManager.Instance != null)
         {
             UIManager.Instance.FadeIn();
-            UIManager.Instance.ShowZoneTitle("Zone 1: 평원");
+            UIManager.Instance.ShowZoneTitle("Zone 1: " + zoneName);
             UIManager.Instance.UpdateHealth(PlayerHealth, MaxPlayerHealth);
             UIManager.Instance.UpdateScore(CurrentScore);
             UIManager.Instance.UpdateRelicPanel(activeRelics);
@@ -281,10 +283,12 @@ public class GameManager : MonoBehaviour
                 {
                     CurrentZone++;
                     CurrentWave = 1;
-
+                    ZoneData nextZone = WaveGenerator.Instance.GetCurrentZoneData(CurrentZone);
+                    string nextZoneName = nextZone != null ? nextZone.zoneName : "알 수 없음";
                     UIManager.Instance.StartMaintenancePhase();
 
                     UIManager.Instance.FadeIn();
+                    UIManager.Instance.ShowZoneTitle($"Zone {CurrentZone}: {nextZoneName}");
                 });
             }
             else

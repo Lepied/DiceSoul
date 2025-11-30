@@ -50,7 +50,7 @@ public class StageManager : MonoBehaviour
     {
         if (diceController == null)
         {
-            diceController = FindObjectOfType<DiceController>();
+            diceController = FindFirstObjectByType<DiceController>();
             if (diceController == null)
                 Debug.LogError("씬에 DiceController가 없습니다!");
         }
