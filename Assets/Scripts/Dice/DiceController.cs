@@ -3,12 +3,9 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic; // List<T>
 using System.Linq;
+using DG.Tweening;
+using UnityEditor.SettingsManagement;
 
-/// <summary>
-/// [수정] 
-/// 1. 'Instance' (싱글톤) 추가 (Awake 함수 포함)
-/// 2. 'ForceKeepRandomDice()' 함수 신규 추가 (슬라임 기믹용)
-/// </summary>
 public class DiceController : MonoBehaviour
 {
     public static DiceController Instance { get; private set; }
@@ -23,8 +20,24 @@ public class DiceController : MonoBehaviour
     [Tooltip("UI 캔버스의 굴림 버튼")]
     public Button rollButtonUI;
 
-    [Header("스프라이트 에셋")]
-    public Sprite[] diceFaceSprites;
+    [Header("스프라이트 설정")]
+
+    public List<DiceSpriteData> diceSpriteSettings;
+    private Dictionary<string, Dictionary<int, Sprite>> diceLookupMap = new Dictionary<string, Dictionary<int, Sprite>>(); // 딕셔너리
+    private Dictionary<string, List<Sprite>> diceAnimationList = new Dictionary<string, List<Sprite>>(); //주사위 애니메이션용
+
+    [System.Serializable]
+    public class DiceSpriteData
+    {
+        public string diceType;
+        public List<DiceFacePair> faces;
+    }
+    [System.Serializable]
+    public struct DiceFacePair
+    {
+        public int value;    // 예: 1, 2, 3... 또는 7(마법), 10(보정)
+        public Sprite sprite; // 그 값에 해당하는 이미지
+    }
 
     [Header("사운드 설정")]
     public AudioClip rollSound;
@@ -58,9 +71,9 @@ public class DiceController : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("DiceController 인스턴스가 이미 존재합니다! 중복 인스턴스를 파괴합니다.");
             Destroy(gameObject);
         }
+        InitializeDiceSpriteDict();
     }
 
     void Start()
@@ -75,9 +88,62 @@ public class DiceController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// [수정] GameManager로부터 덱 정보를 '복사(Copy)'하여 주사위를 스폰합니다.
-    /// </summary>
+    private void InitializeDiceSpriteDict()
+    {
+        diceLookupMap.Clear();
+        diceAnimationList.Clear();
+        foreach (var data in diceSpriteSettings)
+        {
+            Dictionary<int, Sprite> valueMap = new Dictionary<int, Sprite>(); //검색용 맵
+            List<Sprite> spriteList = new List<Sprite>();
+
+            int maxSide = GetMaxSideFromType(data.diceType);
+
+            foreach (var pair in data.faces)
+            {
+                //검색용 맵에는 모든 이미지 등록시키기
+                if (!valueMap.ContainsKey(pair.value))
+                {
+                    valueMap[pair.value] = pair.sprite;
+                }
+                // 애니메이션 용 리스트에는 최대값 이하만 등록시키기
+                if(pair.value <= maxSide)
+                {
+                    spriteList.Add(pair.sprite);
+                }
+            }
+            if (!diceLookupMap.ContainsKey(data.diceType))
+            {
+                diceLookupMap.Add(data.diceType, valueMap);
+                diceAnimationList.Add(data.diceType, spriteList);
+            }
+        }
+    }
+    //다이스타입에서 최대값뽑는용
+    private int GetMaxSideFromType(string diceType)
+    {
+        // "D"를 떼고 나머지 숫자를 파싱
+        if (diceType.StartsWith("D") && int.TryParse(diceType.Substring(1), out int result))
+        {
+            return result;
+        }
+        return 6; //기본값 (D6)
+    }
+
+    public Sprite GetDiceSprite(string diceType, int value)
+    {
+        if (diceLookupMap.TryGetValue(diceType, out Dictionary<int, Sprite> valueMap))
+        {
+            if (valueMap.TryGetValue(value, out Sprite s))
+            {
+                return s;
+            }
+
+        }
+        Debug.LogWarning($"스프라이트 누락: 타입 {diceType}의 값 {value}에 대한 이미지가 없습니다!");
+        return null;
+    }
+
     public void SetDiceDeck(List<string> deckFromGameManager)
     {
         if (dicePrefab == null)
@@ -113,10 +179,14 @@ public class DiceController : MonoBehaviour
 
             if (sr != null && keepScript != null)
             {
-                if (diceFaceSprites != null && diceFaceSprites.Length > 0)
+                string myType = playerDiceDeck[i];
+                Sprite initailSprite = GetDiceSprite(myType, 1); //초기값
+
+                if (initailSprite != null)
                 {
-                    sr.sprite = diceFaceSprites[0];
+                    sr.sprite = initailSprite;
                 }
+
                 keepScript.Initialize(this, i);
                 keepScript.UpdateVisual(false);
 
@@ -194,10 +264,11 @@ public class DiceController : MonoBehaviour
             {
                 if (!isKept[i])
                 {
-                    if (diceFaceSprites != null && diceFaceSprites.Length > 0)
+                    string myType = playerDiceDeck[i];
+
+                    if (diceAnimationList.TryGetValue(myType, out List<Sprite> animSprites) && animSprites.Count > 0)
                     {
-                        int randomFace = Random.Range(0, diceFaceSprites.Length);
-                        diceRenderers[i].sprite = diceFaceSprites[randomFace];
+                        diceRenderers[i].sprite = animSprites[Random.Range(0, animSprites.Count)];
                     }
                 }
             }
@@ -235,19 +306,7 @@ public class DiceController : MonoBehaviour
                         break;
                 }
 
-                if (i >= currentValues.Count)
-                {
-                    Debug.LogError($"currentValues 인덱스 오류! i:{i}, 밸류 크기:{currentValues.Count}");
-                    continue;
-                }
-
-                currentValues[i] = finalValue;
-                int spriteIndex = Mathf.Clamp(finalValue - 1, 0, diceFaceSprites.Length - 1);
-
-                if (diceFaceSprites.Length > spriteIndex)
-                {
-                    diceRenderers[i].sprite = diceFaceSprites[spriteIndex];
-                }
+                UpdateSingleDiceVisual(i, finalValue);
             }
         }
 
@@ -271,16 +330,26 @@ public class DiceController : MonoBehaviour
         }
     }
 
+    public void UpdateSingleDiceVisual(int index, int value)
+    {
+        if (index < 0 || index >= diceRenderers.Count) return;
+
+        string diceType = playerDiceDeck[index];
+        Sprite s = GetDiceSprite(diceType, value);
+
+        if (s != null)
+        {
+            diceRenderers[index].sprite = s;
+            currentValues[index] = value;
+        }
+    }
+
     public void ApplyRollBonus(int amount)
     {
         maxRolls += amount;
         Debug.Log($"유물 효과 적용: 최대 굴림 +{amount}. (현재: {maxRolls})");
     }
 
-    /// <summary>
-    /// (Slime.cs가 호출)
-    /// 아직 킵(Keep)되지 않은 주사위 중 하나를 강제로 킵 상태로 만듭니다.
-    /// </summary>
     public void ForceKeepRandomDice()
     {
         // 1. 킵(Keep)이 '가능한' 주사위 인덱스 리스트를 찾습니다.

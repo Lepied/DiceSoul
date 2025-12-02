@@ -7395,13 +7395,77 @@ MonoBehaviour:
   dicePrefab: {fileID: 4575350410747785122, guid: aead35b1917cc1f45b15893cc0f3a7eb, type: 3}
   diceContainer: {fileID: 531286627}
   rollButtonUI: {fileID: 748899813}
-  diceFaceSprites:
-  - {fileID: 5434830876748949346, guid: 69e387810baa25749bca6ef4c1419068, type: 3}
-  - {fileID: -2666605650445167477, guid: 290f6c49b1cbed345917ec85ccb82dcd, type: 3}
-  - {fileID: 5014751948883790133, guid: 1ca506c8c7aee424aabf19d82d614940, type: 3}
-  - {fileID: -573441712502597224, guid: 4a6861f26f0abfb46abc4b0ec542e4c7, type: 3}
-  - {fileID: 7161740088646490646, guid: bdd751254d10d25428297ecae25bda60, type: 3}
-  - {fileID: -4931478591210665043, guid: 87b53cb05ce7f0648ac4b0ffb598820f, type: 3}
+  diceSpriteSettings:
+  - diceType: D4
+    faces:
+    - value: 1
+      sprite: {fileID: 5067110398190723068, guid: 6e4a93cf60e728244a398c33262a2b5e, type: 3}
+    - value: 2
+      sprite: {fileID: -4425188097481535011, guid: ba1dcc252c3d93b41bf0f97e1415bb6f, type: 3}
+    - value: 3
+      sprite: {fileID: -6216925375520127733, guid: c3731624a34965c40a6992f4ca78ca18, type: 3}
+    - value: 4
+      sprite: {fileID: 4100169725658395356, guid: 3314ca16ebbfdc446827222bf27442e1, type: 3}
+    - value: 7
+      sprite: {fileID: -1560732715857687093, guid: a73423545022d114c99c550bfffbe6c1, type: 3}
+  - diceType: D6
+    faces:
+    - value: 1
+      sprite: {fileID: 5434830876748949346, guid: 69e387810baa25749bca6ef4c1419068, type: 3}
+    - value: 2
+      sprite: {fileID: -2666605650445167477, guid: 290f6c49b1cbed345917ec85ccb82dcd, type: 3}
+    - value: 3
+      sprite: {fileID: 5014751948883790133, guid: 1ca506c8c7aee424aabf19d82d614940, type: 3}
+    - value: 4
+      sprite: {fileID: -573441712502597224, guid: 4a6861f26f0abfb46abc4b0ec542e4c7, type: 3}
+    - value: 5
+      sprite: {fileID: 7161740088646490646, guid: bdd751254d10d25428297ecae25bda60, type: 3}
+    - value: 6
+      sprite: {fileID: -4931478591210665043, guid: 87b53cb05ce7f0648ac4b0ffb598820f, type: 3}
+    - value: 7
+      sprite: {fileID: 396448781736374199, guid: b0519aabbe8d2364dbceab7e58a5734f, type: 3}
+  - diceType: D20
+    faces:
+    - value: 1
+      sprite: {fileID: 4792985993693564213, guid: 9f66b7eed1a83a645961cd4e98a109bf, type: 3}
+    - value: 2
+      sprite: {fileID: 7929369659701981275, guid: 7b0b797a37962524891baad4262fa32c, type: 3}
+    - value: 3
+      sprite: {fileID: 6511849183109605886, guid: a279cf5a62fe04145adbdcd0715de334, type: 3}
+    - value: 4
+      sprite: {fileID: 1025062784083298399, guid: 55affb427b762e24c8f2f46a702c2028, type: 3}
+    - value: 5
+      sprite: {fileID: 4359219529090414850, guid: 196edefe25e9dd34eb3cc8a1af207366, type: 3}
+    - value: 6
+      sprite: {fileID: 5238728443076121126, guid: 758875728c91bd545bdb230b8dd708c6, type: 3}
+    - value: 7
+      sprite: {fileID: 8433732310180174815, guid: 8140fd77fcba2b542b4d8d7d03fa5342, type: 3}
+    - value: 8
+      sprite: {fileID: 3748135439049822169, guid: 9c90a4801f5cd7047b6b9d60c54a8003, type: 3}
+    - value: 9
+      sprite: {fileID: 180585743847952887, guid: 23a5a6c7cbb800d4d95888ff7e44c8b1, type: 3}
+    - value: 10
+      sprite: {fileID: 342873658822851434, guid: 35f82e173cb2f7a468ac85f5fa890768, type: 3}
+    - value: 11
+      sprite: {fileID: 1389197641920939966, guid: 6ccf1a016e7bfee42ad1d7f2af441ada, type: 3}
+    - value: 12
+      sprite: {fileID: -1869919993413680894, guid: 4df0c29b7a9d841499708b420cb44cfa, type: 3}
+    - value: 13
+      sprite: {fileID: -2957104198390575940, guid: 2057de9a116143242beca7a90639a836, type: 3}
+    - value: 14
+      sprite: {fileID: -3532772500967864063, guid: e2084ade4d6308e4cbadedc894cb2ffd, type: 3}
+    - value: 15
+      sprite: {fileID: 4031604863460427855, guid: b302f11f95d4d3c47bc9f85658d9a64f, type: 3}
+    - value: 16
+      sprite: {fileID: 2173971048321781412, guid: 918670139786cef419bced4239dd0d90, type: 3}
+    - value: 17
+      sprite: {fileID: 8257447817555375357, guid: b3fd0f4e49729c14086f00f77e534594, type: 3}
+    - value: 18
+      sprite: {fileID: -2825721810767320946, guid: c4933586b0a9a6e40a8d57f481051126, type: 3}
+    - value: 19
+      sprite: {fileID: 5540304016478899024, guid: 5c4b3e6a9b2469a4cb501de205400e7c, type: 3}
+    - value: 20
+      sprite: {fileID: 3036485935861729580, guid: 16530628615ae3f48b322ac6cbf45749, type: 3}
   rollSound: {fileID: 8300000, guid: 7f605d0e9cb039f4ab9d90cfe9c31aa7, type: 3}
   baseMaxRolls: 3
   horizontalSpacing: 2
