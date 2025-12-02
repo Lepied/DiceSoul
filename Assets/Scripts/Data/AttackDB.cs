@@ -2,13 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
-/// <summary>
-/// [!!! 핵심 수정 (기획서 반영) !!!]
-/// 1. InitializeJokbos: '스트레이트'를 4연속(기본)과 5연속(상위)으로 분리
-/// 2. InitializeJokbos: '투 페어 (2+2)' 족보 추가
-/// 3. GetAchievableJokbos: 'RLC_PERFECTIONIST' 유물 보유 여부에 따라
-///    4연속 또는 5연속 족보 중 하나만 반환하도록 필터링
-/// </summary>
+
 public class AttackDB : MonoBehaviour
 {
     public static AttackDB Instance { get; private set; }
