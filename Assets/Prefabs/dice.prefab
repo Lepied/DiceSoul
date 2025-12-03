@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 5043097096308520055}
   - component: {fileID: 4158110990596856129}
-  - component: {fileID: -72242616643161984}
   - component: {fileID: 8068089126598953024}
+  - component: {fileID: 550129003641540171}
   m_Layer: 0
   m_Name: dice
   m_TagString: Untagged
@@ -92,19 +92,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &-72242616643161984
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4575350410747785122}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6e6caad81fb7684c97939b04e9c7bc1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DiceKeep
-  keepEffect: {fileID: 0}
 --- !u!61 &8068089126598953024
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -151,3 +138,17 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &550129003641540171
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4575350410747785122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b58f9383e619b9f489b12b69ba7f2a85, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Dice
+  spriteRenderer: {fileID: 4158110990596856129}
+  keepEffectObj: {fileID: 0}

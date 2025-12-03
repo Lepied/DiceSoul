@@ -7395,6 +7395,11 @@ MonoBehaviour:
   dicePrefab: {fileID: 4575350410747785122, guid: aead35b1917cc1f45b15893cc0f3a7eb, type: 3}
   diceContainer: {fileID: 531286627}
   rollButtonUI: {fileID: 748899813}
+  rollSound: {fileID: 8300000, guid: 7f605d0e9cb039f4ab9d90cfe9c31aa7, type: 3}
+  baseMaxRolls: 3
+  horizontalSpacing: 2
+  yPosition: 0
+  diceScale: 0.4
   diceSpriteSettings:
   - diceType: D4
     faces:
@@ -7466,11 +7471,7 @@ MonoBehaviour:
       sprite: {fileID: 5540304016478899024, guid: 5c4b3e6a9b2469a4cb501de205400e7c, type: 3}
     - value: 20
       sprite: {fileID: 3036485935861729580, guid: 16530628615ae3f48b322ac6cbf45749, type: 3}
-  rollSound: {fileID: 8300000, guid: 7f605d0e9cb039f4ab9d90cfe9c31aa7, type: 3}
-  baseMaxRolls: 3
-  horizontalSpacing: 2
-  yPosition: 0
-  diceScale: 0.4
+  activeDice: []
 --- !u!114 &1777158237
 MonoBehaviour:
   m_ObjectHideFlags: 0
