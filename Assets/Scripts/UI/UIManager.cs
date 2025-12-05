@@ -23,16 +23,26 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI[] attackNameTexts;
     public TextMeshProUGUI[] attackValueTexts;
 
-    [Header("보상/상점 UI")]
+    [Header("보상 UI")]
     public GameObject rewardScreenPanel;
     public Button[] relicChoiceButtons;
     public TextMeshProUGUI[] relicNameTexts;
     public TextMeshProUGUI[] relicDescriptionTexts;
+
+    [Header("상점/정비 UI")]
     public GameObject maintenancePanel;
-    public Button[] shopItemButtons;
-    public TextMeshProUGUI[] shopItemNameTexts;
-    public TextMeshProUGUI[] shopItemPriceTexts;
+    public Transform shopItemsContainer;
+    public GameObject shopItemSlotPrefab;
     public Button exitShopButton;
+
+    public Button rerollButton;
+    public TextMeshProUGUI rerollCostText;
+
+    [Header("통합 툴팁 (재사용)")]
+    // 기존 RelicDetailPopup이나 EnemyDetailPopup을 재활용
+    public GameObject genericTooltipPopup;
+    public TextMeshProUGUI tooltipTitle;
+    public TextMeshProUGUI tooltipDesc;
 
     [Header("적 정보 UI")]
     public Button waveInfoToggleButton;
@@ -83,6 +93,8 @@ public class UIManager : MonoBehaviour
         if (maintenancePanel != null) maintenancePanel.SetActive(false);
         if (waveInfoPanel != null) waveInfoPanel.SetActive(false);
         if (enemyDetailPopup != null) enemyDetailPopup.SetActive(false);
+        if (genericTooltipPopup != null) genericTooltipPopup.SetActive(false);
+
         if (waveInfoToggleButton != null)
         {
             waveInfoToggleButton.onClick.AddListener(ToggleWaveInfoPanel);
@@ -96,6 +108,7 @@ public class UIManager : MonoBehaviour
         {
             mainMenuButton.onClick.AddListener(OnMainMenuButton);
         }
+        if (rerollButton != null) rerollButton.onClick.AddListener(OnRerollClick);
     }
 
     public void ToggleWaveInfoPanel()
@@ -311,13 +324,6 @@ public class UIManager : MonoBehaviour
         }
     }
 
-
-    /// <summary>
-    /// [!!! 핵심 수정 !!!]
-    /// 1. '원본 족보' 리스트(jokbos)를 받습니다.
-    /// 2. 텍스트를 채울 때, StageManager.ShowAttackPreview()를 '임시'로 호출하여
-    ///    '최종 계산된' 데미지/점수를 가져와 텍스트에 표시합니다.
-    /// </summary>
     public void ShowAttackOptions(List<AttackJokbo> jokbos)
     {
         if (attackOptionsPanel == null) return;
@@ -329,10 +335,10 @@ public class UIManager : MonoBehaviour
         {
             if (i < jokbos.Count)
             {
-                AttackJokbo jokbo = jokbos[i]; // (이것은 '원본' 족보)
+                AttackJokbo jokbo = jokbos[i];
 
-                // 1. [!!!] 텍스트 설정을 위해 '최종' 데미지/점수를 '미리' 계산합니다.
-                // (StageManager의 ShowAttackPreview 로직을 일부 가져옴)
+                // 1. 텍스트 설정을 위해 '최종' 데미지/점수를 '미리' 계산
+
                 (int finalBaseDamage, int finalBaseScore) =
                     StageManager.Instance.GetPreviewValues(jokbo); // [!!!] StageManager에 새 헬퍼 함수 요청
 
@@ -419,53 +425,82 @@ public class UIManager : MonoBehaviour
     public void StartMaintenancePhase()
     {
         if (ShopManager.Instance == null) return;
-        ShopManager.Instance.GenerateShopItems();
-        ShowMaintenanceScreen(ShopManager.Instance.currentShopItems);
+
+        // 상점 초기화 (리롤 비용 등 리셋)
+        ShopManager.Instance.ResetShop();
+
+        // UI 표시
+        UpdateShopUI(ShopManager.Instance.currentShopItems, ShopManager.Instance.currentRerollCost);
+        maintenancePanel.SetActive(true);
     }
-    public void ShowMaintenanceScreen(List<ShopItem> items)
+    public void UpdateShopUI(List<ShopItem> items, int rerollCost)
     {
         if (maintenancePanel == null) return;
-        maintenancePanel.SetActive(true);
-        for (int i = 0; i < shopItemButtons.Length; i++)
+
+        // 1. 기존 슬롯 제거
+        foreach (Transform child in shopItemsContainer) Destroy(child.gameObject);
+
+        // 2. 새 슬롯 생성
+        foreach (var item in items)
         {
-            if (i < items.Count)
+            GameObject slotObj = Instantiate(shopItemSlotPrefab, shopItemsContainer);
+            ShopItemSlot slotScript = slotObj.GetComponent<ShopItemSlot>();
+            if (slotScript != null)
             {
-                ShopItem item = items[i];
-                shopItemNameTexts[i].text = item.Name;
-                shopItemPriceTexts[i].text = $"{item.Price} Score";
-                shopItemButtons[i].onClick.RemoveAllListeners();
-                shopItemButtons[i].onClick.AddListener(() =>
-                {
-                    SelectShopItem(item);
-                });
-                shopItemButtons[i].gameObject.SetActive(true);
-            }
-            else
-            {
-                shopItemButtons[i].gameObject.SetActive(false);
+                slotScript.Setup(item, this);
             }
         }
-        exitShopButton.onClick.RemoveAllListeners();
-        exitShopButton.onClick.AddListener(ExitShop);
+
+        // 3. 리롤 버튼 업데이트
+        if (rerollCostText != null) rerollCostText.text = $"{rerollCost} Score";
+        if (rerollButton != null)
+        {
+            rerollButton.interactable = GameManager.Instance.CurrentScore >= rerollCost;
+        }
     }
-    private void SelectShopItem(ShopItem item)
+    private void OnRerollClick()
     {
         if (ShopManager.Instance != null)
         {
-            ShopManager.Instance.BuyItem(item);
+            ShopManager.Instance.RerollShop();
         }
     }
+
     private void ExitShop()
     {
         maintenancePanel.SetActive(false);
+        HideGenericTooltip(); // 툴팁 끄기
         if (StageManager.Instance != null)
         {
             StageManager.Instance.PrepareNextWave();
         }
     }
-    public bool IsShopOpen()
+    public bool IsShopOpen() { return maintenancePanel != null && maintenancePanel.activeSelf; }
+    
+        public void ShowGenericTooltip(string title, string description, RectTransform targetRect)
     {
-        return maintenancePanel != null && maintenancePanel.activeSelf;
+        if (genericTooltipPopup == null) return;
+
+        genericTooltipPopup.SetActive(true);
+        if (tooltipTitle != null) tooltipTitle.text = title;
+        if (tooltipDesc != null) tooltipDesc.text = description;
+
+        // 위치 잡기 (기존 팝업 로직 재사용)
+        LayoutRebuilder.ForceRebuildLayoutImmediate(genericTooltipPopup.GetComponent<RectTransform>());
+        
+        Vector3 iconPos = targetRect.position;
+        RectTransform popupRect = genericTooltipPopup.GetComponent<RectTransform>();
+        
+        // 아이콘 위쪽에 띄우기
+        float yOffset = (targetRect.rect.height * targetRect.lossyScale.y / 2f) + 
+                        (popupRect.rect.height * popupRect.lossyScale.y / 2f) + 10f;
+        
+        genericTooltipPopup.transform.position = iconPos + new Vector3(0, yOffset, 0);
+    }
+
+    public void HideGenericTooltip()
+    {
+        if (genericTooltipPopup != null) genericTooltipPopup.SetActive(false);
     }
 
     public void ShowGameOverScreen(int earnedCurrency)

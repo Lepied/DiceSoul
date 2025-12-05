@@ -20,7 +20,7 @@ public class GameManager : MonoBehaviour
     public int bonusPerRollRemaining = 5;
     public int wavesPerZone = 5;
     public int maxDiceCount = 8;
-    public int minDiceCount = 3; // [신규] '집중' 유물을 위한 최소 주사위 수
+    public int minDiceCount = 3;
 
     [Header("런(Run) 진행 상태")]
     public int CurrentZone = 1;
@@ -31,6 +31,7 @@ public class GameManager : MonoBehaviour
 
     private string selectedDeckKey = "SelectedDeck";
 
+    public List<string> nextZoneBuffs = new List<string>();
 
     void Awake()
     {
@@ -149,6 +150,7 @@ public class GameManager : MonoBehaviour
 
         playerDiceDeck.Clear();
         activeRelics.Clear();
+        nextZoneBuffs.Clear();
 
         if (WaveGenerator.Instance != null)
         {
@@ -224,6 +226,12 @@ public class GameManager : MonoBehaviour
     public void AddScore(int scoreToAdd, AttackJokbo jokbo)
     {
         float globalMultiplier = 1.0f;
+        //포션으로 인한 버프 먼저(합연산)
+        if (nextZoneBuffs.Contains("ScoreBoost"))
+        {
+            globalMultiplier += 0.5f; 
+        }
+        //유물 버프 (곱연산)
         foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.AddScoreMultiplier))
         {
             globalMultiplier *= relic.FloatValue;
@@ -262,7 +270,37 @@ public class GameManager : MonoBehaviour
             UIManager.Instance.UpdateScore(CurrentScore);
         }
     }
+    public void AddNextZoneBuff(string buffKey)
+    {
+        nextZoneBuffs.Add(buffKey);
+        Debug.Log($"[GameManager] 다음 존 버프 획득: {buffKey}");
+    }
 
+    public void ApplyNextZoneBuffs(DiceController diceController)
+    {
+        if (nextZoneBuffs.Count == 0) return;
+
+        Debug.Log("다음 존 버프를 적용합니다...");
+        foreach (string buff in nextZoneBuffs)
+        {
+            switch (buff)
+            {
+                case "ExtraRoll":
+                    diceController.ApplyRollBonus(1); // 굴림 +1
+                    break;
+                // DamageBoost와 ScoreBoost는 GetAttackDamageModifiers에서 계산
+                case "DamageBoost":
+                    Debug.Log(">> 공격력 증가 적용됨!");
+                    break;
+                case "ScoreBoost":
+                    Debug.Log(">> 점수 획득량 증가 적용됨!");
+                    break;
+            }
+        }
+
+        if (UIManager.Instance != null)
+            UIManager.Instance.UpdateRollCount(0, diceController.maxRolls);
+    }
 
     public void ProcessWaveClear(bool isSuccess, int rollsRemaining)
     {
@@ -345,10 +383,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// [!!! 핵심 수정 !!!]
-    /// '획득 즉시' 발동하는 유물 효과(유리 대포, 집중, 무거운 주사위 등)를 여기서 처리합니다.
-    /// </summary>
     public void AddRelic(Relic chosenRelic)
     {
         if (chosenRelic == null) return;
@@ -361,7 +395,7 @@ public class GameManager : MonoBehaviour
             UIManager.Instance.UpdateRelicPanel(activeRelics);
         }
 
-        // [수정] '획득 즉시' 발동 효과 처리
+        //  '획득 즉시' 발동 효과 처리
         switch (chosenRelic.EffectType)
         {
             case RelicEffectType.AddDice:
@@ -387,8 +421,6 @@ public class GameManager : MonoBehaviour
                 break;
         }
 
-        // [신규] '무거운 주사위', '유리 대포', '집중'은 여러 효과를 가질 수 있음
-        // (ID로 하드코딩하여 2차 효과 처리)
         switch (chosenRelic.RelicID)
         {
             case "RLC_HEAVY_DICE": // 무거운 주사위 (JokboDamageAdd + ModifyMaxRolls)
@@ -415,14 +447,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// [수정] '무거운 주사위' (ModifyMaxRolls) 효과 적용
-    /// </summary>
     public void ApplyAllRelicEffects(DiceController diceController)
     {
         Debug.Log("보유한 유물 효과를 모두 적용합니다...");
-
-        // (DiceController가 maxRolls를 baseMaxRolls로 리셋한 후)
         foreach (Relic relic in activeRelics)
         {
             switch (relic.EffectType)
@@ -431,12 +458,13 @@ public class GameManager : MonoBehaviour
                     diceController.ApplyRollBonus(relic.IntValue);
                     break;
 
-                // [!!! 신규 추가 !!!]
+
                 case RelicEffectType.ModifyMaxRolls: // (예: 무거운 주사위)
                     diceController.ApplyRollBonus(relic.IntValue); // (IntValue: -1)
                     break;
             }
         }
+        ApplyZoneBuffs(diceController);
 
         if (UIManager.Instance != null)
         {
@@ -454,6 +482,20 @@ public class GameManager : MonoBehaviour
             return true;
         }
         return false;
+    }
+    // 현재 활성화된 존 버프 적용 (매 웨이브 호출)
+    private void ApplyZoneBuffs(DiceController diceController)
+    {
+        foreach (string buff in nextZoneBuffs)
+        {
+            if (buff == "ExtraRoll") diceController.ApplyRollBonus(1);
+        }
+    }
+
+    // 존이 끝날 때 버프 제거 (ProcessWaveClear에서 존 넘어갈 때 호출)
+    public void ClearZoneBuffs()
+    {
+        nextZoneBuffs.Clear();
     }
 
     public void HealPlayer(int amount)
@@ -517,11 +559,6 @@ public class GameManager : MonoBehaviour
     }
 
     // --- 유물 효과 계산 함수들 ---
-
-    /// <summary>
-    /// [!!! 핵심 수정 !!!]
-    /// '금권 정치'(점수 비례), '피의 갈증'(잃은 체력 비례) 효과 구현
-    /// </summary>
     public int GetAttackDamageModifiers(AttackJokbo jokbo)
     {
         int bonusDamage = 0;
@@ -541,7 +578,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // 3. [!!! 신규 추가 !!!] '금권 정치' (점수 비례)
+        // 3. '금권 정치' (점수 비례)
         foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.DynamicDamage_Score))
         {
             // (CurrentScore 100점당 +1, 최대 +50)
@@ -549,11 +586,17 @@ public class GameManager : MonoBehaviour
             bonusDamage += dynamicBonus;
         }
 
-        // 4. [!!! 신규 추가 !!!] '피의 갈증' (잃은 체력 비례)
+        // 4.  '피의 갈증' (잃은 체력 비례)
         foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.DynamicDamage_LostHealth))
         {
             int lostHealth = MaxPlayerHealth - PlayerHealth;
             bonusDamage += lostHealth;
+        }
+
+        //ex . 포션 버프 
+        if (nextZoneBuffs.Contains("DamageBoost"))
+        {
+            bonusDamage += 15; // 존 내내 데미지 +10
         }
 
         return bonusDamage;
@@ -572,15 +615,10 @@ public class GameManager : MonoBehaviour
         return multiplier;
     }
 
-    /// <summary>
-    /// [!!! 핵심 수정 !!!]
-    /// '녹슨 톱니' (모든 족보 점수 +) 효과 구현
-    /// </summary>
     public int GetAttackScoreBonus(AttackJokbo jokbo)
     {
         int bonusScore = 0;
 
-        // [!!! 신규 추가 !!!]
         foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.JokboScoreAdd))
         {
             // "All"이거나, 족보 설명에 포함되면
@@ -616,9 +654,7 @@ public class GameManager : MonoBehaviour
 
         return (damageMult, scoreMult);
     }
-    /// <summary>
-    /// [수정] 굴림 직후 호출됨.
-    /// </summary>
+
     public List<int> ApplyDiceModificationRelics(List<int> originalValues)
     {
         List<int> modifiedValues = new List<int>(originalValues);
