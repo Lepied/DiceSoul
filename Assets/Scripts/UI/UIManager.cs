@@ -109,6 +109,11 @@ public class UIManager : MonoBehaviour
             mainMenuButton.onClick.AddListener(OnMainMenuButton);
         }
         if (rerollButton != null) rerollButton.onClick.AddListener(OnRerollClick);
+        if (exitShopButton != null)
+        {
+            exitShopButton.onClick.RemoveAllListeners();
+            exitShopButton.onClick.AddListener(ExitShop);
+        }
     }
 
     public void ToggleWaveInfoPanel()
@@ -469,15 +474,24 @@ public class UIManager : MonoBehaviour
     private void ExitShop()
     {
         maintenancePanel.SetActive(false);
-        HideGenericTooltip(); // 툴팁 끄기
+        HideGenericTooltip(); 
+
+        if (GameManager.Instance.CurrentWave == 1 && WaveGenerator.Instance != null)
+        {
+            int currentZone = GameManager.Instance.CurrentZone;
+            ZoneData zone = WaveGenerator.Instance.GetCurrentZoneData(currentZone);
+            string zoneName = zone != null ? zone.zoneName : "알 수 없음";
+            ShowZoneTitle($"Zone {currentZone}: {zoneName}");
+        }
+
         if (StageManager.Instance != null)
         {
             StageManager.Instance.PrepareNextWave();
         }
     }
     public bool IsShopOpen() { return maintenancePanel != null && maintenancePanel.activeSelf; }
-    
-        public void ShowGenericTooltip(string title, string description, RectTransform targetRect)
+
+    public void ShowGenericTooltip(string title, string description, RectTransform targetRect)
     {
         if (genericTooltipPopup == null) return;
 
@@ -487,14 +501,14 @@ public class UIManager : MonoBehaviour
 
         // 위치 잡기 (기존 팝업 로직 재사용)
         LayoutRebuilder.ForceRebuildLayoutImmediate(genericTooltipPopup.GetComponent<RectTransform>());
-        
+
         Vector3 iconPos = targetRect.position;
         RectTransform popupRect = genericTooltipPopup.GetComponent<RectTransform>();
-        
+
         // 아이콘 위쪽에 띄우기
-        float yOffset = (targetRect.rect.height * targetRect.lossyScale.y / 2f) + 
+        float yOffset = (targetRect.rect.height * targetRect.lossyScale.y / 2f) +
                         (popupRect.rect.height * popupRect.lossyScale.y / 2f) + 10f;
-        
+
         genericTooltipPopup.transform.position = iconPos + new Vector3(0, yOffset, 0);
     }
 

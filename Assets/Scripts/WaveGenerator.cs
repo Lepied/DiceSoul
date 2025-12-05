@@ -31,7 +31,7 @@ public class WaveGenerator : MonoBehaviour
     // 오브젝트 풀링용 딕셔너리
     private Dictionary<string, Queue<GameObject>> poolDictionary = new Dictionary<string, Queue<GameObject>>();
 
-    // [!!!] 이번 런(Run)에서 플레이할 5개 존의 '셔플된' 순서
+    // 이번 런(Run)에서 플레이할 5개 존의 '셔플된' 순서
     private List<ZoneData> currentRunZoneOrder = new List<ZoneData>();
 
 
@@ -49,10 +49,6 @@ public class WaveGenerator : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// (GameManager.StartNewRun()이 호출)
-    /// 새 런(Run)을 위해 Zone Tier 2, 3 리스트를 셔플합니다.
-    /// </summary>
     public void BuildRunZoneOrder()
     {
         currentRunZoneOrder.Clear();
@@ -97,9 +93,6 @@ public class WaveGenerator : MonoBehaviour
     }
 
 
-    /// <summary>
-    /// 'allGameZones' SO를 모두 스캔하여 'enemyDataCache' (메뉴판)을 생성합니다.
-    /// </summary>
     private void CacheEnemyData()
     {
         enemyDataCache.Clear();
@@ -167,11 +160,6 @@ public class WaveGenerator : MonoBehaviour
         return newData;
     }
 
-    
-    /// <summary>
-    /// [!!! CS0122 오류 수정 !!!]
-    /// StageManager가 호출할 수 있도록 'private' -> 'public'으로 변경
-    /// </summary>
     public ZoneData GetCurrentZoneData(int currentZone)
     {
         // (기획서: Zone 1 (Tier 1), Zone 2/3 (Tier 2), Zone 4/5 (Tier 3))
@@ -186,11 +174,6 @@ public class WaveGenerator : MonoBehaviour
         return currentRunZoneOrder[zoneIndex];
     }
 
-
-    /// <summary>
-    /// [!!! CS7036 오류 수정 !!!]
-    /// (int currentZone, int currentWave) 2개의 인자만 받습니다.
-    /// </summary>
     public List<GameObject> GenerateWave(int currentZone, int currentWave)
     {
         List<GameObject> enemiesToSpawn = new List<GameObject>();

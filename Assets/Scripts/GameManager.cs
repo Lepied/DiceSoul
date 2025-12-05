@@ -321,12 +321,9 @@ public class GameManager : MonoBehaviour
                 {
                     CurrentZone++;
                     CurrentWave = 1;
-                    ZoneData nextZone = WaveGenerator.Instance.GetCurrentZoneData(CurrentZone);
-                    string nextZoneName = nextZone != null ? nextZone.zoneName : "알 수 없음";
                     UIManager.Instance.StartMaintenancePhase();
-
                     UIManager.Instance.FadeIn();
-                    UIManager.Instance.ShowZoneTitle($"Zone {CurrentZone}: {nextZoneName}");
+                    
                 });
             }
             else

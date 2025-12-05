@@ -212,13 +212,6 @@ public class StageManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// [!!! 핵심 수정 !!!]
-    /// 1. 'isBossWave' bool 변수 삭제
-    /// 2. WaveGenerator.GetCurrentZoneData() (public 함수) 호출
-    /// 3. [!!!] backgroundUI.sprite -> backgroundRenderer.sprite로 변경
-    /// 4. WaveGenerator.GenerateWave(zone, wave) (인자 2개) 호출
-    /// </summary>
     public void PrepareNextWave()
     {
         Debug.Log("StageManager: 다음 웨이브 준비 중...");
@@ -241,10 +234,8 @@ public class StageManager : MonoBehaviour
         int currentZone = GameManager.Instance.CurrentZone;
         int currentWave = GameManager.Instance.CurrentWave;
 
-        // [!!!] 'GetCurrentZoneData' (public 함수) 호출
         ZoneData currentZoneData = WaveGenerator.Instance.GetCurrentZoneData(currentZone);
 
-        // [!!! 배경 교체 로직 수정 !!!]
         if (currentWave == 1 && currentZoneData != null && backgroundRenderer != null)
         {
             if (currentZoneData.zoneBackground != null)
