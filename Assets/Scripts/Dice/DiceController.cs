@@ -148,6 +148,8 @@ public class DiceController : MonoBehaviour
     public void SetDiceDeck(List<string> deck)
     {
         // 기존 삭제
+        if (diceContainer != null) diceContainer.gameObject.SetActive(true);
+
         foreach (Transform child in diceContainer) Destroy(child.gameObject);
         activeDice.Clear();
 
@@ -287,6 +289,16 @@ public class DiceController : MonoBehaviour
         {
             activeDice[index].PlayRerollAnimation(newValue);
         }
+    }
+
+    public void HideAllDice()
+    {
+        // 주사위 숨기기
+        if (diceContainer != null)
+        {
+            diceContainer.gameObject.SetActive(false);
+        }
+        
     }
 }
 

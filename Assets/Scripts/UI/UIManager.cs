@@ -474,7 +474,7 @@ public class UIManager : MonoBehaviour
     private void ExitShop()
     {
         maintenancePanel.SetActive(false);
-        HideGenericTooltip(); 
+        HideGenericTooltip();
 
         if (GameManager.Instance.CurrentWave == 1 && WaveGenerator.Instance != null)
         {
@@ -519,13 +519,7 @@ public class UIManager : MonoBehaviour
 
     public void ShowGameOverScreen(int earnedCurrency)
     {
-        if (gameOverPanel == null) return;
-        if (attackOptionsPanel != null) attackOptionsPanel.SetActive(false);
-        if (rewardScreenPanel != null) rewardScreenPanel.SetActive(false);
-        if (maintenancePanel != null) maintenancePanel.SetActive(false);
-        if (waveInfoPanel != null) waveInfoPanel.SetActive(false);
-        if (enemyDetailPopup != null) enemyDetailPopup.SetActive(false);
-        if (relicDetailPopup != null) relicDetailPopup.SetActive(false);
+        HideAllInGameUI();
         gameOverPanel.SetActive(true);
         if (earnedCurrencyText != null)
         {
@@ -537,5 +531,32 @@ public class UIManager : MonoBehaviour
     {
         DG.Tweening.DOTween.KillAll();
         SceneManager.LoadScene(mainMenuSceneName);
+    }
+
+    public void HideAllInGameUI()
+    {
+        // 주요 패널들 비활성화
+        if (attackOptionsPanel != null) attackOptionsPanel.SetActive(false);
+        if (rewardScreenPanel != null) rewardScreenPanel.SetActive(false);
+        if (maintenancePanel != null) maintenancePanel.SetActive(false);
+        if (waveInfoPanel != null) waveInfoPanel.SetActive(false);
+        if (relicPanel != null) relicPanel.SetActive(false);
+        if (enemyDetailPopup != null) enemyDetailPopup.SetActive(false);
+        if (relicDetailPopup != null) relicDetailPopup.SetActive(false);
+        if (genericTooltipPopup != null) genericTooltipPopup.SetActive(false);
+
+        //상단 패널 숨기기
+        if (waveText != null && waveText.transform.parent != null)
+        {
+            waveText.transform.parent.gameObject.SetActive(false);
+        }
+
+        //주사위 굴리기 버튼 숨기기 (DiceController 참조)
+        if (DiceController.Instance != null && DiceController.Instance.rollButtonUI != null)
+        {
+            DiceController.Instance.rollButtonUI.transform.parent.gameObject.SetActive(false);
+        }
+        //웨이브 정보보는 토글버튼 숨기기 
+        waveInfoToggleButton.gameObject.SetActive(false);
     }
 }

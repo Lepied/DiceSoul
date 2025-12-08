@@ -197,6 +197,13 @@ public class GameManager : MonoBehaviour
                 }
                 break;
         }
+
+        ApplyMetaUpgrades();
+        if(PlayerPrefs.GetInt("Consumable_Revive",0)==1)
+        {
+            PlayerPrefs.SetInt("Consumable_Revive", 0);
+        }
+
         if (WaveGenerator.Instance != null)
         {
             WaveGenerator.Instance.BuildRunZoneOrder();
@@ -212,6 +219,36 @@ public class GameManager : MonoBehaviour
             UIManager.Instance.UpdateScore(CurrentScore);
             UIManager.Instance.UpdateRelicPanel(activeRelics);
         }
+    }
+
+    private void ApplyMetaUpgrades()
+    {
+        // 레벨당 효과 수치 정의
+        int healthPerLevel = 2;
+        int scorePerLevel = 200;
+        int rerollPerLevel = 1;
+
+        // 저장된 레벨 불러오기
+        int healthLevel = PlayerPrefs.GetInt("Passive_Health", 0);
+        int scoreLevel = PlayerPrefs.GetInt("Passive_Score", 0);
+        int rerollLevel = PlayerPrefs.GetInt("Passive_Reroll", 0);
+
+        // 스탯 적용
+        if (healthLevel > 0)
+        {
+            ModifyMaxHealth(healthLevel * healthPerLevel);
+            PlayerHealth = MaxPlayerHealth; // 최대 체력 증가분만큼 현재 체력도 회복
+        }
+
+        if (scoreLevel > 0)
+        {
+            AddScore(scoreLevel * scorePerLevel);
+        }
+        //TODO: 
+        // 리롤은 DiceController 초기화 시 적용하거나, 여기서 미리 보너스 주기
+        // DiceController가 아직 생성 전이라면, 나중에 DiceController.Start()에서 
+        // GameManager의 값을 읽어가도록 구조변경 필요함
+        // (간단하게는 GameManager에 public int bonusRerolls 변수를 두고 DiceController가 읽게 한다던지)
     }
 
     public void StartNewWave()
@@ -344,19 +381,30 @@ public class GameManager : MonoBehaviour
                 UIManager.Instance.UpdateHealth(PlayerHealth, MaxPlayerHealth);
             }
 
-            if (PlayerHealth <= 0)
+        if (PlayerHealth <= 0)
+        {
+            Debug.Log("게임 오버. 영구 재화를 저장하고 연출을 재생합니다.");
+
+            int earnedCurrency = CalculateAndSaveMetaCurrency();
+            
+            SaveManager.Instance.DeleteSaveFile();
+
+            if (GameOverDirector.Instance != null)
             {
-                Debug.Log("게임 오버. 영구 재화를 저장합니다.");
-
-                int earnedCurrency = CalculateAndSaveMetaCurrency();
-
+                //ui들 없애기(연출해야되니까)
+                if (UIManager.Instance != null) UIManager.Instance.gameObject.SetActive(false);
+                GameOverDirector.Instance.PlayGameOverSequence(earnedCurrency);
+            }
+            else
+            {
+                // 개발중 그냥게임씬에서 할떄
                 if (UIManager.Instance != null)
                 {
                     UIManager.Instance.ShowGameOverScreen(earnedCurrency);
                 }
-                SaveManager.Instance.DeleteSaveFile(); // 한 게임의 데이터는 삭제
-                return;
             }
+            return;
+        }
 
             if (StageManager.Instance != null)
             {
@@ -636,7 +684,7 @@ public class GameManager : MonoBehaviour
         foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.RollCountBonus))
         {
             // ["명함" 유물 효과 ]
-            if (relic.RelicID == "RLC_FIRST_IMPRESSION" && currentRoll == 1)
+            if (relic.RelicID == "RLC_BUSINESS_CARD" && currentRoll == 1)
             {
                 damageMult *= relic.FloatValue;
                 scoreMult *= relic.FloatValue;
