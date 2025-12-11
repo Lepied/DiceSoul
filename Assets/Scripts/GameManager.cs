@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
     public int PlayerHealth;
     public int MaxPlayerHealth = 10;
     public int CurrentScore { get; private set; }
+    public int CurrentShield { get; private set; } //임시 체력
 
     [Header("덱 정보")]
     public List<string> playerDiceDeck = new List<string>();
@@ -30,6 +31,8 @@ public class GameManager : MonoBehaviour
     public string metaCurrencySaveKey = "MetaCurrency";
 
     private string selectedDeckKey = "SelectedDeck";
+
+    public List<MetaUpgradeData> allMetaUpgrades; //메타 업그레이드데이터 리스트
 
     public List<string> nextZoneBuffs = new List<string>();
 
@@ -143,14 +146,19 @@ public class GameManager : MonoBehaviour
 
     public void StartNewRun()
     {
-        PlayerHealth = MaxPlayerHealth;
         CurrentScore = 0;
         CurrentZone = 1;
         CurrentWave = 1;
+        MaxPlayerHealth = 10;
+        PlayerHealth = MaxPlayerHealth; 
+        CurrentShield = 0; 
 
         playerDiceDeck.Clear();
         activeRelics.Clear();
         nextZoneBuffs.Clear();
+
+
+        ApplyMetaUpgrades();
 
         if (WaveGenerator.Instance != null)
         {
@@ -198,8 +206,8 @@ public class GameManager : MonoBehaviour
                 break;
         }
 
-        ApplyMetaUpgrades();
-        if(PlayerPrefs.GetInt("Consumable_Revive",0)==1)
+
+        if (PlayerPrefs.GetInt("Consumable_Revive", 0) == 1)
         {
             PlayerPrefs.SetInt("Consumable_Revive", 0);
         }
@@ -216,41 +224,49 @@ public class GameManager : MonoBehaviour
             UIManager.Instance.FadeIn();
             UIManager.Instance.ShowZoneTitle("Zone 1: " + zoneName);
             UIManager.Instance.UpdateHealth(PlayerHealth, MaxPlayerHealth);
+            //TODO
+            //실드있으면 별도로 텍스트 색이라도 변경?해야할거같은데  일단 보류
             UIManager.Instance.UpdateScore(CurrentScore);
             UIManager.Instance.UpdateRelicPanel(activeRelics);
         }
     }
 
-    private void ApplyMetaUpgrades()
+    //메타 업그레이드 효과 총합 계산
+    public float GetTotalMetaBonus(MetaEffectType type)
     {
-        // 레벨당 효과 수치 정의
-        int healthPerLevel = 2;
-        int scorePerLevel = 200;
-        int rerollPerLevel = 1;
-
-        // 저장된 레벨 불러오기
-        int healthLevel = PlayerPrefs.GetInt("Passive_Health", 0);
-        int scoreLevel = PlayerPrefs.GetInt("Passive_Score", 0);
-        int rerollLevel = PlayerPrefs.GetInt("Passive_Reroll", 0);
-
-        // 스탯 적용
-        if (healthLevel > 0)
+        float totalBonus = 0;
+        foreach (var data in allMetaUpgrades)
         {
-            ModifyMaxHealth(healthLevel * healthPerLevel);
-            PlayerHealth = MaxPlayerHealth; // 최대 체력 증가분만큼 현재 체력도 회복
+            if (data.effectType == type)
+            {
+                int level = PlayerPrefs.GetInt(data.id, 0);
+                totalBonus += data.GetTotalEffect(level);
+            }
         }
-
-        if (scoreLevel > 0)
-        {
-            AddScore(scoreLevel * scorePerLevel);
-        }
-        //TODO: 
-        // 리롤은 DiceController 초기화 시 적용하거나, 여기서 미리 보너스 주기
-        // DiceController가 아직 생성 전이라면, 나중에 DiceController.Start()에서 
-        // GameManager의 값을 읽어가도록 구조변경 필요함
-        // (간단하게는 GameManager에 public int bonusRerolls 변수를 두고 DiceController가 읽게 한다던지)
+        return totalBonus;
     }
 
+    private void ApplyMetaUpgrades()
+    {
+        // ScriptableObject 리스트를 순회하며 자동으로 합산
+        
+        // 최대 체력 
+        int bonusHealth = (int)GetTotalMetaBonus(MetaEffectType.MaxHealth);
+        ModifyMaxHealth(bonusHealth); 
+        PlayerHealth = MaxPlayerHealth; // 체력 100%로 시작
+
+        // 시작 자금
+        int bonusScore = (int)GetTotalMetaBonus(MetaEffectType.StartGold);
+        AddScore(bonusScore);
+
+        //임시 체력 
+        CurrentShield = (int)GetTotalMetaBonus(MetaEffectType.Shield);
+
+        //TODO
+        //리롤 횟수 등은 DiceController나 필요한 시점에 GetTotalMetaBonus로 가져다 씀
+        
+        Debug.Log("메타 업그레이드 적용 완료.");
+    }
     public void StartNewWave()
     {
         Debug.Log($"[Zone {CurrentZone} - Wave {CurrentWave}] 웨이브 시작.");
@@ -266,7 +282,7 @@ public class GameManager : MonoBehaviour
         //포션으로 인한 버프 먼저(합연산)
         if (nextZoneBuffs.Contains("ScoreBoost"))
         {
-            globalMultiplier += 0.5f; 
+            globalMultiplier += 0.5f;
         }
         //유물 버프 (곱연산)
         foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.AddScoreMultiplier))
@@ -360,7 +376,7 @@ public class GameManager : MonoBehaviour
                     CurrentWave = 1;
                     UIManager.Instance.StartMaintenancePhase();
                     UIManager.Instance.FadeIn();
-                    
+
                 });
             }
             else
@@ -374,37 +390,47 @@ public class GameManager : MonoBehaviour
         else
         {
             Debug.Log("웨이브 실패. 체력이 1 감소합니다.");
-            PlayerHealth--;
+            if (CurrentShield > 0)
+            {
+                CurrentShield--;
+                Debug.Log($"쉴드 방어! 남은 쉴드: {CurrentShield}");
+                //TODO 
+                // UI에 쉴드 감소 연출 추가하기?
+            }
+            else
+            {
+                PlayerHealth--;
+            }
 
             if (UIManager.Instance != null)
             {
                 UIManager.Instance.UpdateHealth(PlayerHealth, MaxPlayerHealth);
             }
 
-        if (PlayerHealth <= 0)
-        {
-            Debug.Log("게임 오버. 영구 재화를 저장하고 연출을 재생합니다.");
-
-            int earnedCurrency = CalculateAndSaveMetaCurrency();
-            
-            SaveManager.Instance.DeleteSaveFile();
-
-            if (GameOverDirector.Instance != null)
+            if (PlayerHealth <= 0)
             {
-                //ui들 없애기(연출해야되니까)
-                if (UIManager.Instance != null) UIManager.Instance.gameObject.SetActive(false);
-                GameOverDirector.Instance.PlayGameOverSequence(earnedCurrency);
-            }
-            else
-            {
-                // 개발중 그냥게임씬에서 할떄
-                if (UIManager.Instance != null)
+                Debug.Log("게임 오버. 영구 재화를 저장하고 연출을 재생합니다.");
+
+                int earnedCurrency = CalculateAndSaveMetaCurrency();
+
+                SaveManager.Instance.DeleteSaveFile();
+
+                if (GameOverDirector.Instance != null)
                 {
-                    UIManager.Instance.ShowGameOverScreen(earnedCurrency);
+                    //ui들 없애기(연출해야되니까)
+                    if (UIManager.Instance != null) UIManager.Instance.gameObject.SetActive(false);
+                    GameOverDirector.Instance.PlayGameOverSequence(earnedCurrency);
                 }
+                else
+                {
+                    // 개발중 그냥게임씬에서 할떄
+                    if (UIManager.Instance != null)
+                    {
+                        UIManager.Instance.ShowGameOverScreen(earnedCurrency);
+                    }
+                }
+                return;
             }
-            return;
-        }
 
             if (StageManager.Instance != null)
             {
@@ -608,6 +634,9 @@ public class GameManager : MonoBehaviour
     {
         int bonusDamage = 0;
 
+        //영구강화로 얻은 데미지 보너스부터 계산
+        bonusDamage += (int)GetTotalMetaBonus(MetaEffectType.BaseDamage);
+
         // 1. '모든' 족보 데미지 증가 (예: 숫돌, 유리 대포, 집중)
         foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.AddBaseDamage))
         {
@@ -663,6 +692,8 @@ public class GameManager : MonoBehaviour
     public int GetAttackScoreBonus(AttackJokbo jokbo)
     {
         int bonusScore = 0;
+        //영구강화로 점수 보너스 계산
+        bonusScore += (int)GetTotalMetaBonus(MetaEffectType.ScoreBonus);
 
         foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.JokboScoreAdd))
         {

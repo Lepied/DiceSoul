@@ -257,7 +257,7 @@ public class StageManager : MonoBehaviour
             return;
         }
 
-        // 4. 새 적 스폰 (이하 동일)
+        //새 적 스폰
         foreach (GameObject enemyPrefab in enemiesToSpawn)
         {
             if (enemyPrefab == null) continue;

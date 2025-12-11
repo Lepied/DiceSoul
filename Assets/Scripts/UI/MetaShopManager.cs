@@ -1,104 +1,112 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections.Generic;
 
 public class MetaShopManager : MonoBehaviour
 {
-    [Header("UI References")]
-    public TextMeshProUGUI soulCurrencyText;
-    public GameObject shopPanel;
+    [Header("설정")]
+    public string currencySaveKey = "MetaCurrency";
+    public List<MetaShopSlot> allSlots;
 
-    // 가격 설정 (배열 인덱스 = 현재 레벨)
-    private int[] healthCosts = { 100, 200, 400, 800, 1500 };
-    private int[] scoreCosts = { 100, 200, 400, 800, 1500 };
-    private int[] rerollCosts = { 1500, 2500, 4000 };
-    private int reviveCost = 1000;
+    [Header("UI - 상단")]
+    public TextMeshProUGUI currencyText;
 
-    void OnEnable()
+    [Header("UI - 하단 상세 정보창")]
+    public GameObject detailPanel; 
+    public TextMeshProUGUI detailTitle;
+    public TextMeshProUGUI detailDesc;
+    public TextMeshProUGUI detailEffect;
+    public Button buyButton;
+    public TextMeshProUGUI buyCostText;
+
+    private MetaShopSlot currentSlot;
+
+    void Start()
     {
-        UpdateUI();
-    }
-
-    public void UpdateUI()
-    {
-        int currentSouls = PlayerPrefs.GetInt("MetaCurrency", 0);
-        soulCurrencyText.text = $"{currentSouls}";
-    }
-
-    //버튼에연결하거나 할 메서드들
-
-    public void BuyHealthUpgrade()
-    {
-        BuyUpgrade("Passive_Health", healthCosts, 5);
-    }
-
-    public void BuyScoreUpgrade()
-    {
-        BuyUpgrade("Passive_Score", scoreCosts, 5);
-    }
-
-    public void BuyRerollUpgrade()
-    {
-        BuyUpgrade("Passive_Reroll", rerollCosts, 3);
-    }
-
-    public void BuyReviveToken()
-    {
-        // 소모품은 1개만 보유 가능
-        if (PlayerPrefs.GetInt("Consumable_Revive", 0) == 1)
+        if (allSlots == null || allSlots.Count == 0)
         {
-            Debug.Log("이미 부활권을 가지고 있습니다.");
-            return;
+            // 씬에 있는 모든 MetaShopSlot을 찾아서 리스트에 담음
+            allSlots = new List<MetaShopSlot>(GetComponentsInChildren<MetaShopSlot>(true));
+        }
+        UpdateCurrencyUI();
+        
+        // 모든 슬롯 초기화
+        foreach (var slot in allSlots)
+        {
+            slot.Setup(this);
         }
 
-        if (TrySpendSouls(reviveCost))
-        {
-            PlayerPrefs.SetInt("Consumable_Revive", 1);
-            Debug.Log("부활권 구매 완료!");
-            UpdateUI();
-        }
+        if (detailPanel != null) detailPanel.SetActive(false);
+        if (buyButton != null) buyButton.onClick.AddListener(TryBuyUpgrade);
     }
 
-    //내부 로직
-    private void BuyUpgrade(string key, int[] costs, int maxLevel)
+    public void UpdateCurrencyUI()
     {
-        int currentLevel = PlayerPrefs.GetInt(key, 0);
-
-        if (currentLevel >= maxLevel)
-        {
-            Debug.Log("이미 최대 레벨입니다.");
-            return;
-        }
-
-        int price = costs[currentLevel];
-        if (TrySpendSouls(price))
-        {
-            PlayerPrefs.SetInt(key, currentLevel + 1);
-            Debug.Log($"{key} 업그레이드 완료! (Lv.{currentLevel + 1})");
-            UpdateUI();
-        }
+        int souls = PlayerPrefs.GetInt(currencySaveKey, 0);
+        if (currencyText != null) currencyText.text = $"{souls}";
     }
 
-    private bool TrySpendSouls(int amount)
+    // 슬롯 클릭 시 호출
+    public void OnSlotClicked(MetaShopSlot slot)
     {
-        int currentSouls = PlayerPrefs.GetInt("MetaCurrency", 0);
-        if (currentSouls >= amount)
+        currentSlot = slot;
+        UpdateDetailPanel();
+        if (detailPanel != null) detailPanel.SetActive(true);
+    }
+
+    private void UpdateDetailPanel()
+    {
+        if (currentSlot == null) return;
+
+        MetaUpgradeData data = currentSlot.data;
+        int currentLevel = PlayerPrefs.GetInt(data.id, 0);
+
+        detailTitle.text = data.displayName;
+        detailDesc.text = data.description;
+
+        // 만렙 체크
+        if (currentLevel >= data.maxLevel)
         {
-            currentSouls -= amount;
-            PlayerPrefs.SetInt("MetaCurrency", currentSouls);
-            PlayerPrefs.Save();
-            return true;
+            detailEffect.text = "최고 레벨 도달";
+            buyCostText.text = "-";
+            buyButton.interactable = false;
         }
         else
         {
-            Debug.Log("마석이 부족합니다!");
-            // 여기에 '돈 부족' 팝업이나 효과음 추가
-            return false;
+            float curVal = data.GetTotalEffect(currentLevel);
+            float nextVal = data.GetTotalEffect(currentLevel + 1);
+            int cost = data.GetCost(currentLevel);
+            int mySouls = PlayerPrefs.GetInt(currencySaveKey, 0);
+
+            detailEffect.text = $"현재 효과: {curVal} ▶ <color=green>{nextVal}</color>";
+            buyCostText.text = $"{cost} 마석";
+            buyButton.interactable = (mySouls >= cost);
         }
     }
 
-    public void CloseShop()
+    private void TryBuyUpgrade()
     {
-        shopPanel.SetActive(false);
+        if (currentSlot == null) return;
+
+        MetaUpgradeData data = currentSlot.data;
+        int currentLevel = PlayerPrefs.GetInt(data.id, 0);
+        int cost = data.GetCost(currentLevel);
+        int mySouls = PlayerPrefs.GetInt(currencySaveKey, 0);
+
+        if (mySouls >= cost && currentLevel < data.maxLevel)
+        {
+            // 결제 & 저장
+            PlayerPrefs.SetInt(currencySaveKey, mySouls - cost);
+            PlayerPrefs.SetInt(data.id, currentLevel + 1);
+            PlayerPrefs.Save();
+
+            // UI 갱신
+            UpdateCurrencyUI();
+            currentSlot.RefreshUI(); 
+            UpdateDetailPanel();   
+            
+            Debug.Log($"구매 성공: {data.displayName} Lv.{currentLevel + 1}");
+        }
     }
 }

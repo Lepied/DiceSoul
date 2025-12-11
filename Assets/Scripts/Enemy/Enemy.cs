@@ -87,7 +87,10 @@ public class Enemy : MonoBehaviour
 
     public virtual int CalculateDamageTaken(AttackJokbo jokbo)
     {
-
+        if (jokbo == null) 
+        {
+            return 0; // 족보가 없으면 추가 계산 없이 0 리턴 (외부에서 계산된 고정 데미지 사용)
+        }
         int finalDamage = jokbo.BaseDamage;
         string desc = jokbo.Description;
 

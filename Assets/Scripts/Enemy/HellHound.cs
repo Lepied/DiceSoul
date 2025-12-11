@@ -13,7 +13,7 @@ public class Hellhound : Enemy
     public override void OnDamageTaken(int damageTaken, AttackJokbo jokbo)
     {
         base.OnDamageTaken(damageTaken, jokbo);
-
+        if( jokbo == null) return;
         if (isDead) return;
 
         // '홀수' 족보로 공격받았을 때 반격

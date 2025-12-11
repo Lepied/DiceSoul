@@ -9,7 +9,8 @@ public class Slime : Enemy
  
     public override void OnDamageTaken(int damageTaken, AttackJokbo jokbo)
     {
-        
+        base.OnDamageTaken(damageTaken, jokbo);
+        if(jokbo == null) return;
         if (isDead) return;
 
         // 50% 확률 (Random.value는 0.0f ~ 1.0f 사이의 값)
