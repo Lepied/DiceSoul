@@ -26,7 +26,7 @@ public class ShopItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         {
             priceText.text = $"{item.Price}";
             // 돈 부족하면 빨간색
-            bool canAfford = GameManager.Instance.CurrentScore >= item.Price;
+            bool canAfford = GameManager.Instance.CurrentGold >= item.Price;
             priceText.color = canAfford ? Color.white : Color.red;
             buyButton.interactable = canAfford;
         }

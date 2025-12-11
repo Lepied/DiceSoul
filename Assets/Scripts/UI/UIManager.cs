@@ -13,7 +13,7 @@ public class UIManager : MonoBehaviour
 
     [Header("기본 UI 텍스트")]
     public TextMeshProUGUI waveText;
-    public TextMeshProUGUI totalScoreText;
+    public TextMeshProUGUI totalGoldText;
     public TextMeshProUGUI healthText;
     public TextMeshProUGUI rollCountText;
 
@@ -131,9 +131,9 @@ public class UIManager : MonoBehaviour
     {
         if (waveText != null) waveText.text = $"Zone {zone} - Wave {wave}";
     }
-    public void UpdateScore(int score)
+    public void UpdateGold(int gold)
     {
-        if (totalScoreText != null) totalScoreText.text = $"Score: {score}";
+        if (totalGoldText != null) totalGoldText.text = $"Gold: {gold}";
     }
     public void UpdateHealth(int current, int max)
     {
@@ -342,14 +342,14 @@ public class UIManager : MonoBehaviour
             {
                 AttackJokbo jokbo = jokbos[i];
 
-                // 1. 텍스트 설정을 위해 '최종' 데미지/점수를 '미리' 계산
+                // 1. 텍스트 설정을 위해 '최종' 데미지/금화를 '미리' 계산
 
-                (int finalBaseDamage, int finalBaseScore) =
+                (int finalBaseDamage, int finalBaseGold) =
                     StageManager.Instance.GetPreviewValues(jokbo); // [!!!] StageManager에 새 헬퍼 함수 요청
 
                 // 2. '최종 계산된' 값으로 텍스트 설정
                 attackNameTexts[i].text = jokbo.Description;
-                attackValueTexts[i].text = $"Dmg: {finalBaseDamage} / Score: {finalBaseScore}";
+                attackValueTexts[i].text = $"Dmg: {finalBaseDamage} / Gold: {finalBaseGold}";
 
                 // 3. EventTrigger 가져오기
                 EventTrigger trigger = attackOptionButtons[i].GetComponent<EventTrigger>();
@@ -457,10 +457,10 @@ public class UIManager : MonoBehaviour
         }
 
         // 3. 리롤 버튼 업데이트
-        if (rerollCostText != null) rerollCostText.text = $"{rerollCost} Score";
+        if (rerollCostText != null) rerollCostText.text = $"{rerollCost} Gold";
         if (rerollButton != null)
         {
-            rerollButton.interactable = GameManager.Instance.CurrentScore >= rerollCost;
+            rerollButton.interactable = GameManager.Instance.CurrentGold >= rerollCost;
         }
     }
     private void OnRerollClick()

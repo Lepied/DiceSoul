@@ -10,15 +10,15 @@ public enum RelicEffectType
     // 주사위 굴림 (굴림 시 적용)
     ModifyDiceValue,      
     // 점수/데미지 (판정 시 적용)
-    AddScoreMultiplier,   
+    AddGoldMultiplier,   
     JokboDamageAdd,       
-    JokboScoreMultiplier, 
+    JokboGoldMultiplier, 
     
-    JokboScoreAdd,            //  족보 점수 +
+    JokboGoldAdd,            //  족보 점수 +
     ModifyHealth,             // 최대 체력 변경
     ModifyMaxRolls,           // 최대 굴림 횟수 변경
     RemoveDice,               // 덱에서 주사위 제거
-    DynamicDamage_Score,      // 점수 비례 데미지
+    DynamicDamage_Gold,      // 점수 비례 데미지
     DynamicDamage_LostHealth,  // 잃은 체력 비례 데미지
     RollCountBonus // 특정 굴림에서 데미지나 점수 보너스
 }

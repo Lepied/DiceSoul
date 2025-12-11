@@ -40,5 +40,5 @@ public enum MetaEffectType
     BaseDamage,         // 공격력
     StartDamage,        // 시작 데미지(웨이브시작시 데미지 주고 시작)
     StartGold,          // 전쟁 자금(웨이브 시작시 골드(점수)주고 시작)
-    ScoreBonus          // 주사위 족보 완성할때마다 얻는 점수 보너스
+    GoldBonus          // 주사위 족보 완성할때마다 얻는 골드 보너스
 }

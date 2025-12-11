@@ -7,7 +7,7 @@ public class GameData
     // 런 상태
     public int currentHealth;
     public int maxHealth;
-    public int currentScore;
+    public int currentGold;
     public int currentZone;
     public int currentWave;
 

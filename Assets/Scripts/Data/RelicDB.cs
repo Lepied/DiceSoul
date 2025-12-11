@@ -44,7 +44,7 @@ public class RelicDB : MonoBehaviour
         AddRelicToDB(new Relic(
             "RLC_GOLD_DICE", "황금 주사위", "획득하는 점수가 1.5배가 됩니다.",
             LoadRelicIcon("RLC_GOLD_DICE"),
-            RelicEffectType.AddScoreMultiplier,
+            RelicEffectType.AddGoldMultiplier,
             floatValue: 1.5f,
             maxCount: 1
         ));
@@ -52,7 +52,7 @@ public class RelicDB : MonoBehaviour
         AddRelicToDB(new Relic(
             "RLC_RUSTY_GEAR", "녹슨 톱니", "모든 족보의 기본 점수가 +3 증가합니다.",
             LoadRelicIcon("RLC_RUSTY_GEAR"),
-            RelicEffectType.JokboScoreAdd,
+            RelicEffectType.JokboGoldAdd,
             stringValue: "ALL", // (모든 족보)
             intValue: 3,
             maxCount: 0
@@ -152,7 +152,7 @@ public class RelicDB : MonoBehaviour
         AddRelicToDB(new Relic(
             "RLC_WHITEBOOK", "백마법서", "모든 '모두 짝수' 족보의 획득 점수가 2배가 됩니다.",
             LoadRelicIcon("RLC_WHITEBOOK"),
-            RelicEffectType.JokboScoreMultiplier,
+            RelicEffectType.JokboGoldMultiplier,
             stringValue: "모두 짝수",
             floatValue: 2.0f,
             maxCount: 0
@@ -161,7 +161,7 @@ public class RelicDB : MonoBehaviour
         AddRelicToDB(new Relic(
             "RLC_DARKBOOK", "흑마법서", "모든 '모두 홀수' 족보의 획득 점수가 2배가 됩니다.",
             LoadRelicIcon("RLC_DARKBOOK"),
-            RelicEffectType.JokboScoreMultiplier,
+            RelicEffectType.JokboGoldMultiplier,
             stringValue: "모두 홀수",
             floatValue: 2.0f,
             maxCount: 0
@@ -170,7 +170,7 @@ public class RelicDB : MonoBehaviour
         AddRelicToDB(new Relic(
             "RLC_GEM_CROWN", "보석 박힌 왕관", "'야찌' 족보의 획득 점수가 3배가 됩니다.",
             LoadRelicIcon("RLC_GEM_CROWN"),
-            RelicEffectType.JokboScoreMultiplier,
+            RelicEffectType.JokboGoldMultiplier,
             stringValue: "야찌",
             floatValue: 3.0f,
             maxCount: 1
@@ -188,7 +188,7 @@ public class RelicDB : MonoBehaviour
         AddRelicToDB(new Relic(
             "RLC_TRIPOD", "삼각대", "'트리플' 족보의 획득 점수가 2배가 됩니다.",
             LoadRelicIcon("RLC_TRIPOD"),
-            RelicEffectType.JokboScoreMultiplier,
+            RelicEffectType.JokboGoldMultiplier,
             stringValue: "트리플",
             floatValue: 2.0f,
             maxCount: 0
@@ -206,7 +206,7 @@ public class RelicDB : MonoBehaviour
         AddRelicToDB(new Relic(
             "RLC_ROYAL_SEAL", "왕실의 인장", "'풀 하우스' 족보의 획득 점수가 3배가 됩니다.",
             LoadRelicIcon("RLC_ROYAL_SEAL"),
-            RelicEffectType.JokboScoreMultiplier,
+            RelicEffectType.JokboGoldMultiplier,
             stringValue: "풀 하우스",
             floatValue: 3.0f,
             maxCount: 0
@@ -235,7 +235,7 @@ public class RelicDB : MonoBehaviour
         AddRelicToDB(new Relic(
             "RLC_PLUTOCRACY", "금권 정치", "현재 보유한 '점수' 100점당 모든 족보의 기본 데미지가 +1 증가합니다. (최대 +50)",
             LoadRelicIcon("RLC_PLUTOCRACY"),
-            RelicEffectType.DynamicDamage_Score, // (새 EffectType)
+            RelicEffectType.DynamicDamage_Gold, // (새 EffectType)
             maxCount: 1
         ));
 

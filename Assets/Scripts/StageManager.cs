@@ -138,11 +138,11 @@ public class StageManager : MonoBehaviour
                 List<AttackJokbo> previewJokbos = new List<AttackJokbo>();
                 foreach (var jokbo in achievableJokbos)
                 {
-                    (int finalBaseDamage, int finalBaseScore) = GetPreviewValues(jokbo);
+                    (int finalBaseDamage, int finalBaseGold) = GetPreviewValues(jokbo);
                     previewJokbos.Add(new AttackJokbo(
                         jokbo.Description,
                         finalBaseDamage,
-                        finalBaseScore,
+                        finalBaseGold,
                         jokbo.CheckLogic
                     ));
                 }
@@ -166,14 +166,14 @@ public class StageManager : MonoBehaviour
     {
         if (!isWaitingForAttackChoice) return;
 
-        (int finalDamage, int finalScore) = GetPreviewValues(chosenJokbo);
+        (int finalDamage, int finalGold) = GetPreviewValues(chosenJokbo);
 
         Debug.Log($"광역 공격: [{chosenJokbo.Description}] (최종 데미지: {finalDamage})");
 
         AttackJokbo modifiedJokbo = new AttackJokbo(
             chosenJokbo.Description,
             finalDamage,
-            finalScore,
+            finalGold,
             chosenJokbo.CheckLogic
         );
 
@@ -183,7 +183,7 @@ public class StageManager : MonoBehaviour
             enemy.TakeDamage(damageToTake, modifiedJokbo);
         }
 
-        GameManager.Instance.AddScore(finalScore, chosenJokbo);
+        GameManager.Instance.AddGold(finalGold, chosenJokbo);
 
         isWaitingForAttackChoice = false;
         CheckWaveStatus();
@@ -310,38 +310,65 @@ public class StageManager : MonoBehaviour
         {
             diceController.SetDiceDeck(GameManager.Instance.playerDiceDeck);
         }
-    }
 
-    public (int finalDamage, int finalScore) GetPreviewValues(AttackJokbo jokbo)
-    {
-        int baseDamage = jokbo.BaseDamage;
-        int baseScore = jokbo.BaseScore;
-
-        int bonusDamage = GameManager.Instance.GetAttackDamageModifiers(jokbo);
-        int bonusScore = GameManager.Instance.GetAttackScoreBonus(jokbo);
-
-        int finalBaseDamage = baseDamage + bonusDamage;
-        int finalBaseScore = baseScore + bonusScore;
-
-        var (rollDamageMult, rollScoreMult) = GameManager.Instance.GetRollCountBonuses(diceController.currentRollCount);
-
-        if (rollDamageMult > 1.0f || rollScoreMult > 1.0f)
+        //영구강화 효과로 시작데미지 적용시키기
+        if (GameManager.Instance != null)
         {
-            finalBaseDamage = (int)(finalBaseDamage * rollDamageMult);
-            finalBaseScore = (int)(finalBaseScore * rollScoreMult);
+            int startDamage = (int)GameManager.Instance.GetTotalMetaBonus(MetaEffectType.StartDamage);
+            
+            if (startDamage > 0)
+            {
+                Debug.Log($"[메타 강화] 제압 사격 발동! 모든 적에게 {startDamage} 데미지.");
+                
+                // 스폰된 모든 적에게 데미지 적용
+                foreach (Enemy enemy in activeEnemies.ToList())
+                {
+                    if (enemy != null && !enemy.isDead)
+                    {
+                        // 족보 정보 없이 고정 데미지 주는 방식 (null 전달)
+                        // Enemy.TakeDamage 함수가 null Jokbo를 처리할 수 있어야 함.
+                        // 만약 처리 못한다면 더미 Jokbo를 만들어서 보내야 함.
+                        enemy.TakeDamage(startDamage, null); 
+                    }
+                }
+                
+                // 데미지로 인해 죽은 적이 있을 수 있으므로 상태 체크 한 번 실행
+                CheckWaveStatus(); 
+            }
         }
 
-        return (finalBaseDamage, finalBaseScore);
+    }
+
+    public (int finalDamage, int finalGold) GetPreviewValues(AttackJokbo jokbo)
+    {
+        int baseDamage = jokbo.BaseDamage;
+        int baseGold = jokbo.BaseGold;
+
+        int bonusDamage = GameManager.Instance.GetAttackDamageModifiers(jokbo);
+        int bonusGold = GameManager.Instance.GetAttackGoldBonus(jokbo);
+
+        int finalBaseDamage = baseDamage + bonusDamage;
+        int finalBaseGold = baseGold + bonusGold;
+
+        var (rollDamageMult, rollGoldMult) = GameManager.Instance.GetRollCountBonuses(diceController.currentRollCount);
+
+        if (rollDamageMult > 1.0f || rollGoldMult > 1.0f)
+        {
+            finalBaseDamage = (int)(finalBaseDamage * rollDamageMult);
+            finalBaseGold = (int)(finalBaseGold * rollGoldMult);
+        }
+
+        return (finalBaseDamage, finalBaseGold);
     }
 
     public void ShowAttackPreview(AttackJokbo jokbo)
     {
-        (int finalBaseDamage, int finalBaseScore) = GetPreviewValues(jokbo);
+        (int finalBaseDamage, int finalBaseGold) = GetPreviewValues(jokbo);
 
         AttackJokbo modifiedJokbo = new AttackJokbo(
             jokbo.Description,
             finalBaseDamage,
-            finalBaseScore,
+            finalBaseGold,
             jokbo.CheckLogic
         );
 

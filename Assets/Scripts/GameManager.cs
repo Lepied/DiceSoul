@@ -10,7 +10,7 @@ public class GameManager : MonoBehaviour
     [Header("플레이어 상태")]
     public int PlayerHealth;
     public int MaxPlayerHealth = 10;
-    public int CurrentScore { get; private set; }
+    public int CurrentGold { get; private set; }
     public int CurrentShield { get; private set; } //임시 체력
 
     [Header("덱 정보")]
@@ -68,7 +68,7 @@ public class GameManager : MonoBehaviour
         GameData data = new GameData();
         data.currentHealth = PlayerHealth;
         data.maxHealth = MaxPlayerHealth;
-        data.currentScore = CurrentScore;
+        data.currentGold = CurrentGold;
         data.currentZone = CurrentZone;
         data.currentWave = CurrentWave;
 
@@ -99,7 +99,7 @@ public class GameManager : MonoBehaviour
         // 1. 기본 스탯 복구
         PlayerHealth = data.currentHealth;
         MaxPlayerHealth = data.maxHealth;
-        CurrentScore = data.currentScore;
+        CurrentGold = data.currentGold;
         CurrentZone = data.currentZone;
         CurrentWave = data.currentWave;
 
@@ -132,7 +132,7 @@ public class GameManager : MonoBehaviour
         if (UIManager.Instance != null)
         {
             UIManager.Instance.UpdateHealth(PlayerHealth, MaxPlayerHealth);
-            UIManager.Instance.UpdateScore(CurrentScore);
+            UIManager.Instance.UpdateGold(CurrentGold);
             UIManager.Instance.UpdateRelicPanel(activeRelics);
             UIManager.Instance.UpdateWaveText(CurrentZone, CurrentWave);
         }
@@ -146,7 +146,7 @@ public class GameManager : MonoBehaviour
 
     public void StartNewRun()
     {
-        CurrentScore = 0;
+        CurrentGold = 0;
         CurrentZone = 1;
         CurrentWave = 1;
         MaxPlayerHealth = 10;
@@ -226,7 +226,7 @@ public class GameManager : MonoBehaviour
             UIManager.Instance.UpdateHealth(PlayerHealth, MaxPlayerHealth);
             //TODO
             //실드있으면 별도로 텍스트 색이라도 변경?해야할거같은데  일단 보류
-            UIManager.Instance.UpdateScore(CurrentScore);
+            UIManager.Instance.UpdateGold(CurrentGold);
             UIManager.Instance.UpdateRelicPanel(activeRelics);
         }
     }
@@ -256,8 +256,8 @@ public class GameManager : MonoBehaviour
         PlayerHealth = MaxPlayerHealth; // 체력 100%로 시작
 
         // 시작 자금
-        int bonusScore = (int)GetTotalMetaBonus(MetaEffectType.StartGold);
-        AddScore(bonusScore);
+        int bonusGold = (int)GetTotalMetaBonus(MetaEffectType.StartGold);
+        AddGold(bonusGold);
 
         //임시 체력 
         CurrentShield = (int)GetTotalMetaBonus(MetaEffectType.Shield);
@@ -276,51 +276,51 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void AddScore(int scoreToAdd, AttackJokbo jokbo)
+    public void AddGold(int goldToAdd, AttackJokbo jokbo)
     {
         float globalMultiplier = 1.0f;
         //포션으로 인한 버프 먼저(합연산)
-        if (nextZoneBuffs.Contains("ScoreBoost"))
+        if (nextZoneBuffs.Contains("GoldBoost"))
         {
             globalMultiplier += 0.5f;
         }
         //유물 버프 (곱연산)
-        foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.AddScoreMultiplier))
+        foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.AddGoldMultiplier))
         {
             globalMultiplier *= relic.FloatValue;
         }
 
-        float jokboMultiplier = GetJokboScoreMultiplier(jokbo);
-        // 족보별 '보너스 점수' 추가 (예: 녹슨 톱니)
-        int bonusScore = GetAttackScoreBonus(jokbo);
+        float jokboMultiplier = GetJokboGoldMultiplier(jokbo);
+        // 족보별 '보너스 금화' 추가 (예: 녹슨 톱니)
+        int bonusGold = GetAttackGoldBonus(jokbo);
 
-        int finalScore = (int)((scoreToAdd + bonusScore) * globalMultiplier * jokboMultiplier);
-        CurrentScore += finalScore;
+        int finalGold = (int)((goldToAdd + bonusGold) * globalMultiplier * jokboMultiplier);
+        CurrentGold += finalGold;
 
-        Debug.Log($"점수 획득(족보): +{finalScore} (기본: {scoreToAdd}, 보너스: {bonusScore}, 전역배율: {globalMultiplier}x, 족보배율: {jokboMultiplier}x) (총: {CurrentScore})");
+        Debug.Log($"금화 획득(족보): +{finalGold} (기본: {goldToAdd}, 보너스: {bonusGold}, 전역배율: {globalMultiplier}x, 족보배율: {jokboMultiplier}x) (총: {CurrentGold})");
 
         if (UIManager.Instance != null)
         {
-            UIManager.Instance.UpdateScore(CurrentScore);
+            UIManager.Instance.UpdateGold(CurrentGold);
         }
     }
 
-    public void AddScore(int scoreToAdd)
+    public void AddGold(int goldToAdd)
     {
         float globalMultiplier = 1.0f;
-        foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.AddScoreMultiplier))
+        foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.AddGoldMultiplier))
         {
             globalMultiplier *= relic.FloatValue;
         }
 
-        int finalScore = (int)(scoreToAdd * globalMultiplier);
-        CurrentScore += finalScore;
+        int finalGold = (int)(goldToAdd * globalMultiplier);
+        CurrentGold += finalGold;
 
-        Debug.Log($"점수 획득(보너스): +{finalScore} (기본: {scoreToAdd}, 전역배율: {globalMultiplier}x) (총: {CurrentScore})");
+        Debug.Log($"금화 획득(보너스): +{finalGold} (기본: {goldToAdd}, 전역배율: {globalMultiplier}x) (총: {CurrentGold})");
 
         if (UIManager.Instance != null)
         {
-            UIManager.Instance.UpdateScore(CurrentScore);
+            UIManager.Instance.UpdateGold(CurrentGold);
         }
     }
     public void AddNextZoneBuff(string buffKey)
@@ -341,12 +341,12 @@ public class GameManager : MonoBehaviour
                 case "ExtraRoll":
                     diceController.ApplyRollBonus(1); // 굴림 +1
                     break;
-                // DamageBoost와 ScoreBoost는 GetAttackDamageModifiers에서 계산
+                // DamageBoost와 GoldBoost는 GetAttackDamageModifiers에서 계산
                 case "DamageBoost":
                     Debug.Log(">> 공격력 증가 적용됨!");
                     break;
-                case "ScoreBoost":
-                    Debug.Log(">> 점수 획득량 증가 적용됨!");
+                case "GoldBoost":
+                    Debug.Log(">> 금화 획득량 증가 적용됨!");
                     break;
             }
         }
@@ -365,7 +365,7 @@ public class GameManager : MonoBehaviour
             {
                 int bonus = rollsRemaining * bonusPerRollRemaining;
                 Debug.Log($"남은 굴림 횟수 보너스: +{bonus}점 (남은 횟수: {rollsRemaining})");
-                AddScore(bonus);
+                AddGold(bonus);
             }
 
             if (CurrentWave > wavesPerZone)
@@ -544,12 +544,12 @@ public class GameManager : MonoBehaviour
     }
 
     // --- 상점 구매용 함수들 ---
-    public bool SubtractScore(int amount)
+    public bool SubtractGold(int amount)
     {
-        if (CurrentScore >= amount)
+        if (CurrentGold >= amount)
         {
-            CurrentScore -= amount;
-            UIManager.Instance.UpdateScore(CurrentScore);
+            CurrentGold -= amount;
+            UIManager.Instance.UpdateGold(CurrentGold);
             return true;
         }
         return false;
@@ -652,11 +652,11 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // 3. '금권 정치' (점수 비례)
-        foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.DynamicDamage_Score))
+        // 3. '금권 정치' (금화 비례)
+        foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.DynamicDamage_Gold))
         {
-            // (CurrentScore 100점당 +1, 최대 +50)
-            int dynamicBonus = Mathf.Min(50, CurrentScore / 100);
+            // (CurrentGold 100점당 +1, 최대 +50)
+            int dynamicBonus = Mathf.Min(50, CurrentGold / 100);
             bonusDamage += dynamicBonus;
         }
 
@@ -675,11 +675,11 @@ public class GameManager : MonoBehaviour
 
         return bonusDamage;
     }
-    public float GetJokboScoreMultiplier(AttackJokbo jokbo)
+    public float GetJokboGoldMultiplier(AttackJokbo jokbo)
     {
         float multiplier = 1.0f;
 
-        foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.JokboScoreMultiplier))
+        foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.JokboGoldMultiplier))
         {
             if (jokbo.Description.Contains(relic.StringValue))
             {
@@ -689,27 +689,26 @@ public class GameManager : MonoBehaviour
         return multiplier;
     }
 
-    public int GetAttackScoreBonus(AttackJokbo jokbo)
+    public int GetAttackGoldBonus(AttackJokbo jokbo)
     {
-        int bonusScore = 0;
-        //영구강화로 점수 보너스 계산
-        bonusScore += (int)GetTotalMetaBonus(MetaEffectType.ScoreBonus);
-
-        foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.JokboScoreAdd))
+        int bonusGold = 0;
+        //영구강화로 금화 보너스 계산
+        bonusGold += (int)GetTotalMetaBonus(MetaEffectType.GoldBonus);
+        foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.JokboGoldAdd))
         {
             // "All"이거나, 족보 설명에 포함되면
             if (relic.StringValue == "All" || jokbo.Description.Contains(relic.StringValue))
             {
-                bonusScore += relic.IntValue;
+                bonusGold += relic.IntValue;
             }
         }
 
-        return bonusScore;
+        return bonusGold;
     }
-    public (float damageMultiplier, float scoreMultiplier) GetRollCountBonuses(int currentRoll)
+    public (float damageMultiplier, float goldMultiplier) GetRollCountBonuses(int currentRoll)
     {
         float damageMult = 1.0f;
-        float scoreMult = 1.0f;
+        float goldMult = 1.0f;
 
         // 굴림 횟수 기반 보너스 유물을 모두 확인
         foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.RollCountBonus))
@@ -718,7 +717,7 @@ public class GameManager : MonoBehaviour
             if (relic.RelicID == "RLC_BUSINESS_CARD" && currentRoll == 1)
             {
                 damageMult *= relic.FloatValue;
-                scoreMult *= relic.FloatValue;
+                goldMult *= relic.FloatValue;
             }
 
             // 나중에 이렇게 확장
@@ -728,7 +727,7 @@ public class GameManager : MonoBehaviour
             // }
         }
 
-        return (damageMult, scoreMult);
+        return (damageMult, goldMult);
     }
 
     public List<int> ApplyDiceModificationRelics(List<int> originalValues)
@@ -822,7 +821,7 @@ public class GameManager : MonoBehaviour
 
     private int CalculateAndSaveMetaCurrency()
     {
-        int earnedCurrency = (int)(CurrentScore * 0.1f) + (CurrentZone * 50);
+        int earnedCurrency = (int)(CurrentGold * 0.1f) + (CurrentZone * 50);
         int totalMetaCurrency = PlayerPrefs.GetInt(metaCurrencySaveKey, 0);
 
         totalMetaCurrency += earnedCurrency;

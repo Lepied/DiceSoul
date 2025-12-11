@@ -14,10 +14,8 @@ public class Yeti : Enemy
     private bool hasHibernated = false; // 동면 사용 여부
     private bool isEnraged = false; // 분노 상태 (총합 면역)
 
-    /// <summary>
-    /// [기믹 1: 동면] & [기믹 2: 분노 해제]
-    /// 턴 시작 시(굴림 시) 체력 조건을 확인하여 회복하고, 분노 상태를 초기화합니다.
-    /// </summary>
+    // [기믹 1: 동면] & [기믹 2: 분노 해제]
+    // 턴 시작 시(굴림 시) 체력 조건을 확인하여 회복하고, 분노 상태를 초기화합니다.
     public override void OnPlayerRoll(List<int> diceValues)
     {
         base.OnPlayerRoll(diceValues);
@@ -44,10 +42,9 @@ public class Yeti : Enemy
         }
     }
 
-    /// <summary>
-    /// [기믹 2: 분노 발동]
-    /// '스트레이트'로 맞으면 분노하여 방어력을 올립니다.
-    /// </summary>
+    //[기믹 2: 분노 발동]
+    // '스트레이트'로 맞으면 분노하여 방어력을 올립니다.
+
     public override void OnDamageTaken(int damageTaken, AttackJokbo jokbo)
     {
         base.OnDamageTaken(damageTaken, jokbo);
@@ -82,7 +79,7 @@ public class Yeti : Enemy
     {
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.AddScore(2000); // 보스 클리어 보너스
+            GameManager.Instance.AddGold(2000); // 보스 클리어 보너스
         }
         base.OnDeath();
     }

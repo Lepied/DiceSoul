@@ -167,8 +167,8 @@ public class ShopManager : MonoBehaviour
                 break;
             case 2: // 탐욕 (노랑)
                 pName = "탐욕의 물약";
-                pDesc = "다음 존(Zone) 동안 [점수 획득량 1.5배]";
-                buffKey = "ScoreBoost";
+                pDesc = "다음 존(Zone) 동안 [금화 획득량 1.5배]";
+                buffKey = "GoldBoost";
                 pColor = new Color(1f, 0.8f, 0.2f); // 골드
                 break;
         }
@@ -185,7 +185,7 @@ public class ShopManager : MonoBehaviour
 
     public void BuyItem(ShopItem item)
     {
-        if (GameManager.Instance.SubtractScore(item.Price))
+        if (GameManager.Instance.SubtractGold(item.Price))
         {
             item.ExecuteEffect();
             currentShopItems.Remove(item);
@@ -195,7 +195,7 @@ public class ShopManager : MonoBehaviour
 
     public void RerollShop()
     {
-        if (GameManager.Instance.SubtractScore(currentRerollCost))
+        if (GameManager.Instance.SubtractGold(currentRerollCost))
         {
             currentRerollCost += 100; // 리롤할수록 비싸짐
             GenerateShopItems();

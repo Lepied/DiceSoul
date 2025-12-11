@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fdbc2bec5452d654d969b498aa42ab81, type: 3}
-  m_Name: Data_Wall_Fix
+  m_Name: Data_Gold_Gain
   m_EditorClassIdentifier: Assembly-CSharp::MetaUpgradeData
-  id: Upgrade_Wall_Fix
-  displayName: "\uC131\uBCBD \uC218\uB9AC"
-  description: "\uB9E4 \uC874 \uC2DC\uC791 \uC2DC \uB9C8\uB2E4 \uC131\uBCBD\uC744
-    \uC218\uB9AC\uD558\uC5EC \uCCB4\uB825\uC744 \uD68C\uBCF5\uC2DC\uD0B5\uB2C8\uB2E4."
-  icon: {fileID: -3655869207735741034, guid: c6ccd2d78a290f64285769f78db5df16, type: 3}
+  id: Upgrade_Score
+  displayName: "\uC804\uB9AC\uD488 \uC218\uAC70"
+  description: "\uC871\uBCF4 \uC644\uC131\uC2DC\uC5D0 \uD68D\uB4DD\uD558\uB294 \uACE8\uB4DC\uAC00
+    \uC99D\uAC00\uD569\uB2C8\uB2E4."
+  icon: {fileID: 7089528063075033485, guid: c6ccd2d78a290f64285769f78db5df16, type: 3}
   maxLevel: 3
   baseCost: 300
   costMultiplier: 1.5
-  effectType: 1
-  effectValuePerLevel: 1
+  effectType: 6
+  effectValuePerLevel: 10

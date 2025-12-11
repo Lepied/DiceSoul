@@ -2413,7 +2413,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIManager
   waveText: {fileID: 1803119749}
-  totalScoreText: {fileID: 1206034521}
+  totalGoldText: {fileID: 1206034521}
   healthText: {fileID: 883141609}
   rollCountText: {fileID: 387370987}
   attackOptionsPanel: {fileID: 327779098}
@@ -9587,7 +9587,7 @@ GameObject:
   - component: {fileID: 1206034522}
   - component: {fileID: 1206034521}
   m_Layer: 5
-  m_Name: ScoreText
+  m_Name: GoldText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9632,7 +9632,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uD68D\uB4DD \uC810\uC218 : 0"
+  m_text: "\uD68D\uB4DD \uAE08\uD654 : 0"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: abd9f2f297b0dd34ca5a4e600992a45f, type: 2}
   m_sharedMaterial: {fileID: 5735879565081936514, guid: abd9f2f297b0dd34ca5a4e600992a45f, type: 2}
@@ -12095,6 +12095,14 @@ MonoBehaviour:
   CurrentZone: 1
   CurrentWave: 1
   metaCurrencySaveKey: MetaCurrency
+  allMetaUpgrades:
+  - {fileID: 11400000, guid: 1e49253f097f4454a8403a4996d62dd4, type: 2}
+  - {fileID: 11400000, guid: 71c8f58ef3a3ce747a4d8868c7483a6d, type: 2}
+  - {fileID: 11400000, guid: 717055642ff0d294dacf1c660143034d, type: 2}
+  - {fileID: 11400000, guid: 7dd3a472ec0f42d42ab1a2b4e793555f, type: 2}
+  - {fileID: 11400000, guid: 3867209bb775b2b439b1a36098a921d7, type: 2}
+  - {fileID: 11400000, guid: a839657068e109849bdd3670f922db1b, type: 2}
+  - {fileID: 11400000, guid: 86bd42036041bed4db4b1c705777d142, type: 2}
   nextZoneBuffs: []
 --- !u!1 &1803119746
 GameObject:
