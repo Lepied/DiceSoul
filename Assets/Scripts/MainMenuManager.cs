@@ -16,8 +16,9 @@ public class MainMenuManager : MonoBehaviour
     [Header("메인 화면 버튼")]
     public Button startGameButton;
     public Button continueButton;
-    public Button openShopButton;
-    public Button openDeckButton; // 덱 선택 패널 열기
+    public Button openUpgradeButton;
+    public Button openDeckButton;
+    public Button openStoreButton;
     public Button quitGameButton;
 
     [Header("덱 선택 UI (Carousel)")]
@@ -38,9 +39,13 @@ public class MainMenuManager : MonoBehaviour
     public TextMeshProUGUI actionButtonText;
     public GameObject lockIcon;       // 버튼 옆 자물쇠 아이콘 (선택사항)
 
-    [Header("일반 상점 UI (옵션)")]
+    [Header("업그레이드 UI")]
     public GameObject upgradeShopPanel;
-    public Button closeShopButton;
+    public Button closeUpgradeButton;
+
+    [Header("잡화점 UI")]
+    public GameObject generalStorePanel;
+    public Button closeStoreButton;
 
     [Header("정보 팝업")]
     public GameObject infoPopup;
@@ -60,6 +65,7 @@ public class MainMenuManager : MonoBehaviour
         // 패널 초기화
         if (deckSelectionPanel != null) deckSelectionPanel.SetActive(false);
         if (upgradeShopPanel != null) upgradeShopPanel.SetActive(false);
+        if (generalStorePanel != null) generalStorePanel.SetActive(false);
         if (infoPopup != null) infoPopup.SetActive(false);
 
         // 메인 버튼 리스너 연결
@@ -77,8 +83,11 @@ public class MainMenuManager : MonoBehaviour
         if (closeDeckButton != null) closeDeckButton.onClick.AddListener(OnCloseDeckPanel);
 
         // 상점 버튼 연결
-        if (openShopButton != null) openShopButton.onClick.AddListener(OnOpenShop);
-        if (closeShopButton != null) closeShopButton.onClick.AddListener(OnCloseShop);
+        if (openUpgradeButton != null) openUpgradeButton.onClick.AddListener(OnOpenUpgrade);
+        if (closeUpgradeButton != null) closeUpgradeButton.onClick.AddListener(OnCloseUpgrade);
+
+        if (openStoreButton != null) openStoreButton.onClick.AddListener(OnOpenStore);
+        if (closeStoreButton != null) closeStoreButton.onClick.AddListener(OnCloseStore);
 
         // 덱 목록 생성
         GenerateDeckList();
@@ -240,7 +249,6 @@ public class MainMenuManager : MonoBehaviour
     public void ShowInfoPopup(string title, string description, RectTransform targetIcon)
     {
         if (infoPopup == null) return;
-        Debug.Log("팝업 함수 호출됨!");
 
         infoPopup.SetActive(true);
 
@@ -255,10 +263,21 @@ public class MainMenuManager : MonoBehaviour
             Vector3 iconPos = targetIcon.position;
 
             // 아이콘의 위쪽 + 팝업의 반절 높이 + 여유공간
-            float yOffset = (targetIcon.rect.height * targetIcon.lossyScale.y / 2f) +
-                            (popupRect.rect.height * popupRect.lossyScale.y / 2f) + 10f;
+            float yOffsetUp = (targetIcon.rect.height * targetIcon.lossyScale.y / 2f) + 
+                              (popupRect.rect.height * popupRect.lossyScale.y / 2f) + 10f;
+            Vector3 topPosition = iconPos + new Vector3(0, yOffsetUp, 0);
 
-            infoPopup.transform.position = iconPos + new Vector3(0, yOffset, 0);
+            // 화면 밖으로 넘치는지 체크
+            float popupTopEdge = topPosition.y + (popupRect.rect.height * popupRect.lossyScale.y / 2f);
+            if (popupTopEdge > Screen.height)
+            {
+                // 넘치면 아래쪽에 표시
+                infoPopup.transform.position = iconPos + new Vector3(0, -yOffsetUp, 0);
+            }
+            else
+            {
+                infoPopup.transform.position = topPosition;
+            }
         }
     }
 
@@ -284,24 +303,60 @@ public class MainMenuManager : MonoBehaviour
     }
 
     // --- 상점 패널 제어 ---
-    public void OnOpenShop()
+    public void OnOpenUpgrade()
     {
         if (upgradeShopPanel != null) upgradeShopPanel.SetActive(true);
     }
-    public void OnCloseShop()
+    public void OnCloseUpgrade()
     {
         if (upgradeShopPanel != null) upgradeShopPanel.SetActive(false);
+    }
+
+    private void OnOpenStore()
+    {
+        if (generalStorePanel != null)
+        {
+            generalStorePanel.SetActive(true);
+        }
+        GeneralStoreManager storeManager = generalStorePanel.GetComponent<GeneralStoreManager>();
+        if (storeManager != null)
+        {
+            storeManager.RefreshCurrencyDisplay();
+        }
+
+    }
+    private void OnCloseStore()
+    {
+        if (generalStorePanel != null)
+        {
+            generalStorePanel.SetActive(false);
+            LoadMetaCurrency();
+        }
     }
 
     // --- 게임 실행 ---
     public void OnStartGame()
     {
-        SceneManager.LoadScene(gameSceneName);
+        if (SceneController.Instance != null)
+        {
+            SceneController.Instance.LoadGameWithFade();
+        }
+        else
+        {
+            SceneManager.LoadScene(gameSceneName);
+        }
     }
     public void OnContinueGame()
     {
         SaveManager.shouldLoadSave = true;
-        SceneManager.LoadScene(gameSceneName);
+        if (SceneController.Instance != null)
+        {
+            SceneController.Instance.LoadGameWithFade();
+        }
+        else
+        {
+            SceneManager.LoadScene(gameSceneName);
+        }
     }
     public void OnQuitGame()
     {

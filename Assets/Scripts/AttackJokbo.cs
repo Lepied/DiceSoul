@@ -1,12 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq; // Linq를 사용하기 위해
+using System.Linq; 
 
-/// <summary>
-/// '공격 족보'의 데이터와 계산 로직을 담는 클래스입니다.
-/// [수정] StageManager가 CheckLogic에 접근 가능하도록 public { get; }
-/// [수정] 복사 생성자 추가 (AttackDB가 버그 없이 족보를 복제하기 위함)
-/// </summary>
 public class AttackJokbo
 {
     // 기본 정보 (UI 표시용)
@@ -21,9 +16,8 @@ public class AttackJokbo
     private System.Func<List<int>, int> damageCalculationLogic;
     private System.Func<List<int>, int> goldCalculationLogic;
 
-    /// <summary>
-    /// [기본 생성자] 고정 데미지/점수 족보용 (예: 트리플, 스트레이트)
-    /// </summary>
+
+    // 고정 데미지/점수 족보용 (예: 트리플, 스트레이트)
     public AttackJokbo(string description, int baseDamage, int baseGold, System.Func<List<int>, bool> checkLogic)
     {
         this.Description = description;
@@ -32,9 +26,7 @@ public class AttackJokbo
         this.CheckLogic = checkLogic;
     }
     
-    /// <summary>
-    /// [가변 생성자] 가변 데미지/점수 족보용 (예: "총합")
-    /// </summary>
+    //가변 데미지/점수 족보용 (예: "총합")
     public AttackJokbo(string description, System.Func<List<int>, int> damageCalc, System.Func<List<int>, int> goldCalc, System.Func<List<int>, bool> checkLogic)
     {
         this.Description = description;
@@ -47,10 +39,9 @@ public class AttackJokbo
         this.BaseGold = 0;
     }
 
-    /// <summary>
-    /// [신규] 복사 생성자
+
+    /// 복사 생성자
     /// (AttackDB가 달성된 족보의 '복사본'을 만들 때 사용)
-    /// </summary>
     public AttackJokbo(AttackJokbo original)
     {
         this.Description = original.Description;
@@ -61,10 +52,7 @@ public class AttackJokbo
         this.goldCalculationLogic = original.goldCalculationLogic;
     }
 
-    /// <summary>
-    /// 족보가 달성되었는지 확인 후, (필요시) 데미지와 점수를 '계산'합니다.
-    /// (이 함수는 '원본' 족보의 BaseDamage/Gold를 변경시킵니다)
-    /// </summary>
+    // 족보달성 검사하고 게산
     public bool CheckAndCalculate(List<int> diceValues)
     {
         if (CheckLogic(diceValues))

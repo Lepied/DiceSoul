@@ -178,7 +178,7 @@ public class WaveGenerator : MonoBehaviour
     {
         List<GameObject> enemiesToSpawn = new List<GameObject>();
 
-        // 1. [변경] '셔플된' 런 순서에서 현재 존(Zone) 데이터 찾기
+        //  '셔플된' 런 순서에서 현재 존(Zone) 데이터 찾기
         ZoneData zoneData = GetCurrentZoneData(currentZone);
         if (zoneData == null)
         {

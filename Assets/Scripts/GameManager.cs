@@ -27,6 +27,13 @@ public class GameManager : MonoBehaviour
     public int CurrentZone = 1;
     public int CurrentWave = 1;
 
+    [Header("잡화점 버프 상태")]
+    public int buffDuration = 0; // 남은 지속 웨이브 수
+    public int buffDamageValue = 0;
+    public int buffShieldValue = 0;
+    public int buffRerollValue = 0;
+    public bool hasInsurance = false; // 보험 가입 여부
+
     [Header("영구 재화")]
     public string metaCurrencySaveKey = "MetaCurrency";
 
@@ -42,7 +49,6 @@ public class GameManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            StartNewRun();
         }
         else
         {
@@ -157,8 +163,14 @@ public class GameManager : MonoBehaviour
         activeRelics.Clear();
         nextZoneBuffs.Clear();
 
+        buffDuration = 0;
+        buffDamageValue = 0;
+        buffShieldValue = 0;
+        buffRerollValue = 0;
+        hasInsurance = false;
 
         ApplyMetaUpgrades();
+        ApplyMarketItems();
 
         if (WaveGenerator.Instance != null)
         {
@@ -246,6 +258,7 @@ public class GameManager : MonoBehaviour
         return totalBonus;
     }
 
+    //영구강화 적용
     private void ApplyMetaUpgrades()
     {
         // ScriptableObject 리스트를 순회하며 자동으로 합산
@@ -264,9 +277,36 @@ public class GameManager : MonoBehaviour
 
         //TODO
         //리롤 횟수 등은 DiceController나 필요한 시점에 GetTotalMetaBonus로 가져다 씀
-        
-        Debug.Log("메타 업그레이드 적용 완료.");
     }
+
+    // 잡화점 아이템 적용
+    private void ApplyMarketItems()
+    {
+        string buffs = PlayerPrefs.GetString("NextRunBuffs", "");
+        if (string.IsNullOrEmpty(buffs)) return;
+
+        string[] keys = buffs.Split(',');
+        foreach (var key in keys)
+        {
+            if (string.IsNullOrEmpty(key)) continue;
+
+            //기초 보급품
+            if (key == "MaxHealth_3") ModifyMaxHealth(3);
+            else if (key == "StartGold_150") AddGold(150); 
+            else if (key == "AddDice_D6") AddDiceToDeck("D6");
+            else if (key == "Insurance_30") hasInsurance = true;
+
+            //전투 보조 (3웨이브짜리 버프 설정)
+            else if (key == "Buff_Damage_3wave_2") { buffDuration = 3; buffDamageValue = 2; }
+            else if (key == "Buff_Shield_3wave_3") { buffDuration = 3; buffShieldValue = 3; }
+            else if (key == "Buff_Reroll_3wave_2") { buffDuration = 3; buffRerollValue = 2; }
+        }
+
+        // 사용했으니 초기화
+        PlayerPrefs.SetString("NextRunBuffs", ""); 
+    }
+
+    //UIManager업데이트 메서드
     public void StartNewWave()
     {
         Debug.Log($"[Zone {CurrentZone} - Wave {CurrentWave}] 웨이브 시작.");
@@ -366,6 +406,19 @@ public class GameManager : MonoBehaviour
                 int bonus = rollsRemaining * bonusPerRollRemaining;
                 Debug.Log($"남은 굴림 횟수 보너스: +{bonus}점 (남은 횟수: {rollsRemaining})");
                 AddGold(bonus);
+            }
+            if (buffDuration > 0)
+            {
+                buffDuration--;
+                Debug.Log($"남은 웨이브: {buffDuration}");
+                if (buffDuration == 0)
+                {
+                    // 버프 종료 시 스탯 초기화
+                    buffDamageValue = 0;
+                    buffShieldValue = 0;
+                    buffRerollValue = 0;
+                    Debug.Log("버프 효과 종료.");
+                }
             }
 
             if (CurrentWave > wavesPerZone)
@@ -629,13 +682,19 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // --- 유물 효과 계산 함수들 ---
+    // 데미지 계산식 / 유물 효과 계산 
     public int GetAttackDamageModifiers(AttackJokbo jokbo)
     {
         int bonusDamage = 0;
 
         //영구강화로 얻은 데미지 보너스부터 계산
         bonusDamage += (int)GetTotalMetaBonus(MetaEffectType.BaseDamage);
+
+        //그 다음 포션버프
+        if (buffDuration > 0)
+        {
+            bonusDamage += buffDamageValue;
+        }
 
         // 1. '모든' 족보 데미지 증가 (예: 숫돌, 유리 대포, 집중)
         foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.AddBaseDamage))
@@ -824,6 +883,13 @@ public class GameManager : MonoBehaviour
         int earnedCurrency = (int)(CurrentGold * 0.1f) + (CurrentZone * 50);
         int totalMetaCurrency = PlayerPrefs.GetInt(metaCurrencySaveKey, 0);
 
+        if (hasInsurance)
+        {
+            int insuranceMoney = (int)(CurrentGold * 0.3f); // 30% 환급
+            earnedCurrency += insuranceMoney;
+            Debug.Log($"보험 아이템 추가 환급금: {insuranceMoney}");
+        }
+
         totalMetaCurrency += earnedCurrency;
         PlayerPrefs.SetInt(metaCurrencySaveKey, totalMetaCurrency);
         PlayerPrefs.Save();
@@ -831,4 +897,22 @@ public class GameManager : MonoBehaviour
         Debug.Log($"이번 런 획득 재화: {earnedCurrency}. 저장된 총 재화: {totalMetaCurrency}");
         return earnedCurrency;
     }
+
+    // 웨이브 시작 시 쉴드/리롤 버프 적용
+    public void ApplyWaveStartBuffs(DiceController diceController)
+    {
+        if (buffDuration > 0)
+        {
+            if (buffShieldValue > 0)
+            {
+                CurrentShield += buffShieldValue; 
+                // UI 갱신 필요
+            }
+            if (buffRerollValue > 0)
+            {
+                diceController.ApplyRollBonus(buffRerollValue);
+            }
+        }
+    }
+
 }

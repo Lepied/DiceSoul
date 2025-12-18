@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdbc2bec5452d654d969b498aa42ab81, type: 3}
   m_Name: Data_Gold_Gain
   m_EditorClassIdentifier: Assembly-CSharp::MetaUpgradeData
-  id: Upgrade_Score
+  id: Upgrade_Gold_Gain
   displayName: "\uC804\uB9AC\uD488 \uC218\uAC70"
   description: "\uC871\uBCF4 \uC644\uC131\uC2DC\uC5D0 \uD68D\uB4DD\uD558\uB294 \uACE8\uB4DC\uAC00
     \uC99D\uAC00\uD569\uB2C8\uB2E4."

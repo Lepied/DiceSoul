@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdbc2bec5452d654d969b498aa42ab81, type: 3}
   m_Name: Data_Start_Gold
   m_EditorClassIdentifier: Assembly-CSharp::MetaUpgradeData
-  id: Upgrade_Wall_HP
+  id: Upgrade_Start_Gold
   displayName: "\uBCF4\uAE09\uD488 \uC900\uBE44"
   description: "\uBCF4\uAE09\uD488\uC744 \uC900\uBE44\uD574 \uCD9C\uACA9 \uC2DC \uACE8\uB4DC\uB97C
     \uC5BB\uC2B5\uB2C8\uB2E4."

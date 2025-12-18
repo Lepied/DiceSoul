@@ -1,11 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-/// <summary>
-/// [!!! 핵심 수정 !!!]
-/// 1. 'public Sprite zoneBackground' 변수 추가
-///    (StageManager가 이 존에 진입할 때 사용할 배경 이미지)
-/// </summary>
+
 [CreateAssetMenu(fileName = "Zone 1 - Plains", menuName = "Dice Rogue/Zone Data")]
 public class ZoneData : ScriptableObject
 {
@@ -14,7 +10,7 @@ public class ZoneData : ScriptableObject
     public int zoneTier = 1; // 난이도 티어
     
     [Tooltip("이 존에 진입할 때 표시할 배경 이미지")]
-    public Sprite zoneBackground; // [!!! 신규 추가 !!!]
+    public Sprite zoneBackground; 
     
     [Header("웨이브 구성 (순서대로)")]
     [Tooltip("이 존을 구성하는 웨이브 리스트 (WaveData.asset 5개)")]

@@ -72,7 +72,7 @@ public class GameOverDirector : MonoBehaviour
 
         if (enemyTransform == null)
         {
-            Enemy activeEnemy = FindObjectOfType<Enemy>();
+            Enemy activeEnemy = FindFirstObjectByType<Enemy>();
             if (activeEnemy != null) enemyTransform = activeEnemy.transform;
         }
 
@@ -124,7 +124,17 @@ public class GameOverDirector : MonoBehaviour
 
             // 다어두워지고 씬이동
             seq.AppendInterval(0.5f);
-            seq.AppendCallback(() => SceneManager.LoadScene("MainMenu"));
+            seq.AppendCallback(() =>
+            {
+                if (SceneController.Instance != null)
+                {
+                    SceneController.Instance.LoadMainMenu();
+                }
+                else
+                {
+                    SceneManager.LoadScene("MainMenu");
+                }
+            });
         }
     }
     //메인화면 도착 연출

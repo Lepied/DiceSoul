@@ -137,7 +137,7 @@ public class UIManager : MonoBehaviour
     }
     public void UpdateHealth(int current, int max)
     {
-        if (healthText != null) healthText.text = $"Health: {current} / {max}";
+        if (healthText != null) healthText.text = $"HP: {current} / {max}";
     }
     public void UpdateRollCount(int current, int max)
     {
@@ -193,7 +193,13 @@ public class UIManager : MonoBehaviour
 
     public void UpdateWaveInfoPanel(List<Enemy> activeEnemies)
     {
-        if (waveInfoPanel == null || enemyInfoIconPrefab == null) return;
+        Debug.Log($"[UpdateWaveInfoPanel] 호출됨. activeEnemies 수: {activeEnemies?.Count ?? -1}");
+        Debug.Log($"[UpdateWaveInfoPanel] waveInfoPanel: {waveInfoPanel}, enemyInfoIconPrefab: {enemyInfoIconPrefab}");
+        if (waveInfoPanel == null || enemyInfoIconPrefab == null) 
+        {
+            Debug.LogError("[UpdateWaveInfoPanel] waveInfoPanel 또는 enemyInfoIconPrefab이 null입니다!");
+            return;
+        }
         foreach (Transform child in waveInfoPanel.transform)
         {
             Destroy(child.gameObject);
@@ -205,7 +211,9 @@ public class UIManager : MonoBehaviour
         {
             Enemy enemyData = group.First();
             int count = group.Count();
+            Debug.Log($"[UpdateWaveInfoPanel] 아이콘 생성 시도: {enemyData.enemyName}, 수량: {count}");
             GameObject iconGO = Instantiate(enemyInfoIconPrefab, waveInfoPanel.transform);
+            Debug.Log($"[UpdateWaveInfoPanel] 아이콘 생성 완료: {iconGO.name}");
             Image faceImage = iconGO.GetComponentInChildren<Image>();
             SpriteRenderer enemySprite = enemyData.GetComponent<SpriteRenderer>();
             if (faceImage != null && enemySprite != null)
@@ -345,7 +353,7 @@ public class UIManager : MonoBehaviour
                 // 1. 텍스트 설정을 위해 '최종' 데미지/금화를 '미리' 계산
 
                 (int finalBaseDamage, int finalBaseGold) =
-                    StageManager.Instance.GetPreviewValues(jokbo); // [!!!] StageManager에 새 헬퍼 함수 요청
+                    StageManager.Instance.GetPreviewValues(jokbo);
 
                 // 2. '최종 계산된' 값으로 텍스트 설정
                 attackNameTexts[i].text = jokbo.Description;

@@ -293,33 +293,29 @@ public class StageManager : MonoBehaviour
             }
         }
 
-        if (UIManager.Instance != null)
+
+        UIManager.Instance.UpdateWaveInfoPanel(activeEnemies);
+
+        if (GameManager.Instance != null && diceController != null)
         {
-            UIManager.Instance.UpdateWaveInfoPanel(activeEnemies);
-        }
-        GameManager.Instance.StartNewWave();
-        if (diceController != null)
-        {
+            GameManager.Instance.StartNewWave();
             diceController.PrepareNewTurn();
-        }
-        if (GameManager.Instance != null && diceController != null)
-        {
             GameManager.Instance.ApplyAllRelicEffects(diceController);
-        }
-        if (GameManager.Instance != null && diceController != null)
-        {
+            GameManager.Instance.ApplyWaveStartBuffs(diceController);
             diceController.SetDiceDeck(GameManager.Instance.playerDiceDeck);
         }
+
+
 
         //영구강화 효과로 시작데미지 적용시키기
         if (GameManager.Instance != null)
         {
             int startDamage = (int)GameManager.Instance.GetTotalMetaBonus(MetaEffectType.StartDamage);
-            
+
             if (startDamage > 0)
             {
                 Debug.Log($"[메타 강화] 제압 사격 발동! 모든 적에게 {startDamage} 데미지.");
-                
+
                 // 스폰된 모든 적에게 데미지 적용
                 foreach (Enemy enemy in activeEnemies.ToList())
                 {
@@ -328,12 +324,12 @@ public class StageManager : MonoBehaviour
                         // 족보 정보 없이 고정 데미지 주는 방식 (null 전달)
                         // Enemy.TakeDamage 함수가 null Jokbo를 처리할 수 있어야 함.
                         // 만약 처리 못한다면 더미 Jokbo를 만들어서 보내야 함.
-                        enemy.TakeDamage(startDamage, null); 
+                        enemy.TakeDamage(startDamage, null);
                     }
                 }
-                
+
                 // 데미지로 인해 죽은 적이 있을 수 있으므로 상태 체크 한 번 실행
-                CheckWaveStatus(); 
+                CheckWaveStatus();
             }
         }
 

@@ -58,6 +58,29 @@ public class RelicDB : MonoBehaviour
             maxCount: 0
         ));
 
+        AddRelicToDB(new Relic(
+            "RLC_GLASS_CANNON", "유리 대포", "모든 족보의 기본 데미지가 +10 증가하지만, 최대 체력이 2 감소합니다.",
+            LoadRelicIcon("RLC_GLASS_CANNON"),
+            RelicEffectType.AddBaseDamage, // 1. 데미지 +10
+            intValue: 10,
+            maxCount: 1
+        // (2. 체력 -2 효과는 GameManager.AddRelic에서 따로 처리)
+        ));
+
+        AddRelicToDB(new Relic(
+            "RLC_PLUTOCRACY", "금권 정치", "현재 보유한 '점수' 100점당 모든 족보의 기본 데미지가 +1 증가합니다. (최대 +50)",
+            LoadRelicIcon("RLC_PLUTOCRACY"),
+            RelicEffectType.DynamicDamage_Gold, // (새 EffectType)
+            maxCount: 1
+        ));
+
+        AddRelicToDB(new Relic(
+            "RLC_BLOODLUST", "피의 갈증", "플레이어의 잃은 체력 1당 모든 족보의 기본 데미지가 +1 증가합니다.",
+            LoadRelicIcon("RLC_BLOODLUST"),
+            RelicEffectType.DynamicDamage_LostHealth, // (새 EffectType)
+            maxCount: 1
+        ));
+
         // --- 2. 덱 변경 유물 ---
         AddRelicToDB(new Relic(
             "RLC_EXTRA_DICE", "여분의 주사위", "덱에 'D6' 주사위를 영구적으로 1개 추가합니다.",
@@ -73,6 +96,15 @@ public class RelicDB : MonoBehaviour
             RelicEffectType.AddDice,
             stringValue: "D4",
             maxCount: 3
+        ));
+
+        AddRelicToDB(new Relic(
+            "RLC_FOCUS", "집중", "모든 족보의 기본 데미지 +10. 획득 시 덱에서 D6 주사위 1개를 '영구히' 제거합니다.",
+            LoadRelicIcon("RLC_FOCUS"),
+            RelicEffectType.AddBaseDamage, // 1. 데미지 +10
+            intValue: 10,
+            maxCount: 1
+        // (2. D6 제거 효과는 GameManager.AddRelic에서 따로 처리)
         ));
 
         // --- 3. 주사위 값 변경 유물 ---
@@ -212,7 +244,6 @@ public class RelicDB : MonoBehaviour
             maxCount: 0
         ));
 
-        // --- 5. [!!! 신규 유물 (기획서) !!!] ---
         AddRelicToDB(new Relic(
             "RLC_HEAVY_DICE", "무거운 주사위", "모든 '총합' 족보의 데미지 +30. 대신 최대 굴림 횟수 -1.",
             LoadRelicIcon("RLC_HEAVY_DICE"),
@@ -223,40 +254,10 @@ public class RelicDB : MonoBehaviour
         // (2. 굴림 횟수 -1 효과는 GameManager.AddRelic에서 따로 처리)
         ));
 
-        AddRelicToDB(new Relic(
-            "RLC_GLASS_CANNON", "유리 대포", "모든 족보의 기본 데미지가 +10 증가하지만, 최대 체력이 2 감소합니다.",
-            LoadRelicIcon("RLC_GLASS_CANNON"),
-            RelicEffectType.AddBaseDamage, // 1. 데미지 +10
-            intValue: 10,
-            maxCount: 1
-        // (2. 체력 -2 효과는 GameManager.AddRelic에서 따로 처리)
-        ));
-
-        AddRelicToDB(new Relic(
-            "RLC_PLUTOCRACY", "금권 정치", "현재 보유한 '점수' 100점당 모든 족보의 기본 데미지가 +1 증가합니다. (최대 +50)",
-            LoadRelicIcon("RLC_PLUTOCRACY"),
-            RelicEffectType.DynamicDamage_Gold, // (새 EffectType)
-            maxCount: 1
-        ));
-
-        AddRelicToDB(new Relic(
-            "RLC_BLOODLUST", "피의 갈증", "플레이어의 잃은 체력 1당 모든 족보의 기본 데미지가 +1 증가합니다.",
-            LoadRelicIcon("RLC_BLOODLUST"),
-            RelicEffectType.DynamicDamage_LostHealth, // (새 EffectType)
-            maxCount: 1
-        ));
-
-        AddRelicToDB(new Relic(
-            "RLC_FOCUS", "집중", "모든 족보의 기본 데미지 +10. 획득 시 덱에서 D6 주사위 1개를 '영구히' 제거합니다.",
-            LoadRelicIcon("RLC_FOCUS"),
-            RelicEffectType.AddBaseDamage, // 1. 데미지 +10
-            intValue: 10,
-            maxCount: 1
-        // (2. D6 제거 효과는 GameManager.AddRelic에서 따로 처리)
-        ));
+        //---5. 특수 유물 ---
         AddRelicToDB(new Relic(
             "RLC_BUSINESS_CARD", "명함", "첫 번째 굴림으로 공격할 경우, 해당 족보의 데미지와 점수가 2배가 됩니다.",
-            LoadRelicIcon("RLC_BUSINESS_CARD"), // (아이콘 필요)
+            LoadRelicIcon("RLC_BUSINESS_CARD"),
             RelicEffectType.RollCountBonus,
             floatValue: 2.0f,
             maxCount: 1
