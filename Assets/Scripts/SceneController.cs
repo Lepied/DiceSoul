@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using System.Collections;
 using DG.Tweening;
 
@@ -12,8 +13,12 @@ public class SceneController : MonoBehaviour
     public string gameSceneName = "Game";
     
     [Header("페이드 설정")]
-    public CanvasGroup fadeCanvasGroup;
     public float fadeDuration = 1.0f;
+    
+    // 런타임에 생성될 페이드 UI
+    private Canvas fadeCanvas;
+    private CanvasGroup fadeCanvasGroup;
+    private Image fadeImage;
     
     private bool isTransitioning = false;
     
@@ -24,17 +29,46 @@ public class SceneController : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
             
-            // 페이드 캔버스 초기화
-            if (fadeCanvasGroup != null)
-            {
-                fadeCanvasGroup.alpha = 0f;
-                fadeCanvasGroup.blocksRaycasts = false;
-            }
+            // 페이드 UI 동적 생성
+            CreateFadeUI();
         }
         else
         {
             Destroy(gameObject);
         }
+    }
+    
+    private void CreateFadeUI()
+    {
+        // Canvas 생성
+        GameObject canvasGO = new GameObject("SceneController_FadeCanvas");
+        canvasGO.transform.SetParent(transform);
+        
+        fadeCanvas = canvasGO.AddComponent<Canvas>();
+        fadeCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        fadeCanvas.sortingOrder = 80;  //GameOverDirector보다 낮게.
+        
+        canvasGO.AddComponent<CanvasScaler>();
+        canvasGO.AddComponent<GraphicRaycaster>();
+        
+        // CanvasGroup 추가
+        fadeCanvasGroup = canvasGO.AddComponent<CanvasGroup>();
+        fadeCanvasGroup.alpha = 0f;
+        fadeCanvasGroup.blocksRaycasts = false;
+        
+        // 검은색 이미지 생성
+        GameObject imageGO = new GameObject("FadeImage");
+        imageGO.transform.SetParent(canvasGO.transform);
+        
+        fadeImage = imageGO.AddComponent<Image>();
+        fadeImage.color = Color.black;
+        
+        // 화면 전체를 덮도록 설정
+        RectTransform rect = fadeImage.rectTransform;
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
     }
     
     // 페이드 없이 씬 전환

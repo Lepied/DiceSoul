@@ -26,6 +26,12 @@ public class GameOverDirector : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            
+            // SceneController의 페이드(999)보다 위에 표시되도록 설정
+            if (myCanvas != null)
+            {
+                myCanvas.sortingOrder = 1000;
+            }
         }
         else
         {
