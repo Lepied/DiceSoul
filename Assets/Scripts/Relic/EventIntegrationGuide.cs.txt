@@ -1,0 +1,360 @@
+// =============================================================
+// 유물 시스템 이벤트 통합 가이드
+// =============================================================
+// 
+// 이 파일은 기존 게임 시스템에 GameEvents 호출을 추가하는 방법을 설명합니다.
+// 각 섹션은 수정해야 할 파일과 위치, 추가할 코드를 명시합니다.
+//
+// ※ 주의: 이 작업을 진행하기 전에 Git 커밋하거나 백업을 권장합니다.
+// =============================================================
+
+/*
+==============
+1. DiceController.cs - 주사위 굴림 이벤트
+==============
+
+위치: RollSequence() 코루틴 끝 (foreach 루프 후, isRolling = false 전)
+
+추가할 코드:
+----------------------------------------
+// 결과
+foreach (var dice in activeDice)
+{
+    if (!dice.IsKept)
+    {
+        int maxSide = GetMaxSideFromType(dice.Type);
+        int result = Random.Range(1, maxSide + 1);
+        dice.UpdateVisual(result);
+    }
+}
+
+// ★ 유물 이벤트: 주사위 굴림 완료
+RollContext rollCtx = new RollContext 
+{
+    DiceValues = activeDice.Select(d => d.Value).ToArray(),
+    DiceTypes = activeDice.Select(d => d.Type).ToArray(),
+    IsFirstRoll = (currentRollCount == 1)
+};
+GameEvents.RaiseDiceRolled(rollCtx);
+
+// 재굴림이 필요한 주사위 처리
+if (rollCtx.RerollIndices != null && rollCtx.RerollIndices.Count > 0)
+{
+    foreach (int idx in rollCtx.RerollIndices)
+    {
+        if (idx >= 0 && idx < activeDice.Count && !activeDice[idx].IsKept)
+        {
+            int maxSide = GetMaxSideFromType(activeDice[idx].Type);
+            int newValue = Random.Range(1, maxSide + 1);
+            activeDice[idx].UpdateVisual(newValue);
+        }
+    }
+    // 재굴림 이벤트
+    GameEvents.RaiseDiceRerolled(rollCtx);
+}
+
+isRolling = false;
+----------------------------------------
+
+
+==============
+2. GameManager.cs - 피해/사망 이벤트
+==============
+
+위치: ProcessWaveClear() 함수 내 "웨이브 실패" 처리 부분
+
+기존 코드:
+----------------------------------------
+else
+{
+    Debug.Log("웨이브 실패. 체력이 1 감소합니다.");
+    if (CurrentShield > 0)
+    {
+        CurrentShield--;
+        Debug.Log($"쉴드 방어! 남은 쉴드: {CurrentShield}");
+    }
+    else
+    {
+        PlayerHealth--;
+    }
+----------------------------------------
+
+수정 후:
+----------------------------------------
+else
+{
+    Debug.Log("웨이브 실패. 체력이 1 감소합니다.");
+    
+    // ★ 유물 이벤트: 피해 전 처리
+    DamageContext damageCtx = new DamageContext 
+    { 
+        OriginalDamage = 1, 
+        FinalDamage = 1,
+        Source = "WaveFail"
+    };
+    GameEvents.RaiseBeforePlayerDamaged(damageCtx);
+    
+    // 이벤트에서 피해가 취소되었는지 확인
+    if (damageCtx.Cancelled)
+    {
+        Debug.Log("[유물 효과] 피해가 무효화되었습니다!");
+    }
+    else if (CurrentShield > 0)
+    {
+        CurrentShield--;
+        Debug.Log($"쉴드 방어! 남은 쉴드: {CurrentShield}");
+    }
+    else
+    {
+        PlayerHealth -= damageCtx.FinalDamage;
+    }
+----------------------------------------
+
+위치: PlayerHealth <= 0 체크 부분 (게임 오버 전)
+
+기존 코드:
+----------------------------------------
+if (PlayerHealth <= 0)
+{
+    Debug.Log("게임 오버. 영구 재화를 저장하고 연출을 재생합니다.");
+----------------------------------------
+
+수정 후:
+----------------------------------------
+if (PlayerHealth <= 0)
+{
+    // ★ 유물 이벤트: 사망 시 부활 체크
+    DeathContext deathCtx = new DeathContext();
+    GameEvents.RaisePlayerDeath(deathCtx);
+    
+    if (deathCtx.Revived)
+    {
+        PlayerHealth = deathCtx.ReviveHP;
+        Debug.Log($"[유물 효과] {deathCtx.ReviveSource}에 의해 체력 {deathCtx.ReviveHP}로 부활!");
+        if (UIManager.Instance != null)
+            UIManager.Instance.UpdateHealth(PlayerHealth, MaxPlayerHealth);
+        // 부활 연출 추가 가능
+        if (StageManager.Instance != null)
+            StageManager.Instance.PrepareNextWave();
+        return; // 게임 오버 처리 스킵
+    }
+    
+    Debug.Log("게임 오버. 영구 재화를 저장하고 연출을 재생합니다.");
+----------------------------------------
+
+
+==============
+3. StageManager.cs - 공격/족보 이벤트
+==============
+
+위치: ExecuteAttack() 또는 공격 실행 함수 (족보 선택 후)
+
+추가할 코드 (공격 전):
+----------------------------------------
+// ★ 유물 이벤트: 공격 전 처리
+AttackContext attackCtx = new AttackContext
+{
+    Jokbo = selectedJokbo,
+    BaseDamage = finalDamage,
+    BaseGold = finalGold,
+    IsFirstRoll = (diceController.currentRollCount == 1),
+    RemainingRolls = diceController.maxRolls - diceController.currentRollCount
+};
+GameEvents.RaiseBeforeAttack(attackCtx);
+
+// 최종 값 계산
+int totalDamage = attackCtx.CalculateFinalDamage();
+int totalGold = attackCtx.CalculateFinalGold();
+----------------------------------------
+
+추가할 코드 (공격 후):
+----------------------------------------
+// ★ 유물 이벤트: 공격 후 처리
+GameEvents.RaiseAfterAttack(attackCtx);
+----------------------------------------
+
+
+==============
+4. GameManager.cs - 웨이브/존 이벤트
+==============
+
+위치: StartNewWave() 함수
+
+추가할 코드:
+----------------------------------------
+public void StartNewWave()
+{
+    Debug.Log($"[Zone {CurrentZone} - Wave {CurrentWave}] 웨이브 시작.");
+    
+    // ★ 유물 이벤트: 웨이브 시작
+    WaveContext waveCtx = new WaveContext 
+    { 
+        ZoneNumber = CurrentZone, 
+        WaveNumber = CurrentWave 
+    };
+    GameEvents.RaiseWaveStart(waveCtx);
+    
+    if (UIManager.Instance != null)
+    {
+        UIManager.Instance.UpdateWaveText(CurrentZone, CurrentWave);
+    }
+}
+----------------------------------------
+
+위치: 존 시작 시 (StartNewRun 또는 존 전환 시)
+
+추가할 코드:
+----------------------------------------
+// ★ 유물 이벤트: 존 시작
+ZoneContext zoneCtx = new ZoneContext 
+{ 
+    ZoneNumber = CurrentZone, 
+    ZoneName = WaveGenerator.Instance?.GetCurrentZoneData(CurrentZone)?.zoneName ?? "Unknown"
+};
+GameEvents.RaiseZoneStart(zoneCtx);
+----------------------------------------
+
+
+==============
+5. GameManager.cs - 골드 이벤트
+==============
+
+위치: AddGold(int goldToAdd) 함수
+
+수정 후:
+----------------------------------------
+public void AddGold(int goldToAdd)
+{
+    // ★ 유물 이벤트: 골드 획득
+    GoldContext goldCtx = new GoldContext
+    {
+        BaseAmount = goldToAdd,
+        Multiplier = 1.0f
+    };
+    GameEvents.RaiseGoldGain(goldCtx);
+    
+    // 기존 유물 배율 적용
+    foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.AddGoldMultiplier))
+    {
+        goldCtx.Multiplier *= relic.FloatValue;
+    }
+    goldCtx.Calculate();
+
+    CurrentGold += goldCtx.FinalAmount;
+    Debug.Log($"금화 획득: +{goldCtx.FinalAmount} (기본: {goldToAdd}, 배율: {goldCtx.Multiplier}x) (총: {CurrentGold})");
+
+    if (UIManager.Instance != null)
+    {
+        UIManager.Instance.UpdateGold(CurrentGold);
+    }
+}
+----------------------------------------
+
+
+==============
+6. GameManager.cs - 유물 획득 이벤트
+==============
+
+위치: AddRelic() 함수 시작 부분
+
+추가할 코드:
+----------------------------------------
+public void AddRelic(Relic chosenRelic)
+{
+    if (chosenRelic == null) return;
+
+    // ★ 유물 이벤트: 유물 획득
+    RelicContext relicCtx = new RelicContext
+    {
+        RelicID = chosenRelic.RelicID,
+        RelicName = chosenRelic.Name
+    };
+    GameEvents.RaiseRelicAcquire(relicCtx);
+
+    activeRelics.Add(chosenRelic);
+    // ... 기존 코드 계속
+----------------------------------------
+
+
+==============
+7. ShopPanel.cs - 상점 이벤트
+==============
+
+위치: 상점 새로고침 함수
+
+추가할 코드:
+----------------------------------------
+// ★ 유물 이벤트: 상점 리프레시
+ShopContext shopCtx = new ShopContext
+{
+    PriceMultiplier = 1.0f,
+    FreeRefresh = false
+};
+GameEvents.RaiseShopRefresh(shopCtx);
+
+// 할인 적용
+foreach (var item in shopItems)
+{
+    item.price = Mathf.RoundToInt(item.basePrice * shopCtx.PriceMultiplier);
+}
+
+// 무료 리프레시 처리
+if (shopCtx.FreeRefresh)
+{
+    // 리프레시 비용 환불 또는 미차감
+}
+----------------------------------------
+
+
+==============
+8. HealPlayer 함수에 회복 이벤트 추가
+==============
+
+위치: GameManager.cs의 HealPlayer() 함수
+
+수정 후:
+----------------------------------------
+public void HealPlayer(int amount)
+{
+    // ★ 유물 이벤트: 회복
+    HealContext healCtx = new HealContext
+    {
+        BaseAmount = amount,
+        Source = "Default"
+    };
+    GameEvents.RaisePlayerHeal(healCtx);
+    
+    int finalHeal = healCtx.FinalAmount;
+    PlayerHealth = Mathf.Min(PlayerHealth + finalHeal, MaxPlayerHealth);
+    
+    UIManager.Instance?.UpdateHealth(PlayerHealth, MaxPlayerHealth);
+}
+----------------------------------------
+
+
+==============
+초기화 (씬 시작 시)
+==============
+
+GameManager.cs의 StartNewRun() 끝에 추가:
+----------------------------------------
+// ★ RelicEffectHandler 상태 초기화
+if (RelicEffectHandler.Instance != null)
+{
+    RelicEffectHandler.Instance.ResetForNewRun();
+}
+----------------------------------------
+
+
+==============
+정리 (씬 종료 시)
+==============
+
+필요시 OnDestroy 또는 씬 전환 시:
+----------------------------------------
+GameEvents.ClearAllEvents();
+----------------------------------------
+
+*/
+
+// 이 파일은 가이드용으로, 컴파일에 포함되지 않습니다.

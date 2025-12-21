@@ -1,13 +1,10 @@
 fileFormatVersion: 2
-guid: 9b884b7c1db4cf349851b45583e1632b
+guid: 798bab4151b85ea4087d6e56a8107e8f
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8215017259660171951
-    second: RLC_CROWDED_HOUSE_0
-  - first:
-      213: -7694195566327425048
-    second: RLC_CROWDED_HOUSE_1
+      213: 335830011726443724
+    second: RLC_MERCHANT_CARD_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -116,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: RLC_CROWDED_HOUSE_0
+      name: RLC_MERCHANT_CARD_0
       rect:
         serializedVersion: 2
-        x: 108
-        y: 113
-        width: 301
-        height: 289
+        x: 235
+        y: 221
+        width: 554
+        height: 586
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 155a04ec3556efd80800000000000000
-      internalID: -8215017259660171951
+      spriteID: cc4bed9cd9b19a400800000000000000
+      internalID: 335830011726443724
       vertices: []
       indices: 
       edges: []
@@ -141,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 40dba457287ba3a44b950186509f8621
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -151,8 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      RLC_CROWDED_HOUSE_0: -8215017259660171951
-      RLC_CROWDED_HOUSE_1: -7694195566327425048
+      RLC_MERCHANT_CARD_0: 335830011726443724
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

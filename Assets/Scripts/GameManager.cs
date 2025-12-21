@@ -231,6 +231,19 @@ public class GameManager : MonoBehaviour
         ZoneData startingZone = WaveGenerator.Instance.GetCurrentZoneData(1);
         string zoneName = startingZone != null ? startingZone.zoneName : "평원";
 
+        // ★ 이벤트 시스템: 새 런 시작 시 존 이벤트 + 핸들러 초기화
+        ZoneContext zoneCtx = new ZoneContext
+        {
+            ZoneNumber = CurrentZone,
+            ZoneName = zoneName
+        };
+        GameEvents.RaiseZoneStart(zoneCtx);
+        
+        if (RelicEffectHandler.Instance != null)
+        {
+            RelicEffectHandler.Instance.ResetForNewRun();
+        }
+
         if (UIManager.Instance != null)
         {
             UIManager.Instance.FadeIn();
@@ -310,6 +323,15 @@ public class GameManager : MonoBehaviour
     public void StartNewWave()
     {
         Debug.Log($"[Zone {CurrentZone} - Wave {CurrentWave}] 웨이브 시작.");
+        
+        // ★ 이벤트 시스템: 웨이브 시작 이벤트
+        WaveContext waveCtx = new WaveContext
+        {
+            ZoneNumber = CurrentZone,
+            WaveNumber = CurrentWave
+        };
+        GameEvents.RaiseWaveStart(waveCtx);
+        
         if (UIManager.Instance != null)
         {
             UIManager.Instance.UpdateWaveText(CurrentZone, CurrentWave);
@@ -427,6 +449,15 @@ public class GameManager : MonoBehaviour
                 {
                     CurrentZone++;
                     CurrentWave = 1;
+                    
+                    // ★ 이벤트 시스템: 존 시작 이벤트 (작은 방패 등 초기화)
+                    ZoneContext zoneCtx = new ZoneContext
+                    {
+                        ZoneNumber = CurrentZone,
+                        ZoneName = WaveGenerator.Instance?.GetCurrentZoneData(CurrentZone)?.zoneName ?? "Unknown"
+                    };
+                    GameEvents.RaiseZoneStart(zoneCtx);
+                    
                     UIManager.Instance.StartMaintenancePhase();
                     UIManager.Instance.FadeIn();
 
@@ -443,16 +474,30 @@ public class GameManager : MonoBehaviour
         else
         {
             Debug.Log("웨이브 실패. 체력이 1 감소합니다.");
-            if (CurrentShield > 0)
+            
+            // ★ 이벤트 시스템: 피해 전 이벤트 발생 (유물이 피해 무효화/감소 가능)
+            DamageContext damageCtx = new DamageContext
+            {
+                OriginalDamage = 1,
+                FinalDamage = 1,
+                Source = "WaveFail",
+                Cancelled = false
+            };
+            GameEvents.RaiseBeforePlayerDamaged(damageCtx);
+            
+            // 유물이 피해를 취소했는지 확인
+            if (damageCtx.Cancelled)
+            {
+                Debug.Log("[이벤트] 유물 효과로 피해가 무효화되었습니다!");
+            }
+            else if (CurrentShield > 0)
             {
                 CurrentShield--;
                 Debug.Log($"쉴드 방어! 남은 쉴드: {CurrentShield}");
-                //TODO 
-                // UI에 쉴드 감소 연출 추가하기?
             }
             else
             {
-                PlayerHealth--;
+                PlayerHealth -= damageCtx.FinalDamage;
             }
 
             if (UIManager.Instance != null)
@@ -462,6 +507,32 @@ public class GameManager : MonoBehaviour
 
             if (PlayerHealth <= 0)
             {
+                // ★ 이벤트 시스템: 사망 이벤트 발생 (유물이 부활 가능)
+                DeathContext deathCtx = new DeathContext
+                {
+                    Revived = false,
+                    ReviveHP = 0,
+                    ReviveSource = null
+                };
+                GameEvents.RaisePlayerDeath(deathCtx);
+                
+                // 유물이 부활시켰는지 확인
+                if (deathCtx.Revived)
+                {
+                    PlayerHealth = deathCtx.ReviveHP;
+                    Debug.Log($"[이벤트] {deathCtx.ReviveSource}에 의해 체력 {deathCtx.ReviveHP}로 부활!");
+                    if (UIManager.Instance != null)
+                    {
+                        UIManager.Instance.UpdateHealth(PlayerHealth, MaxPlayerHealth);
+                    }
+                    // 부활 후 다음 웨이브 진행
+                    if (StageManager.Instance != null)
+                    {
+                        StageManager.Instance.PrepareNextWave();
+                    }
+                    return;
+                }
+                
                 Debug.Log("게임 오버. 영구 재화를 저장하고 연출을 재생합니다.");
 
                 int earnedCurrency = CalculateAndSaveMetaCurrency();
@@ -519,48 +590,24 @@ public class GameManager : MonoBehaviour
             UIManager.Instance.UpdateRelicPanel(activeRelics);
         }
 
-        //  '획득 즉시' 발동 효과 처리
-        switch (chosenRelic.EffectType)
+        // ★ 이벤트 시스템: 유물 획득 이벤트 발생
+        // 모든 '획득 즉시' 효과는 RelicEffectHandler.HandleRelicAcquire()에서 처리
+        RelicContext relicCtx = new RelicContext
         {
-            case RelicEffectType.AddDice:
-                if (playerDiceDeck.Count < maxDiceCount)
-                {
-                    AddDiceToDeck(chosenRelic.StringValue);
-                }
-                break;
+            RelicID = chosenRelic.RelicID,
+            RelicName = chosenRelic.Name
+        };
+        GameEvents.RaiseRelicAcquire(relicCtx);
 
-            case RelicEffectType.ModifyHealth: // (예: 유리 대포)
-                ModifyMaxHealth(chosenRelic.IntValue); // (음수 값 전달)
-                break;
-
-            case RelicEffectType.RemoveDice: // (예: 집중)
-                if (playerDiceDeck.Count > minDiceCount)
-                {
-                    RemoveDiceFromDeck(chosenRelic.StringValue); // (예: "D6" 제거)
-                }
-                break;
-
-            case RelicEffectType.ModifyMaxRolls: // (예: 무거운 주사위)
-                // (이 효과는 'AddMaxRolls'와 다름. ApplyAllRelicEffects에 추가)
-                break;
-        }
-
-        switch (chosenRelic.RelicID)
+        // 굴림 횟수 관련 유물은 즉시 적용
+        if (chosenRelic.EffectType == RelicEffectType.AddMaxRolls || 
+            chosenRelic.EffectType == RelicEffectType.ModifyMaxRolls)
         {
-            case "RLC_HEAVY_DICE": // 무거운 주사위 (JokboDamageAdd + ModifyMaxRolls)
-                ApplyAllRelicEffects(StageManager.Instance.diceController); // (최대 굴림 횟수 즉시 갱신)
-                break;
-            case "RLC_GLASS_CANNON": // 유리 대포 (AddBaseDamage + ModifyHealth)
-                ModifyMaxHealth(-2); // (RelicDB 정의와 별개로 하드코딩)
-                break;
-            case "RLC_FOCUS": // 집중 (AddBaseDamage + RemoveDice)
-                if (playerDiceDeck.Count > minDiceCount)
-                {
-                    RemoveDiceFromDeck("D6"); // (RelicDB 정의와 별개로 하드코딩)
-                }
-                break;
+            if (StageManager.Instance?.diceController != null)
+            {
+                ApplyAllRelicEffects(StageManager.Instance.diceController);
+            }
         }
-
 
         if (UIManager.Instance != null && !UIManager.Instance.IsShopOpen())
         {

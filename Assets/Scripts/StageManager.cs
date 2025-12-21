@@ -168,12 +168,32 @@ public class StageManager : MonoBehaviour
 
         (int finalDamage, int finalGold) = GetPreviewValues(chosenJokbo);
 
-        Debug.Log($"광역 공격: [{chosenJokbo.Description}] (최종 데미지: {finalDamage})");
+        // ★ 이벤트 시스템: 공격 전 이벤트 발생 (유물이 데미지/골드 수정 가능)
+        AttackContext attackCtx = new AttackContext
+        {
+            Jokbo = chosenJokbo,
+            BaseDamage = finalDamage,
+            BaseGold = finalGold,
+            FlatDamageBonus = 0,
+            FlatGoldBonus = 0,
+            DamageMultiplier = 1.0f,
+            GoldMultiplier = 1.0f,
+            IsFirstRoll = (diceController.currentRollCount == 1),
+            RemainingRolls = diceController.maxRolls - diceController.currentRollCount,
+            HealAfterAttack = 0
+        };
+        GameEvents.RaiseBeforeAttack(attackCtx);
+        
+        // 이벤트에서 수정된 최종 값 계산
+        int eventFinalDamage = attackCtx.CalculateFinalDamage();
+        int eventFinalGold = attackCtx.CalculateFinalGold();
+
+        Debug.Log($"광역 공격: [{chosenJokbo.Description}] (최종 데미지: {eventFinalDamage}, 골드: {eventFinalGold})");
 
         AttackJokbo modifiedJokbo = new AttackJokbo(
             chosenJokbo.Description,
-            finalDamage,
-            finalGold,
+            eventFinalDamage,
+            eventFinalGold,
             chosenJokbo.CheckLogic
         );
 
@@ -183,7 +203,10 @@ public class StageManager : MonoBehaviour
             enemy.TakeDamage(damageToTake, modifiedJokbo);
         }
 
-        GameManager.Instance.AddGold(finalGold, chosenJokbo);
+        GameManager.Instance.AddGold(eventFinalGold, chosenJokbo);
+        
+        // ★ 이벤트 시스템: 공격 후 이벤트 발생 (회복 등)
+        GameEvents.RaiseAfterAttack(attackCtx);
 
         isWaitingForAttackChoice = false;
         CheckWaveStatus();

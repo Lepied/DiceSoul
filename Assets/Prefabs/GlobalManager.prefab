@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 5349512535063796700}
   - component: {fileID: 7367111959358860643}
   - component: {fileID: 157874441161164176}
+  - component: {fileID: 1042415125299145984}
+  - component: {fileID: 5059901778241216170}
   m_Layer: 0
   m_Name: GlobalManager
   m_TagString: Untagged
@@ -72,3 +74,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MarketItemDB
   basicSupplies: []
   combatSupports: []
+--- !u!114 &1042415125299145984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4121050168421655494}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 740e8a584db23594da4def3dea243560, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RelicEffectHandler
+--- !u!114 &5059901778241216170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4121050168421655494}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b55478df37ae224793c425a89ecfc62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RelicDebugController
+  consoleToggleKey: 96
+  enableInBuild: 0

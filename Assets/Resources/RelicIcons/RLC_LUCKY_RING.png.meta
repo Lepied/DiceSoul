@@ -1,13 +1,10 @@
 fileFormatVersion: 2
-guid: 9b884b7c1db4cf349851b45583e1632b
+guid: 2f6f3fdd2bcb0dc418c22a7ae9b58049
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8215017259660171951
-    second: RLC_CROWDED_HOUSE_0
-  - first:
-      213: -7694195566327425048
-    second: RLC_CROWDED_HOUSE_1
+      213: 88450456018470097
+    second: RLC_LUCKY_RING_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -116,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: RLC_CROWDED_HOUSE_0
+      name: RLC_LUCKY_RING_0
       rect:
         serializedVersion: 2
-        x: 108
-        y: 113
-        width: 301
-        height: 289
+        x: 79
+        y: 20
+        width: 866
+        height: 940
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 155a04ec3556efd80800000000000000
-      internalID: -8215017259660171951
+      spriteID: 1d4c33b983d3a3100800000000000000
+      internalID: 88450456018470097
       vertices: []
       indices: 
       edges: []
@@ -141,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 40dba457287ba3a44b950186509f8621
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -151,8 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      RLC_CROWDED_HOUSE_0: -8215017259660171951
-      RLC_CROWDED_HOUSE_1: -7694195566327425048
+      RLC_LUCKY_RING_0: 88450456018470097
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

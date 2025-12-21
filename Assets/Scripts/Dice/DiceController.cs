@@ -220,6 +220,48 @@ public class DiceController : MonoBehaviour
             }
         }
 
+        // ★ 이벤트 시스템: 주사위 굴림 완료 이벤트 발생
+        RollContext rollCtx = new RollContext
+        {
+            DiceValues = activeDice.Select(d => d.Value).ToArray(),
+            DiceTypes = activeDice.Select(d => d.Type).ToArray(),
+            IsFirstRoll = (currentRollCount == 1),
+            RerollIndices = new List<int>()
+        };
+        GameEvents.RaiseDiceRolled(rollCtx);
+
+        // ★ 유물이 주사위 값을 변환했으면 UI에 반영
+        for (int i = 0; i < activeDice.Count && i < rollCtx.DiceValues.Length; i++)
+        {
+            if (activeDice[i].Value != rollCtx.DiceValues[i])
+            {
+                // 값이 바뀌었으면 마법 연출로 업데이트
+                activeDice[i].PlayMagicAnimation(rollCtx.DiceValues[i]);
+            }
+        }
+
+        // ★ 유물이 재굴림을 요청했으면 처리
+        if (rollCtx.RerollIndices != null && rollCtx.RerollIndices.Count > 0)
+        {
+            yield return new WaitForSeconds(0.3f); // 연출 대기
+            
+            foreach (int idx in rollCtx.RerollIndices.Distinct())
+            {
+                if (idx >= 0 && idx < activeDice.Count && !activeDice[idx].IsKept)
+                {
+                    int maxSide = GetMaxSideFromType(activeDice[idx].Type);
+                    int newValue = Random.Range(1, maxSide + 1);
+                    activeDice[idx].PlayRerollAnimation(newValue);
+                }
+            }
+            
+            yield return new WaitForSeconds(0.4f); // 재굴림 연출 대기
+            
+            // 재굴림 후 이벤트 (값 변환 유물이 다시 적용될 수 있음)
+            rollCtx.DiceValues = activeDice.Select(d => d.Value).ToArray();
+            GameEvents.RaiseDiceRerolled(rollCtx);
+        }
+
         isRolling = false;
 
         if (StageManager.Instance != null)
@@ -228,7 +270,6 @@ public class DiceController : MonoBehaviour
             string debugValues = string.Join(", ", currentValues);
             Debug.Log($"[DiceController] 굴림 완료! StageManager로 보내는 값: {debugValues}");
             StageManager.Instance.OnRollFinished(currentValues);
-            
         }
     }
     public void PrepareNewTurn()

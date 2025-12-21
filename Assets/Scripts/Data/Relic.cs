@@ -2,25 +2,75 @@ using UnityEngine;
 
 public enum RelicEffectType
 {
-    // 스탯 (매 턴 적용)
-    AddMaxRolls,
-    AddBaseDamage,        
-    // 주사위 덱 (획득 시 적용)
-    AddDice,              
-    // 주사위 굴림 (굴림 시 적용)
-    ModifyDiceValue,      
-    // 점수/데미지 (판정 시 적용)
-    AddGoldMultiplier,   
-    JokboDamageAdd,       
-    JokboGoldMultiplier, 
+    None = 0,
     
-    JokboGoldAdd,            //  족보 점수 +
+    // ===== 스탯 관련 (Passive) =====
+    AddMaxRolls,              // 최대 굴림 횟수 +
+    AddBaseDamage,            // 모든 족보 데미지 +
+    AddBaseGold,              // 모든 족보 골드 +
+    AddDamagePercent,         // 모든 족보 데미지 %
+    AddGoldMultiplier,        // 골드 획득 배율
     ModifyHealth,             // 최대 체력 변경
     ModifyMaxRolls,           // 최대 굴림 횟수 변경
+    AddDefense,               // 방어력 +
+    
+    // ===== 주사위 덱 (OnAcquire) =====
+    AddDice,                  // 덱에 주사위 추가
     RemoveDice,               // 덱에서 주사위 제거
-    DynamicDamage_Gold,      // 점수 비례 데미지
-    DynamicDamage_LostHealth,  // 잃은 체력 비례 데미지
-    RollCountBonus // 특정 굴림에서 데미지나 점수 보너스
+    
+    // ===== 주사위 굴림 (OnRoll) =====
+    ModifyDiceValue,          // 주사위 값 변환 (연금술사돌 등)
+    RerollOdds,               // 홀수 재굴림 (자철석)
+    RerollEvens,              // 짝수 재굴림 (탄자나이트)
+    RerollSixes,              // 6 재굴림 (가벼운 깃털)
+    RerollFirst,              // 첫 굴림 시 일부 재굴림 (빠른 장전)
+    FixMinValue,              // 최소값 고정 (철제 주사위)
+    BonusOnLowD20,            // D20 낮으면 보너스 (균형추)
+    
+    // ===== 족보 특화 (OnBeforeAttack) =====
+    JokboDamageAdd,           // 특정 족보 데미지 +
+    JokboGoldAdd,             // 특정 족보 골드 +
+    JokboGoldMultiplier,      // 특정 족보 골드 배율
+    JokboDamageMultiplier,    // 특정 족보 데미지 배율
+    DisableJokbo,             // 특정 족보 비활성화
+    
+    // ===== 동적 데미지 (OnBeforeAttack) =====
+    DynamicDamage_Gold,       // 보유 골드 비례 데미지
+    DynamicDamage_LostHealth, // 잃은 체력 비례 데미지
+    DynamicDamage_LowRolls,   // 남은 굴림 적을수록 데미지 (모래시계)
+    
+    // ===== 특수 보너스 =====
+    RollCountBonus,           // 첫 굴림 보너스 (명함)
+    FirstAttackBonus,         // 첫 공격 보너스 (날쌘 손놀림)
+    
+    // ===== 생존/회복 =====
+    HealOnJokbo,              // 족보 완성 시 회복 (흡혈귀 이빨)
+    HealOnRoll,               // 굴림 시 확률 회복 (재생 팔찌)
+    ReviveOnDeath,            // 사망 시 부활 (불사조 깃털)
+    DamageImmuneLowHP,        // 저체력 시 피해 무효 (작은 방패)
+    FreeRollOnZero,           // 굴림 0일 때 무료 충전
+    FreeRollAtZero,           // 굴림 0일 때 무료 충전 (날쌘 손놀림)
+    
+    // ===== 경제 =====
+    ShopDiscount,             // 상점 할인 (행운의 동전)
+    ShopRefreshFreeze,        // 상점 리롤 비용 동결 (상인의 명함)
+    RefundShopRefresh,        // 상점 리롤 비용 확률 반환 (스프링)
+    RelicCapacityUp,          // 유물 보유 한도 증가 (가벼운 가방)
+    
+    // ===== 수동 발동 (Manual) =====
+    FixDiceBeforeRoll,        // 굴리기 전 주사위 고정 (주사위 컵)
+    DoubleDiceValue,          // 선택 주사위 2배 (이중 주사위)
+    SetAllToMax,              // 모든 주사위 최대값 (운명의 주사위)
+    
+    // ===== 기타 =====
+    HigherReroll,             // 재굴림 시 더 높은 숫자 (행운의 네잎클로버)
+    SaveRollChance,           // 굴림 횟수 미소모 확률 (시공의 틈)
+    PermanentDamageGrowth,    // 미사용 족보로 영구 성장 (학자의 서적)
+    SameNumberBonus,          // 같은 숫자 확률 증가 (자석)
+    
+    // ===== 복합 효과 =====
+    DamageMultiplierWithHealthCost,  // 데미지 증가 + 체력 감소 (도박사의 반지)
+    DamageMultiplierNoHeal           // 데미지 증가 + 회복 불가 (악마의 계약서)
 }
 
 public class Relic
