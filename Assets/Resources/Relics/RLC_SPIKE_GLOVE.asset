@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4dae9fcb894d4d4fb4edab49beed9be, type: 3}
+  m_Name: RLC_SPIKE_GLOVE
+  m_EditorClassIdentifier: Assembly-CSharp::RelicData
+  relicID: RLC_SPIKE_GLOVE
+  relicName: "\uAC00\uC2DC \uB3CB\uCE5C \uC7A5\uAC11"
+  description: "\uD22C \uD398\uC5B4 \uC871\uBCF4 \uB370\uBBF8\uC9C0 +15"
+  icon: {fileID: 6664496021373895305, guid: 468eeedb01b639046b7a1bc3b83c6ef8, type: 3}
+  rarity: 0
+  dropPool: 0
+  category: 2
+  effectType: 18
+  triggerTiming: 5
+  intValue: 15
+  floatValue: 0
+  stringValue: "\uD22C \uD398\uC5B4"
+  maxCount: 0
+  isUnlockedByDefault: 1
+  unlockCondition: 
+  requiresManualActivation: 0
+  usesPerRun: 0

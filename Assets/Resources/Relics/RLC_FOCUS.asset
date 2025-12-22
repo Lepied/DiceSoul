@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4dae9fcb894d4d4fb4edab49beed9be, type: 3}
+  m_Name: RLC_FOCUS
+  m_EditorClassIdentifier: Assembly-CSharp::RelicData
+  relicID: RLC_FOCUS
+  relicName: "\uC9D1\uC911"
+  description: "\uBAA8\uB4E0 \uC871\uBCF4 \uB370\uBBF8\uC9C0 +20; D6 1\uAC1C \uC81C\uAC70"
+  icon: {fileID: 6145694135444231639, guid: b220535594afe0b439fad1223a55e8a2, type: 3}
+  rarity: 1
+  dropPool: 1
+  category: 1
+  effectType: 2
+  triggerTiming: 0
+  intValue: 20
+  floatValue: 0
+  stringValue: 
+  maxCount: 3
+  isUnlockedByDefault: 1
+  unlockCondition: 
+  requiresManualActivation: 0
+  usesPerRun: 0

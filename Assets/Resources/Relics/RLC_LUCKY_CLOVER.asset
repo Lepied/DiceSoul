@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4dae9fcb894d4d4fb4edab49beed9be, type: 3}
+  m_Name: RLC_LUCKY_CLOVER
+  m_EditorClassIdentifier: Assembly-CSharp::RelicData
+  relicID: RLC_LUCKY_CLOVER
+  relicName: "\uD589\uC6B4\uC758 \uB124\uC78E\uD074\uB85C\uBC84"
+  description: "\uC7AC\uAD74\uB9BC \uC2DC \uBC18\uB4DC\uC2DC \uC774\uC804\uBCF4\uB2E4
+    \uB192\uC740 \uC22B\uC790\uAC00 \uB098\uC634"
+  icon: {fileID: -1400019937767219396, guid: 130bf519a26b6e94dbd55a849fb633e2, type: 3}
+  rarity: 2
+  dropPool: 0
+  category: 3
+  effectType: 0
+  triggerTiming: 0
+  intValue: 0
+  floatValue: 0
+  stringValue: 
+  maxCount: 1
+  isUnlockedByDefault: 1
+  unlockCondition: 
+  requiresManualActivation: 0
+  usesPerRun: 0

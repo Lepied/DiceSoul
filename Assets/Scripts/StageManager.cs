@@ -85,8 +85,18 @@ public class StageManager : MonoBehaviour
             enemy.OnPlayerRoll(initialValues);
         }
 
-        // 2. 유물 효과 계산 적용하기
-        List<int> modifiedValues = GameManager.Instance.ApplyDiceModificationRelics(initialValues);
+        // 2. 이벤트 시스템으로 유물 효과 적용
+        RollContext rollCtx = new RollContext
+        {
+            DiceValues = initialValues.ToArray(),
+            DiceTypes = GameManager.Instance.playerDiceDeck.ToArray(),
+            IsFirstRoll = (diceController.currentRollCount == 1),
+            RerollIndices = new List<int>()
+        };
+        GameEvents.RaiseDiceRolled(rollCtx);
+        
+        // 이벤트에서 수정된 값 적용
+        List<int> modifiedValues = rollCtx.DiceValues.ToList();
 
         bool anyChange = false;
 
@@ -112,14 +122,44 @@ public class StageManager : MonoBehaviour
                 }
             }
         }
+        
+        // 4. RerollIndices가 있으면 해당 주사위 재굴림 처리
+        if (rollCtx.RerollIndices != null && rollCtx.RerollIndices.Count > 0)
+        {
+            anyChange = true;
+            foreach (int idx in rollCtx.RerollIndices)
+            {
+                if (idx >= 0 && idx < modifiedValues.Count)
+                {
+                    string diceType = GameManager.Instance.playerDiceDeck[idx];
+                    int newVal = RollSingleDice(diceType);
+                    DiceController.Instance.PlayRerollVisual(idx, newVal);
+                    modifiedValues[idx] = newVal;
+                }
+            }
+        }
 
-        // 4. 변화가 있었다면, 연출이 끝날 때까지 잠시 대기
+        // 5. 변화가 있었다면, 연출이 끝날 때까지 잠시 대기
         if (anyChange)
         {
             yield return new WaitForSeconds(0.6f);
         }
         //최종값으로 족보 계산
         CheckJokbo(modifiedValues);
+    }
+    
+    // 단일 주사위 굴림 헬퍼
+    private int RollSingleDice(string diceType)
+    {
+        return diceType switch
+        {
+            "D4" => Random.Range(1, 5),
+            "D8" => Random.Range(1, 9),
+            "D10" => Random.Range(1, 11),
+            "D12" => Random.Range(1, 13),
+            "D20" => Random.Range(1, 21),
+            _ => Random.Range(1, 7) // D6 기본
+        };
     }
 
     //족보 계산 및 UI 표시
@@ -131,6 +171,16 @@ public class StageManager : MonoBehaviour
 
         if (achievableJokbos.Count > 0)
         {
+            // 이벤트 시스템: 족보 완성 이벤트
+            JokboContext jokboCtx = new JokboContext
+            {
+                AchievedJokbos = achievableJokbos,
+                DiceValues = finalValues.ToArray(),
+                BonusDamage = 0,
+                BonusGold = 0
+            };
+            GameEvents.RaiseJokboComplete(jokboCtx);
+            
             diceController.SetRollButtonInteractable(false);
             isWaitingForAttackChoice = true;
             if (UIManager.Instance != null)
@@ -203,7 +253,8 @@ public class StageManager : MonoBehaviour
             enemy.TakeDamage(damageToTake, modifiedJokbo);
         }
 
-        GameManager.Instance.AddGold(eventFinalGold, chosenJokbo);
+        // 이벤트에서 이미 계산된 골드를 직접 추가 (중복 계산 방지)
+        GameManager.Instance.AddGoldDirect(eventFinalGold);
         
         // ★ 이벤트 시스템: 공격 후 이벤트 발생 (회복 등)
         GameEvents.RaiseAfterAttack(attackCtx);
@@ -214,6 +265,9 @@ public class StageManager : MonoBehaviour
 
     private void CheckWaveStatus()
     {
+        // ★ 이벤트 시스템: 턴 종료 이벤트
+        GameEvents.RaiseTurnEnd();
+        
         if (activeEnemies.All(e => e == null || e.isDead))
         {
             int rollsRemaining = diceController.maxRolls - diceController.currentRollCount;
@@ -358,26 +412,45 @@ public class StageManager : MonoBehaviour
 
     }
 
+    // 유물 효과가 적용된 최종 데미지/골드 미리보기 계산
     public (int finalDamage, int finalGold) GetPreviewValues(AttackJokbo jokbo)
     {
-        int baseDamage = jokbo.BaseDamage;
-        int baseGold = jokbo.BaseGold;
-
-        int bonusDamage = GameManager.Instance.GetAttackDamageModifiers(jokbo);
-        int bonusGold = GameManager.Instance.GetAttackGoldBonus(jokbo);
-
-        int finalBaseDamage = baseDamage + bonusDamage;
-        int finalBaseGold = baseGold + bonusGold;
-
-        var (rollDamageMult, rollGoldMult) = GameManager.Instance.GetRollCountBonuses(diceController.currentRollCount);
-
-        if (rollDamageMult > 1.0f || rollGoldMult > 1.0f)
+        // AttackContext를 통해 이벤트 시스템으로 계산
+        AttackContext ctx = new AttackContext
         {
-            finalBaseDamage = (int)(finalBaseDamage * rollDamageMult);
-            finalBaseGold = (int)(finalBaseGold * rollGoldMult);
+            Jokbo = jokbo,
+            BaseDamage = jokbo.BaseDamage,
+            BaseGold = jokbo.BaseGold,
+            FlatDamageBonus = 0,
+            FlatGoldBonus = 0,
+            DamageMultiplier = 1.0f,
+            GoldMultiplier = 1.0f,
+            IsFirstRoll = (diceController.currentRollCount == 1),
+            RemainingRolls = diceController.maxRolls - diceController.currentRollCount,
+            HealAfterAttack = 0
+        };
+        
+        // 메타 업그레이드 보너스 추가
+        if (GameManager.Instance != null)
+        {
+            ctx.FlatDamageBonus += (int)GameManager.Instance.GetTotalMetaBonus(MetaEffectType.BaseDamage);
+            ctx.FlatGoldBonus += (int)GameManager.Instance.GetTotalMetaBonus(MetaEffectType.GoldBonus);
+            
+            // 포션 버프
+            if (GameManager.Instance.buffDuration > 0)
+            {
+                ctx.FlatDamageBonus += GameManager.Instance.buffDamageValue;
+            }
+            if (GameManager.Instance.nextZoneBuffs.Contains("DamageBoost"))
+            {
+                ctx.FlatDamageBonus += 15;
+            }
         }
-
-        return (finalBaseDamage, finalBaseGold);
+        
+        // 이벤트 시스템으로 유물 효과 적용
+        GameEvents.RaiseBeforeAttack(ctx);
+        
+        return (ctx.CalculateFinalDamage(), ctx.CalculateFinalGold());
     }
 
     public void ShowAttackPreview(AttackJokbo jokbo)

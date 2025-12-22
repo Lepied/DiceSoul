@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4dae9fcb894d4d4fb4edab49beed9be, type: 3}
+  m_Name: RLC_GOLD_DICE
+  m_EditorClassIdentifier: Assembly-CSharp::RelicData
+  relicID: RLC_GOLD_DICE
+  relicName: "\uD669\uAE08 \uC8FC\uC0AC\uC704"
+  description: "\uACE8\uB4DC \uD68D\uB4DD 1.5\uBC30"
+  icon: {fileID: -1925569560094769158, guid: e45c9d1a1b9dd654ab2230b90c79b094, type: 3}
+  rarity: 2
+  dropPool: 1
+  category: 4
+  effectType: 5
+  triggerTiming: 0
+  intValue: 0
+  floatValue: 1.5
+  stringValue: 
+  maxCount: 1
+  isUnlockedByDefault: 1
+  unlockCondition: 
+  requiresManualActivation: 0
+  usesPerRun: 0

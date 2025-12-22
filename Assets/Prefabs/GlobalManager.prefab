@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2105373945904077867}
   - component: {fileID: 5349512535063796700}
-  - component: {fileID: 7367111959358860643}
   - component: {fileID: 157874441161164176}
+  - component: {fileID: 4536833845670370671}
   - component: {fileID: 1042415125299145984}
   - component: {fileID: 5059901778241216170}
   m_Layer: 0
@@ -48,18 +48,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca09728f44323c545929f9333aabfba6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AttackDB
---- !u!114 &7367111959358860643
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4121050168421655494}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04bb89b9dc5594b47aef1b0a86de6487, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RelicDB
 --- !u!114 &157874441161164176
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -74,6 +62,78 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MarketItemDB
   basicSupplies: []
   combatSupports: []
+--- !u!114 &4536833845670370671
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4121050168421655494}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5e6070626602d640965007dab14661b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RelicDB
+  relicDataAssets:
+  - {fileID: 11400000, guid: 8edad38df8a4eb7488e678afadf8c412, type: 2}
+  - {fileID: 11400000, guid: 49ce323c69feea940a352457a007b124, type: 2}
+  - {fileID: 11400000, guid: 28d6dc2963f184b49b137ccc1eda1427, type: 2}
+  - {fileID: 11400000, guid: 8209d5bfee5ed634090e4193624246e4, type: 2}
+  - {fileID: 11400000, guid: a8e7e17023bb488429aed6ffc2718884, type: 2}
+  - {fileID: 11400000, guid: 46cc048a60c2b3240bd4f92c760a4eda, type: 2}
+  - {fileID: 11400000, guid: fc60b1b7401bf9c44b579e8013b2de66, type: 2}
+  - {fileID: 11400000, guid: bfd438b0dcfd45340a120b2a0a9840cf, type: 2}
+  - {fileID: 11400000, guid: dff0a2dfc73507e428fb88d91e4fbb7a, type: 2}
+  - {fileID: 11400000, guid: b6cb2510a3cd3bc4db4b08a749fa9ddd, type: 2}
+  - {fileID: 11400000, guid: 93cf24fd40d89ec42856b24768a8254e, type: 2}
+  - {fileID: 11400000, guid: efa5c3d62b7380b428f9f37eb6954edb, type: 2}
+  - {fileID: 11400000, guid: 4408060e9e4bbdf4aab294a2f07b1824, type: 2}
+  - {fileID: 11400000, guid: 4b9575c8fa67f81479df5e27187cd514, type: 2}
+  - {fileID: 11400000, guid: 26915c615d2cf1f4bab960aabf1ed379, type: 2}
+  - {fileID: 11400000, guid: 3c305df9ff38acf469dbe46d233933a8, type: 2}
+  - {fileID: 11400000, guid: 32b22e939f7031e41a06e754ece3fede, type: 2}
+  - {fileID: 11400000, guid: e02b9a46628c5f949a3bd5de66e25566, type: 2}
+  - {fileID: 11400000, guid: d233c043482612e4fa5013cee996a7bf, type: 2}
+  - {fileID: 11400000, guid: 21dea4c12f2e8954db570628bb8b4535, type: 2}
+  - {fileID: 11400000, guid: 6960945bd43b42047aa865f78379e2c7, type: 2}
+  - {fileID: 11400000, guid: 5c27103eb972a9b43b41991c7aaca543, type: 2}
+  - {fileID: 11400000, guid: 9a0817d2e7a78284aa2b2c9365f793cc, type: 2}
+  - {fileID: 11400000, guid: 32c085b488aec774f81312db818fda20, type: 2}
+  - {fileID: 11400000, guid: 7296edcce047c7f42a3e37263252e872, type: 2}
+  - {fileID: 11400000, guid: bf5b4268fe665cd40ac52814e9b480be, type: 2}
+  - {fileID: 11400000, guid: 90421ea4d70f2f542bf8ae3e94007b35, type: 2}
+  - {fileID: 11400000, guid: bda88826d7d4b9a4ab7666c19778f997, type: 2}
+  - {fileID: 11400000, guid: facff3ad85d117c4699762fd4acc76ff, type: 2}
+  - {fileID: 11400000, guid: 884069eb9d0e19b43840f62d24c9be28, type: 2}
+  - {fileID: 11400000, guid: b5a3a4deb79864443aaa467ec08c96fa, type: 2}
+  - {fileID: 11400000, guid: 9053efa4b2f95bc4d891116eb73840b2, type: 2}
+  - {fileID: 11400000, guid: dec24ed1cddca1049968a5dc04e30802, type: 2}
+  - {fileID: 11400000, guid: 7e68b462cd2a4e84481b7bae72364bad, type: 2}
+  - {fileID: 11400000, guid: e80af94d531da0d4398e6559bdcfb255, type: 2}
+  - {fileID: 11400000, guid: a8e636b3a34b6784daba697625bfa6ae, type: 2}
+  - {fileID: 11400000, guid: 63a8419e632fd78418b347eeea9b8788, type: 2}
+  - {fileID: 11400000, guid: ed800a3755e956d43a85da255492daad, type: 2}
+  - {fileID: 11400000, guid: 32cd4abfa02afa045882e5000e0ae144, type: 2}
+  - {fileID: 11400000, guid: 1c484f88b702c514cbd8a266c9f4d3cf, type: 2}
+  - {fileID: 11400000, guid: b9ae9503cdd58ad4db9b093a25de11e2, type: 2}
+  - {fileID: 11400000, guid: 2f771881231ccf3419647425639be6b7, type: 2}
+  - {fileID: 11400000, guid: e4267ad655bc5df4c888fa17b0fd6ba6, type: 2}
+  - {fileID: 11400000, guid: 816abe5f10916ff4087b551a78eee35b, type: 2}
+  - {fileID: 11400000, guid: ea74150242bcb3442812b3fa16b41ef2, type: 2}
+  - {fileID: 11400000, guid: 5e8f71f3bcd33ee489bc26a47b810451, type: 2}
+  - {fileID: 11400000, guid: cb8c8be81345d904f90d2a8ac91513aa, type: 2}
+  - {fileID: 11400000, guid: 40cebecc1afe62a4bb9f01fd9ddd0647, type: 2}
+  - {fileID: 11400000, guid: 4ae50b3b3965e9d4596eddfa1790acc1, type: 2}
+  - {fileID: 11400000, guid: 52404a7ec3ffd5244a7f857e1d38945e, type: 2}
+  - {fileID: 11400000, guid: d3fbe79c06d9159479c13745138560c4, type: 2}
+  - {fileID: 11400000, guid: 9defc985f7d73104ebd15b0a63666e0f, type: 2}
+  - {fileID: 11400000, guid: eb006790ecf69464294939625ed0fa6a, type: 2}
+  - {fileID: 11400000, guid: 7778b3278f4930d49bb5f2a0d1222056, type: 2}
+  - {fileID: 11400000, guid: 742272a57142c73428cd3f8d4787bb62, type: 2}
+  - {fileID: 11400000, guid: e679267f123dc4b469fdf2fe2e65ddba, type: 2}
+  - {fileID: 11400000, guid: 23100cd9d9be09d47bf27dcfa4be7008, type: 2}
+  autoLoadFromResources: 1
+  resourcesPath: Relics
 --- !u!114 &1042415125299145984
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -98,5 +158,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b55478df37ae224793c425a89ecfc62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RelicDebugController
-  consoleToggleKey: 96
   enableInBuild: 0

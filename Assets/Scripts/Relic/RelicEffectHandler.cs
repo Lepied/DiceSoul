@@ -11,7 +11,6 @@ public class RelicEffectHandler : MonoBehaviour
     // 상태 추적 (1회성 효과용)
     private bool phoenixFeatherUsed = false;
     private bool smallShieldUsedThisZone = false;
-    private int freeRollsGivenThisTurn = 0;
     
     // 학자의 서적: 영구 데미지 성장 (미사용 족보당 +1)
     private int scholarsTomeBonusDamage = 0;
@@ -507,7 +506,6 @@ public class RelicEffectHandler : MonoBehaviour
     private void HandleWaveStart(WaveContext ctx)
     {
         // 웨이브 관련 상태 초기화
-        freeRollsGivenThisTurn = 0;
         diceCupUsedThisWave = false;
         doubleDiceUsedThisWave = false;
         swiftHandsUsedThisWave.Clear();
@@ -547,7 +545,7 @@ public class RelicEffectHandler : MonoBehaviour
     // 턴 시작 시
     private void HandleTurnStart()
     {
-        freeRollsGivenThisTurn = 0;
+        // 턴 관련 상태 초기화 (필요시 추가)
     }
 
     // 굴림 횟수가 0이 됐을 때 호출 - 날쌘 손놀림 효과
@@ -826,7 +824,6 @@ public class RelicEffectHandler : MonoBehaviour
     {
         phoenixFeatherUsed = false;
         smallShieldUsedThisZone = false;
-        freeRollsGivenThisTurn = 0;
         scholarsTomeBonusDamage = 0;
         diceCupUsedThisWave = false;
         doubleDiceUsedThisWave = false;

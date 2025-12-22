@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4dae9fcb894d4d4fb4edab49beed9be, type: 3}
+  m_Name: RLC_TIME_RIFT
+  m_EditorClassIdentifier: Assembly-CSharp::RelicData
+  relicID: RLC_TIME_RIFT
+  relicName: "\uC2DC\uACF5\uC758 \uD2C8"
+  description: "\uC871\uBCF4 \uC644\uC131 \uC2DC 20% \uD655\uB960\uB85C \uD604\uC7AC
+    \uAD74\uB9BC \uD69F\uC218\uB97C \uC18C\uBAA8\uD558\uC9C0 \uC54A\uC74C"
+  icon: {fileID: 8951280009472134653, guid: c50f2d5f9fb6a93449dc043eea98eca7, type: 3}
+  rarity: 3
+  dropPool: 2
+  category: 0
+  effectType: 0
+  triggerTiming: 0
+  intValue: 0
+  floatValue: 0.2
+  stringValue: 
+  maxCount: 1
+  isUnlockedByDefault: 1
+  unlockCondition: 
+  requiresManualActivation: 0
+  usesPerRun: 0

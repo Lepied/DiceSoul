@@ -12094,6 +12094,11 @@ MonoBehaviour:
   minDiceCount: 3
   CurrentZone: 1
   CurrentWave: 1
+  buffDuration: 0
+  buffDamageValue: 0
+  buffShieldValue: 0
+  buffRerollValue: 0
+  hasInsurance: 0
   metaCurrencySaveKey: MetaCurrency
   allMetaUpgrades:
   - {fileID: 11400000, guid: 1e49253f097f4454a8403a4996d62dd4, type: 2}
@@ -12292,7 +12297,9 @@ PrefabInstance:
       propertyPath: m_Name
       value: GlobalManager
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 7367111959358860643, guid: 003759068e3ec844ba45de59539f2a91, type: 3}
+    - {fileID: 2519312411584371317, guid: 003759068e3ec844ba45de59539f2a91, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

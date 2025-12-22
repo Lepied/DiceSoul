@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4dae9fcb894d4d4fb4edab49beed9be, type: 3}
+  m_Name: RLC_FATE_DICE
+  m_EditorClassIdentifier: Assembly-CSharp::RelicData
+  relicID: RLC_FATE_DICE
+  relicName: "\uC6B4\uBA85\uC758 \uC8FC\uC0AC\uC704"
+  description: "\uBAA8\uB4E0 \uC8FC\uC0AC\uC704\uB97C \uAC00\uC7A5 \uB192\uC740 \uB208\uC73C\uB85C
+    \uBCC0\uACBD (1\uD68C)"
+  icon: {fileID: 0}
+  rarity: 3
+  dropPool: 2
+  category: 3
+  effectType: 0
+  triggerTiming: 0
+  intValue: 0
+  floatValue: 0
+  stringValue: 
+  maxCount: 1
+  isUnlockedByDefault: 1
+  unlockCondition: 
+  requiresManualActivation: 0
+  usesPerRun: 0

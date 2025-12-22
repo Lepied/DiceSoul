@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4dae9fcb894d4d4fb4edab49beed9be, type: 3}
+  m_Name: RLC_RUSTY_GEAR
+  m_EditorClassIdentifier: Assembly-CSharp::RelicData
+  relicID: RLC_RUSTY_GEAR
+  relicName: "\uB179\uC2A8 \uD1B1\uB2C8"
+  description: "\uBAA8\uB4E0 \uC871\uBCF4 \uACE8\uB4DC +3"
+  icon: {fileID: -9211590566394757868, guid: e08392bb07f771b4eb5db573770c7180, type: 3}
+  rarity: 0
+  dropPool: 0
+  category: 1
+  effectType: 19
+  triggerTiming: 0
+  intValue: 3
+  floatValue: 0
+  stringValue: ALL
+  maxCount: 0
+  isUnlockedByDefault: 1
+  unlockCondition: 
+  requiresManualActivation: 0
+  usesPerRun: 0

@@ -231,7 +231,7 @@ public class GameManager : MonoBehaviour
         ZoneData startingZone = WaveGenerator.Instance.GetCurrentZoneData(1);
         string zoneName = startingZone != null ? startingZone.zoneName : "평원";
 
-        // ★ 이벤트 시스템: 새 런 시작 시 존 이벤트 + 핸들러 초기화
+        //이벤트 시스템: 새 런 시작 시 존 이벤트 + 핸들러 초기화
         ZoneContext zoneCtx = new ZoneContext
         {
             ZoneNumber = CurrentZone,
@@ -324,7 +324,7 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log($"[Zone {CurrentZone} - Wave {CurrentWave}] 웨이브 시작.");
         
-        // ★ 이벤트 시스템: 웨이브 시작 이벤트
+        //이벤트 시스템: 웨이브 시작 이벤트
         WaveContext waveCtx = new WaveContext
         {
             ZoneNumber = CurrentZone,
@@ -340,27 +340,65 @@ public class GameManager : MonoBehaviour
 
     public void AddGold(int goldToAdd, AttackJokbo jokbo)
     {
+        // 이벤트 시스템으로 골드 계산
         float globalMultiplier = 1.0f;
-        //포션으로 인한 버프 먼저(합연산)
         if (nextZoneBuffs.Contains("GoldBoost"))
         {
             globalMultiplier += 0.5f;
         }
-        //유물 버프 (곱연산)
         foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.AddGoldMultiplier))
         {
             globalMultiplier *= relic.FloatValue;
         }
-
-        float jokboMultiplier = GetJokboGoldMultiplier(jokbo);
-        // 족보별 '보너스 금화' 추가 (예: 녹슨 톱니)
-        int bonusGold = GetAttackGoldBonus(jokbo);
+        
+        // 족보별 골드 배율 계산 (RelicEffectHandler에서도 처리하지만 fallback용)
+        float jokboMultiplier = 1.0f;
+        foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.JokboGoldMultiplier))
+        {
+            if (jokbo != null && jokbo.Description.Contains(relic.StringValue))
+            {
+                jokboMultiplier *= relic.FloatValue;
+            }
+        }
+        
+        // 족보별 골드 보너스
+        int bonusGold = (int)GetTotalMetaBonus(MetaEffectType.GoldBonus);
+        foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.JokboGoldAdd))
+        {
+            if (relic.StringValue == "ALL" || (jokbo != null && jokbo.Description.Contains(relic.StringValue)))
+            {
+                bonusGold += relic.IntValue;
+            }
+        }
 
         int finalGold = (int)((goldToAdd + bonusGold) * globalMultiplier * jokboMultiplier);
+        
+        // 이벤트 시스템: 골드 획득 이벤트
+        GoldContext goldCtx = new GoldContext
+        {
+            OriginalAmount = goldToAdd,
+            FinalAmount = finalGold,
+            Source = "Jokbo"
+        };
+        GameEvents.RaiseGoldGain(goldCtx);
+        finalGold = goldCtx.FinalAmount;
+        
         CurrentGold += finalGold;
 
         Debug.Log($"금화 획득(족보): +{finalGold} (기본: {goldToAdd}, 보너스: {bonusGold}, 전역배율: {globalMultiplier}x, 족보배율: {jokboMultiplier}x) (총: {CurrentGold})");
 
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdateGold(CurrentGold);
+        }
+    }
+    
+    // 이벤트 시스템에서 이미 계산된 골드를 직접 추가 (중복 계산 방지)
+    public void AddGoldDirect(int finalGold)
+    {
+        CurrentGold += finalGold;
+        Debug.Log($"금화 획득(직접): +{finalGold} (총: {CurrentGold})");
+        
         if (UIManager.Instance != null)
         {
             UIManager.Instance.UpdateGold(CurrentGold);
@@ -376,6 +414,17 @@ public class GameManager : MonoBehaviour
         }
 
         int finalGold = (int)(goldToAdd * globalMultiplier);
+        
+        //이벤트 시스템: 골드 획득 이벤트
+        GoldContext goldCtx = new GoldContext
+        {
+            OriginalAmount = goldToAdd,
+            FinalAmount = finalGold,
+            Source = "Bonus"
+        };
+        GameEvents.RaiseGoldGain(goldCtx);
+        finalGold = goldCtx.FinalAmount;
+        
         CurrentGold += finalGold;
 
         Debug.Log($"금화 획득(보너스): +{finalGold} (기본: {goldToAdd}, 전역배율: {globalMultiplier}x) (총: {CurrentGold})");
@@ -421,6 +470,14 @@ public class GameManager : MonoBehaviour
     {
         if (isSuccess)
         {
+            //이벤트 시스템: 웨이브 종료 이벤트
+            WaveContext waveEndCtx = new WaveContext
+            {
+                ZoneNumber = CurrentZone,
+                WaveNumber = CurrentWave
+            };
+            GameEvents.RaiseWaveEnd(waveEndCtx);
+            
             CurrentWave++;
 
             if (rollsRemaining > 0)
@@ -445,12 +502,20 @@ public class GameManager : MonoBehaviour
 
             if (CurrentWave > wavesPerZone)
             {
+                //이벤트 시스템: 존 종료 이벤트
+                ZoneContext zoneEndCtx = new ZoneContext
+                {
+                    ZoneNumber = CurrentZone,
+                    ZoneName = WaveGenerator.Instance?.GetCurrentZoneData(CurrentZone)?.zoneName ?? "Unknown"
+                };
+                GameEvents.RaiseZoneEnd(zoneEndCtx);
+                
                 UIManager.Instance.FadeOut(1.0f, () =>
                 {
                     CurrentZone++;
                     CurrentWave = 1;
                     
-                    // ★ 이벤트 시스템: 존 시작 이벤트 (작은 방패 등 초기화)
+                    //이벤트 시스템: 존 시작 이벤트 (작은 방패 등 초기화)
                     ZoneContext zoneCtx = new ZoneContext
                     {
                         ZoneNumber = CurrentZone,
@@ -475,7 +540,7 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("웨이브 실패. 체력이 1 감소합니다.");
             
-            // ★ 이벤트 시스템: 피해 전 이벤트 발생 (유물이 피해 무효화/감소 가능)
+            //이벤트 시스템: 피해 전 이벤트 발생 (유물이 피해 무효화/감소 가능)
             DamageContext damageCtx = new DamageContext
             {
                 OriginalDamage = 1,
@@ -498,6 +563,8 @@ public class GameManager : MonoBehaviour
             else
             {
                 PlayerHealth -= damageCtx.FinalDamage;
+                //이벤트 시스템: 피격 후 이벤트
+                GameEvents.RaiseAfterPlayerDamaged(damageCtx);
             }
 
             if (UIManager.Instance != null)
@@ -507,7 +574,7 @@ public class GameManager : MonoBehaviour
 
             if (PlayerHealth <= 0)
             {
-                // ★ 이벤트 시스템: 사망 이벤트 발생 (유물이 부활 가능)
+                //이벤트 시스템: 사망 이벤트 발생 (유물이 부활 가능)
                 DeathContext deathCtx = new DeathContext
                 {
                     Revived = false,
@@ -590,7 +657,7 @@ public class GameManager : MonoBehaviour
             UIManager.Instance.UpdateRelicPanel(activeRelics);
         }
 
-        // ★ 이벤트 시스템: 유물 획득 이벤트 발생
+        //이벤트 시스템: 유물 획득 이벤트 발생
         // 모든 '획득 즉시' 효과는 RelicEffectHandler.HandleRelicAcquire()에서 처리
         RelicContext relicCtx = new RelicContext
         {
@@ -671,7 +738,22 @@ public class GameManager : MonoBehaviour
 
     public void HealPlayer(int amount)
     {
-        PlayerHealth = Mathf.Min(PlayerHealth + amount, MaxPlayerHealth);
+        //이벤트 시스템: 회복 이벤트
+        HealContext healCtx = new HealContext
+        {
+            OriginalAmount = amount,
+            FinalAmount = amount,
+            Cancelled = false
+        };
+        GameEvents.RaisePlayerHeal(healCtx);
+        
+        if (healCtx.Cancelled)
+        {
+            Debug.Log("[이벤트] 회복이 차단되었습니다!");
+            return;
+        }
+        
+        PlayerHealth = Mathf.Min(PlayerHealth + healCtx.FinalAmount, MaxPlayerHealth);
         UIManager.Instance.UpdateHealth(PlayerHealth, MaxPlayerHealth);
     }
 
@@ -726,202 +808,6 @@ public class GameManager : MonoBehaviour
         {
             playerDiceDeck[diceIndex] = newDiceType;
             Debug.Log($"덱 업그레이드: {diceIndex}번 주사위가 {newDiceType}이 되었습니다.");
-        }
-    }
-
-    // 데미지 계산식 / 유물 효과 계산 
-    public int GetAttackDamageModifiers(AttackJokbo jokbo)
-    {
-        int bonusDamage = 0;
-
-        //영구강화로 얻은 데미지 보너스부터 계산
-        bonusDamage += (int)GetTotalMetaBonus(MetaEffectType.BaseDamage);
-
-        //그 다음 포션버프
-        if (buffDuration > 0)
-        {
-            bonusDamage += buffDamageValue;
-        }
-
-        // 1. '모든' 족보 데미지 증가 (예: 숫돌, 유리 대포, 집중)
-        foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.AddBaseDamage))
-        {
-            bonusDamage += relic.IntValue;
-        }
-
-        // 2. '특정' 족보 데미지 증가 (예: 검술 교본, 무거운 주사위)
-        foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.JokboDamageAdd))
-        {
-            if (jokbo.Description.Contains(relic.StringValue))
-            {
-                bonusDamage += relic.IntValue;
-            }
-        }
-
-        // 3. '금권 정치' (금화 비례)
-        foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.DynamicDamage_Gold))
-        {
-            // (CurrentGold 100점당 +1, 최대 +50)
-            int dynamicBonus = Mathf.Min(50, CurrentGold / 100);
-            bonusDamage += dynamicBonus;
-        }
-
-        // 4.  '피의 갈증' (잃은 체력 비례)
-        foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.DynamicDamage_LostHealth))
-        {
-            int lostHealth = MaxPlayerHealth - PlayerHealth;
-            bonusDamage += lostHealth;
-        }
-
-        //ex . 포션 버프 
-        if (nextZoneBuffs.Contains("DamageBoost"))
-        {
-            bonusDamage += 15; // 존 내내 데미지 +10
-        }
-
-        return bonusDamage;
-    }
-    public float GetJokboGoldMultiplier(AttackJokbo jokbo)
-    {
-        float multiplier = 1.0f;
-
-        foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.JokboGoldMultiplier))
-        {
-            if (jokbo.Description.Contains(relic.StringValue))
-            {
-                multiplier *= relic.FloatValue;
-            }
-        }
-        return multiplier;
-    }
-
-    public int GetAttackGoldBonus(AttackJokbo jokbo)
-    {
-        int bonusGold = 0;
-        //영구강화로 금화 보너스 계산
-        bonusGold += (int)GetTotalMetaBonus(MetaEffectType.GoldBonus);
-        foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.JokboGoldAdd))
-        {
-            // "All"이거나, 족보 설명에 포함되면
-            if (relic.StringValue == "All" || jokbo.Description.Contains(relic.StringValue))
-            {
-                bonusGold += relic.IntValue;
-            }
-        }
-
-        return bonusGold;
-    }
-    public (float damageMultiplier, float goldMultiplier) GetRollCountBonuses(int currentRoll)
-    {
-        float damageMult = 1.0f;
-        float goldMult = 1.0f;
-
-        // 굴림 횟수 기반 보너스 유물을 모두 확인
-        foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.RollCountBonus))
-        {
-            // ["명함" 유물 효과 ]
-            if (relic.RelicID == "RLC_BUSINESS_CARD" && currentRoll == 1)
-            {
-                damageMult *= relic.FloatValue;
-                goldMult *= relic.FloatValue;
-            }
-
-            // 나중에 이렇게 확장
-            // if (relic.RelicID == "RLC_NTH_ROLL" && currentRoll == relic.IntValue)
-            // {
-            //     damageMult *= relic.FloatValue;
-            // }
-        }
-
-        return (damageMult, goldMult);
-    }
-
-    public List<int> ApplyDiceModificationRelics(List<int> originalValues)
-    {
-        List<int> modifiedValues = new List<int>(originalValues);
-        bool wasModified = false;
-
-        foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.ModifyDiceValue))
-        {
-            wasModified = true;
-
-            if (relic.RelicID == "RLC_ALCHEMY")
-            {
-                for (int i = 0; i < modifiedValues.Count; i++)
-                {
-                    if (modifiedValues[i] == 1)
-                    {
-                        modifiedValues[i] = 7;
-                    }
-                }
-            }
-
-            if (relic.RelicID == "RLC_LODESTONE")
-            {
-                for (int i = 0; i < modifiedValues.Count; i++)
-                {
-                    if (modifiedValues[i] % 2 != 0 && i < playerDiceDeck.Count)
-                    {
-                        modifiedValues[i] = RerollDice(playerDiceDeck[i]);
-                    }
-                }
-            }
-
-            if (relic.RelicID == "RLC_TANZANITE")
-            {
-                for (int i = 0; i < modifiedValues.Count; i++)
-                {
-                    if (modifiedValues[i] % 2 == 0 && i < playerDiceDeck.Count)
-                    {
-                        modifiedValues[i] = RerollDice(playerDiceDeck[i]);
-                    }
-                }
-            }
-
-            if (relic.RelicID == "RLC_FEATHER")
-            {
-                for (int i = 0; i < modifiedValues.Count; i++)
-                {
-                    if (modifiedValues[i] == 6 && i < playerDiceDeck.Count)
-                    {
-                        modifiedValues[i] = RerollDice(playerDiceDeck[i]);
-                    }
-                }
-            }
-
-            if (relic.RelicID == "RLC_COUNTERWEIGHT")
-            {
-                for (int i = 0; i < modifiedValues.Count; i++)
-                {
-                    if (playerDiceDeck[i] == "D20" && modifiedValues[i] <= 10)
-                    {
-                        modifiedValues[i] += 10;
-                    }
-                }
-            }
-        }
-
-        if (wasModified)
-        {
-            Debug.Log($"유물 효과 적용! 굴림 값 변경: {string.Join(",", originalValues)} -> {string.Join(",", modifiedValues)}");
-        }
-
-        return modifiedValues;
-    }
-
-    private int RerollDice(string diceType)
-    {
-        switch (diceType)
-        {
-            case "D4":
-                return Random.Range(1, 5); // 1~4
-            case "D8":
-                return Random.Range(1, 9); // 1~8
-            case "D20":
-                return Random.Range(1, 21); // 1~20
-            case "D6":
-            default:
-                return Random.Range(1, 7); // 1~6
         }
     }
 

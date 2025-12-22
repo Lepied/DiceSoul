@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4dae9fcb894d4d4fb4edab49beed9be, type: 3}
+  m_Name: RLC_MERCHANT_CARD
+  m_EditorClassIdentifier: Assembly-CSharp::RelicData
+  relicID: RLC_MERCHANT_CARD
+  relicName: "\uC0C1\uC778\uC758 \uC778\uC7A5"
+  description: "\uC0C1\uC810 \uC0C8\uB85C\uACE0\uCE68 \uBE44\uC6A9 \uB3D9\uACB0"
+  icon: {fileID: 335830011726443724, guid: 798bab4151b85ea4087d6e56a8107e8f, type: 3}
+  rarity: 1
+  dropPool: 1
+  category: 4
+  effectType: 0
+  triggerTiming: 0
+  intValue: 0
+  floatValue: 0
+  stringValue: 
+  maxCount: 3
+  isUnlockedByDefault: 1
+  unlockCondition: 
+  requiresManualActivation: 0
+  usesPerRun: 0

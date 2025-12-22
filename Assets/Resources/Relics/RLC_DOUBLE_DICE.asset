@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4dae9fcb894d4d4fb4edab49beed9be, type: 3}
+  m_Name: RLC_DOUBLE_DICE
+  m_EditorClassIdentifier: Assembly-CSharp::RelicData
+  relicID: RLC_DOUBLE_DICE
+  relicName: "\uC774\uC911 \uC8FC\uC0AC\uC704"
+  description: "\uC120\uD0DD\uD55C \uC8FC\uC0AC\uC704\uC758 \uB208\uC744 2\uBC30\uB85C
+    \uACC4\uC0B0 (1\uD68C)"
+  icon: {fileID: 6383197955152740006, guid: d466f1a501cba3e40ab6f801bbea35d0, type: 3}
+  rarity: 1
+  dropPool: 2
+  category: 3
+  effectType: 39
+  triggerTiming: 12
+  intValue: 0
+  floatValue: 0
+  stringValue: 
+  maxCount: 1
+  isUnlockedByDefault: 1
+  unlockCondition: 
+  requiresManualActivation: 0
+  usesPerRun: 0

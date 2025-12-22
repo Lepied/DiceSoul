@@ -87,6 +87,14 @@ public class ShopManager : MonoBehaviour
         {
             AddRandomPotion();
         }
+        
+        // ★ 이벤트 시스템: 상점 새로고침 이벤트
+        ShopContext shopCtx = new ShopContext
+        {
+            Items = currentShopItems,
+            RerollCost = currentRerollCost
+        };
+        GameEvents.RaiseShopRefresh(shopCtx);
     }
     private void AddRandomDice()
     {
@@ -189,6 +197,16 @@ public class ShopManager : MonoBehaviour
         {
             item.ExecuteEffect();
             currentShopItems.Remove(item);
+            
+            // ★ 이벤트 시스템: 상점 구매 이벤트
+            ShopContext shopCtx = new ShopContext
+            {
+                Items = currentShopItems,
+                PurchasedItemName = item.Name,
+                PurchasedItemPrice = item.Price
+            };
+            GameEvents.RaiseShopPurchase(shopCtx);
+            
             UIManager.Instance.UpdateShopUI(currentShopItems, currentRerollCost);
         }
     }

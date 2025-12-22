@@ -278,6 +278,10 @@ public class DiceController : MonoBehaviour
         maxRolls = baseMaxRolls;
         isRolling = false;
         SetRollButtonInteractable(true);
+        
+        // ★ 이벤트 시스템: 턴 시작 이벤트
+        GameEvents.RaiseTurnStart();
+        
         // 주사위들은 다음 SetDiceDeck때 파괴되고 재생성됨
     }
 

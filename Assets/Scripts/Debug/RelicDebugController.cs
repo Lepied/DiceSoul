@@ -5,22 +5,20 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.InputSystem;
 
-/// <summary>
-/// 유물 디버그 컨트롤러
-/// - 키보드 단축키로 빠른 테스트
-/// - ~ 키로 콘솔창 열어서 명령어 입력
-/// 
-/// [사용법]
-/// 1. 빈 GameObject에 이 스크립트 연결
-/// 2. 게임 실행
-/// 3. 단축키 또는 ~ 키로 콘솔 사용
-/// </summary>
+// 유물 디버그 컨트롤러
+// - 키보드 단축키로 빠른 테스트
+// - ~ 키로 콘솔창 열어서 명령어 입력
+// 
+// [사용법]
+// 1. 빈 GameObject에 이 스크립트 연결
+// 2. 게임 실행
+// 3. ~ 키로 콘솔 사용
+
 public class RelicDebugController : MonoBehaviour
 {
     public static RelicDebugController Instance { get; private set; }
 
     [Header("설정")]
-    [SerializeField] private KeyCode consoleToggleKey = KeyCode.BackQuote; // ~ 키
     [SerializeField] private bool enableInBuild = false; // 빌드에서도 활성화?
 
     // 콘솔 UI (자동 생성)

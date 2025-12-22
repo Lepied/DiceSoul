@@ -86,12 +86,6 @@ public static class RelicDebugCommands
         Debug.Log($"===== 총 {GameManager.Instance.activeRelics.Count}개 =====");
     }
 
-    // 모든 유물 ID 목록
-    public static void ListAll()
-    {
-        RelicTestPanel.ListAllRelics();
-    }
-
     // 비슷한 유물 ID 찾기
     public static void ListSimilar(string partialID)
     {

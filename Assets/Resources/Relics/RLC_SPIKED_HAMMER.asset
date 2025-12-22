@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4dae9fcb894d4d4fb4edab49beed9be, type: 3}
+  m_Name: RLC_SPIKED_HAMMER
+  m_EditorClassIdentifier: Assembly-CSharp::RelicData
+  relicID: RLC_SPIKED_HAMMER
+  relicName: "\uAC00\uC2DC \uB9DD\uCE58"
+  description: "\uD3EC\uCE74\uB4DC \uC871\uBCF4 \uB370\uBBF8\uC9C0 +20"
+  icon: {fileID: -6348346821000238839, guid: 7867852f4bdebd44fa0eeff2a88bd7ff, type: 3}
+  rarity: 1
+  dropPool: 0
+  category: 2
+  effectType: 18
+  triggerTiming: 5
+  intValue: 20
+  floatValue: 0
+  stringValue: "\uD3EC\uCE74\uB4DC"
+  maxCount: 0
+  isUnlockedByDefault: 1
+  unlockCondition: 
+  requiresManualActivation: 0
+  usesPerRun: 0

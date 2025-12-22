@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4dae9fcb894d4d4fb4edab49beed9be, type: 3}
+  m_Name: RLC_SMALL_SHIELD
+  m_EditorClassIdentifier: Assembly-CSharp::RelicData
+  relicID: RLC_SMALL_SHIELD
+  relicName: "\uC791\uC740 \uBC29\uD328"
+  description: "\uCD5C\uB300 \uCCB4\uB825 20% \uC774\uD558\uC77C \uB54C \uD53C\uD574
+    \uBB34\uD6A8\uD654 (\uC874 \uB2F9 1\uD68C)"
+  icon: {fileID: 3746283930295397310, guid: 2616b00838eb72f4792a794ed98dd28c, type: 3}
+  rarity: 1
+  dropPool: 0
+  category: 5
+  effectType: 31
+  triggerTiming: 8
+  intValue: 0
+  floatValue: 0.2
+  stringValue: 
+  maxCount: 3
+  isUnlockedByDefault: 1
+  unlockCondition: 
+  requiresManualActivation: 0
+  usesPerRun: 0

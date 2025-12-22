@@ -5,13 +5,11 @@ using System.IO;
 using System.Collections.Generic;
 using System;
 
-/// <summary>
-/// CSV 파일에서 RelicData ScriptableObject를 자동 생성하는 에디터 스크립트
-/// </summary>
+// CSV 파일에서 RelicData ScriptableObject를 자동 생성하는 에디터 스크립트
 public class RelicCSVImporter : EditorWindow
 {
     private string csvPath = "Assets/Data/Relic_Plan.csv";
-    private string outputFolder = "Assets/ScriptableObjects/Relics";
+    private string outputFolder = "Assets/Resources/Relics";
     private string iconFolder = "Assets/Resources/RelicIcons";
     
     [MenuItem("Tools/DiceSoul/CSV에서 유물 생성")]
@@ -84,7 +82,7 @@ public class RelicCSVImporter : EditorWindow
             try
             {
                 string[] values = ParseCSVLine(line);
-                if (values.Length < 7)
+                if (values.Length < 8)
                 {
                     Debug.LogWarning($"라인 {i + 1}: 컬럼 부족 - {line}");
                     failed++;
@@ -98,6 +96,13 @@ public class RelicCSVImporter : EditorWindow
                 string description = values[4].Trim();
                 string maxCountStr = values[5].Trim();
                 string categoryStr = values[6].Trim();
+                // values[7] = 구현여부 (스킵)
+                
+                // 새 컬럼들 (선택적)
+                string effectTypeStr = values.Length > 8 ? values[8].Trim() : "";
+                string intValueStr = values.Length > 9 ? values[9].Trim() : "0";
+                string floatValueStr = values.Length > 10 ? values[10].Trim() : "0";
+                string stringValue = values.Length > 11 ? values[11].Trim() : "";
                 
                 // 기존 에셋 찾기 또는 새로 생성
                 string assetPath = $"{outputFolder}/{relicID}.asset";
@@ -118,6 +123,27 @@ public class RelicCSVImporter : EditorWindow
                 relicData.category = ParseCategory(categoryStr);
                 relicData.maxCount = ParseMaxCount(maxCountStr);
                 
+                // 효과 값 설정 (CSV에서 직접 파싱)
+                if (!string.IsNullOrEmpty(effectTypeStr))
+                {
+                    relicData.effectType = ParseEffectType(effectTypeStr);
+                }
+                else
+                {
+                    // fallback: 기존 추론 방식
+                    relicData.effectType = InferEffectType(relicID, description);
+                }
+                
+                // IntValue, FloatValue, StringValue 파싱
+                if (int.TryParse(intValueStr, out int intVal))
+                    relicData.intValue = intVal;
+                if (float.TryParse(floatValueStr, System.Globalization.NumberStyles.Float, 
+                    System.Globalization.CultureInfo.InvariantCulture, out float floatVal))
+                    relicData.floatValue = floatVal;
+                relicData.stringValue = stringValue;
+                
+                relicData.triggerTiming = InferTriggerTiming(relicData.effectType);
+                
                 // 아이콘 로드 시도
                 string iconPath = $"{iconFolder}/{relicID}.png";
                 Sprite icon = AssetDatabase.LoadAssetAtPath<Sprite>(iconPath);
@@ -125,10 +151,6 @@ public class RelicCSVImporter : EditorWindow
                 {
                     relicData.icon = icon;
                 }
-                
-                // 효과 타입 파싱 (description에서 추론하거나 별도 매핑 필요)
-                relicData.effectType = InferEffectType(relicID, description);
-                relicData.triggerTiming = InferTriggerTiming(relicData.effectType);
                 
                 // 저장
                 if (isNew)
@@ -230,10 +252,19 @@ public class RelicCSVImporter : EditorWindow
         return 1;
     }
     
-    /// <summary>
-    /// RelicID를 기반으로 EffectType 추론
-    /// TODO: CSV에 EffectType 컬럼 추가하거나 별도 매핑 테이블 사용
-    /// </summary>
+    // CSV의 EffectType 문자열을 enum으로 변환
+    private RelicEffectType ParseEffectType(string str)
+    {
+        if (System.Enum.TryParse<RelicEffectType>(str, true, out var result))
+        {
+            return result;
+        }
+        Debug.LogWarning($"알 수 없는 EffectType: {str}");
+        return RelicEffectType.None;
+    }
+
+    // RelicID를 기반으로 EffectType 추론 (fallback용)
+
     private RelicEffectType InferEffectType(string relicID, string description)
     {
         // 기존 구현된 유물들 매핑
