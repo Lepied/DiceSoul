@@ -88,7 +88,7 @@ public class ShopManager : MonoBehaviour
             AddRandomPotion();
         }
         
-        // ★ 이벤트 시스템: 상점 새로고침 이벤트
+        //이벤트 시스템: 상점 새로고침 이벤트
         ShopContext shopCtx = new ShopContext
         {
             Items = currentShopItems,
@@ -198,7 +198,7 @@ public class ShopManager : MonoBehaviour
             item.ExecuteEffect();
             currentShopItems.Remove(item);
             
-            // ★ 이벤트 시스템: 상점 구매 이벤트
+            //이벤트 시스템: 상점 구매 이벤트
             ShopContext shopCtx = new ShopContext
             {
                 Items = currentShopItems,
@@ -215,8 +215,22 @@ public class ShopManager : MonoBehaviour
     {
         if (GameManager.Instance.SubtractGold(currentRerollCost))
         {
+            int paidCost = currentRerollCost; // 지불한 비용 저장
             currentRerollCost += 100; // 리롤할수록 비싸짐
             GenerateShopItems();
+            
+            // 스프링 유물: FreeRefresh가 true면 비용 환불
+            // GenerateShopItems() 내부에서 이벤트가 발생하고 FreeRefresh가 설정됨
+            // 하지만 이벤트는 GenerateShopItems 끝에서 발생하므로, 여기서 다시 체크
+            ShopContext checkCtx = new ShopContext { FreeRefresh = false };
+            GameEvents.RaiseShopRefresh(checkCtx);
+            
+            if (checkCtx.FreeRefresh)
+            {
+                GameManager.Instance.AddGoldDirect(paidCost);
+                Debug.Log($"[유물] 스프링: 리롤 비용 {paidCost} 환불!");
+            }
+            
             UIManager.Instance.UpdateShopUI(currentShopItems, currentRerollCost);
         }
     }

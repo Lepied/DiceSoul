@@ -218,7 +218,7 @@ public class StageManager : MonoBehaviour
 
         (int finalDamage, int finalGold) = GetPreviewValues(chosenJokbo);
 
-        // ★ 이벤트 시스템: 공격 전 이벤트 발생 (유물이 데미지/골드 수정 가능)
+        //이벤트 시스템: 공격 전 이벤트 발생 (유물이 데미지/골드 수정 가능)
         AttackContext attackCtx = new AttackContext
         {
             Jokbo = chosenJokbo,
@@ -256,7 +256,7 @@ public class StageManager : MonoBehaviour
         // 이벤트에서 이미 계산된 골드를 직접 추가 (중복 계산 방지)
         GameManager.Instance.AddGoldDirect(eventFinalGold);
         
-        // ★ 이벤트 시스템: 공격 후 이벤트 발생 (회복 등)
+        //이벤트 시스템: 공격 후 이벤트 발생 (회복 등)
         GameEvents.RaiseAfterAttack(attackCtx);
 
         isWaitingForAttackChoice = false;
@@ -265,7 +265,7 @@ public class StageManager : MonoBehaviour
 
     private void CheckWaveStatus()
     {
-        // ★ 이벤트 시스템: 턴 종료 이벤트
+        //이벤트 시스템: 턴 종료 이벤트
         GameEvents.RaiseTurnEnd();
         
         if (activeEnemies.All(e => e == null || e.isDead))

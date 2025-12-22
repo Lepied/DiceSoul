@@ -22,7 +22,7 @@ public class GoblinArcher : Enemy
             if (GameManager.Instance != null)
             {
                 EffectManager.Instance.ShowText(transform, "저격!", Color.red);
-                GameManager.Instance.HealPlayer(-1);
+                GameManager.Instance.DamagePlayer(1, "고블린 궁수");
             }
         }
     }

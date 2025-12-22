@@ -338,60 +338,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void AddGold(int goldToAdd, AttackJokbo jokbo)
-    {
-        // 이벤트 시스템으로 골드 계산
-        float globalMultiplier = 1.0f;
-        if (nextZoneBuffs.Contains("GoldBoost"))
-        {
-            globalMultiplier += 0.5f;
-        }
-        foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.AddGoldMultiplier))
-        {
-            globalMultiplier *= relic.FloatValue;
-        }
-        
-        // 족보별 골드 배율 계산 (RelicEffectHandler에서도 처리하지만 fallback용)
-        float jokboMultiplier = 1.0f;
-        foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.JokboGoldMultiplier))
-        {
-            if (jokbo != null && jokbo.Description.Contains(relic.StringValue))
-            {
-                jokboMultiplier *= relic.FloatValue;
-            }
-        }
-        
-        // 족보별 골드 보너스
-        int bonusGold = (int)GetTotalMetaBonus(MetaEffectType.GoldBonus);
-        foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.JokboGoldAdd))
-        {
-            if (relic.StringValue == "ALL" || (jokbo != null && jokbo.Description.Contains(relic.StringValue)))
-            {
-                bonusGold += relic.IntValue;
-            }
-        }
-
-        int finalGold = (int)((goldToAdd + bonusGold) * globalMultiplier * jokboMultiplier);
-        
-        // 이벤트 시스템: 골드 획득 이벤트
-        GoldContext goldCtx = new GoldContext
-        {
-            OriginalAmount = goldToAdd,
-            FinalAmount = finalGold,
-            Source = "Jokbo"
-        };
-        GameEvents.RaiseGoldGain(goldCtx);
-        finalGold = goldCtx.FinalAmount;
-        
-        CurrentGold += finalGold;
-
-        Debug.Log($"금화 획득(족보): +{finalGold} (기본: {goldToAdd}, 보너스: {bonusGold}, 전역배율: {globalMultiplier}x, 족보배율: {jokboMultiplier}x) (총: {CurrentGold})");
-
-        if (UIManager.Instance != null)
-        {
-            UIManager.Instance.UpdateGold(CurrentGold);
-        }
-    }
     
     // 이벤트 시스템에서 이미 계산된 골드를 직접 추가 (중복 계산 방지)
     public void AddGoldDirect(int finalGold)
@@ -734,6 +680,107 @@ public class GameManager : MonoBehaviour
     public void ClearZoneBuffs()
     {
         nextZoneBuffs.Clear();
+    }
+
+    // 플레이어에게 데미지 (간단한 호출용)
+    public void DamagePlayer(int damage, string source = "Unknown")
+    {
+        DamageContext ctx = new DamageContext
+        {
+            OriginalDamage = damage,
+            FinalDamage = damage,
+            Source = source,
+            Cancelled = false
+        };
+        DamagePlayer(ctx);
+    }
+    
+    // 플레이어에게 데미지 (세부 제어용 - 피해 타입, 무시 옵션 등 확장 가능)
+    public void DamagePlayer(DamageContext damageCtx)
+    {
+        if (damageCtx.FinalDamage <= 0) return;
+        
+        // 이벤트 시스템: 피해 전 이벤트
+        GameEvents.RaiseBeforePlayerDamaged(damageCtx);
+        
+        // 유물이 피해를 취소했는지 확인
+        if (damageCtx.Cancelled)
+        {
+            Debug.Log($"[이벤트] {damageCtx.Source}의 피해가 무효화되었습니다!");
+            return;
+        }
+        
+        // 쉴드 먼저 소모
+        if (CurrentShield > 0)
+        {
+            int shieldAbsorb = Mathf.Min(CurrentShield, damageCtx.FinalDamage);
+            CurrentShield -= shieldAbsorb;
+            damageCtx.FinalDamage -= shieldAbsorb;
+            Debug.Log($"쉴드 방어! -{shieldAbsorb} (남은 쉴드: {CurrentShield})");
+        }
+        
+        if (damageCtx.FinalDamage > 0)
+        {
+            PlayerHealth -= damageCtx.FinalDamage;
+            Debug.Log($"[{damageCtx.Source}] 플레이어 피해: -{damageCtx.FinalDamage} (남은 체력: {PlayerHealth})");
+            
+            // 이벤트 시스템: 피격 후 이벤트
+            GameEvents.RaiseAfterPlayerDamaged(damageCtx);
+        }
+        
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdateHealth(PlayerHealth, MaxPlayerHealth);
+        }
+        
+        // 사망 체크
+        if (PlayerHealth <= 0)
+        {
+            HandlePlayerDeath();
+        }
+    }
+    
+    // 플레이어 사망 처리
+    private void HandlePlayerDeath()
+    {
+        // 이벤트 시스템: 사망 이벤트 (유물이 부활 가능)
+        DeathContext deathCtx = new DeathContext
+        {
+            Revived = false,
+            ReviveHP = 0,
+            ReviveSource = null
+        };
+        GameEvents.RaisePlayerDeath(deathCtx);
+        
+        // 유물이 부활시켰는지 확인
+        if (deathCtx.Revived)
+        {
+            PlayerHealth = deathCtx.ReviveHP;
+            Debug.Log($"[이벤트] {deathCtx.ReviveSource}에 의해 체력 {deathCtx.ReviveHP}로 부활!");
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.UpdateHealth(PlayerHealth, MaxPlayerHealth);
+            }
+            return;
+        }
+        
+        // 진짜 사망 처리
+        Debug.Log("게임 오버. 영구 재화를 저장하고 연출을 재생합니다.");
+        int earnedCurrency = CalculateAndSaveMetaCurrency();
+        SaveManager.Instance.DeleteSaveFile();
+        
+        if (GameOverDirector.Instance != null)
+        {
+            if (UIManager.Instance != null) UIManager.Instance.gameObject.SetActive(false);
+            GameOverDirector.Instance.PlayGameOverSequence(earnedCurrency);
+        }
+        else
+        {
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowGameOverScreen(earnedCurrency);
+            }
+        }
     }
 
     public void HealPlayer(int amount)
