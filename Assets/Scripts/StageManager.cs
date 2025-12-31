@@ -71,18 +71,21 @@ public class StageManager : MonoBehaviour
         PrepareNextWave();
     }
 
-    public void OnRollFinished(List<int> currentDiceValues)
+    public void OnRollFinished(List<int> currentDiceValues, bool isManualRoll = true)
     {
-        StartCoroutine(ProcessDiceResults(currentDiceValues));
+        StartCoroutine(ProcessDiceResults(currentDiceValues, isManualRoll));
     }
 
     //유물 효과 적용 및 연출 처리 코루틴
-    private IEnumerator ProcessDiceResults(List<int> initialValues)
+    private IEnumerator ProcessDiceResults(List<int> initialValues, bool isManualRoll = true)
     {
-        // 1. 적 턴 반응 / 기믹 처리
-        foreach (Enemy enemy in activeEnemies.Where(e => e != null && !e.isDead))
+        // 1. 적 턴 반응 / 기믹 처리 (수동 리롤 버튼을 누른 경우만)
+        if (isManualRoll)
         {
-            enemy.OnPlayerRoll(initialValues);
+            foreach (Enemy enemy in activeEnemies.Where(e => e != null && !e.isDead))
+            {
+                enemy.OnPlayerRoll(initialValues);
+            }
         }
 
         // 2. 이벤트 시스템으로 유물 효과 적용
@@ -354,6 +357,8 @@ public class StageManager : MonoBehaviour
 
             if (newEnemy != null)
             {
+                // 스케일링 시스템 적용
+                newEnemy.InitializeWithScaling(currentZone, currentWave);
                 activeEnemies.Add(newEnemy);
             }
             else
@@ -507,6 +512,8 @@ public class StageManager : MonoBehaviour
             Enemy newEnemy = enemyGO.GetComponent<Enemy>();
             if (newEnemy != null)
             {
+                // 보스 소환한 적도 스케일링 적용
+                newEnemy.InitializeWithScaling(GameManager.Instance.CurrentZone, GameManager.Instance.CurrentWave);
                 activeEnemies.Add(newEnemy);
             }
         }

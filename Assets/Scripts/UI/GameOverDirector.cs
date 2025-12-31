@@ -148,6 +148,9 @@ public class GameOverDirector : MonoBehaviour
     {
         if (transitionImage == null) return;
 
+        // 연출 시작 시 MainMenu UI 비활성화
+        HideMainMenuUI();
+
         // 이제 패널을 투명하게 해서 마을을 보여줌.
         if (myCanvas != null && Camera.main != null)
         {
@@ -168,10 +171,13 @@ public class GameOverDirector : MonoBehaviour
         // 다시 밝아지기
         seq.Append(transitionImage.DOFade(0f, 1.0f).SetEase(Ease.Linear));
 
-        // 연출이 다 끝나면 Director 파괴 
-        seq.AppendInterval(2.0f); // 파티클 잔여물이 사라질 때까지 대기
+        // 파티클 잔여물이 사라질 때까지 대기
+        seq.AppendInterval(2.0f);
+        
+        // 연출이 다 끝나면 UI 표시 후 Director 파괴
         seq.OnComplete(() =>
         {
+            ShowMainMenuUI();
             Destroy(gameObject);
         });
     }
@@ -181,6 +187,43 @@ public class GameOverDirector : MonoBehaviour
         {
             // 쓰레기치우기
             Instance = null;
+        }
+    }
+
+    private void HideMainMenuUI()
+    {
+        MainMenuManager mainMenu = FindFirstObjectByType<MainMenuManager>();
+        if (mainMenu != null)
+        {
+            // 모든 UI GameObject 비활성화
+            if (mainMenu.deckSelectionPanel != null) mainMenu.deckSelectionPanel.SetActive(false);
+            if (mainMenu.upgradeShopPanel != null) mainMenu.upgradeShopPanel.SetActive(false);
+            if (mainMenu.generalStorePanel != null) mainMenu.generalStorePanel.SetActive(false);
+            
+            // 메인 버튼 GameObject들 비활성화
+            if (mainMenu.startGameButton != null) mainMenu.startGameButton.gameObject.SetActive(false);
+            if (mainMenu.continueButton != null) mainMenu.continueButton.gameObject.SetActive(false);
+            if (mainMenu.openUpgradeButton != null) mainMenu.openUpgradeButton.gameObject.SetActive(false);
+            if (mainMenu.openDeckButton != null) mainMenu.openDeckButton.gameObject.SetActive(false);
+            if (mainMenu.openStoreButton != null) mainMenu.openStoreButton.gameObject.SetActive(false);
+            if (mainMenu.quitGameButton != null) mainMenu.quitGameButton.gameObject.SetActive(false);
+            if (mainMenu.metaCurrencyText != null) mainMenu.metaCurrencyText.gameObject.SetActive(false);
+        }
+    }
+
+    private void ShowMainMenuUI()
+    {
+        MainMenuManager mainMenu = FindFirstObjectByType<MainMenuManager>();
+        if (mainMenu != null)
+        {
+            // 모든 UI GameObject 활성화
+            if (mainMenu.startGameButton != null) mainMenu.startGameButton.gameObject.SetActive(true);
+            if (mainMenu.continueButton != null) mainMenu.continueButton.gameObject.SetActive(true);
+            if (mainMenu.openUpgradeButton != null) mainMenu.openUpgradeButton.gameObject.SetActive(true);
+            if (mainMenu.openDeckButton != null) mainMenu.openDeckButton.gameObject.SetActive(true);
+            if (mainMenu.openStoreButton != null) mainMenu.openStoreButton.gameObject.SetActive(true);
+            if (mainMenu.quitGameButton != null) mainMenu.quitGameButton.gameObject.SetActive(true);
+            if (mainMenu.metaCurrencyText != null) mainMenu.metaCurrencyText.gameObject.SetActive(true);
         }
     }
 

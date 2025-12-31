@@ -93,12 +93,12 @@ public class RelicCSVImporter : EditorWindow
                 string relicName = values[1].Trim();
                 string rarityStr = values[2].Trim();
                 string dropPoolStr = values[3].Trim();
-                string description = values[4].Trim();
+                string description = values[4].Trim().Replace(";", ""); // 세미콜론 제거
                 string maxCountStr = values[5].Trim();
                 string categoryStr = values[6].Trim();
-                // values[7] = 구현여부 (스킵)
+                // values[7] = 구현여부
                 
-                // 새 컬럼들 (선택적)
+                // 새 컬럼들
                 string effectTypeStr = values.Length > 8 ? values[8].Trim() : "";
                 string intValueStr = values.Length > 9 ? values[9].Trim() : "0";
                 string floatValueStr = values.Length > 10 ? values[10].Trim() : "0";
@@ -130,7 +130,6 @@ public class RelicCSVImporter : EditorWindow
                 }
                 else
                 {
-                    // fallback: 기존 추론 방식
                     relicData.effectType = InferEffectType(relicID, description);
                 }
                 
@@ -144,7 +143,7 @@ public class RelicCSVImporter : EditorWindow
                 
                 relicData.triggerTiming = InferTriggerTiming(relicData.effectType);
                 
-                // 아이콘 로드 시도
+                // 아이콘 로드
                 string iconPath = $"{iconFolder}/{relicID}.png";
                 Sprite icon = AssetDatabase.LoadAssetAtPath<Sprite>(iconPath);
                 if (icon != null)
@@ -259,7 +258,6 @@ public class RelicCSVImporter : EditorWindow
         {
             return result;
         }
-        Debug.LogWarning($"알 수 없는 EffectType: {str}");
         return RelicEffectType.None;
     }
 

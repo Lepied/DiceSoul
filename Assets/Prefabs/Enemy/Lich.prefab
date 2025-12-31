@@ -105,7 +105,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Lich
   enemyName: "\uB9AC\uCE58"
-  maxHP: 300
+  maxHP: 200
   enemyType: 2
   isBoss: 1
   difficultyCost: 100

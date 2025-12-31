@@ -43,11 +43,12 @@ public class GeneralStoreManager : MonoBehaviour
     {
         if (MarketItemDB.Instance == null) return;
 
-        // 구매 내역 초기화
-        for(int i=0; i<3; i++) {
+        // 구매 내역 초기화 (더 넓은 범위로 초기화)
+        for(int i=0; i<10; i++) {
             PlayerPrefs.DeleteKey($"Store_Bought_Basic_{i}");
             PlayerPrefs.DeleteKey($"Store_Bought_Combat_{i}");
         }
+        PlayerPrefs.Save();
 
         // 1. 기초 보급품 3개 랜덤 선정
         var basicItems = MarketItemDB.Instance.basicSupplies.OrderBy(x => Random.value).Take(3).ToList();

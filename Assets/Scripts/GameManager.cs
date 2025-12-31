@@ -808,7 +808,15 @@ public class GameManager : MonoBehaviour
     public void ModifyMaxHealth(int amount)
     {
         MaxPlayerHealth += amount;
-        if (PlayerHealth > MaxPlayerHealth) // (체력이 최대 체력보다 높으면 깎음)
+        
+        // 최대 체력 증가 시 현재 체력도 함께 증가 (잡화점 아이템용)
+        if (amount > 0)
+        {
+            PlayerHealth += amount;
+        }
+        
+        // 최대 체력을 초과하면 깎음
+        if (PlayerHealth > MaxPlayerHealth)
         {
             PlayerHealth = MaxPlayerHealth;
         }
@@ -872,6 +880,10 @@ public class GameManager : MonoBehaviour
 
         totalMetaCurrency += earnedCurrency;
         PlayerPrefs.SetInt(metaCurrencySaveKey, totalMetaCurrency);
+        
+        // 게임 종료 횟수 증가 (잡화점 재입고 트리거)
+        int runCount = PlayerPrefs.GetInt("TotalRunCount", 0);
+        PlayerPrefs.SetInt("TotalRunCount", runCount + 1);
         PlayerPrefs.Save();
 
         Debug.Log($"이번 런 획득 재화: {earnedCurrency}. 저장된 총 재화: {totalMetaCurrency}");

@@ -514,6 +514,13 @@ public class RelicEffectHandler : MonoBehaviour
     // 웨이브 종료 시
     private void HandleWaveEnd(WaveContext ctx)
     {
+        // 날쌘 손놀림 사용 횟수 초기화 (매 웨이브마다 초기화)
+        if (swiftHandsUsedThisWave.ContainsKey(ctx.WaveNumber))
+        {
+            swiftHandsUsedThisWave.Remove(ctx.WaveNumber);
+            Debug.Log($"[유물] 날쌘 손놀림 웨이브 {ctx.WaveNumber} 사용 횟수 초기화");
+        }
+        
         // RLC_SCHOLAR_BOOK: 학자의 서적 - 미사용 족보당 영구 데미지 +1%
         if (HasRelic("RLC_SCHOLAR_BOOK") && ctx.UnusedJokboCount > 0)
         {

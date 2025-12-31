@@ -15,6 +15,9 @@ public class Enemy : MonoBehaviour
     public EnemyType enemyType = EnemyType.Biological;
     private EnemyType originalType;
 
+    //스케일링을 위한 원본 HP 
+    private int baseHP = 0;
+
     [Header("기본 설정")]
     public bool isBoss = false;
     public int difficultyCost = 1;
@@ -45,11 +48,13 @@ public class Enemy : MonoBehaviour
         if (!isInitialized)
         {
             originalType = enemyType;
+            baseHP = maxHP;
             isInitialized = true;
         }
     }
     void OnEnable()
     {
+        // 기본값 초기화
         currentHP = maxHP;
         isDead = false;
         if (isInitialized)
@@ -62,6 +67,27 @@ public class Enemy : MonoBehaviour
 
         blinkTween?.Kill();
         UpdateUI();
+    }
+    
+    // 스케일링 시스템을 적용하여 적을 초기화
+    public void InitializeWithScaling(int zone, int wave)
+    {
+        //baseHP가 설정되지 않았다면 현재 maxHP를 baseHP로 사용
+        if (baseHP == 0)
+        {
+            baseHP = maxHP;
+        }
+        
+        // EnemyScaling 시스템으로 최종 HP 계산
+        int scaledHP = EnemyScaling.GetScaledHP(baseHP, zone, wave, isBoss);
+        
+        // 최종 HP 적용
+        maxHP = scaledHP;
+        currentHP = scaledHP;
+        
+        // UI 갱신
+        UpdateUI();
+        
     }
     void OnDisable()
     {
