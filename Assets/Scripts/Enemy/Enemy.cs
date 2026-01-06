@@ -3,10 +3,11 @@ using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using DG.Tweening;
+using UnityEngine.EventSystems;
 
 public enum EnemyType { Biological, Spirit, Undead, Armored }
 
-public class Enemy : MonoBehaviour
+public class Enemy : MonoBehaviour, IPointerClickHandler
 {
     // [인스펙터 설정]
     [Header("스탯")]
@@ -50,8 +51,8 @@ public class Enemy : MonoBehaviour
             originalType = enemyType;
             baseHP = maxHP;
             isInitialized = true;
-        }
-    }
+        }        
+        Debug.Log($"[Enemy Awake] {enemyName} 생성됨, Collider: {GetComponent<Collider2D>() != null}");    }
     void OnEnable()
     {
         // 기본값 초기화
@@ -163,6 +164,8 @@ public class Enemy : MonoBehaviour
     {
         if (isDead) return true;
         if (finalDamage > 0)
+
+        
         {
             // 크리티컬 판정 만약 나중에 생기면 여기에 넣어야
             EffectManager.Instance.ShowDamage(transform, finalDamage);
@@ -284,5 +287,23 @@ public class Enemy : MonoBehaviour
             damagePreviewFillImage.color = c;
         }
     }
-}
 
+    // IPointerClickHandler 구현 - EventSystem을 통한 클릭 감지
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        Debug.Log($"[Enemy OnPointerClick] {enemyName} 클릭 감지! isDead={isDead}");
+        
+        if (isDead) return;
+        
+        // 타겟 선택 모드일 때만 반응
+        if (StageManager.Instance != null)
+        {
+            Debug.Log($"[Enemy] StageManager.OnEnemySelected({enemyName}) 호출");
+            StageManager.Instance.OnEnemySelected(this);
+        }
+        else
+        {
+            Debug.LogWarning("[Enemy] StageManager.Instance가 null입니다!");
+        }
+    }
+}

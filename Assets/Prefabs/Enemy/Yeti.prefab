@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3655426023589534718}
   - component: {fileID: 3252906354995160926}
   - component: {fileID: 5542344542545410649}
+  - component: {fileID: 1535637987516522699}
   m_Layer: 0
   m_Name: Yeti
   m_TagString: Untagged
@@ -114,6 +115,120 @@ MonoBehaviour:
   hpSlider: {fileID: 2638881893286718112}
   damagePreviewSlider: {fileID: 231646232011001934}
   hibernateHealAmount: 200
+--- !u!60 &1535637987516522699
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 354087232363995093}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 3.38, y: 4.68}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: 0.7, y: -1.93}
+      - {x: 0.77, y: -1.93}
+      - {x: 0.9, y: -1.8199999}
+      - {x: 0.96999997, y: -1.68}
+      - {x: 0.97999996, y: -1.63}
+      - {x: 1.15, y: -1.63}
+      - {x: 1.26, y: -1.5799999}
+      - {x: 1.36, y: -1.49}
+      - {x: 1.41, y: -1.39}
+      - {x: 1.4, y: -1.1}
+      - {x: 1.51, y: -0.90999997}
+      - {x: 1.55, y: -0.84}
+      - {x: 1.5999999, y: -0.58}
+      - {x: 1.5899999, y: -0.39999998}
+      - {x: 1.68, y: -0.32999998}
+      - {x: 1.68, y: -0.11}
+      - {x: 1.64, y: 0.099999994}
+      - {x: 1.56, y: 0.26}
+      - {x: 1.5899999, y: 0.31}
+      - {x: 1.5999999, y: 0.39}
+      - {x: 1.43, y: 0.65999997}
+      - {x: 1.3399999, y: 0.91999996}
+      - {x: 1.29, y: 1.13}
+      - {x: 1.24, y: 1.26}
+      - {x: 1.2099999, y: 1.43}
+      - {x: 1.15, y: 1.53}
+      - {x: 1.02, y: 1.7199999}
+      - {x: 0.85999995, y: 1.9}
+      - {x: 0.64, y: 2.07}
+      - {x: 0.5, y: 2.1499999}
+      - {x: 0.26999998, y: 2.3}
+      - {x: 0.04, y: 2.33}
+      - {x: -0.07, y: 2.33}
+      - {x: -0.24, y: 2.3}
+      - {x: -0.71, y: 2.03}
+      - {x: -1.01, y: 1.75}
+      - {x: -1.2099999, y: 1.4499999}
+      - {x: -1.2099999, y: 1.3299999}
+      - {x: -1.3, y: 1.11}
+      - {x: -1.39, y: 0.77}
+      - {x: -1.5, y: 0.53999996}
+      - {x: -1.61, y: 0.39}
+      - {x: -1.5899999, y: 0.22}
+      - {x: -1.65, y: 0.049999997}
+      - {x: -1.6899999, y: -0.17999999}
+      - {x: -1.6899999, y: -0.32}
+      - {x: -1.63, y: -0.37}
+      - {x: -1.5799999, y: -0.39999998}
+      - {x: -1.5799999, y: -0.72999996}
+      - {x: -1.54, y: -0.84999996}
+      - {x: -1.49, y: -0.94}
+      - {x: -1.41, y: -1.0799999}
+      - {x: -1.41, y: -1.3}
+      - {x: -1.39, y: -1.41}
+      - {x: -1.36, y: -1.4599999}
+      - {x: -1.28, y: -1.5699999}
+      - {x: -1.14, y: -1.64}
+      - {x: -0.98999995, y: -1.63}
+      - {x: -0.95, y: -1.75}
+      - {x: -0.81, y: -1.92}
+      - {x: -0.76, y: -1.9399999}
+      - {x: -0.26999998, y: -2.26}
+      - {x: -0.07, y: -2.33}
+      - {x: 0.06, y: -2.33}
+      - {x: 0.22, y: -2.28}
+      - {x: 0.39999998, y: -2.1599998}
+      - {x: 0.55, y: -2.05}
+  m_UseDelaunayMesh: 0
 --- !u!1 &1105947628032165348
 GameObject:
   m_ObjectHideFlags: 0

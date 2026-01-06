@@ -128,6 +128,11 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
+        if (RelicEffectHandler.Instance != null)
+        {
+            RelicEffectHandler.Instance.ResetForNewRun();
+            Debug.Log($"[RelicEffectHandler] 유물 효과 초기화 완료 (유물 {activeRelics.Count}개)");
+        }
 
         // 4. 웨이브 생성 및 UI 갱신
         if (WaveGenerator.Instance != null)
@@ -881,7 +886,7 @@ public class GameManager : MonoBehaviour
         totalMetaCurrency += earnedCurrency;
         PlayerPrefs.SetInt(metaCurrencySaveKey, totalMetaCurrency);
         
-        // 게임 종료 횟수 증가 (잡화점 재입고 트리거)
+        // 게임 종료 횟수 증가
         int runCount = PlayerPrefs.GetInt("TotalRunCount", 0);
         PlayerPrefs.SetInt("TotalRunCount", runCount + 1);
         PlayerPrefs.Save();

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3655426023589534718}
   - component: {fileID: 3252906354995160926}
   - component: {fileID: 5850299706685539707}
+  - component: {fileID: -7401192262146098763}
   m_Layer: 0
   m_Name: IceGolem
   m_TagString: Untagged
@@ -113,6 +114,100 @@ MonoBehaviour:
   hpText: {fileID: 6166942275768172032}
   hpSlider: {fileID: 3325079089081980418}
   damagePreviewSlider: {fileID: 4619757558335903610}
+--- !u!60 &-7401192262146098763
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 354087232363995093}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 3.28, y: 3.8}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: 1.11, y: -1.68}
+      - {x: 1.1999999, y: -1.5}
+      - {x: 1.29, y: -1.49}
+      - {x: 1.3199999, y: -1.4499999}
+      - {x: 1.51, y: -1.27}
+      - {x: 1.64, y: -1.13}
+      - {x: 1.64, y: -0.62}
+      - {x: 1.5999999, y: -0.55}
+      - {x: 1.5899999, y: 0.03}
+      - {x: 1.5799999, y: 0.21}
+      - {x: 1.55, y: 0.39}
+      - {x: 1.49, y: 0.65}
+      - {x: 1.49, y: 0.87}
+      - {x: 1.4399999, y: 1.14}
+      - {x: 1.35, y: 1.4599999}
+      - {x: 1.1899999, y: 1.5799999}
+      - {x: 0.97999996, y: 1.66}
+      - {x: 0.83, y: 1.75}
+      - {x: 0.74, y: 1.8499999}
+      - {x: 0.61, y: 1.88}
+      - {x: 0.31, y: 1.89}
+      - {x: 0.02, y: 1.9}
+      - {x: -0.26999998, y: 1.9}
+      - {x: -0.58, y: 1.87}
+      - {x: -0.75, y: 1.8499999}
+      - {x: -0.95, y: 1.6899999}
+      - {x: -1.16, y: 1.61}
+      - {x: -1.36, y: 1.4599999}
+      - {x: -1.49, y: 0.85999995}
+      - {x: -1.5, y: 0.61}
+      - {x: -1.5699999, y: 0.41}
+      - {x: -1.61, y: 0.03}
+      - {x: -1.5899999, y: -0.5}
+      - {x: -1.64, y: -0.61}
+      - {x: -1.64, y: -1.15}
+      - {x: -1.27, y: -1.4699999}
+      - {x: -1.1899999, y: -1.5}
+      - {x: -1.14, y: -1.63}
+      - {x: -1.05, y: -1.6999999}
+      - {x: -0.76, y: -1.8199999}
+      - {x: -0.69, y: -1.8499999}
+      - {x: -0.51, y: -1.8299999}
+      - {x: -0.42, y: -1.9}
+      - {x: 0.42, y: -1.9}
+      - {x: 0.48, y: -1.8499999}
+      - {x: 0.59, y: -1.8399999}
+      - {x: 0.78999996, y: -1.81}
+  m_UseDelaunayMesh: 0
 --- !u!1 &553198092765252911
 GameObject:
   m_ObjectHideFlags: 0

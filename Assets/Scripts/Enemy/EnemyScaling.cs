@@ -1,9 +1,6 @@
 using UnityEngine;
 
-/// <summary>
-/// 적 스탯 스케일링 시스템
-/// 존/웨이브 진행도 + 플레이어 파워에 따라 적의 HP와 공격력을 동적으로 조정합니다.
-/// </summary>
+// 적 스탯 스케일링 시스템
 public static class EnemyScaling
 {
     // ===== 존별 기본 배율 테이블 =====
@@ -27,14 +24,7 @@ public static class EnemyScaling
     private const int baseDiceCount = 5;
     private const int baseRerollCount = 3;
     
-    /// <summary>
-    /// 스케일링 적용된 최종 HP 계산
-    /// </summary>
-    /// <param name="baseHP">적의 기본 HP (인스펙터 설정값)</param>
-    /// <param name="zone">현재 존 번호 (1~5)</param>
-    /// <param name="wave">현재 웨이브 번호 (1~5)</param>
-    /// <param name="isBoss">보스 몬스터 여부</param>
-    /// <returns>스케일링 적용된 최종 HP</returns>
+    // 스케일링 적용된 최종 HP 계산
     public static int GetScaledHP(int baseHP, int zone, int wave, bool isBoss = false)
     {
         // 1. 존 기본 배율
@@ -46,15 +36,15 @@ public static class EnemyScaling
         // 3. 플레이어 파워 보정
         float playerPowerMult = GetPlayerPowerMultiplier(true);
         
-        // 4. 보스 보정 (기본 스케일링만 적용)
-        float bossMult = 1.0f; // 보스도 일반 적과 동일한 스케일링
+        // 4. 보스 보정
+        float bossMult = 1.0f; 
         
         // 5. 최종 계산
         float finalHP = baseHP * zoneMult * waveMult * playerPowerMult * bossMult;
         
         int result = Mathf.RoundToInt(finalHP);
         
-        // 디버그 로그 (개발 중 밸런스 확인용)
+        // 개발 중 밸런스 확인용
         if (Application.isEditor)
         {
             Debug.Log($"[EnemyScaling] HP: {baseHP} → {result} " +
@@ -64,15 +54,13 @@ public static class EnemyScaling
         return Mathf.Max(1, result); // 최소 1
     }
     
-    /// <summary>
-    /// 스케일링 적용된 최종 공격력 계산
-    /// </summary>
+    // 스케일링 적용된 최종 공격력 계산
     public static int GetScaledDamage(int baseDamage, int zone, int wave, bool isBoss = false)
     {
         float zoneMult = GetZoneDamageMultiplier(zone);
         float waveMult = 1.0f + (wave - 1) * waveDamageStep;
         float playerPowerMult = GetPlayerPowerMultiplier(false);
-        float bossMult = 1.0f; // 보스도 일반 적과 동일한 스케일링
+        float bossMult = 1.0f; 
         
         float finalDamage = baseDamage * zoneMult * waveMult * playerPowerMult * bossMult;
         
@@ -116,21 +104,4 @@ public static class EnemyScaling
         return diceFactor * rerollFactor * relicFactor;
     }
     
-    /// <summary>
-    /// 디버그용: 현재 플레이어 파워 정보 출력
-    /// </summary>
-    public static void LogPlayerPowerStatus()
-    {
-        if (GameManager.Instance == null) return;
-        
-        int diceCount = GameManager.Instance.playerDiceDeck.Count;
-        int relicCount = GameManager.Instance.activeRelics.Count;
-        int maxRerolls = DiceController.Instance != null ? DiceController.Instance.maxRolls : 3;
-        
-        float hpMult = GetPlayerPowerMultiplier(true);
-        float dmgMult = GetPlayerPowerMultiplier(false);
-        
-        Debug.Log($"[PlayerPower] 주사위: {diceCount}, 리롤: {maxRerolls}, 유물: {relicCount} " +
-                  $"→ 적 HP배율: {hpMult:F2}x, 공격력배율: {dmgMult:F2}x");
-    }
 }

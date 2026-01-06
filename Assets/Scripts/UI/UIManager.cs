@@ -23,6 +23,12 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI[] attackNameTexts;
     public TextMeshProUGUI[] attackValueTexts;
 
+    [Header("탄겟 선택 UI")]
+    public GameObject targetSelectionPanel;        // 타겟 선택 모드 UI 패널
+    public TextMeshProUGUI targetSelectionText;    // "적을 선택하세요 (2/3)"
+    public Button confirmTargetButton;             // 확인 버튼
+    public Button cancelTargetButton;              // 취소 버튼
+
     [Header("보상 UI")]
     public GameObject rewardScreenPanel;
     public Button[] relicChoiceButtons;
@@ -94,6 +100,7 @@ public class UIManager : MonoBehaviour
         if (waveInfoPanel != null) waveInfoPanel.SetActive(false);
         if (enemyDetailPopup != null) enemyDetailPopup.SetActive(false);
         if (genericTooltipPopup != null) genericTooltipPopup.SetActive(false);
+        if (targetSelectionPanel != null) targetSelectionPanel.SetActive(false);
 
         if (waveInfoToggleButton != null)
         {
@@ -113,6 +120,16 @@ public class UIManager : MonoBehaviour
         {
             exitShopButton.onClick.RemoveAllListeners();
             exitShopButton.onClick.AddListener(ExitShop);
+        }
+
+        // 타겟 선택 버튼 연결
+        if (confirmTargetButton != null)
+        {
+            confirmTargetButton.onClick.AddListener(OnConfirmTargetButton);
+        }
+        if (cancelTargetButton != null)
+        {
+            cancelTargetButton.onClick.AddListener(OnCancelTargetButton);
         }
     }
 
@@ -193,13 +210,7 @@ public class UIManager : MonoBehaviour
 
     public void UpdateWaveInfoPanel(List<Enemy> activeEnemies)
     {
-        Debug.Log($"[UpdateWaveInfoPanel] 호출됨. activeEnemies 수: {activeEnemies?.Count ?? -1}");
-        Debug.Log($"[UpdateWaveInfoPanel] waveInfoPanel: {waveInfoPanel}, enemyInfoIconPrefab: {enemyInfoIconPrefab}");
-        if (waveInfoPanel == null || enemyInfoIconPrefab == null) 
-        {
-            Debug.LogError("[UpdateWaveInfoPanel] waveInfoPanel 또는 enemyInfoIconPrefab이 null입니다!");
-            return;
-        }
+        if (waveInfoPanel == null || enemyInfoIconPrefab == null) return;
         foreach (Transform child in waveInfoPanel.transform)
         {
             Destroy(child.gameObject);
@@ -211,9 +222,7 @@ public class UIManager : MonoBehaviour
         {
             Enemy enemyData = group.First();
             int count = group.Count();
-            Debug.Log($"[UpdateWaveInfoPanel] 아이콘 생성 시도: {enemyData.enemyName}, 수량: {count}");
             GameObject iconGO = Instantiate(enemyInfoIconPrefab, waveInfoPanel.transform);
-            Debug.Log($"[UpdateWaveInfoPanel] 아이콘 생성 완료: {iconGO.name}");
             Image faceImage = iconGO.GetComponentInChildren<Image>();
             SpriteRenderer enemySprite = enemyData.GetComponent<SpriteRenderer>();
             if (faceImage != null && enemySprite != null)
@@ -552,19 +561,62 @@ public class UIManager : MonoBehaviour
         if (enemyDetailPopup != null) enemyDetailPopup.SetActive(false);
         if (relicDetailPopup != null) relicDetailPopup.SetActive(false);
         if (genericTooltipPopup != null) genericTooltipPopup.SetActive(false);
+        if (targetSelectionPanel != null) targetSelectionPanel.SetActive(false);
 
         //상단 패널 숨기기
         if (waveText != null && waveText.transform.parent != null)
         {
             waveText.transform.parent.gameObject.SetActive(false);
         }
+    }
 
-        //주사위 굴리기 버튼 숨기기 (DiceController 참조)
-        if (DiceController.Instance != null && DiceController.Instance.rollButtonUI != null)
+    // === 타겟 선택 UI 메서드 ===
+    
+    public void ShowTargetSelectionMode(int requiredCount, int currentCount)
+    {
+        if (targetSelectionPanel != null)
         {
-            DiceController.Instance.rollButtonUI.transform.parent.gameObject.SetActive(false);
+            targetSelectionPanel.SetActive(true);
         }
-        //웨이브 정보보는 토글버튼 숨기기 
-        waveInfoToggleButton.gameObject.SetActive(false);
+        
+        UpdateTargetSelectionText(requiredCount, currentCount);
+        
+        // 확인 버튼은 필요한 수만큼 선택되면 활성화
+        if (confirmTargetButton != null)
+        {
+            confirmTargetButton.interactable = (currentCount >= requiredCount);
+        }
+    }
+
+    public void HideTargetSelectionMode()
+    {
+        if (targetSelectionPanel != null)
+        {
+            targetSelectionPanel.SetActive(false);
+        }
+    }
+
+    public void UpdateTargetSelectionText(int requiredCount, int currentCount)
+    {
+        if (targetSelectionText != null)
+        {
+            targetSelectionText.text = $"적을 선택하세요 ({currentCount}/{requiredCount})";
+        }
+    }
+
+    private void OnConfirmTargetButton()
+    {
+        if (StageManager.Instance != null)
+        {
+            StageManager.Instance.ConfirmTargetSelection();
+        }
+    }
+
+    private void OnCancelTargetButton()
+    {
+        if (StageManager.Instance != null)
+        {
+            StageManager.Instance.CancelTargetSelection();
+        }
     }
 }

@@ -27,27 +27,47 @@ public class AttackDB : MonoBehaviour
     //족보 초기화
     private void InitializeJokbos()
     {
+        // 야찌 (5개)
         allJokbos.Add(new AttackJokbo(
             "야찌 (5개)", 150, 100,
-            (diceValues) => diceValues.GroupBy(v => v).Any(g => g.Count() >= 5)
+            (diceValues) => diceValues.GroupBy(v => v).Any(g => g.Count() >= 5),
+            (diceValues) => GetSameValueIndices(diceValues, 5),
+            AttackTargetType.AoE
         ));
 
+        // 포카드 (4개) - 1명 선택 + 전체 공격
         allJokbos.Add(new AttackJokbo(
             "포카드 (4개)", 80, 50,
-            (diceValues) => diceValues.GroupBy(v => v).Any(g => g.Count() >= 4)
+            (diceValues) => diceValues.GroupBy(v => v).Any(g => g.Count() >= 4),
+            (diceValues) => GetSameValueIndices(diceValues, 4),
+            AttackTargetType.Hybrid,
+            1,  // RequiredTargetCount: 1명 선택
+            1,  // RandomTargetCount (Hybrid는 미사용)
+            AttackTargetType.AoE,  // SubTargetType
+            40, // SubDamage
+            1   // SubRandomTargetCount (AoE는 미사용)
         ));
 
+        // 풀 하우스 (3+2) - 2명 선택 + 랜덤 공격
         allJokbos.Add(new AttackJokbo(
             "풀 하우스 (3+2)", 70, 40,
             (diceValues) => {
                 var groups = diceValues.GroupBy(v => v);
                 return groups.Any(g => g.Count() == 3) && groups.Any(g => g.Count() == 2);
-            }
+            },
+            (diceValues) => GetFullHouseIndices(diceValues),
+            AttackTargetType.Hybrid,
+            2,  // 2명 선택
+            1,  // 주공격 RandomTargetCount (Hybrid는 미사용)
+            AttackTargetType.Random,
+            35,
+            1   // 부가 공격: 랜덤 1명
         ));
 
+        // 스트레이트 (5연속)
         allJokbos.Add(new AttackJokbo(
             "스트레이트 (5연속)",
-            70, // (4연속보다 데미지/점수 높음)
+            70,
             40, 
             (diceValues) => {
                 var sorted = diceValues.Distinct().OrderBy(v => v).ToList();
@@ -55,48 +75,210 @@ public class AttackDB : MonoBehaviour
                 bool straight1 = sorted.SequenceEqual(new List<int> { 1, 2, 3, 4, 5 });
                 bool straight2 = sorted.SequenceEqual(new List<int> { 2, 3, 4, 5, 6 });
                 return straight1 || straight2;
-            }
+            },
+            (diceValues) => GetStraightIndices(diceValues, 5),
+            AttackTargetType.AoE
         ));
         
+        // 스트레이트 (4연속)
         allJokbos.Add(new AttackJokbo(
             "스트레이트 (4연속)",
-            50, // (기획서 V1.0 기준)
+            50,
             25, 
             (diceValues) => {
                 var s = diceValues.Distinct().OrderBy(v => v).ToList();
                 if (s.Count < 4) return false;
-                // (1,2,3,4) (2,3,4,5) (3,4,5,6) 또는 (1,2,3,4,6) 같은 5개 중 4연속
                 bool c1 = (s.Count >= 4 && (s[0]+1 == s[1] && s[1]+1 == s[2] && s[2]+1 == s[3]));
                 bool c2 = (s.Count >= 5 && (s[1]+1 == s[2] && s[2]+1 == s[3] && s[3]+1 == s[4]));
                 return c1 || c2;
-            }
+            },
+            (diceValues) => GetStraightIndices(diceValues, 4),
+            AttackTargetType.AoE
         ));
         
+        // 트리플 (3개) - 3명 선택
         allJokbos.Add(new AttackJokbo(
             "트리플 (3개)", 40, 20,
-            (diceValues) => diceValues.GroupBy(v => v).Any(g => g.Count() >= 3)
+            (diceValues) => diceValues.GroupBy(v => v).Any(g => g.Count() >= 3),
+            (diceValues) => GetSameValueIndices(diceValues, 3),
+            AttackTargetType.Single,
+            3  // 3명 선택
         ));
 
+        // 투 페어 (2+2) - 2명 선택
         allJokbos.Add(new AttackJokbo(
             "투 페어 (2+2)", 25, 10,
-            (diceValues) => diceValues.GroupBy(v => v).Count(g => g.Count() >= 2) >= 2
+            (diceValues) => diceValues.GroupBy(v => v).Count(g => g.Count() >= 2) >= 2,
+            (diceValues) => GetTwoPairIndices(diceValues),
+            AttackTargetType.Single,
+            2  // 2명 선택
         ));
 
+        // 원 페어 (2)
+        allJokbos.Add(new AttackJokbo(
+            "원 페어 (2)", 15, 5,
+            (diceValues) => diceValues.GroupBy(v => v).Any(g => g.Count() >= 2),
+            (diceValues) => GetSameValueIndices(diceValues, 2),
+            AttackTargetType.Random,
+            0,  // RequiredTargetCount (랜덤은 선택 불필요)
+            1   // RandomTargetCount: 랜덤 1명
+        ));
+
+        // 모두 짝수
         allJokbos.Add(new AttackJokbo(
             "모두 짝수", 30, 15,
-            (diceValues) => diceValues.All(v => v % 2 == 0)
+            (diceValues) => diceValues.All(v => v % 2 == 0),
+            (diceValues) => GetAllIndices(diceValues),
+            AttackTargetType.AoE
         ));
+        
+        // 모두 홀수
         allJokbos.Add(new AttackJokbo(
             "모두 홀수", 30, 15,
-            (diceValues) => diceValues.All(v => v % 2 != 0)
+            (diceValues) => diceValues.All(v => v % 2 != 0),
+            (diceValues) => GetAllIndices(diceValues),
+            AttackTargetType.AoE
         ));
 
+        // 총합 (랜덤 타겟은 주사위 수만큼)
         allJokbos.Add(new AttackJokbo(
             "총합", 
             (diceValues) => diceValues.Sum(), 
             (diceValues) => diceValues.Sum(), 
-            (diceValues) => true              
+            (diceValues) => true,
+            (diceValues) => GetAllIndices(diceValues),
+            AttackTargetType.Random,
+            0,  // RequiredTargetCount (랜덤은 선택 불필요)
+            0   // RandomTargetCount는 실행 시 동적 계산 (UsedDiceIndices.Count)
         ));
+    }
+
+    // 같은 값을 가진 주사위 N개의 인덱스 반환
+    private List<int> GetSameValueIndices(List<int> diceValues, int count)
+    {
+        var indices = new List<int>();
+        var group = diceValues.GroupBy(v => v).FirstOrDefault(g => g.Count() >= count);
+        if (group != null)
+        {
+            int targetValue = group.Key;
+            for (int i = 0; i < diceValues.Count && indices.Count < count; i++)
+            {
+                if (diceValues[i] == targetValue) indices.Add(i);
+            }
+        }
+        return indices;
+    }
+
+    // 풀하우스 인덱스 반환 (3개 + 2개)
+    private List<int> GetFullHouseIndices(List<int> diceValues)
+    {
+        var indices = new List<int>();
+        var groups = diceValues.GroupBy(v => v).OrderByDescending(g => g.Count()).ToList();
+        if (groups.Count >= 2)
+        {
+            int tripleValue = groups[0].Key;
+            int pairValue = groups[1].Key;
+            
+            // 트리플 3개
+            for (int i = 0; i < diceValues.Count && indices.Count < 3; i++)
+            {
+                if (diceValues[i] == tripleValue) indices.Add(i);
+            }
+            // 페어 2개
+            for (int i = 0; i < diceValues.Count && indices.Count < 5; i++)
+            {
+                if (diceValues[i] == pairValue && !indices.Contains(i)) indices.Add(i);
+            }
+        }
+        return indices;
+    }
+
+    // 스트레이트 인덱스 반환
+    private List<int> GetStraightIndices(List<int> diceValues, int length)
+    {
+        var indices = new List<int>();
+        
+        if (length == 5)
+        {
+            // 1,2,3,4,5 또는 2,3,4,5,6
+            var distinctValues = diceValues.Distinct().OrderBy(v => v).ToList();
+            bool is12345 = distinctValues.SequenceEqual(new List<int> { 1, 2, 3, 4, 5 });
+            bool is23456 = distinctValues.SequenceEqual(new List<int> { 2, 3, 4, 5, 6 });
+            
+            if (is12345 || is23456)
+            {
+                foreach (int value in distinctValues)
+                {
+                    int idx = diceValues.IndexOf(value);
+                    if (idx >= 0 && !indices.Contains(idx))
+                    {
+                        indices.Add(idx);
+                    }
+                }
+            }
+        }
+        else if (length == 4)
+        {
+            // 4개 연속 찾기
+            var distinctValues = diceValues.Distinct().OrderBy(v => v).ToList();
+            for (int start = 0; start <= distinctValues.Count - 4; start++)
+            {
+                bool isStraight = true;
+                for (int j = 0; j < 3; j++)
+                {
+                    if (distinctValues[start + j] + 1 != distinctValues[start + j + 1])
+                    {
+                        isStraight = false;
+                        break;
+                    }
+                }
+                if (isStraight)
+                {
+                    for (int val = distinctValues[start]; val <= distinctValues[start + 3]; val++)
+                    {
+                        int idx = diceValues.IndexOf(val);
+                        if (idx >= 0 && !indices.Contains(idx))
+                        {
+                            indices.Add(idx);
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        
+        return indices;
+    }
+
+    // 투페어 인덱스 반환
+    private List<int> GetTwoPairIndices(List<int> diceValues)
+    {
+        var indices = new List<int>();
+        var pairs = diceValues.GroupBy(v => v).Where(g => g.Count() >= 2).Take(2).ToList();
+        foreach (var pair in pairs)
+        {
+            int count = 0;
+            for (int i = 0; i < diceValues.Count && count < 2; i++)
+            {
+                if (diceValues[i] == pair.Key && !indices.Contains(i))
+                {
+                    indices.Add(i);
+                    count++;
+                }
+            }
+        }
+        return indices;
+    }
+
+    // 모든 주사위 인덱스 반환
+    private List<int> GetAllIndices(List<int> diceValues)
+    {
+        var indices = new List<int>();
+        for (int i = 0; i < diceValues.Count; i++)
+        {
+            indices.Add(i);
+        }
+        return indices;
     }
 
     //현재 주사위 값들로 만들 수 있는 족보 반환시키기

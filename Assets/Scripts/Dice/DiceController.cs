@@ -175,7 +175,28 @@ public class DiceController : MonoBehaviour
     private void OnRollButton()
     {
         if (isRolling) return;
-        if (currentRollCount >= maxRolls) return;
+        
+        // 굴림 횟수가 maxRolls에 도달했을 때 날쌘 손놀림 체크
+        if (currentRollCount >= maxRolls)
+        {
+            if (RelicEffectHandler.Instance != null && GameManager.Instance != null)
+            {
+                bool freeRollGranted = RelicEffectHandler.Instance.CheckFreeRollAtZero(GameManager.Instance.CurrentWave);
+                if (freeRollGranted)
+                {
+                    // 무료 굴림있음
+                    Debug.Log("[날쌘 손놀림] 무료 굴림");
+                }
+                else
+                {
+                    return;
+                }
+            }
+            else
+            {
+                return;
+            }
+        }
 
         currentRollCount++;
 
@@ -345,5 +366,64 @@ public class DiceController : MonoBehaviour
         }
         
     }
+
+    // <summary>
+    // 사용한 주사위를 인덱스 기반으로 제거 (연쇄 공격 시스템용)
+    /// <param name="indices">제거할 주사위 인덱스 리스트</param>
+    public void RemoveDiceByIndices(List<int> indices)
+    {
+        if (indices == null || indices.Count == 0 || activeDice.Count == 0) return;
+
+        // 인덱스 정렬 (큰 것부터 제거해야 인덱스 안전)
+        var sortedIndices = indices.OrderByDescending(i => i).ToList();
+
+        foreach (int index in sortedIndices)
+        {
+            if (index >= 0 && index < activeDice.Count)
+            {
+                Dice diceToRemove = activeDice[index];
+                activeDice.RemoveAt(index);
+                
+                // 페이드 아웃 애니메이션
+                if (diceToRemove != null && diceToRemove.gameObject != null)
+                {
+                    // 기존 DOTween 중단 (중요!)
+                    diceToRemove.transform.DOKill();
+                    
+                    diceToRemove.transform.DOScale(0f, 0.3f).OnComplete(() =>
+                    {
+                        if (diceToRemove != null && diceToRemove.gameObject != null)
+                        {
+                            Destroy(diceToRemove.gameObject);
+                        }
+                    });
+                }
+            }
+        }
+
+        // 남은 주사위 위치 재조정
+        RepositionRemainingDice();
+    }
+
+    // 남은 주사위들의 위치를 가운데로 재정렬
+    private void RepositionRemainingDice()
+    {
+        if (activeDice.Count == 0) return;
+
+        float startX = -((activeDice.Count - 1) * horizontalSpacing) / 2.0f;
+
+        for (int i = 0; i < activeDice.Count; i++)
+        {
+            Vector3 targetPos = new Vector3(startX + (i * horizontalSpacing), 0, 0);
+            activeDice[i].transform.DOLocalMove(targetPos, 0.4f).SetEase(Ease.OutQuad);
+        }
+    }
+
+    // 남은 주사위 개수 반환
+    public int GetRemainingDiceCount()
+    {
+        return activeDice.Count;
+    }
 }
+
 

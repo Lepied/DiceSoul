@@ -20,9 +20,17 @@ public class StageManager : MonoBehaviour
 
     public float spawnSpreadRadius = 0.5f;
     public float screenEdgePadding = 1.0f;
+    public float minEnemySpacing = 1.5f;  // 적들 간 최소 거리
+    public int maxSpawnAttempts = 10;     // 스폰 위치 재시도 횟수
 
     private List<Enemy> activeEnemies = new List<Enemy>();
     private bool isWaitingForAttackChoice = false;
+
+    // 연쇄 공격 시스템 변수
+    private AttackJokbo currentSelectedJokbo = null;      // 현재 선택된 족보
+    private List<Enemy> currentSelectedTargets = new List<Enemy>();  // 선택된 타겟들
+    private bool isWaitingForTargetSelection = false;     // 타겟 선택 대기 중
+    private int requiredTargetCount = 0;                  // 선택해야 할 타겟 수
 
     private Camera mainCam;
     private Vector2 minViewBoundary;
@@ -192,12 +200,10 @@ public class StageManager : MonoBehaviour
                 foreach (var jokbo in achievableJokbos)
                 {
                     (int finalBaseDamage, int finalBaseGold) = GetPreviewValues(jokbo);
-                    previewJokbos.Add(new AttackJokbo(
-                        jokbo.Description,
-                        finalBaseDamage,
-                        finalBaseGold,
-                        jokbo.CheckLogic
-                    ));
+                    // 복사 생성자 사용하여 모든 로직 유지
+                    var preview = new AttackJokbo(jokbo);
+                    // 프리뷰용 데미지/골드는 수동으로 업데이트 필요 (참조 타입 문제로 private set이므로 불가)
+                    previewJokbos.Add(jokbo); // 원본 그대로 사용 (프리뷰 값은 GetPreviewValues로 처리됨)
                 }
                 UIManager.Instance.ShowAttackOptions(previewJokbos);
             }
@@ -219,14 +225,389 @@ public class StageManager : MonoBehaviour
     {
         if (!isWaitingForAttackChoice) return;
 
-        (int finalDamage, int finalGold) = GetPreviewValues(chosenJokbo);
+        currentSelectedJokbo = chosenJokbo;
 
-        //이벤트 시스템: 공격 전 이벤트 발생 (유물이 데미지/골드 수정 가능)
-        AttackContext attackCtx = new AttackContext
+        // 공격 타입에 따라 처리 분기
+        switch (chosenJokbo.TargetType)
         {
-            Jokbo = chosenJokbo,
-            BaseDamage = finalDamage,
-            BaseGold = finalGold,
+            case AttackTargetType.AoE:
+                ExecuteAoEAttack(chosenJokbo);
+                break;
+
+            case AttackTargetType.Single:
+                // 타겟 선택 대기
+                StartTargetSelection(chosenJokbo);
+                break;
+
+            case AttackTargetType.Random:
+                ExecuteRandomAttack(chosenJokbo);
+                break;
+
+            case AttackTargetType.Hybrid:
+                // 복합 공격은 먼저 주공격 타겟 선택
+                StartTargetSelection(chosenJokbo);
+                break;
+        }
+    }
+
+    //전체 공격 (AoE) 실행
+    private void ExecuteAoEAttack(AttackJokbo jokbo)
+    {
+        // 최종 데미지 계산
+        (int finalDamage, int finalGold) = GetPreviewValues(jokbo);
+        int bonusDamage = finalDamage - jokbo.BaseDamage;
+        
+        // 실제 공격용 AttackContext 생성
+        AttackContext attackCtx = CreateAttackContext(jokbo, finalDamage, finalGold);
+
+        Debug.Log($"[전체 공격] {jokbo.Description} - 데미지: {finalDamage}");
+
+        // 모든 적에게 공격 (적 타입별 데미지 계산 + 유물 보너스)
+        foreach (Enemy enemy in activeEnemies.Where(e => e != null && !e.isDead))
+        {
+            int damageToTake = enemy.CalculateDamageTaken(jokbo) + bonusDamage;
+            enemy.TakeDamage(damageToTake, jokbo);
+            Debug.Log($"  → {enemy.name} - 데미지: {damageToTake}");
+        }
+
+        GameManager.Instance.AddGoldDirect(finalGold);
+        
+        // 공격 후 이벤트 발생 (회복 등 처리)
+        GameEvents.RaiseAfterAttack(attackCtx);
+
+        FinishAttackAndCheckChain(jokbo);
+    }
+
+    // 랜덤 공격 실행
+    private void ExecuteRandomAttack(AttackJokbo jokbo)
+    {
+        List<Enemy> aliveEnemies = activeEnemies.Where(e => e != null && !e.isDead).ToList();
+        if (aliveEnemies.Count == 0)
+        {
+            FinishAttackAndCheckChain(jokbo);
+            return;
+        }
+
+        // 최종 데미지 계산 (유물 효과 포함)
+        (int finalDamage, int finalGold) = GetPreviewValues(jokbo);
+        
+        // RandomTargetCount 계산 (총합의 경우 최종 데미지/10)
+        int randomTargetCount = jokbo.RandomTargetCount;
+        if (randomTargetCount == 0)  // 총합의 경우면
+        {
+            randomTargetCount = Mathf.Max(1, finalDamage / 10);  // 최소 1명
+        }
+
+        // 생존 적 수보다 많으면 조정
+        randomTargetCount = Mathf.Min(randomTargetCount, aliveEnemies.Count);
+
+        Debug.Log($"[랜덤 공격] {jokbo.Description} → {randomTargetCount}명의 적 - 데미지: {finalDamage}");
+
+        // 랜덤 타겟 선택
+        List<Enemy> randomTargets = new List<Enemy>();
+        List<Enemy> availableEnemies = new List<Enemy>(aliveEnemies);
+        
+        for (int i = 0; i < randomTargetCount; i++)
+        {
+            if (availableEnemies.Count == 0) break;
+            
+            int randomIndex = Random.Range(0, availableEnemies.Count);
+            Enemy target = availableEnemies[randomIndex];
+            randomTargets.Add(target);
+            availableEnemies.RemoveAt(randomIndex);  // 중복 방지
+        }
+
+        // 각 타겟에게 공격 (적 타입별 데미지 계산 적용)
+        foreach (Enemy target in randomTargets)
+        {
+            int damageToTake = target.CalculateDamageTaken(jokbo);
+            // CalculateDamageTaken은 BaseDamage 기준이므로, 유물 효과 차이를 더해줌
+            int bonusDamage = finalDamage - jokbo.BaseDamage;
+            damageToTake += bonusDamage;
+            
+            target.TakeDamage(damageToTake, jokbo);
+            Debug.Log($"  → {target.name} - 데미지: {damageToTake} (기본: {jokbo.BaseDamage}, 보너스: {bonusDamage})");
+        }
+
+        GameManager.Instance.AddGoldDirect(finalGold);
+
+        FinishAttackAndCheckChain(jokbo);
+    }
+
+    // 타겟 선택 모드 시작 (Single/Hybrid 공격용)
+    private void StartTargetSelection(AttackJokbo jokbo)
+    {
+        requiredTargetCount = jokbo.RequiredTargetCount;
+        
+        // 적의 수가 요구 타겟 수보다 적으면 자동으로 모든 적 선택 후 바로 공격
+        int aliveEnemyCount = activeEnemies.Count(e => e != null && !e.isDead);
+        if (aliveEnemyCount <= requiredTargetCount)
+        {
+            Debug.Log($"[자동 타겟 선택] 적({aliveEnemyCount}명)이 요구 타겟 수({requiredTargetCount}명) 이하 - 모든 적 자동 선택");
+            currentSelectedTargets.Clear();
+            currentSelectedTargets.AddRange(activeEnemies.Where(e => e != null && !e.isDead));
+            
+            // 바로 공격 실행
+            if (jokbo.TargetType == AttackTargetType.Single)
+            {
+                ExecuteMultiTargetAttack(jokbo, currentSelectedTargets);
+            }
+            else if (jokbo.TargetType == AttackTargetType.Hybrid)
+            {
+                ExecuteHybridAttack(jokbo, currentSelectedTargets);
+            }
+            return;
+        }
+        
+        // 적이 충분하면 타겟 선택 모드 진입
+        isWaitingForTargetSelection = true;
+        currentSelectedJokbo = jokbo;
+        currentSelectedTargets.Clear();
+
+        Debug.Log($"[타겟 선택] {jokbo.Description} - {requiredTargetCount}명의 적을 선택하세요");
+        
+        // UI에 타겟 선택 표시
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.ShowTargetSelectionMode(requiredTargetCount, 0);
+        }
+    }
+
+    // 타겟이 선택되었을 때 호출 (Enemy 클릭 시)
+    public void OnEnemySelected(Enemy selectedEnemy)
+    {
+        if (!isWaitingForTargetSelection || currentSelectedJokbo == null) return;
+        if (selectedEnemy == null || selectedEnemy.isDead) return;
+
+        // 이미 선택된 적이면 선택 해제
+        if (currentSelectedTargets.Contains(selectedEnemy))
+        {
+            currentSelectedTargets.Remove(selectedEnemy);
+            Debug.Log($"[타겟 선택 해제] {selectedEnemy.name} - 남은 선택: {requiredTargetCount - currentSelectedTargets.Count}명");
+            
+            // UI 업데이트 (확인 버튼 활성화 상태도 업데이트)
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowTargetSelectionMode(requiredTargetCount, currentSelectedTargets.Count);
+            }
+            return;
+        }
+
+        // 필요한 수만큼만 선택 가능
+        if (currentSelectedTargets.Count >= requiredTargetCount)
+        {
+            Debug.Log($"[타겟 선택 제한] 이미 {requiredTargetCount}명을 선택했습니다");
+            return;
+        }
+
+        // 타겟 추가
+        currentSelectedTargets.Add(selectedEnemy);
+        Debug.Log($"[타겟 선택] {selectedEnemy.name} - 남은 선택: {requiredTargetCount - currentSelectedTargets.Count}명");
+        
+        // UI 업데이트 (확인 버튼 활성화 상태도 업데이트)
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.ShowTargetSelectionMode(requiredTargetCount, currentSelectedTargets.Count);
+        }
+
+        // 필요한 수만큼 선택되면 확인 버튼 활성화
+        if (currentSelectedTargets.Count >= requiredTargetCount)
+        {
+            Debug.Log($"[타겟 선택 완료] {requiredTargetCount}명 선택 완료 - 확인 버튼을 누르세요");
+        }
+    }
+
+    // 타겟 선택 확인 (확인 버튼 클릭 시)
+    public void ConfirmTargetSelection()
+    {
+        if (!isWaitingForTargetSelection || currentSelectedJokbo == null) return;
+        
+        // 적의 수가 요구 타겟 수보다 적으면 모든 적을 자동 선택
+        int aliveEnemyCount = activeEnemies.Count(e => e != null && !e.isDead);
+        if (aliveEnemyCount < requiredTargetCount)
+        {
+            Debug.Log($"[자동 타겟 선택] 적({aliveEnemyCount}명)이 요구 타겟 수({requiredTargetCount}명)보다 적어 모든 적을 선택합니다");
+            currentSelectedTargets.Clear();
+            currentSelectedTargets.AddRange(activeEnemies.Where(e => e != null && !e.isDead));
+        }
+        else if (currentSelectedTargets.Count < requiredTargetCount)
+        {
+            Debug.Log($"[확인 실패] {requiredTargetCount}명을 모두 선택해주세요");
+            return;
+        }
+
+        isWaitingForTargetSelection = false;
+        
+        // UI 타겟 선택 모드 종료
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.HideTargetSelectionMode();
+        }
+
+        if (currentSelectedJokbo.TargetType == AttackTargetType.Single)
+        {
+            ExecuteMultiTargetAttack(currentSelectedJokbo, currentSelectedTargets);
+        }
+        else if (currentSelectedJokbo.TargetType == AttackTargetType.Hybrid)
+        {
+            ExecuteHybridAttack(currentSelectedJokbo, currentSelectedTargets);
+        }
+    }
+
+    // 타겟 선택 취소 (취소 버튼 클릭 시)
+    public void CancelTargetSelection()
+    {
+        if (!isWaitingForTargetSelection) return;
+
+        isWaitingForTargetSelection = false;
+        AttackJokbo cancelledJokbo = currentSelectedJokbo;
+        currentSelectedJokbo = null;
+        currentSelectedTargets.Clear();
+        requiredTargetCount = 0;
+
+        Debug.Log("[타겟 선택 취소]");
+        
+        // UI 타겟 선택 모드 종료
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.HideTargetSelectionMode();
+        }
+        
+        // 족보 선택 메뉴로 돌아가기
+        isWaitingForAttackChoice = true;
+        
+        // 현재 주사위로 가능한 족보 다시 표시
+        List<int> currentValues = diceController.currentValues;
+        List<AttackJokbo> achievableJokbos = AttackDB.Instance.GetAchievableJokbos(currentValues);
+        
+        if (achievableJokbos.Count > 0 && UIManager.Instance != null)
+        {
+            UIManager.Instance.ShowAttackOptions(achievableJokbos);
+            Debug.Log($"[족보 재표시] {achievableJokbos.Count}개의 족보를 다시 표시합니다");
+        }
+    }
+
+    // 복수 타겟 공격 실행 (Single 타입의 복수 타겟)
+    private void ExecuteMultiTargetAttack(AttackJokbo jokbo, List<Enemy> targets)
+    {
+        // 최종 데미지 계산
+        (int finalDamage, int finalGold) = GetPreviewValues(jokbo);
+        int bonusDamage = finalDamage - jokbo.BaseDamage;
+        
+        // 실제 공격용 AttackContext 생성
+        AttackContext attackCtx = CreateAttackContext(jokbo, finalDamage, finalGold);
+
+        Debug.Log($"[복수 타겟 공격] {jokbo.Description} → {targets.Count}명의 적 - 데미지: {finalDamage}");
+
+        // 각 타겟에게 공격 실행
+        foreach (Enemy target in targets)
+        {
+            if (target != null && !target.isDead)
+            {
+                int damageToTake = target.CalculateDamageTaken(jokbo) + bonusDamage;
+                target.TakeDamage(damageToTake, jokbo);
+                Debug.Log($"  → {target.name} - 데미지: {damageToTake}");
+            }
+        }
+
+        GameManager.Instance.AddGoldDirect(finalGold);
+        
+        // 공격 후 이벤트 발생 (회복 등 처리)
+        GameEvents.RaiseAfterAttack(attackCtx);
+
+        FinishAttackAndCheckChain(jokbo);
+    }
+
+    // 복합 공격 실행 (주공격 + 부가공격)
+    private void ExecuteHybridAttack(AttackJokbo jokbo, List<Enemy> mainTargets)
+    {
+        // 주공격 실행 - 최종 데미지 계산 (유물 효과 포함)
+        (int finalDamage, int finalGold) = GetPreviewValues(jokbo);
+        int bonusDamage = finalDamage - jokbo.BaseDamage;
+        
+        // 실제 공격용 AttackContext 생성
+        AttackContext attackCtx = CreateAttackContext(jokbo, finalDamage, finalGold);
+
+        Debug.Log($"[복합 - 주공격] {jokbo.Description} → {mainTargets.Count}명의 적 - 데미지: {finalDamage}");
+
+        // 각 주 타겟에게 공격 실행 (적 타입별 데미지 계산 + 유물 보너스)
+        foreach (Enemy mainTarget in mainTargets)
+        {
+            if (mainTarget != null && !mainTarget.isDead)
+            {
+                int mainDamageToTake = mainTarget.CalculateDamageTaken(jokbo) + bonusDamage;
+                mainTarget.TakeDamage(mainDamageToTake, jokbo);
+                Debug.Log($"  → {mainTarget.name} - 데미지: {mainDamageToTake}");
+            }
+        }
+
+        GameManager.Instance.AddGoldDirect(finalGold);
+        
+        // 공격 후 이벤트 발생 (회복 등 처리)
+        GameEvents.RaiseAfterAttack(attackCtx);
+
+        // 부가 공격 실행
+        ExecuteSubAttack(jokbo, mainTargets);
+
+        FinishAttackAndCheckChain(jokbo);
+    }
+
+    // 복합 공격의 부가 공격 실행
+    private void ExecuteSubAttack(AttackJokbo jokbo, List<Enemy> mainTargets)
+    {
+        int subDamage = jokbo.SubDamage;
+        if (subDamage <= 0) return;
+
+        Debug.Log($"[복합 - 부가공격] 타입: {jokbo.SubTargetType}, 데미지: {subDamage}");
+
+        var subJokbo = jokbo;
+
+        switch (jokbo.SubTargetType)
+        {
+            case AttackTargetType.AoE:
+                // 전체 공격
+                foreach (Enemy enemy in activeEnemies.Where(e => e != null && !e.isDead))
+                {
+                    int damageToTake = enemy.CalculateDamageTaken(subJokbo);
+                    enemy.TakeDamage(damageToTake, subJokbo);
+                }
+                break;
+
+            case AttackTargetType.Random:
+                // 랜덤 타겟
+                List<Enemy> otherEnemies = activeEnemies.Where(e => e != null && !e.isDead && !mainTargets.Contains(e)).ToList();
+                if (otherEnemies.Count == 0)
+                {
+                    otherEnemies = activeEnemies.Where(e => e != null && !e.isDead).ToList();
+                }
+                
+                int subRandomCount = Mathf.Min(jokbo.SubRandomTargetCount, otherEnemies.Count);
+                List<Enemy> availableEnemies = new List<Enemy>(otherEnemies);
+                
+                for (int i = 0; i < subRandomCount; i++)
+                {
+                    if (availableEnemies.Count == 0) break;
+                    
+                    int randomIndex = Random.Range(0, availableEnemies.Count);
+                    Enemy randomTarget = availableEnemies[randomIndex];
+                    availableEnemies.RemoveAt(randomIndex);  // 중복 방지
+                    
+                    int damageToTake = randomTarget.CalculateDamageTaken(subJokbo);
+                    randomTarget.TakeDamage(damageToTake, subJokbo);
+                    Debug.Log($"  → 랜덤 타겟: {randomTarget.name} - 데미지: {damageToTake}");
+                }
+                break;
+        }
+    }
+
+    // AttackContext 생성 헬퍼 메서드
+    private AttackContext CreateAttackContext(AttackJokbo jokbo, int baseDamage, int baseGold)
+    {
+        return new AttackContext
+        {
+            Jokbo = jokbo,
+            BaseDamage = baseDamage,
+            BaseGold = baseGold,
             FlatDamageBonus = 0,
             FlatGoldBonus = 0,
             DamageMultiplier = 1.0f,
@@ -235,35 +616,92 @@ public class StageManager : MonoBehaviour
             RemainingRolls = diceController.maxRolls - diceController.currentRollCount,
             HealAfterAttack = 0
         };
-        GameEvents.RaiseBeforeAttack(attackCtx);
-        
-        // 이벤트에서 수정된 최종 값 계산
-        int eventFinalDamage = attackCtx.CalculateFinalDamage();
-        int eventFinalGold = attackCtx.CalculateFinalGold();
+    }
 
-        Debug.Log($"광역 공격: [{chosenJokbo.Description}] (최종 데미지: {eventFinalDamage}, 골드: {eventFinalGold})");
-
-        AttackJokbo modifiedJokbo = new AttackJokbo(
-            chosenJokbo.Description,
-            eventFinalDamage,
-            eventFinalGold,
-            chosenJokbo.CheckLogic
-        );
-
-        foreach (Enemy enemy in activeEnemies.Where(e => e != null && !e.isDead))
+    // 공격 완료 후 연쇄 공격 체크
+    private void FinishAttackAndCheckChain(AttackJokbo usedJokbo)
+    {
+        // 사용한 주사위 제거 (인덱스 기반)
+        if (usedJokbo.UsedDiceIndices != null && usedJokbo.UsedDiceIndices.Count > 0)
         {
-            int damageToTake = enemy.CalculateDamageTaken(modifiedJokbo);
-            enemy.TakeDamage(damageToTake, modifiedJokbo);
+            Debug.Log($"[주사위 제거] {usedJokbo.Description} - 인덱스: {string.Join(",", usedJokbo.UsedDiceIndices)}");
+            diceController.RemoveDiceByIndices(usedJokbo.UsedDiceIndices);
         }
 
-        // 이벤트에서 이미 계산된 골드를 직접 추가 (중복 계산 방지)
-        GameManager.Instance.AddGoldDirect(eventFinalGold);
-        
-        //이벤트 시스템: 공격 후 이벤트 발생 (회복 등)
-        GameEvents.RaiseAfterAttack(attackCtx);
-
         isWaitingForAttackChoice = false;
-        CheckWaveStatus();
+        currentSelectedJokbo = null;
+        currentSelectedTargets.Clear();
+
+        // 적이 모두 죽었는지 확인
+        int aliveEnemyCount = activeEnemies.Count(e => e != null && !e.isDead);
+        if (aliveEnemyCount == 0)
+        {
+            Debug.Log("[연쇄 종료] 모든 적 처치 완료");
+            CheckWaveStatus();
+            return;
+        }
+
+        // 연쇄 공격 체크
+        CheckForChainAttack();
+    }
+
+    // 연쇄 공격 가능 여부 체크
+    private void CheckForChainAttack()
+    {
+        int remainingDice = diceController.GetRemainingDiceCount();
+
+        if (remainingDice <= 0)
+        {
+            // 주사위 소진 → 턴 종료
+            Debug.Log("[연쇄 종료] 주사위 소진");
+            CheckWaveStatus();
+            return;
+        }
+
+        // 남은 주사위 1개면 자동으로 총합 랜덤 공격
+        if (remainingDice == 1)
+        {
+            Debug.Log("[자동 공격] 남은 주사위 1개 - 총합 랜덤 공격 실행");
+            
+            List<int> currentValues = diceController.currentValues;
+            List<AttackJokbo> achievableJokbos = AttackDB.Instance.GetAchievableJokbos(currentValues);
+            
+            // 총합 족보 찾기
+            AttackJokbo sumJokbo = achievableJokbos.FirstOrDefault(j => j.Description.Contains("총합"));
+            if (sumJokbo != null)
+            {
+                sumJokbo.CheckAndCalculate(currentValues);
+                ExecuteRandomAttack(sumJokbo);
+            }
+            else
+            {
+                Debug.LogWarning("[자동 공격 실패] 총합 족보를 찾을 수 없습니다");
+                CheckWaveStatus();
+            }
+            return;
+        }
+
+        // 남은 주사위로 만들 수 있는 족보 확인
+        List<int> currentValues2 = diceController.currentValues;
+        List<AttackJokbo> achievableJokbos2 = AttackDB.Instance.GetAchievableJokbos(currentValues2);
+
+        if (achievableJokbos2.Count > 0)
+        {
+            Debug.Log($"[연쇄 가능] 남은 주사위: {remainingDice}개, 가능한 족보: {achievableJokbos2.Count}개");
+            
+            // 족보 선택 UI 표시 (원본 그대로 사용)
+            isWaitingForAttackChoice = true;
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowAttackOptions(achievableJokbos2);
+            }
+        }
+        else
+        {
+            // 만들 수 있는 족보 없음 → 턴 종료
+            Debug.Log("[연쇄 종료] 가능한 족보 없음");
+            CheckWaveStatus();
+        }
     }
 
     private void CheckWaveStatus()
@@ -287,6 +725,14 @@ public class StageManager : MonoBehaviour
             else
             {
                 Debug.Log("적이 남았습니다. 다시 굴리세요.");
+                
+                // 주사위 전부 소진되었으면 다시 생성
+                if (diceController.GetRemainingDiceCount() <= 0)
+                {
+                    Debug.Log("[주사위 재생성] 모든 주사위가 소진되어 덱을 다시 생성합니다.");
+                    diceController.SetDiceDeck(GameManager.Instance.playerDiceDeck);
+                }
+                
                 diceController.SetRollButtonInteractable(true);
             }
         }
@@ -341,16 +787,8 @@ public class StageManager : MonoBehaviour
         foreach (GameObject enemyPrefab in enemiesToSpawn)
         {
             if (enemyPrefab == null) continue;
-            int spawnIndex = Random.Range(0, enemySpawnPoints.Length);
-            Vector3 spawnPos = enemySpawnPoints[spawnIndex].position;
-            Vector2 randomOffset = Random.insideUnitCircle * spawnSpreadRadius;
-            spawnPos.x += randomOffset.x;
-            spawnPos.y += randomOffset.y;
-            if (mainCam != null)
-            {
-                spawnPos.x = Mathf.Clamp(spawnPos.x, minViewBoundary.x, maxViewBoundary.x);
-                spawnPos.y = Mathf.Clamp(spawnPos.y, minViewBoundary.y, maxViewBoundary.y);
-            }
+            
+            Vector3 spawnPos = GetSpawnPosition();
 
             GameObject enemyGO = WaveGenerator.Instance.SpawnFromPool(enemyPrefab, spawnPos, Quaternion.identity);
             Enemy newEnemy = enemyGO.GetComponent<Enemy>();
@@ -462,12 +900,8 @@ public class StageManager : MonoBehaviour
     {
         (int finalBaseDamage, int finalBaseGold) = GetPreviewValues(jokbo);
 
-        AttackJokbo modifiedJokbo = new AttackJokbo(
-            jokbo.Description,
-            finalBaseDamage,
-            finalBaseGold,
-            jokbo.CheckLogic
-        );
+        // 원본 jokbo 사용
+        var modifiedJokbo = jokbo;
 
         foreach (Enemy enemy in activeEnemies.Where(e => e != null && !e.isDead))
         {
@@ -521,5 +955,65 @@ public class StageManager : MonoBehaviour
         {
             UIManager.Instance.UpdateWaveInfoPanel(activeEnemies);
         }
+    }
+
+    // 겹치지 않는 스폰 위치 찾기
+    private Vector3 GetSpawnPosition()
+    {
+        for (int attempt = 0; attempt < maxSpawnAttempts; attempt++)
+        {
+            // 랜덤 스폰 포인트 선택
+            int spawnIndex = Random.Range(0, enemySpawnPoints.Length);
+            Vector3 spawnPos = enemySpawnPoints[spawnIndex].position;
+            
+            // 랜덤 오프셋 적용
+            Vector2 randomOffset = Random.insideUnitCircle * spawnSpreadRadius;
+            spawnPos.x += randomOffset.x;
+            spawnPos.y += randomOffset.y;
+            
+            // 화면 경계 제한
+            if (mainCam != null)
+            {
+                spawnPos.x = Mathf.Clamp(spawnPos.x, minViewBoundary.x, maxViewBoundary.x);
+                spawnPos.y = Mathf.Clamp(spawnPos.y, minViewBoundary.y, maxViewBoundary.y);
+            }
+
+            // 다른 적들과 겹치는지 확인
+            bool isOverlapping = false;
+            foreach (Enemy existingEnemy in activeEnemies)
+            {
+                if (existingEnemy != null)
+                {
+                    float distance = Vector3.Distance(spawnPos, existingEnemy.transform.position);
+                    if (distance < minEnemySpacing)
+                    {
+                        isOverlapping = true;
+                        break;
+                    }
+                }
+            }
+
+            // 겹치지 않으면 해당 위치 반환
+            if (!isOverlapping)
+            {
+                return spawnPos;
+            }
+        }
+
+        // 최대 시도 후에도 실패하면 마지막 시도한 위치 반환
+        Debug.LogWarning($"[스폰 경고] {maxSpawnAttempts}번 시도 후에도 겹치지 않는 위치를 찾지 못했습니다.");
+        int finalIndex = Random.Range(0, enemySpawnPoints.Length);
+        Vector3 finalPos = enemySpawnPoints[finalIndex].position;
+        Vector2 finalOffset = Random.insideUnitCircle * spawnSpreadRadius;
+        finalPos.x += finalOffset.x;
+        finalPos.y += finalOffset.y;
+        
+        if (mainCam != null)
+        {
+            finalPos.x = Mathf.Clamp(finalPos.x, minViewBoundary.x, maxViewBoundary.x);
+            finalPos.y = Mathf.Clamp(finalPos.y, minViewBoundary.y, maxViewBoundary.y);
+        }
+        
+        return finalPos;
     }
 }

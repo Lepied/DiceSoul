@@ -499,8 +499,8 @@ public class RelicEffectHandler : MonoBehaviour
         }
     }
 
-    // 날쌘 손놀림 사용 여부 (웨이브당 1회)
-    private Dictionary<int, bool> swiftHandsUsedThisWave = new Dictionary<int, bool>();
+    // 날쌘 손놀림 사용 횟수 추적 (웨이브번호 → 사용횟수)
+    private Dictionary<int, int> swiftHandsUsedThisWave = new Dictionary<int, int>();
 
     // 웨이브 시작 시
     private void HandleWaveStart(WaveContext ctx)
@@ -517,8 +517,9 @@ public class RelicEffectHandler : MonoBehaviour
         // 날쌘 손놀림 사용 횟수 초기화 (매 웨이브마다 초기화)
         if (swiftHandsUsedThisWave.ContainsKey(ctx.WaveNumber))
         {
+            int usedCount = swiftHandsUsedThisWave[ctx.WaveNumber];
             swiftHandsUsedThisWave.Remove(ctx.WaveNumber);
-            Debug.Log($"[유물] 날쌘 손놀림 웨이브 {ctx.WaveNumber} 사용 횟수 초기화");
+            Debug.Log($"[유물] 날쌘 손놀림 웨이브 {ctx.WaveNumber} 종료 - 이번 웨이브 사용: {usedCount}회");
         }
         
         // RLC_SCHOLAR_BOOK: 학자의 서적 - 미사용 족보당 영구 데미지 +1%
@@ -567,24 +568,20 @@ public class RelicEffectHandler : MonoBehaviour
         // 웨이브당 보유 개수만큼 사용 가능
         int relicCount = GetRelicCount("RLC_SWIFT_HANDS");
         
+        // 이번 웨이브에서 사용한 횟수 확인
         if (!swiftHandsUsedThisWave.ContainsKey(waveNumber))
-            swiftHandsUsedThisWave[waveNumber] = false;
+            swiftHandsUsedThisWave[waveNumber] = 0;
         
-        // 이번 웨이브에서 사용 횟수 체크
-        int usedCount = 0;
-        foreach (var kvp in swiftHandsUsedThisWave)
-        {
-            if (kvp.Key == waveNumber && kvp.Value)
-                usedCount++;
-        }
+        int usedCount = swiftHandsUsedThisWave[waveNumber];
         
         if (usedCount < relicCount)
         {
-            swiftHandsUsedThisWave[waveNumber] = true;
+            swiftHandsUsedThisWave[waveNumber]++;
             Debug.Log($"[유물] 날쌘 손놀림: 무료 굴림 1회 충전! (사용 {usedCount + 1}/{relicCount})");
             return true;
         }
         
+        Debug.Log($"[유물] 날쌘 손놀림: 이번 웨이브에서 이미 {relicCount}회 모두 사용함");
         return false;
     }
 
@@ -595,7 +592,7 @@ public class RelicEffectHandler : MonoBehaviour
             return false;
             
         int relicCount = GetRelicCount("RLC_SWIFT_HANDS");
-        int usedCount = swiftHandsUsedThisWave.ContainsKey(waveNumber) && swiftHandsUsedThisWave[waveNumber] ? 1 : 0;
+        int usedCount = swiftHandsUsedThisWave.ContainsKey(waveNumber) ? swiftHandsUsedThisWave[waveNumber] : 0;
         
         return usedCount < relicCount;
     }
