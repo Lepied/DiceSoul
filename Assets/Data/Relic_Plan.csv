@@ -1,13 +1,13 @@
-﻿ID,이름,등급,획득경로,효과,최대개수,비고,구현여부,EffectType,IntValue,FloatValue,StringValue
+ID,이름,등급,획득경로,효과,최대개수,비고,구현여부,EffectType,IntValue,FloatValue,StringValue
 RLC_CLOVER,네잎클로버,Common,WaveReward,최대 굴림 횟수 +1,3,유틸리티,X,AddMaxRolls,1,0,
 RLC_WHETSTONE,숫돌,Common,WaveReward,모든 족보 데미지 +5,무제한,캐릭터 스탯,O,AddBaseDamage,5,0,
-RLC_RUSTY_GEAR,녹슨 톱니,Common,WaveReward,모든 족보 골드 +3,무제한,캐릭터 스탯,O,JokboGoldAdd,3,0,ALL
+RLC_RUSTY_GEAR,녹슨 톱니,Common,WaveReward,모든 족보 골드 +10,무제한,캐릭터 스탯,O,JokboGoldAdd,3,0,ALL
 RLC_EXTRA_DICE,여분의 주사위,Common,WaveReward,덱에 D6 추가,3,주사위 관련,O,AddDice,0,0,D6
 RLC_TINY_DICE,작은 주사위,Common,WaveReward,덱에 D4 추가,3,주사위 관련,O,AddDice,0,0,D4
 RLC_QUICK_RELOAD,빠른 장전,Common,WaveReward,첫 굴림 시 주사위 2개 즉시 재굴림,5,주사위 관련,O,RerollFirst,2,0,
 RLC_FOUNDATION,기틀,Common,WaveReward,총합 족보 데미지 +10,무제한,족보 특화,O,JokboDamageAdd,10,0,총합
-RLC_SHARP_BLADE,날카로운 칼날,Common,WaveReward,스트레이트 족보 데미지 +5,무제한,족보 특화,X,JokboDamageAdd,5,0,스트레이트
-RLC_POLISHED_ORB,광택 구슬,Common,WaveReward,모든 족보 골드 +2,무제한,캐릭터 스탯,X,JokboGoldAdd,2,0,ALL
+RLC_SHARP_BLADE,날카로운 칼날,Common,WaveReward,스트레이트 족보 데미지 +20,무제한,족보 특화,X,JokboDamageAdd,5,0,스트레이트
+RLC_POLISHED_ORB,광택 구슬,Common,WaveReward,연쇄 공격 시 공격마다 데미지 +30%,3,캐릭터 스탯,O,ChainDamageBonus,0,0.3,
 RLC_SPIKE_GLOVE,가시 돋친 장갑,Common,WaveReward,투 페어 족보 데미지 +15,무제한,족보 특화,O,JokboDamageAdd,15,0,투 페어
 RLC_TRIPOD,삼각대,Common,WaveReward,트리플 족보 골드 2배,3,족보 특화,O,JokboGoldMultiplier,0,2.0,트리플
 RLC_HOUSE,집 모형,Common,WaveReward,풀 하우스 족보 데미지 +25,무제한,족보 특화,O,JokboDamageAdd,25,0,풀 하우스

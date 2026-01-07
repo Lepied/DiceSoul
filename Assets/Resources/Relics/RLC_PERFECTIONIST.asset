@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RelicData
   relicID: RLC_PERFECTIONIST
   relicName: "\uC644\uBCBD\uC8FC\uC758\uC790"
-  description: "4\uC5F0\uC18D \uC2A4\uD2B8\uB808\uC774\uD2B8 \uC0AD\uC81C; 5\uC5F0\uC18D
+  description: "4\uC5F0\uC18D \uC2A4\uD2B8\uB808\uC774\uD2B8 \uC0AD\uC81C 5\uC5F0\uC18D
     \uC2A4\uD2B8\uB808\uC774\uD2B8 \uB370\uBBF8\uC9C0 +50"
   icon: {fileID: -5519518240904004161, guid: f6df75cb750554a4785db7f5335013a4, type: 3}
   rarity: 2

@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: RLC_.FATE_DICEpng_0
+      name: RLC_FATE_DICE
       rect:
         serializedVersion: 2
         x: 110
@@ -121,7 +121,7 @@ TextureImporter:
         width: 807
         height: 904
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 2b7abd90979cb6c42ae9ba4e0f50493d
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      RLC_.FATE_DICEpng_0: -8954411812522948207
+      RLC_FATE_DICE: -8954411812522948207
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

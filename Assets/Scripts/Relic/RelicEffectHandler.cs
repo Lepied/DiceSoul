@@ -396,6 +396,21 @@ public class RelicEffectHandler : MonoBehaviour
                 case RelicEffectType.PermanentDamageGrowth:
                     ctx.FlatDamageBonus += scholarsTomeBonusDamage;
                     break;
+                    
+                // === 광택 구슬: 연쇄 공격 데미지 증폭 (개당 30%) ===
+                case RelicEffectType.ChainDamageBonus:
+                    if (StageManager.Instance != null)
+                    {
+                        int chainCount = StageManager.Instance.GetCurrentChainCount();
+                        if (chainCount > 1) // 2번째 공격부터 적용
+                        {
+                            int relicCount = GetRelicCount("RLC_POLISHED_ORB");
+                            float chainBonus = (chainCount - 1) * relic.FloatValue * relicCount;
+                            ctx.DamageMultiplier += chainBonus;
+                            Debug.Log($"[유물] 광택 구슬: {chainCount}연쇄 공격 - 데미지 +{chainBonus * 100}% (유물 {relicCount}개)");
+                        }
+                    }
+                    break;
             }
         }
     }
@@ -687,13 +702,19 @@ public class RelicEffectHandler : MonoBehaviour
 
             // === 굴림 횟수 변경 유물 ===
             case "RLC_HEAVY_DICE":
-                // ApplyAllRelicEffects에서 처리 (ModifyMaxRolls)
-                Debug.Log("[유물] 무거운 주사위: 굴림 횟수 -1");
+                if (DiceController.Instance != null)
+                {
+                    DiceController.Instance.ApplyRollBonus(-1);
+                    Debug.Log("[유물] 무거운 주사위: 굴림 횟수 -1");
+                }
                 break;
 
             case "RLC_CLOVER":
-                // ApplyAllRelicEffects에서 처리 (AddMaxRolls)
-                Debug.Log("[유물] 네잎클로버: 최대 굴림 횟수 +1");
+                if (DiceController.Instance != null)
+                {
+                    DiceController.Instance.ApplyRollBonus(1);
+                    Debug.Log("[유물] 네잎클로버: 최대 굴림 횟수 +1");
+                }
                 break;
 
             // === 기타 유물 ===

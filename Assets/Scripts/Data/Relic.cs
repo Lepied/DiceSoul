@@ -42,6 +42,7 @@ public enum RelicEffectType
     // ===== 특수 보너스 =====
     RollCountBonus,           // 첫 굴림 보너스 (명함)
     FirstAttackBonus,         // 첫 공격 보너스 (날쌘 손놀림)
+    ChainDamageBonus,         // 연쇄 공격 데미지 증폭 (광택 구슬)
     
     // ===== 생존/회복 =====
     HealOnJokbo,              // 족보 완성 시 회복 (흡혈귀 이빨)

@@ -19,6 +19,7 @@ public class UIManager : MonoBehaviour
 
     [Header("공격 선택 UI")]
     public GameObject attackOptionsPanel;
+    public Button toggleAttackOptionsButton;  // 족보 UI 접기/펼치기 버튼
     public GameObject[] attackOptionButtons;
     public TextMeshProUGUI[] attackNameTexts;
     public TextMeshProUGUI[] attackValueTexts;
@@ -105,6 +106,11 @@ public class UIManager : MonoBehaviour
         if (waveInfoToggleButton != null)
         {
             waveInfoToggleButton.onClick.AddListener(ToggleWaveInfoPanel);
+        }
+        
+        if (toggleAttackOptionsButton != null)
+        {
+            toggleAttackOptionsButton.onClick.AddListener(ToggleAttackOptionsPanel);
         }
 
         if (relicPanel != null) relicPanel.SetActive(true);
@@ -308,9 +314,15 @@ public class UIManager : MonoBehaviour
             {
                 countText.text = (count > 1) ? $"x{count}" : "";
             }
+            
+            // 수동 유물인지 확인
+            bool isManualRelic = IsManualRelic(relicData.RelicID);
+            
+            // EventTrigger 설정 (마우스 오버 툴팁)
             EventTrigger trigger = iconGO.GetComponent<EventTrigger>();
             if (trigger == null) trigger = iconGO.AddComponent<EventTrigger>();
             trigger.triggers.Clear();
+            
             EventTrigger.Entry entryEnter = new EventTrigger.Entry();
             entryEnter.eventID = EventTriggerType.PointerEnter;
             entryEnter.callback.AddListener((data) =>
@@ -318,6 +330,7 @@ public class UIManager : MonoBehaviour
                 ShowRelicDetail(relicData, iconGO.GetComponent<RectTransform>());
             });
             trigger.triggers.Add(entryEnter);
+            
             EventTrigger.Entry entryExit = new EventTrigger.Entry();
             entryExit.eventID = EventTriggerType.PointerExit;
             entryExit.callback.AddListener((data) =>
@@ -325,8 +338,179 @@ public class UIManager : MonoBehaviour
                 HideRelicDetail();
             });
             trigger.triggers.Add(entryExit);
+            
+            // 수동 유물이면 클릭 이벤트 추가
+            if (isManualRelic)
+            {
+                Button relicButton = iconGO.GetComponent<Button>();
+                if (relicButton == null) relicButton = iconGO.AddComponent<Button>();
+                
+                // 클릭 이벤트 연결
+                relicButton.onClick.RemoveAllListeners();
+                string relicID = relicData.RelicID; // 람다 캡처용
+                relicButton.onClick.AddListener(() => OnManualRelicClicked(relicID));
+                
+                // 사용 가능 여부에 따라 시각 효과 업데이트
+                UpdateManualRelicVisual(iconGO, relicID);
+            }
         }
     }
+    
+    // 수동 유물 여부 확인
+    private bool IsManualRelic(string relicID)
+    {
+        return relicID == "RLC_DOUBLE_DICE" || relicID == "RLC_FATE_DICE" || relicID == "RLC_DICE_CUP";
+    }
+    
+    // 수동 유물 클릭 핸들러
+    private void OnManualRelicClicked(string relicID)
+    {
+        if (RelicEffectHandler.Instance == null)
+        {
+            Debug.LogWarning("[UIManager] RelicEffectHandler가 없습니다.");
+            return;
+        }
+        
+        switch (relicID)
+        {
+            case "RLC_DOUBLE_DICE":
+                if (RelicEffectHandler.Instance.CanUseDoubleDice())
+                {
+                    // 주사위 선택 모드 시작
+                    StartDoubleDiceSelection();
+                }
+                else
+                {
+                    Debug.Log("[유물] 이중 주사위: 이번 웨이브에서 이미 사용했습니다.");
+                    ShowTemporaryMessage("이중 주사위는 이미 사용했습니다!");
+                }
+                break;
+                
+            case "RLC_FATE_DICE":
+                if (RelicEffectHandler.Instance.CanUseFateDice())
+                {
+                    // 운명의 주사위 즉시 사용
+                    UseFateDice();
+                }
+                else
+                {
+                    Debug.Log("[유물] 운명의 주사위: 이번 런에서 이미 사용했습니다.");
+                    ShowTemporaryMessage("운명의 주사위는 이미 사용했습니다!");
+                }
+                break;
+                
+            case "RLC_DICE_CUP":
+                if (RelicEffectHandler.Instance.CanUseDiceCup())
+                {
+                    // 주사위 컵 사용 (구현 필요 시 추가)
+                    Debug.Log("[유물] 주사위 컵 사용 (미구현)");
+                }
+                else
+                {
+                    ShowTemporaryMessage("주사위 컵은 이미 사용했습니다!");
+                }
+                break;
+        }
+    }
+    
+    // 이중 주사위 선택 모드 시작
+    private void StartDoubleDiceSelection()
+    {
+        Debug.Log("[UI] 이중 주사위 사용 - 2배로 만들 주사위를 클릭하세요");
+        ShowTemporaryMessage("2배로 만들 주사위를 클릭하세요!");
+        
+        // DiceController에 선택 모드 활성화 신호 보내기
+        if (DiceController.Instance != null)
+        {
+            DiceController.Instance.StartDoubleDiceSelectionMode();
+        }
+    }
+    
+    // 운명의 주사위 사용
+    private void UseFateDice()
+    {
+        if (DiceController.Instance == null)
+        {
+            Debug.LogWarning("[UIManager] DiceController가 없습니다.");
+            return;
+        }
+        
+        // 현재 주사위 값 가져오기
+        List<int> currentValues = DiceController.Instance.currentValues;
+        List<string> diceTypes = DiceController.Instance.GetDiceTypes();
+        
+        if (currentValues.Count == 0)
+        {
+            ShowTemporaryMessage("주사위가 없습니다!");
+            return;
+        }
+        
+        // 배열로 변환
+        int[] values = currentValues.ToArray();
+        string[] types = diceTypes.ToArray();
+        
+        // 운명의 주사위 사용
+        bool success = RelicEffectHandler.Instance.UseFateDice(values, types);
+        
+        if (success)
+        {
+            // DiceController에 변경된 값 적용
+            DiceController.Instance.ApplyFateDiceValues(values);
+            ShowTemporaryMessage("모든 주사위가 최대값이 되었습니다!");
+            
+            // 유물 패널 업데이트 (회색 처리)
+            if (GameManager.Instance != null)
+            {
+                UpdateRelicPanel(GameManager.Instance.activeRelics);
+            }
+        }
+    }
+    
+    // 수동 유물 시각 효과 업데이트
+    private void UpdateManualRelicVisual(GameObject iconGO, string relicID)
+    {
+        if (RelicEffectHandler.Instance == null) return;
+        
+        Image relicImage = iconGO.GetComponent<Image>();
+        if (relicImage == null) return;
+        
+        bool canUse = false;
+        
+        switch (relicID)
+        {
+            case "RLC_DOUBLE_DICE":
+                canUse = RelicEffectHandler.Instance.CanUseDoubleDice();
+                break;
+            case "RLC_FATE_DICE":
+                canUse = RelicEffectHandler.Instance.CanUseFateDice();
+                break;
+            case "RLC_DICE_CUP":
+                canUse = RelicEffectHandler.Instance.CanUseDiceCup();
+                break;
+        }
+        
+        // 사용 가능하면 밝게, 불가능하면 어둡게
+        Color color = canUse ? Color.white : new Color(0.5f, 0.5f, 0.5f, 1f);
+        relicImage.color = color;
+        
+        // 버튼 활성화 여부도 설정
+        Button button = iconGO.GetComponent<Button>();
+        if (button != null)
+        {
+            button.interactable = canUse;
+        }
+    }
+    
+    // 임시 메시지 표시 (2초간)
+    private void ShowTemporaryMessage(string message)
+    {
+        // 기존 메시지 UI가 있으면 사용, 없으면 콘솔 로그
+        Debug.Log($"[알림] {message}");
+        
+        // TODO: 실제 UI 팝업 구현 시 여기에 추가
+        // 예: messageText.text = message; StartCoroutine(HideMessageAfterDelay(2f));
+    }
+    
     public void ShowRelicDetail(Relic relic, RectTransform iconRect)
     {
         if (relicDetailPopup == null) return;
@@ -417,6 +601,48 @@ public class UIManager : MonoBehaviour
             StageManager.Instance.HideAllAttackPreviews();
             StageManager.Instance.ProcessAttack(jokbo); // 원본 족보로 공격 실행
         }
+    }
+    
+    // 족보 UI 토글 (접기/펼치기)
+    public void ToggleAttackOptionsPanel()
+    {
+        if (attackOptionsPanel == null) return;
+        
+        bool isActive = attackOptionsPanel.activeSelf;
+        attackOptionsPanel.SetActive(!isActive);
+        
+        if (isActive)
+        {
+            Debug.Log("[UI] 족보 패널 숨김");
+            // 프리뷰도 숨김
+            if (StageManager.Instance != null)
+            {
+                StageManager.Instance.HideAllAttackPreviews();
+            }
+        }
+        else
+        {
+            Debug.Log("[UI] 족보 패널 표시");
+        }
+    }
+    
+    // 족보 UI 강제로 숨기기
+    public void HideAttackOptionsPanel()
+    {
+        if (attackOptionsPanel != null)
+        {
+            attackOptionsPanel.SetActive(false);
+            if (StageManager.Instance != null)
+            {
+                StageManager.Instance.HideAllAttackPreviews();
+            }
+        }
+    }
+    
+    // 족보 UI 표시 여부 확인
+    public bool IsAttackOptionsPanelVisible()
+    {
+        return attackOptionsPanel != null && attackOptionsPanel.activeSelf;
     }
 
     public void ShowRewardScreen(List<Relic> relicOptions)

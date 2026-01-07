@@ -31,6 +31,7 @@ public class StageManager : MonoBehaviour
     private List<Enemy> currentSelectedTargets = new List<Enemy>();  // 선택된 타겟들
     private bool isWaitingForTargetSelection = false;     // 타겟 선택 대기 중
     private int requiredTargetCount = 0;                  // 선택해야 할 타겟 수
+    private int currentChainCount = 0;                    // 현재 연쇄 공격 횟수 (광택 구슬용)
 
     private Camera mainCam;
     private Vector2 minViewBoundary;
@@ -631,6 +632,10 @@ public class StageManager : MonoBehaviour
         isWaitingForAttackChoice = false;
         currentSelectedJokbo = null;
         currentSelectedTargets.Clear();
+        
+        // 연쇄 공격 카운터 증가
+        currentChainCount++;
+        Debug.Log($"[연쇄 공격] 현재 연쇄 횟수: {currentChainCount}");
 
         // 적이 모두 죽었는지 확인
         int aliveEnemyCount = activeEnemies.Count(e => e != null && !e.isDead);
@@ -742,6 +747,9 @@ public class StageManager : MonoBehaviour
     {
         Debug.Log("StageManager: 다음 웨이브 준비 중...");
         isWaitingForAttackChoice = false;
+        
+        // 연쇄 공격 카운터 초기화
+        currentChainCount = 0;
 
         foreach (Enemy enemy in activeEnemies)
         {
@@ -1015,5 +1023,11 @@ public class StageManager : MonoBehaviour
         }
         
         return finalPos;
+    }
+    
+    // 연쇄 공격 카운터 getter
+    public int GetCurrentChainCount()
+    {
+        return currentChainCount;
     }
 }

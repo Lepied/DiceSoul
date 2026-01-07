@@ -15,11 +15,11 @@ MonoBehaviour:
   relicID: RLC_LUCKY_CHARM
   relicName: "\uD589\uC6B4\uC758 \uB3D9\uC804"
   description: "\uC0C1\uC810 \uD310\uB9E4\uAC00 25% \uD560\uC778"
-  icon: {fileID: 0}
+  icon: {fileID: -6680453214341019108, guid: 64596971d30fc8646a25815f8de3a021, type: 3}
   rarity: 2
   dropPool: 1
   category: 4
-  effectType: 34
+  effectType: 35
   triggerTiming: 0
   intValue: 0
   floatValue: 0.25

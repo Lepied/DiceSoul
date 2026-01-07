@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RelicData
   relicID: RLC_FOCUS
   relicName: "\uC9D1\uC911"
-  description: "\uBAA8\uB4E0 \uC871\uBCF4 \uB370\uBBF8\uC9C0 +20; D6 1\uAC1C \uC81C\uAC70"
+  description: "\uBAA8\uB4E0 \uC871\uBCF4 \uB370\uBBF8\uC9C0 +20 D6 1\uAC1C \uC81C\uAC70"
   icon: {fileID: 6145694135444231639, guid: b220535594afe0b439fad1223a55e8a2, type: 3}
   rarity: 1
   dropPool: 1

@@ -297,6 +297,20 @@ public class DiceController : MonoBehaviour
     {
         currentRollCount = 0;
         maxRolls = baseMaxRolls;
+        
+        // 유물 효과로 굴림 횟수 보너스 재적용
+        if (GameManager.Instance != null)
+        {
+            foreach (var relic in GameManager.Instance.activeRelics)
+            {
+                if (relic.EffectType == RelicEffectType.AddMaxRolls || 
+                    relic.EffectType == RelicEffectType.ModifyMaxRolls)
+                {
+                    maxRolls += relic.IntValue;
+                }
+            }
+        }
+        
         isRolling = false;
         SetRollButtonInteractable(true);
         
@@ -424,6 +438,93 @@ public class DiceController : MonoBehaviour
     {
         return activeDice.Count;
     }
+    // 주사위 타입 목록 가져오기
+    public List<string> GetDiceTypes()
+    {
+        return activeDice.Select(d => d.Type).ToList();
+    }
+    
+    //이중 주사위 유물 관련
+    private bool isDoubleDiceSelectionMode = false;
+    
+    public void StartDoubleDiceSelectionMode()
+    {
+        isDoubleDiceSelectionMode = true;
+        Debug.Log("[DiceController] 이중 주사위 모드 활성화 - 주사위를 클릭하세요");
+        
+        // TODO: 선택 가능 표시추가하기
+    }
+    
+    public bool TryUseDoubleDiceOn(int diceIndex)
+    {
+        if (!isDoubleDiceSelectionMode) return false;
+        
+        OnDiceClickedForDoubleDice(diceIndex);
+        return true;
+    }
+    
+    private void OnDiceClickedForDoubleDice(int diceIndex)
+    {
+        if (!isDoubleDiceSelectionMode) return;
+        
+        if (diceIndex < 0 || diceIndex >= activeDice.Count)
+        {
+            Debug.LogWarning($"[DiceController] 잘못된 주사위 인덱스: {diceIndex}");
+            return;
+        }
+        
+        Dice selectedDice = activeDice[diceIndex];
+        int currentValue = selectedDice.Value;
+        
+        // RelicEffectHandler를 통해 이중 주사위 사용
+        if (RelicEffectHandler.Instance != null)
+        {
+            int newValue = RelicEffectHandler.Instance.UseDoubleDice(diceIndex, currentValue);
+            
+            if (newValue > 0)
+            {
+                // 주사위 값 업데이트
+                selectedDice.UpdateVisual(newValue);
+                Debug.Log($"[DiceController] 주사위[{diceIndex}] {currentValue} → {newValue}");
+                
+                // 족보 프리뷰 업데이트
+                if (StageManager.Instance != null)
+                {
+                    StageManager.Instance.OnRollFinished(currentValues, false);
+                }
+                
+                // 유물 패널 업데이트 (회색 처리)
+                if (UIManager.Instance != null && GameManager.Instance != null)
+                {
+                    UIManager.Instance.UpdateRelicPanel(GameManager.Instance.activeRelics);
+                }
+            }
+        }
+        
+        isDoubleDiceSelectionMode = false;
+    }
+    
+    // 운명의 주사위 유물 관련
+    public void ApplyFateDiceValues(int[] newValues)
+    {
+        if (newValues.Length != activeDice.Count)
+        {
+            Debug.LogWarning($"[DiceController] 주사위 개수 불일치: {newValues.Length} vs {activeDice.Count}");
+            return;
+        }
+        
+        // 모든 주사위 값 업데이트
+        for (int i = 0; i < activeDice.Count; i++)
+        {
+            activeDice[i].UpdateVisual(newValues[i]);
+        }
+        
+        Debug.Log("[DiceController] 운명의 주사위 적용 완료!");
+        
+        // 족보 프리뷰 업데이트
+        if (StageManager.Instance != null)
+        {
+            StageManager.Instance.OnRollFinished(currentValues, false);
+        }
+    }
 }
-
-

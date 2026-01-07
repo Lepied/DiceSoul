@@ -617,16 +617,6 @@ public class GameManager : MonoBehaviour
         };
         GameEvents.RaiseRelicAcquire(relicCtx);
 
-        // 굴림 횟수 관련 유물은 즉시 적용
-        if (chosenRelic.EffectType == RelicEffectType.AddMaxRolls || 
-            chosenRelic.EffectType == RelicEffectType.ModifyMaxRolls)
-        {
-            if (StageManager.Instance?.diceController != null)
-            {
-                ApplyAllRelicEffects(StageManager.Instance.diceController);
-            }
-        }
-
         if (UIManager.Instance != null && !UIManager.Instance.IsShopOpen())
         {
             if (StageManager.Instance != null)
@@ -639,20 +629,7 @@ public class GameManager : MonoBehaviour
     public void ApplyAllRelicEffects(DiceController diceController)
     {
         Debug.Log("보유한 유물 효과를 모두 적용합니다...");
-        foreach (Relic relic in activeRelics)
-        {
-            switch (relic.EffectType)
-            {
-                case RelicEffectType.AddMaxRolls:
-                    diceController.ApplyRollBonus(relic.IntValue);
-                    break;
 
-
-                case RelicEffectType.ModifyMaxRolls: // (예: 무거운 주사위)
-                    diceController.ApplyRollBonus(relic.IntValue); // (IntValue: -1)
-                    break;
-            }
-        }
         ApplyZoneBuffs(diceController);
 
         if (UIManager.Instance != null)

@@ -37,8 +37,18 @@ public class Dice : MonoBehaviour
     // --- 행동 (Actions) ---
     private void OnMouseDown()
     {
-        // 1. 굴리는 중이거나 횟수 제한 확인
         if (DiceController.Instance == null) return;
+        
+        // 이중 주사위 선택 모드 확인
+        int myIndex = DiceController.Instance.activeDice.IndexOf(this);
+        if (myIndex >= 0)
+        {
+            // 이중 주사위 클릭 처리 시도 (선택 모드일 때만 처리됨)
+            bool handled = DiceController.Instance.TryUseDoubleDiceOn(myIndex);
+            if (handled) return; // 이중 주사위로 처리되었으면 킵 토글 안함
+        }
+        
+        // 일반 킵 토글 로직
         if (DiceController.Instance.isRolling) return;
         
         int rolls = DiceController.Instance.currentRollCount;

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RelicData
   relicID: RLC_HEAVY_DICE
   relicName: "\uBB34\uAC70\uC6B4 \uC8FC\uC0AC\uC704"
-  description: "\uCD1D\uD569 \uC871\uBCF4 \uB370\uBBF8\uC9C0 +30; \uAD74\uB9BC \uD69F\uC218
+  description: "\uCD1D\uD569 \uC871\uBCF4 \uB370\uBBF8\uC9C0 +30 \uAD74\uB9BC \uD69F\uC218
     -1"
   icon: {fileID: -7188674169428368444, guid: 856e124f348213a439f66ece41e2d11b, type: 3}
   rarity: 2

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RelicData
   relicID: RLC_RUSTY_GEAR
   relicName: "\uB179\uC2A8 \uD1B1\uB2C8"
-  description: "\uBAA8\uB4E0 \uC871\uBCF4 \uACE8\uB4DC +3"
+  description: "\uBAA8\uB4E0 \uC871\uBCF4 \uACE8\uB4DC +10"
   icon: {fileID: -9211590566394757868, guid: e08392bb07f771b4eb5db573770c7180, type: 3}
   rarity: 0
   dropPool: 0

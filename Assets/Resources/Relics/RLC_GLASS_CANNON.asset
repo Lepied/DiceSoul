@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RelicData
   relicID: RLC_GLASS_CANNON
   relicName: "\uC720\uB9AC \uB300\uD3EC"
-  description: "\uBAA8\uB4E0 \uC871\uBCF4 \uB370\uBBF8\uC9C0 +50; \uCD5C\uB300 \uCCB4\uB825
+  description: "\uBAA8\uB4E0 \uC871\uBCF4 \uB370\uBBF8\uC9C0 +50 \uCD5C\uB300 \uCCB4\uB825
     -5"
   icon: {fileID: 7030888701179279346, guid: c8a5f6defa307b341a271695a11b2c9e, type: 3}
   rarity: 2

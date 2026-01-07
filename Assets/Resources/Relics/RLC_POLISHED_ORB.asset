@@ -14,17 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RelicData
   relicID: RLC_POLISHED_ORB
   relicName: "\uAD11\uD0DD \uAD6C\uC2AC"
-  description: "\uBAA8\uB4E0 \uC871\uBCF4 \uACE8\uB4DC +2"
+  description: "\uC5F0\uC1C4 \uACF5\uACA9 \uC2DC \uACF5\uACA9\uB9C8\uB2E4 \uB370\uBBF8\uC9C0
+    +30%"
   icon: {fileID: 6743025333390951622, guid: ab3465e479e3d294a90fbad9ee8c5223, type: 3}
   rarity: 0
   dropPool: 0
   category: 1
-  effectType: 19
+  effectType: 28
   triggerTiming: 0
-  intValue: 2
-  floatValue: 0
-  stringValue: ALL
-  maxCount: 0
+  intValue: 0
+  floatValue: 0.3
+  stringValue: 
+  maxCount: 3
   isUnlockedByDefault: 1
   unlockCondition: 
   requiresManualActivation: 0
