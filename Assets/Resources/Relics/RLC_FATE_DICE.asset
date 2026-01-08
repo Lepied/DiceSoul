@@ -15,7 +15,7 @@ MonoBehaviour:
   relicID: RLC_FATE_DICE
   relicName: "\uC6B4\uBA85\uC758 \uC8FC\uC0AC\uC704"
   description: "\uBAA8\uB4E0 \uC8FC\uC0AC\uC704\uB97C \uAC00\uC7A5 \uB192\uC740 \uB208\uC73C\uB85C
-    \uBCC0\uACBD (1\uD68C)"
+    \uBCC0\uACBD (\uC874 \uB2F9 1\uD68C)"
   icon: {fileID: -8954411812522948207, guid: 7a7bdcc0eae53e54f88682ce89bc06af, type: 3}
   rarity: 3
   dropPool: 2

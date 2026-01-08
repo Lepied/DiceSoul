@@ -287,8 +287,6 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
             damagePreviewFillImage.color = c;
         }
     }
-
-    // IPointerClickHandler 구현 - EventSystem을 통한 클릭 감지
     public void OnPointerClick(PointerEventData eventData)
     {
         Debug.Log($"[Enemy OnPointerClick] {enemyName} 클릭 감지! isDead={isDead}");

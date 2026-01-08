@@ -241,7 +241,7 @@ public class DiceController : MonoBehaviour
             }
         }
 
-        // ★ 이벤트 시스템: 주사위 굴림 완료 이벤트 발생
+        //이벤트 시스템: 주사위 굴림 완료 이벤트 발생
         RollContext rollCtx = new RollContext
         {
             DiceValues = activeDice.Select(d => d.Value).ToArray(),
@@ -314,7 +314,7 @@ public class DiceController : MonoBehaviour
         isRolling = false;
         SetRollButtonInteractable(true);
         
-        // ★ 이벤트 시스템: 턴 시작 이벤트
+        //이벤트 시스템: 턴 시작 이벤트
         GameEvents.RaiseTurnStart();
         
         // 주사위들은 다음 SetDiceDeck때 파괴되고 재생성됨

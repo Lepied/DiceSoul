@@ -456,7 +456,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 748899812}
-  - {fileID: 1728788069}
   - {fileID: 658471530}
   m_Father: {fileID: 468377340}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1927,6 +1926,7 @@ GameObject:
   - component: {fileID: 327779101}
   - component: {fileID: 327779100}
   - component: {fileID: 327779099}
+  - component: {fileID: 327779102}
   m_Layer: 5
   m_Name: AttackOptionPanel
   m_TagString: Untagged
@@ -1988,13 +1988,26 @@ RectTransform:
   - {fileID: 1113244307}
   - {fileID: 1884897951}
   - {fileID: 254470865}
+  - {fileID: 1728788069}
   m_Father: {fileID: 468377340}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 400}
+  m_AnchoredPosition: {x: 0, y: 10}
+  m_SizeDelta: {x: 20, y: 400}
   m_Pivot: {x: 0.5, y: 1}
+--- !u!225 &327779102
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 327779098}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &387370985
 GameObject:
   m_ObjectHideFlags: 0
@@ -2418,7 +2431,10 @@ MonoBehaviour:
   healthText: {fileID: 883141609}
   rollCountText: {fileID: 387370987}
   attackOptionsPanel: {fileID: 327779098}
+  attackOptionsPanelCanvasGroup: {fileID: 0}
   toggleAttackOptionsButton: {fileID: 1728788070}
+  arrowDownSprite: {fileID: 0}
+  arrowUpSprite: {fileID: 0}
   attackOptionButtons:
   - {fileID: 166942000}
   - {fileID: 1113244306}
@@ -12283,13 +12299,13 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1849577737}
-  m_Father: {fileID: 129778526}
+  m_Father: {fileID: 327779101}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 0.5}
-  m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -174.1}
-  m_SizeDelta: {x: 250, y: 98.2053}
-  m_Pivot: {x: 1, y: 0.5}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 0}
+  m_AnchoredPosition: {x: 0, y: -75}
+  m_SizeDelta: {x: 150, y: 80}
+  m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1728788070
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12979,7 +12995,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC871\uBCF4\uD1A0\uAE00"
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: abd9f2f297b0dd34ca5a4e600992a45f, type: 2}
   m_sharedMaterial: {fileID: 5735879565081936514, guid: abd9f2f297b0dd34ca5a4e600992a45f, type: 2}

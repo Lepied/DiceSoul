@@ -18,7 +18,7 @@ public class RelicEffectHandler : MonoBehaviour
     // 수동 유물 사용 횟수 추적
     private bool diceCupUsedThisWave = false;
     private bool doubleDiceUsedThisWave = false;
-    private bool fateDiceUsedThisRun = false;
+    private bool fateDiceUsedThisZone = false; // 존당 1회로 변경
 
     // 캐싱된 Context (GC 방지)
     private RollContext cachedRollContext = new RollContext();
@@ -551,6 +551,8 @@ public class RelicEffectHandler : MonoBehaviour
     {
         // 존 관련 상태 초기화
         smallShieldUsedThisZone = false;
+        fateDiceUsedThisZone = false; // 운명의 주사위 충전
+        Debug.Log("[유물] 새 존 시작 - 운명의 주사위 충전됨");
     }
 
     // 존 종료 시
@@ -798,9 +800,9 @@ public class RelicEffectHandler : MonoBehaviour
             return false;
         }
 
-        if (fateDiceUsedThisRun)
+        if (fateDiceUsedThisZone)
         {
-            Debug.Log("[유물] 운명의 주사위: 이번 런에서 이미 사용했습니다.");
+            Debug.Log("[유물] 운명의 주사위: 이번 존에서 이미 사용했습니다.");
             return false;
         }
 
@@ -809,7 +811,7 @@ public class RelicEffectHandler : MonoBehaviour
             return false;
         }
 
-        fateDiceUsedThisRun = true;
+        fateDiceUsedThisZone = true;
 
         // 각 주사위를 최대값으로 설정
         for (int i = 0; i < diceValues.Length; i++)
@@ -840,7 +842,7 @@ public class RelicEffectHandler : MonoBehaviour
     // 수동 유물 사용 가능 여부 체크
     public bool CanUseDiceCup() => HasRelic("RLC_DICE_CUP") && !diceCupUsedThisWave;
     public bool CanUseDoubleDice() => HasRelic("RLC_DOUBLE_DICE") && !doubleDiceUsedThisWave;
-    public bool CanUseFateDice() => HasRelic("RLC_FATE_DICE") && !fateDiceUsedThisRun;
+    public bool CanUseFateDice() => HasRelic("RLC_FATE_DICE") && !fateDiceUsedThisZone;
 
     // ===== 런 시작/종료 =====
 
@@ -852,7 +854,7 @@ public class RelicEffectHandler : MonoBehaviour
         scholarsTomeBonusDamage = 0;
         diceCupUsedThisWave = false;
         doubleDiceUsedThisWave = false;
-        fateDiceUsedThisRun = false;
+        fateDiceUsedThisZone = false;
         swiftHandsUsedThisWave.Clear();
     }
 }

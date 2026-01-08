@@ -19,16 +19,19 @@ public class UIManager : MonoBehaviour
 
     [Header("공격 선택 UI")]
     public GameObject attackOptionsPanel;
-    public Button toggleAttackOptionsButton;  // 족보 UI 접기/펼치기 버튼
+    public CanvasGroup attackOptionsPanelCanvasGroup;
+    public Button toggleAttackOptionsButton;
+    public Sprite arrowDownSprite;
+    public Sprite arrowUpSprite;
     public GameObject[] attackOptionButtons;
     public TextMeshProUGUI[] attackNameTexts;
     public TextMeshProUGUI[] attackValueTexts;
 
     [Header("탄겟 선택 UI")]
-    public GameObject targetSelectionPanel;        // 타겟 선택 모드 UI 패널
-    public TextMeshProUGUI targetSelectionText;    // "적을 선택하세요 (2/3)"
-    public Button confirmTargetButton;             // 확인 버튼
-    public Button cancelTargetButton;              // 취소 버튼
+    public GameObject targetSelectionPanel;
+    public TextMeshProUGUI targetSelectionText;
+    public Button confirmTargetButton;
+    public Button cancelTargetButton;
 
     [Header("보상 UI")]
     public GameObject rewardScreenPanel;
@@ -111,6 +114,16 @@ public class UIManager : MonoBehaviour
         if (toggleAttackOptionsButton != null)
         {
             toggleAttackOptionsButton.onClick.AddListener(ToggleAttackOptionsPanel);
+        }
+        
+        // CanvasGroup 자동 추가 (없으면)
+        if (attackOptionsPanel != null && attackOptionsPanelCanvasGroup == null)
+        {
+            attackOptionsPanelCanvasGroup = attackOptionsPanel.GetComponent<CanvasGroup>();
+            if (attackOptionsPanelCanvasGroup == null)
+            {
+                attackOptionsPanelCanvasGroup = attackOptionsPanel.AddComponent<CanvasGroup>();
+            }
         }
 
         if (relicPanel != null) relicPanel.SetActive(true);
@@ -534,6 +547,30 @@ public class UIManager : MonoBehaviour
     {
         if (attackOptionsPanel == null) return;
         attackOptionsPanel.SetActive(true);
+        
+        RectTransform panelRect = attackOptionsPanel.GetComponent<RectTransform>();
+        
+        if (attackOptionsPanelCanvasGroup != null)
+        {
+            attackOptionsPanelCanvasGroup.alpha = 1f;
+        }
+        
+        // 토글 버튼 활성화 및 패널 하단에 딱 붙여서 배치
+        if (toggleAttackOptionsButton != null)
+        {
+            toggleAttackOptionsButton.gameObject.SetActive(true);
+            RectTransform buttonRect = toggleAttackOptionsButton.GetComponent<RectTransform>();
+            if (panelRect != null && buttonRect != null)
+            {
+                // 패널 하단 위치 = 패널의 현재 y위치 - 패널 높이
+                float panelBottom = panelRect.anchoredPosition.y - panelRect.sizeDelta.y;
+                buttonRect.anchoredPosition = new Vector2(buttonRect.anchoredPosition.x, panelBottom);
+            }
+        }
+        
+        // 패널 펼침 상태로 초기화
+        isAttackOptionsPanelOpen = true;
+        UpdateToggleButtonArrow();
 
         if (StageManager.Instance != null) StageManager.Instance.HideAllAttackPreviews();
 
@@ -596,6 +633,13 @@ public class UIManager : MonoBehaviour
     private void SelectAttack(AttackJokbo jokbo) // (원본 족보가 전달됨)
     {
         attackOptionsPanel.SetActive(false);
+        
+        // 토글 버튼도 숨김
+        if (toggleAttackOptionsButton != null)
+        {
+            toggleAttackOptionsButton.gameObject.SetActive(false);
+        }
+        
         if (StageManager.Instance != null)
         {
             StageManager.Instance.HideAllAttackPreviews();
@@ -603,26 +647,78 @@ public class UIManager : MonoBehaviour
         }
     }
     
-    // 족보 UI 토글 (접기/펼치기)
+    // 족보 UI 토글
+    private bool isAttackOptionsPanelOpen = true; // 기본은 펼쳐진 상태
+    
     public void ToggleAttackOptionsPanel()
     {
-        if (attackOptionsPanel == null) return;
+        if (attackOptionsPanel == null || attackOptionsPanelCanvasGroup == null) return;
+        if (toggleAttackOptionsButton == null) return;
         
-        bool isActive = attackOptionsPanel.activeSelf;
-        attackOptionsPanel.SetActive(!isActive);
+        isAttackOptionsPanelOpen = !isAttackOptionsPanelOpen;
         
-        if (isActive)
+        RectTransform panelRect = attackOptionsPanel.GetComponent<RectTransform>();
+        RectTransform buttonRect = toggleAttackOptionsButton.GetComponent<RectTransform>();
+        if (panelRect == null || buttonRect == null) return;
+        
+        Sequence toggleSeq = DOTween.Sequence();
+        
+        if (isAttackOptionsPanelOpen)
         {
-            Debug.Log("[UI] 족보 패널 숨김");
+            // 펼치기: 위에서 아래로 슬라이드 + 페이드인
+            attackOptionsPanel.SetActive(true);
+            
+            // 시작 위치 설정
+            float hideYPos = panelRect.sizeDelta.y + 40;
+            panelRect.anchoredPosition = new Vector2(panelRect.anchoredPosition.x, hideYPos);
+            attackOptionsPanelCanvasGroup.alpha = 0;
+            float buttonHideY = hideYPos - panelRect.sizeDelta.y;
+            buttonRect.anchoredPosition = new Vector2(buttonRect.anchoredPosition.x, buttonHideY);
+            
+            // 패널 애니메이션
+            toggleSeq.Append(panelRect.DOAnchorPosY(0, 0.2f).SetEase(Ease.OutQuad));
+            toggleSeq.Join(attackOptionsPanelCanvasGroup.DOFade(1f, 0.2f));
+            float panelBottomWhenOpen = 0 - panelRect.sizeDelta.y;
+            toggleSeq.Join(buttonRect.DOAnchorPosY(panelBottomWhenOpen, 0.2f).SetEase(Ease.OutQuad));
+        }
+        else
+        {
+            // 숨기기: 위로 슬라이드 + 페이드아웃
+            float hideYPos = panelRect.sizeDelta.y + 40;
+            
+            // 패널 애니메이션
+            toggleSeq.Append(panelRect.DOAnchorPosY(hideYPos, 0.2f).SetEase(Ease.InQuad));
+            toggleSeq.Join(attackOptionsPanelCanvasGroup.DOFade(0f, 0.2f));
+            // 버튼 목표 위치
+            float buttonTargetY = hideYPos - panelRect.sizeDelta.y;
+            toggleSeq.Join(buttonRect.DOAnchorPosY(buttonTargetY, 0.2f).SetEase(Ease.InQuad));
+            
             // 프리뷰도 숨김
             if (StageManager.Instance != null)
             {
                 StageManager.Instance.HideAllAttackPreviews();
             }
         }
-        else
+        
+        // 화살표 이미지 교체
+        UpdateToggleButtonArrow();
+    }
+    
+    // 토글 버튼 화살표 이미지 업데이트
+    private void UpdateToggleButtonArrow()
+    {
+        if (toggleAttackOptionsButton == null) return;
+        
+        Image arrowImage = toggleAttackOptionsButton.GetComponent<Image>();
+        if (arrowImage == null)
         {
-            Debug.Log("[UI] 족보 패널 표시");
+            // 버튼 내부에 Image 컬포넌트가 있는 경우
+            arrowImage = toggleAttackOptionsButton.GetComponentInChildren<Image>();
+        }
+        
+        if (arrowImage != null && arrowDownSprite != null && arrowUpSprite != null)
+        {
+            arrowImage.sprite = isAttackOptionsPanelOpen ? arrowDownSprite : arrowUpSprite;
         }
     }
     
@@ -763,6 +859,13 @@ public class UIManager : MonoBehaviour
     public void ShowGameOverScreen(int earnedCurrency)
     {
         HideAllInGameUI();
+        
+        if (gameOverPanel == null)
+        {
+            Debug.LogError("[UIManager] gameOverPanel이 null입니다!");
+            return;
+        }
+        
         gameOverPanel.SetActive(true);
         if (earnedCurrencyText != null)
         {
