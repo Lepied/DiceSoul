@@ -107,6 +107,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Troll
   enemyName: "\uD2B8\uB864"
   maxHP: 120
+  attackDamage: 30
   enemyType: 0
   isBoss: 1
   difficultyCost: 50

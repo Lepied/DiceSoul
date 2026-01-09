@@ -107,6 +107,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FrostWisp
   enemyName: "\uC11C\uB9AC \uC704\uC2B5"
   maxHP: 140
+  attackDamage: 15
   enemyType: 1
   isBoss: 0
   difficultyCost: 15

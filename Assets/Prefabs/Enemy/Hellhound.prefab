@@ -107,6 +107,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Hellhound
   enemyName: "\uD5EC \uD558\uC6B4\uB4DC"
   maxHP: 200
+  attackDamage: 25
   enemyType: 0
   isBoss: 0
   difficultyCost: 15
@@ -114,7 +115,7 @@ MonoBehaviour:
   hpText: {fileID: 6166942275768172032}
   hpSlider: {fileID: 3325079089081980418}
   damagePreviewSlider: {fileID: 4619757558335903610}
-  burnDamage: 2
+  burnDamage: 10
 --- !u!60 &-7262733276788591340
 PolygonCollider2D:
   m_ObjectHideFlags: 0

@@ -107,6 +107,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CaveBat
   enemyName: "\uB3D9\uAD74 \uBC15\uC950"
   maxHP: 80
+  attackDamage: 10
   enemyType: 0
   isBoss: 0
   difficultyCost: 10

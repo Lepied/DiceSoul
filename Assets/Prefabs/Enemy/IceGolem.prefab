@@ -107,6 +107,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::IceGolem
   enemyName: "\uC5BC\uC74C \uACE8\uB818"
   maxHP: 300
+  attackDamage: 40
   enemyType: 3
   isBoss: 0
   difficultyCost: 30

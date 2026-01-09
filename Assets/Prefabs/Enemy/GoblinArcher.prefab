@@ -107,6 +107,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GoblinArcher
   enemyName: "\uACE0\uBE14\uB9B0 \uAD81\uC218"
   maxHP: 60
+  attackDamage: 5
   enemyType: 0
   isBoss: 0
   difficultyCost: 10

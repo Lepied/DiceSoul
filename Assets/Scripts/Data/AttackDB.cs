@@ -151,6 +151,18 @@ public class AttackDB : MonoBehaviour
             0,  // RequiredTargetCount (랜덤은 선택 불필요)
             0   // RandomTargetCount는 실행 시 동적 계산 (UsedDiceIndices.Count)
         ));
+        
+        // 수비 (주사위 합만큼 실드 획득)
+        allJokbos.Add(new AttackJokbo(
+            "수비", 
+            (diceValues) => diceValues.Sum(),  // BaseDamage는 실드 양으로 사용
+            (diceValues) => 0,  // 골드는 없음
+            (diceValues) => true,
+            (diceValues) => GetAllIndices(diceValues),
+            AttackTargetType.Defense,
+            0,
+            0
+        ));
     }
 
     // 같은 값을 가진 주사위 N개의 인덱스 반환

@@ -23,7 +23,7 @@ public class StageManager : MonoBehaviour
     public float minEnemySpacing = 1.5f;  // 적들 간 최소 거리
     public int maxSpawnAttempts = 10;     // 스폰 위치 재시도 횟수
 
-    private List<Enemy> activeEnemies = new List<Enemy>();
+    public List<Enemy> activeEnemies = new List<Enemy>();
     private bool isWaitingForAttackChoice = false;
 
     // 연쇄 공격 시스템 변수
@@ -248,7 +248,23 @@ public class StageManager : MonoBehaviour
                 // 복합 공격은 먼저 주공격 타겟 선택
                 StartTargetSelection(chosenJokbo);
                 break;
+                
+            case AttackTargetType.Defense:
+                ExecuteDefense(chosenJokbo);
+                break;
         }
+    }
+    
+    // 수비 (실드 얻기)
+    private void ExecuteDefense(AttackJokbo jokbo)
+    {
+        (int shieldAmount, _) = GetPreviewValues(jokbo);
+        
+        Debug.Log($"[수비] {jokbo.Description} - 실드 {shieldAmount} 획득");
+        
+        GameManager.Instance.AddShield(shieldAmount);
+        
+        FinishAttackAndCheckChain(jokbo);
     }
 
     //전체 공격 (AoE) 실행

@@ -8,7 +8,8 @@ public enum AttackTargetType
     AoE,        // 전체 공격
     Single,     // 지정 공격 (플레이어가 타겟 선택)
     Random,     // 랜덤 타겟 공격
-    Hybrid      // 복합 공격 (주공격 + 부가공격)
+    Hybrid,     // 복합 공격 (주공격 + 부가공격)
+    Defense     // 수비 (실드 획듍)
 }
 
 public class AttackJokbo

@@ -107,6 +107,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PitLord
   enemyName: "\uC9C0\uC625\uC758 \uAD70\uC8FC"
   maxHP: 500
+  attackDamage: 50
   enemyType: 3
   isBoss: 1
   difficultyCost: 100

@@ -28,8 +28,8 @@ public class MarketItemDB : MonoBehaviour
     {
         // 기초 보급품 런시작하면 해당 런동안 유지됨.
         basicSupplies.Add(new MarketItem(
-            "POT_RATION", "전투 식량", "다음 런 시작 시 최대 체력 +3.", 
-            300, MarketItemType.Potion, "MaxHealth_3"));
+            "POT_RATION", "전투 식량", "다음 런 시작 시 최대 체력 +30.", 
+            300, MarketItemType.Potion, "MaxHealth_30"));
 
         basicSupplies.Add(new MarketItem(
             "POT_FUND", "비상금", "다음 런 시작 시 골드 +150.", 

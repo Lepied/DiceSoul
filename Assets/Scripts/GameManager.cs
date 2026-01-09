@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour
 
     [Header("플레이어 상태")]
     public int PlayerHealth;
-    public int MaxPlayerHealth = 10;
+    public int MaxPlayerHealth = 100;
     public int CurrentGold { get; private set; }
     public int CurrentShield { get; private set; } //임시 체력
 
@@ -160,7 +160,7 @@ public class GameManager : MonoBehaviour
         CurrentGold = 0;
         CurrentZone = 1;
         CurrentWave = 1;
-        MaxPlayerHealth = 10;
+        MaxPlayerHealth = 100;
         PlayerHealth = MaxPlayerHealth; 
         CurrentShield = 0; 
 
@@ -309,7 +309,8 @@ public class GameManager : MonoBehaviour
             if (string.IsNullOrEmpty(key)) continue;
 
             //기초 보급품
-            if (key == "MaxHealth_3") ModifyMaxHealth(3);
+            if (key == "MaxHealth_30") ModifyMaxHealth(30);
+            else if (key == "MaxHealth_3") ModifyMaxHealth(30); //이전 데이터인데 날려야됨
             else if (key == "StartGold_150") AddGold(150); 
             else if (key == "AddDice_D6") AddDiceToDeck("D6");
             else if (key == "Insurance_30") hasInsurance = true;
@@ -328,6 +329,9 @@ public class GameManager : MonoBehaviour
     public void StartNewWave()
     {
         Debug.Log($"[Zone {CurrentZone} - Wave {CurrentWave}] 웨이브 시작.");
+        
+        // 웨이브 시작 시 실드 초기화
+        ClearShield();
         
         //이벤트 시스템: 웨이브 시작 이벤트
         WaveContext waveCtx = new WaveContext
@@ -489,13 +493,15 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("웨이브 실패. 체력이 1 감소합니다.");
+            // 웨이브 실패하면 살아있는 적의 총 공격력만큼 피해입기
+            int totalEnemyDamage = GetAllEnemyDamage();
+            Debug.Log($"웨이브 실패. 살아있는 적의 총 공격력 {totalEnemyDamage} 피해를 받습니다.");
             
-            //이벤트 시스템: 피해 전 이벤트 발생 (유물이 피해 무효화/감소 가능)
+            //피해 전 이벤트 발생 (유물이 피해 무효화/감소 가능)
             DamageContext damageCtx = new DamageContext
             {
-                OriginalDamage = 1,
-                FinalDamage = 1,
+                OriginalDamage = totalEnemyDamage,
+                FinalDamage = totalEnemyDamage,
                 Source = "WaveFail",
                 Cancelled = false
             };
@@ -677,6 +683,23 @@ public class GameManager : MonoBehaviour
         DamagePlayer(ctx);
     }
     
+    // 살아있는 적의 총 공격력 합산
+    private int GetAllEnemyDamage()
+    {
+        if (StageManager.Instance == null) return 5;
+        
+        int totalDamage = 0;
+        foreach (Enemy enemy in StageManager.Instance.activeEnemies)
+        {
+            if (enemy != null && !enemy.isDead)
+            {
+                totalDamage += enemy.attackDamage;
+            }
+        }
+        
+        return totalDamage > 0 ? totalDamage : 5;
+    }
+    
     // 플레이어에게 데미지 (세부 제어용 - 피해 타입, 무시 옵션 등 확장 가능)
     public void DamagePlayer(DamageContext damageCtx)
     {
@@ -784,6 +807,26 @@ public class GameManager : MonoBehaviour
         
         PlayerHealth = Mathf.Min(PlayerHealth + healCtx.FinalAmount, MaxPlayerHealth);
         UIManager.Instance.UpdateHealth(PlayerHealth, MaxPlayerHealth);
+    }
+    
+    public void AddShield(int amount)
+    {
+        CurrentShield += amount;
+        Debug.Log($"실드 획듍: +{amount} (총: {CurrentShield})");
+        
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdateHealth(PlayerHealth, MaxPlayerHealth);
+        }
+    }
+    
+    public void ClearShield()
+    {
+        if (CurrentShield > 0)
+        {
+            Debug.Log($"실드 제거: {CurrentShield} -> 0");
+            CurrentShield = 0;
+        }
     }
 
 

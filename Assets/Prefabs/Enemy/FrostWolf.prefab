@@ -107,6 +107,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FrostWolf
   enemyName: "\uC11C\uB9AC \uB291\uB300"
   maxHP: 200
+  attackDamage: 30
   enemyType: 0
   isBoss: 0
   difficultyCost: 15

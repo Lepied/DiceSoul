@@ -107,6 +107,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yeti
   enemyName: Enemy
   maxHP: 500
+  attackDamage: 40
   enemyType: 0
   isBoss: 1
   difficultyCost: 100

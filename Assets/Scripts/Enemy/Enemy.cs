@@ -13,6 +13,7 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
     [Header("스탯")]
     public string enemyName = "Enemy";
     public int maxHP = 10;
+    public int attackDamage = 5;  // 적의 공격력
     public EnemyType enemyType = EnemyType.Biological;
     private EnemyType originalType;
 

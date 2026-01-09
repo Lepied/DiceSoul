@@ -107,6 +107,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Imp
   enemyName: "\uC784\uD504"
   maxHP: 100
+  attackDamage: 25
   enemyType: 0
   isBoss: 0
   difficultyCost: 10

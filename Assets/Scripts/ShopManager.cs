@@ -73,13 +73,13 @@ public class ShopManager : MonoBehaviour
         else
         {
             // 체력이 꽉 찼으면 작은 최대 체력 증가로 대체
-            currentShopItems.Add(new ShopItem("활력의 정수", "최대 체력 +2", 300, maxHealthIcon,
-                () => GameManager.Instance.ModifyMaxHealth(2)));
+            currentShopItems.Add(new ShopItem("활력의 정수", "최대 체력 +10", 300, maxHealthIcon,
+                () => GameManager.Instance.ModifyMaxHealth(10)));
         }
 
         // (B) 최대 체력 증가
-        currentShopItems.Add(new ShopItem("생명의 그릇", "최대 체력 +5", 500, maxHealthIcon,
-            () => GameManager.Instance.ModifyMaxHealth(5)));
+        currentShopItems.Add(new ShopItem("생명의 그릇", "최대 체력 +20", 500, maxHealthIcon,
+            () => GameManager.Instance.ModifyMaxHealth(20)));
 
 
         // 3. 랜덤 포션 (다음 존 버프) : 2개

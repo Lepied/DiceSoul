@@ -687,19 +687,19 @@ public class RelicEffectHandler : MonoBehaviour
 
             // === 체력 변경 유물 ===
             case "RLC_GLASS_CANNON":
-                gm.ModifyMaxHealth(-5);
-                Debug.Log("[유물] 유리 대포: 최대 체력 -5");
+                gm.ModifyMaxHealth(-25);
+                Debug.Log("[유물] 유리 대포: 최대 체력 -25");
                 break;
 
             case "RLC_GAMBLER_RING":
-                gm.ModifyMaxHealth(-9);
-                Debug.Log("[유물] 도박사의 반지: 최대 체력 -9");
+                gm.ModifyMaxHealth(-45);
+                Debug.Log("[유물] 도박사의 반지: 최대 체력 -45");
                 break;
 
             case "RLC_HEART_CONTAINER":
-                gm.ModifyMaxHealth(5);
-                gm.HealPlayer(5);
-                Debug.Log("[유물] 생명의 심장: 최대 체력 +5");
+                gm.ModifyMaxHealth(25);
+                gm.HealPlayer(25);
+                Debug.Log("[유물] 생명의 심장: 최대 체력 +25");
                 break;
 
             // === 굴림 횟수 변경 유물 ===
@@ -788,10 +788,7 @@ public class RelicEffectHandler : MonoBehaviour
         return newValue;
     }
 
-    // [수동] 운명의 주사위 - 모든 주사위 최대값 (런당 1회)
-    // diceValues: 현재 주사위 값 배열
-    // diceTypes: 주사위 타입 배열 (D4, D6, D20 등)
-    // 반환: 성공 여부
+    //운명의 주사위 - 모든 주사위 최대값 (존당 1회)
     public bool UseFateDice(int[] diceValues, string[] diceTypes)
     {
         if (!HasRelic("RLC_FATE_DICE"))

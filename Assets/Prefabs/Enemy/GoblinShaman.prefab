@@ -107,6 +107,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GoblinShaman
   enemyName: "\uACE0\uBE14\uB9B0 \uC8FC\uC220\uC0AC"
   maxHP: 200
+  attackDamage: 2
   enemyType: 1
   isBoss: 1
   difficultyCost: 100

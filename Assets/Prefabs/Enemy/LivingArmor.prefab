@@ -107,6 +107,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LivingArmor
   enemyName: "\uB9AC\uBE59 \uC544\uBA38"
   maxHP: 150
+  attackDamage: 20
   enemyType: 3
   isBoss: 0
   difficultyCost: 20

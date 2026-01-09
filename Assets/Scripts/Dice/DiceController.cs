@@ -197,6 +197,12 @@ public class DiceController : MonoBehaviour
                 return;
             }
         }
+        
+        // 리롤 시 실드 제거
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ClearShield();
+        }
 
         currentRollCount++;
 

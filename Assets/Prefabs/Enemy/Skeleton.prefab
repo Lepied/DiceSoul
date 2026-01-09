@@ -143,6 +143,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Skeleton
   enemyName: "\uC2A4\uCF08\uB808\uD1A4"
   maxHP: 40
+  attackDamage: 10
   enemyType: 2
   isBoss: 0
   difficultyCost: 8

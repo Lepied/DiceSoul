@@ -26,6 +26,11 @@ public class UIManager : MonoBehaviour
     public GameObject[] attackOptionButtons;
     public TextMeshProUGUI[] attackNameTexts;
     public TextMeshProUGUI[] attackValueTexts;
+    public Button prevJokboPageButton;
+    public Button nextJokboPageButton;
+    private List<AttackJokbo> currentJokboList = new List<AttackJokbo>();
+    private int currentJokboPage = 0;
+    private const int jokbosPerPage = 4;
 
     [Header("탄겟 선택 UI")]
     public GameObject targetSelectionPanel;
@@ -49,7 +54,6 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI rerollCostText;
 
     [Header("통합 툴팁 (재사용)")]
-    // 기존 RelicDetailPopup이나 EnemyDetailPopup을 재활용
     public GameObject genericTooltipPopup;
     public TextMeshProUGUI tooltipTitle;
     public TextMeshProUGUI tooltipDesc;
@@ -116,7 +120,16 @@ public class UIManager : MonoBehaviour
             toggleAttackOptionsButton.onClick.AddListener(ToggleAttackOptionsPanel);
         }
         
-        // CanvasGroup 자동 추가 (없으면)
+        if (prevJokboPageButton != null)
+        {
+            prevJokboPageButton.onClick.AddListener(ShowPrevJokboPage);
+        }
+        if (nextJokboPageButton != null)
+        {
+            nextJokboPageButton.onClick.AddListener(ShowNextJokboPage);
+        }
+        
+        // CanvasGroup 넣기
         if (attackOptionsPanel != null && attackOptionsPanelCanvasGroup == null)
         {
             attackOptionsPanelCanvasGroup = attackOptionsPanel.GetComponent<CanvasGroup>();
@@ -173,7 +186,18 @@ public class UIManager : MonoBehaviour
     }
     public void UpdateHealth(int current, int max)
     {
-        if (healthText != null) healthText.text = $"HP: {current} / {max}";
+        int shield = GameManager.Instance != null ? GameManager.Instance.CurrentShield : 0;
+        if (healthText != null)
+        {
+            if (shield > 0)
+            {
+                healthText.text = $"HP: {current} / {max} (+{shield})";
+            }
+            else
+            {
+                healthText.text = $"HP: {current} / {max}";
+            }
+        }
     }
     public void UpdateRollCount(int current, int max)
     {
@@ -282,7 +306,7 @@ public class UIManager : MonoBehaviour
             if (enemySprite != null) enemyDetailIcon.sprite = enemySprite.sprite;
         }
         if (enemyDetailName != null) enemyDetailName.text = enemy.enemyName + (enemy.isBoss ? " (Boss)" : "");
-        if (enemyDetailHP != null) enemyDetailHP.text = $"HP: {enemy.maxHP}";
+        if (enemyDetailHP != null) enemyDetailHP.text = $"HP: {enemy.maxHP} / ATK: {enemy.attackDamage}";
         if (enemyDetailType != null)
         {
             enemyDetailType.text = $"타입: {enemy.enemyType.ToString()}";
@@ -548,6 +572,10 @@ public class UIManager : MonoBehaviour
         if (attackOptionsPanel == null) return;
         attackOptionsPanel.SetActive(true);
         
+        // 족보 리스트 정렬 수비는 맨뒤로 보내기
+        currentJokboList = jokbos.OrderBy(j => j.TargetType == AttackTargetType.Defense ? 1 : 0).ToList();
+        currentJokboPage = 0;
+        
         RectTransform panelRect = attackOptionsPanel.GetComponent<RectTransform>();
         
         if (attackOptionsPanelCanvasGroup != null)
@@ -573,21 +601,50 @@ public class UIManager : MonoBehaviour
         UpdateToggleButtonArrow();
 
         if (StageManager.Instance != null) StageManager.Instance.HideAllAttackPreviews();
-
+        
+        // 첫 페이지 표시
+        ShowJokboPage(currentJokboPage);
+    }
+    
+    private void ShowJokboPage(int pageIndex)
+    {
+        int totalPages = Mathf.CeilToInt((float)currentJokboList.Count / jokbosPerPage);
+        int startIndex = pageIndex * jokbosPerPage;
+        int endIndex = Mathf.Min(startIndex + jokbosPerPage, currentJokboList.Count);
+        
+        // 페이지 버튼 표시/숨김 (이동 가능할 때만 표시)
+        if (prevJokboPageButton != null)
+        {
+            prevJokboPageButton.gameObject.SetActive(pageIndex > 0);
+        }
+        if (nextJokboPageButton != null)
+        {
+            nextJokboPageButton.gameObject.SetActive(pageIndex < totalPages - 1);
+        }
+        
+        // 현재 페이지의 족보들 표시
         for (int i = 0; i < attackOptionButtons.Length; i++)
         {
-            if (i < jokbos.Count)
+            int jokboIndex = startIndex + i;
+            
+            if (jokboIndex < endIndex)
             {
-                AttackJokbo jokbo = jokbos[i];
+                AttackJokbo jokbo = currentJokboList[jokboIndex];
 
                 // 1. 텍스트 설정을 위해 '최종' 데미지/금화를 '미리' 계산
-
                 (int finalBaseDamage, int finalBaseGold) =
                     StageManager.Instance.GetPreviewValues(jokbo);
 
-                // 2. '최종 계산된' 값으로 텍스트 설정
+                // 2. 최종 계산된 값으로 텍스트 설정
                 attackNameTexts[i].text = jokbo.Description;
-                attackValueTexts[i].text = $"Dmg: {finalBaseDamage} / Gold: {finalBaseGold}";
+                if (jokbo.TargetType == AttackTargetType.Defense)
+                {
+                    attackValueTexts[i].text = $"Shield: {finalBaseDamage}";
+                }
+                else
+                {
+                    attackValueTexts[i].text = $"Dmg: {finalBaseDamage} / Gold: {finalBaseGold}";
+                }
 
                 // 3. EventTrigger 가져오기
                 EventTrigger trigger = attackOptionButtons[i].GetComponent<EventTrigger>();
@@ -629,6 +686,24 @@ public class UIManager : MonoBehaviour
             }
         }
     }
+    private void ShowPrevJokboPage()
+    {
+        if (currentJokboPage > 0)
+        {
+            currentJokboPage--;
+            ShowJokboPage(currentJokboPage);
+        }
+    }
+    
+    private void ShowNextJokboPage()
+    {
+        int totalPages = Mathf.CeilToInt((float)currentJokboList.Count / jokbosPerPage);
+        if (currentJokboPage < totalPages - 1)
+        {
+            currentJokboPage++;
+            ShowJokboPage(currentJokboPage);
+        }
+    }
 
     private void SelectAttack(AttackJokbo jokbo) // (원본 족보가 전달됨)
     {
@@ -648,7 +723,7 @@ public class UIManager : MonoBehaviour
     }
     
     // 족보 UI 토글
-    private bool isAttackOptionsPanelOpen = true; // 기본은 펼쳐진 상태
+    private bool isAttackOptionsPanelOpen = true;
     
     public void ToggleAttackOptionsPanel()
     {
@@ -712,7 +787,6 @@ public class UIManager : MonoBehaviour
         Image arrowImage = toggleAttackOptionsButton.GetComponent<Image>();
         if (arrowImage == null)
         {
-            // 버튼 내부에 Image 컬포넌트가 있는 경우
             arrowImage = toggleAttackOptionsButton.GetComponentInChildren<Image>();
         }
         

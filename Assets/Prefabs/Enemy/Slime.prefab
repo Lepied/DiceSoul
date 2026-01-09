@@ -107,6 +107,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Slime
   enemyName: "\uC2AC\uB77C\uC784"
   maxHP: 60
+  attackDamage: 10
   enemyType: 0
   isBoss: 0
   difficultyCost: 10

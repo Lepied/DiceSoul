@@ -143,6 +143,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Wraith
   enemyName: "\uB808\uC774\uC2A4"
   maxHP: 40
+  attackDamage: 15
   enemyType: 1
   isBoss: 0
   difficultyCost: 10

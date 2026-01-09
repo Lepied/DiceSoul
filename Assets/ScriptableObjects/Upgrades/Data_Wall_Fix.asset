@@ -21,4 +21,4 @@ MonoBehaviour:
   baseCost: 300
   costMultiplier: 1.5
   effectType: 1
-  effectValuePerLevel: 1
+  effectValuePerLevel: 15
