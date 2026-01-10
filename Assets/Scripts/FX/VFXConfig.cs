@@ -52,7 +52,7 @@ public class VFXConfig : ScriptableObject
     [Range(0f, 1f)]
     public float shakeIntensity = 0f;
 
-    [Header("타격감을 위해서...")]
+    [Header("타격감을 위해서..")]
     [Tooltip("히트 스톱 지속 시간 (시간 정지 효과)")]
     [Range(0f, 1f)]
     public float hitStopDuration = 0f;

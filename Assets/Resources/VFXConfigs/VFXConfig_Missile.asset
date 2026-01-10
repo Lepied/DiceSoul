@@ -50,3 +50,9 @@ MonoBehaviour:
   launchSound: {fileID: 0}
   impactSound: {fileID: 0}
   shakeIntensity: 0
+  hitStopDuration: 0.2
+  enableHitFlash: 1
+  flashColor: {r: 1, g: 1, b: 1, a: 1}
+  flashDuration: 0.3
+  knockbackDistance: 0.2
+  knockbackDuration: 0.2
