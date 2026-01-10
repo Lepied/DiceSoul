@@ -24,9 +24,15 @@ public class AttackDB : MonoBehaviour
         }
     }
 
-    //족보 초기화
     private void InitializeJokbos()
     {
+        VFXConfig missileVFX = Resources.Load<VFXConfig>("VFXConfigs/VFXConfig_Missile");
+        
+        if (missileVFX == null)
+        {
+            Debug.LogWarning("[AttackDB] VFXConfig_Missile을 찾을 수 없습니다. Resources/VFXConfigs/ 경로를 확인하세요.");
+        }
+
         // 야찌 (5개)
         allJokbos.Add(new AttackJokbo(
             "야찌 (5개)", 150, 100,
@@ -148,15 +154,16 @@ public class AttackDB : MonoBehaviour
             (diceValues) => true,
             (diceValues) => GetAllIndices(diceValues),
             AttackTargetType.Random,
-            0,  // RequiredTargetCount (랜덤은 선택 불필요)
-            0   // RandomTargetCount는 실행 시 동적 계산 (UsedDiceIndices.Count)
+            0,
+            0,
+            missileVFX
         ));
         
         // 수비 (주사위 합만큼 실드 획득)
         allJokbos.Add(new AttackJokbo(
             "수비", 
-            (diceValues) => diceValues.Sum(),  // BaseDamage는 실드 양으로 사용
-            (diceValues) => 0,  // 골드는 없음
+            (diceValues) => diceValues.Sum(), //주사위값 다합친거 를 실드량으로하기
+            (diceValues) => 0,
             (diceValues) => true,
             (diceValues) => GetAllIndices(diceValues),
             AttackTargetType.Defense,

@@ -14,7 +14,7 @@ public class MandatorySpawn
     public int count = 1;
 }
 
-[CreateAssetMenu(fileName = "Wave 1-1", menuName = "Dice Rogue/Wave Data")]
+[CreateAssetMenu(fileName = "Wave 1-1", menuName = "DiceSoul/Wave Data")]
 public class WaveData : ScriptableObject
 {
     [Header("웨이브 설계")]

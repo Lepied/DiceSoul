@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 
-[CreateAssetMenu(fileName = "Zone 1 - Plains", menuName = "Dice Rogue/Zone Data")]
+[CreateAssetMenu(fileName = "Zone 1 - Plains", menuName = "DiceSoul/Zone Data")]
 public class ZoneData : ScriptableObject
 {
     [Header("존 정보")]

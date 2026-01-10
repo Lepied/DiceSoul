@@ -12,7 +12,6 @@ public class WaveGenerator : MonoBehaviour
     [Tooltip("게임에 등장할 '모든' ZoneData.asset 파일을 여기에 등록합니다.")]
     public List<ZoneData> allGameZones; 
 
-    // (캐시) 프리팹 이름(Key)과 '인스펙터 스탯'
     private class CachedEnemyData
     {
         public GameObject prefab;

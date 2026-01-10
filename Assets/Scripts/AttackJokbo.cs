@@ -9,7 +9,7 @@ public enum AttackTargetType
     Single,     // 지정 공격 (플레이어가 타겟 선택)
     Random,     // 랜덤 타겟 공격
     Hybrid,     // 복합 공격 (주공격 + 부가공격)
-    Defense     // 수비 (실드 획듍)
+    Defense     // 수비 (실드얻음)
 }
 
 public class AttackJokbo
@@ -31,6 +31,9 @@ public class AttackJokbo
 
     // 사용된 주사위 인덱스 (연쇄 공격용)
     public List<int> UsedDiceIndices { get; private set; } = new List<int>();
+
+    // VFX 설정
+    public VFXConfig VfxConfig { get; private set; }
 
     // 족보 달성 여부를 검사하는 로직
     public System.Func<List<int>, bool> CheckLogic { get; private set; }
@@ -55,7 +58,8 @@ public class AttackJokbo
         int randomTargetCount = 1,
         AttackTargetType subTargetType = AttackTargetType.AoE,
         int subDamage = 0,
-        int subRandomTargetCount = 1)
+        int subRandomTargetCount = 1,
+        VFXConfig vfxConfig = null)
     {
         this.Description = description;
         this.BaseDamage = baseDamage;
@@ -68,6 +72,7 @@ public class AttackJokbo
         this.SubTargetType = subTargetType;
         this.SubDamage = subDamage;
         this.SubRandomTargetCount = subRandomTargetCount;
+        this.VfxConfig = vfxConfig;
     }
     
     //가변 데미지/점수 족보용 (예: "총합")
@@ -79,7 +84,8 @@ public class AttackJokbo
         System.Func<List<int>, List<int>> usedIndicesLogic,
         AttackTargetType targetType = AttackTargetType.Random,
         int requiredTargetCount = 0,
-        int randomTargetCount = 1)
+        int randomTargetCount = 1,
+        VFXConfig vfxConfig = null)
     {
         this.Description = description;
         this.CheckLogic = checkLogic;
@@ -92,6 +98,7 @@ public class AttackJokbo
         this.SubTargetType = AttackTargetType.AoE;  // 기본값
         this.SubDamage = 0;
         this.SubRandomTargetCount = 1;
+        this.VfxConfig = vfxConfig;
 
         // (가변 족보는 BaseDamage/Gold를 0으로 초기화)
         this.BaseDamage = 0;
@@ -116,6 +123,7 @@ public class AttackJokbo
         this.SubTargetType = original.SubTargetType;
         this.SubDamage = original.SubDamage;
         this.SubRandomTargetCount = original.SubRandomTargetCount;
+        this.VfxConfig = original.VfxConfig;
         this.UsedDiceIndices = new List<int>(original.UsedDiceIndices);
     }
 

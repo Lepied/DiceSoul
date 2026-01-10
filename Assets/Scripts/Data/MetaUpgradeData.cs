@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New MetaUpgrade", menuName = "Dice Rogue/Meta Upgrade Data")]
+[CreateAssetMenu(fileName = "New MetaUpgrade", menuName = "DiceSoul/Meta Upgrade Data")]
 public class MetaUpgradeData : ScriptableObject
 {
     [Header("기본 정보")]

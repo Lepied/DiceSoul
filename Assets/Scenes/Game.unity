@@ -357,7 +357,7 @@ GameObject:
   - component: {fileID: 61386018}
   - component: {fileID: 61386017}
   m_Layer: 0
-  m_Name: EffectManager
+  m_Name: PopUpManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -197,8 +197,7 @@ public class DiceController : MonoBehaviour
                 return;
             }
         }
-        
-        // 리롤 시 실드 제거
+        // 리롤 해도 실드 제거
         if (GameManager.Instance != null)
         {
             GameManager.Instance.ClearShield();
@@ -448,6 +447,45 @@ public class DiceController : MonoBehaviour
     public List<string> GetDiceTypes()
     {
         return activeDice.Select(d => d.Type).ToList();
+    }
+
+    /// <summary>
+    /// 특정 인덱스의 주사위 위치 가져오기 (VFX 시작 위치용)
+    /// </summary>
+    public Vector3 GetDicePosition(int index)
+    {
+        if (index >= 0 && index < activeDice.Count)
+        {
+            return activeDice[index].transform.position;
+        }
+        return Vector3.zero;
+    }
+
+    /// <summary>
+    /// 여러 인덱스의 주사위 위치들 가져오기
+    /// </summary>
+    public Vector3[] GetDicePositions(List<int> indices)
+    {
+        if (indices == null || indices.Count == 0)
+            return new Vector3[0];
+
+        List<Vector3> positions = new List<Vector3>();
+        foreach (int index in indices)
+        {
+            if (index >= 0 && index < activeDice.Count)
+            {
+                positions.Add(activeDice[index].transform.position);
+            }
+        }
+        return positions.ToArray();
+    }
+
+    /// <summary>
+    /// 모든 주사위 위치 가져오기
+    /// </summary>
+    public Vector3[] GetAllDicePositions()
+    {
+        return activeDice.Select(d => d.transform.position).ToArray();
     }
     
     //이중 주사위 유물 관련

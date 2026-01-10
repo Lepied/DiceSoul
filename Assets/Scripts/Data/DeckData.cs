@@ -4,7 +4,7 @@ using System.Collections.Generic;
 /// <summary>
 /// 덱의 정보(이름, 가격, 구성 등)를 담는 데이터 에셋입니다.
 /// </summary>
-[CreateAssetMenu(fileName = "New DeckData", menuName = "Dice Rogue/Deck Data")]
+[CreateAssetMenu(fileName = "New DeckData", menuName = "DiceSoul/Deck Data")]
 public class DeckData : ScriptableObject
 {
     [Header("기본 정보")]

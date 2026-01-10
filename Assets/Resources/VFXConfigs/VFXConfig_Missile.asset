@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec7838a7036d41147831aeaf995e99d1, type: 3}
+  m_Name: VFXConfig_Missile
+  m_EditorClassIdentifier: Assembly-CSharp::VFXConfig
+  vfxName: Missile
+  type: 1
+  gatherPrefab: {fileID: 0}
+  projectilePrefab: {fileID: 8490477775743554221, guid: 0f8c111af40aa4e489c79bcde8b82df0, type: 3}
+  impactPrefab: {fileID: 4277359279623481477, guid: e5cb1c1324fc10b40bb2bde8e21bd865, type: 3}
+  buffPrefab: {fileID: 0}
+  gatherDuration: 0.3
+  travelDuration: 0.5
+  travelSpeed: 10
+  impactDuration: 1
+  moveCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0.150016
+      outSlope: 0.150016
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1.0020905
+      value: 0.15032959
+      inSlope: 0.150016
+      outSlope: 0.150016
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  arcHeight: 1
+  launchSound: {fileID: 0}
+  impactSound: {fileID: 0}
+  shakeIntensity: 0
