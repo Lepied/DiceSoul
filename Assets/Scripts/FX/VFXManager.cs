@@ -27,6 +27,10 @@ public class VFXManager : MonoBehaviour
 
     private Dictionary<GameObject, Queue<VFXInstance>> vfxPools = new Dictionary<GameObject, Queue<VFXInstance>>();
 
+    // 히트스탑 관리
+    private bool isHitStopActive = false;
+    private Coroutine hitStopCoroutine = null;
+
     void Awake()
     {
         if (Instance == null)
@@ -161,16 +165,18 @@ public class VFXManager : MonoBehaviour
         VFXConfig config,
         Vector3 fromPosition,
         Vector3 toPosition,
+        Transform target,
         Action onReach,
         Action onComplete)
     {
-        StartCoroutine(ProjectileAttackSequence(config, fromPosition, toPosition, onReach, onComplete));
+        StartCoroutine(ProjectileAttackSequence(config, fromPosition, toPosition, target, onReach, onComplete));
     }
 
     private IEnumerator ProjectileAttackSequence(
         VFXConfig config,
         Vector3 from,
         Vector3 to,
+        Transform target,
         Action onReach,
         Action onComplete)
     {
@@ -231,6 +237,37 @@ public class VFXManager : MonoBehaviour
         // 2. 타겟 도착 콜백
         onReach?.Invoke();
 
+        // 2-1. 히트스톱 (시간 정지 효과) - 중복 방지
+        if (config.hitStopDuration > 0 && !isHitStopActive)
+        {
+            if (hitStopCoroutine != null)
+            {
+                StopCoroutine(hitStopCoroutine);
+            }
+            hitStopCoroutine = StartCoroutine(PlayHitStop(config.hitStopDuration));
+        }
+
+        // 2-2. 적 타격감 효과 (플래시, 넉백)
+        if (target != null)
+        {
+            Enemy enemy = target.GetComponent<Enemy>();
+            if (enemy != null)
+            {
+                // 플래시 효과
+                if (config.enableHitFlash)
+                {
+                    enemy.PlayHitFlash(config.flashColor, config.flashDuration);
+                }
+
+                // 넉백 효과
+                if (config.knockbackDistance > 0)
+                {
+                    Vector3 hitDirection = (to - from).normalized;
+                    enemy.PlayKnockback(hitDirection, config.knockbackDistance, config.knockbackDuration);
+                }
+            }
+        }
+
         // 3. 임팩트 VFX
         if (config.impactPrefab != null)
         {
@@ -255,16 +292,18 @@ public class VFXManager : MonoBehaviour
         VFXConfig config,
         Vector3 fromPosition,
         Vector3[] toPositions,
+        Transform[] targets,
         Action<int> onEachReach,
         Action onComplete)
     {
-        StartCoroutine(MultiProjectileSequence(config, fromPosition, toPositions, onEachReach, onComplete));
+        StartCoroutine(MultiProjectileSequence(config, fromPosition, toPositions, targets, onEachReach, onComplete));
     }
 
     private IEnumerator MultiProjectileSequence(
         VFXConfig config,
         Vector3 from,
-        Vector3[] targets,
+        Vector3[] targetPositions,
+        Transform[] targets,
         Action<int> onEachReach,
         Action onComplete)
     {
@@ -273,11 +312,12 @@ public class VFXManager : MonoBehaviour
         List<Coroutine> projectiles = new List<Coroutine>();
 
         // 모든 투사체 동시 발사
-        for (int i = 0; i < targets.Length; i++)
+        for (int i = 0; i < targetPositions.Length; i++)
         {
             int index = i; // 클로저 캡처
+            Transform target = (targets != null && index < targets.Length) ? targets[index] : null;
             Coroutine co = StartCoroutine(ProjectileAttackSequence(
-                config, from, targets[index],
+                config, from, targetPositions[index], target,
                 onReach: () => onEachReach?.Invoke(index),
                 onComplete: null
             ));
@@ -351,6 +391,29 @@ public class VFXManager : MonoBehaviour
             sum += pos;
         }
         return sum / positions.Length;
+    }
+
+    // 히트스톱 재생 (중복 방지)
+    private IEnumerator PlayHitStop(float duration)
+    {
+        if (isHitStopActive) yield break;
+
+        isHitStopActive = true;
+
+        // 원래 타임스케일 저장 (안전하게 1.0으로 가정)
+        float originalTimeScale = 1.0f;
+        
+        // 시간 느리게
+        Time.timeScale = 0.05f;
+        
+        // 실제 시간으로 대기
+        yield return new WaitForSecondsRealtime(duration);
+        
+        // 반드시 복원
+        Time.timeScale = originalTimeScale;
+        
+        isHitStopActive = false;
+        hitStopCoroutine = null;
     }
 
     // VFX다 날리기

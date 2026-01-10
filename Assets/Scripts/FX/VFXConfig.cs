@@ -52,6 +52,29 @@ public class VFXConfig : ScriptableObject
     [Range(0f, 1f)]
     public float shakeIntensity = 0f;
 
+    [Header("타격감을 위해서...")]
+    [Tooltip("히트 스톱 지속 시간 (시간 정지 효과)")]
+    [Range(0f, 1f)]
+    public float hitStopDuration = 0f;
+
+    [Tooltip("적 플래시 효과 (하얗게 번쩍임)")]
+    public bool enableHitFlash = false;
+
+    [Tooltip("플래시 색상")]
+    public Color flashColor = Color.white;
+
+    [Tooltip("플래시 지속 시간")]
+    [Range(0f, 1f)]
+    public float flashDuration = 0.1f;
+
+    [Tooltip("넉백 거리")]
+    [Range(0f, 2f)]
+    public float knockbackDistance = 0f;
+
+    [Tooltip("넉백 지속 시간")]
+    [Range(0f, 0.5f)]
+    public float knockbackDuration = 0.2f;
+
     // 총 VFX 진행 시간 계산
     public float GetTotalDuration()
     {

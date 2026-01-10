@@ -415,6 +415,7 @@ public class StageManager : MonoBehaviour
 
             // 타겟 위치들
             Vector3[] targetPos = randomTargets.Select(e => e.transform.position).ToArray();
+            Transform[] targetTransforms = randomTargets.Select(e => e.transform).ToArray();
 
             // 주사위 제거 시작
             diceController.RemoveDiceByIndices(jokbo.UsedDiceIndices);
@@ -424,6 +425,7 @@ public class StageManager : MonoBehaviour
                 config: jokbo.VfxConfig,
                 fromPosition: centerPos,
                 toPositions: targetPos,
+                targets: targetTransforms,
                 onEachReach: (int targetIndex) =>
                 {
                     // 각 투사체가 도착할 때 데미지

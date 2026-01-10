@@ -13,7 +13,7 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
     [Header("스탯")]
     public string enemyName = "Enemy";
     public int maxHP = 10;
-    public int attackDamage = 5;  // 적의 공격력
+    public int attackDamage = 5;
     public EnemyType enemyType = EnemyType.Biological;
     private EnemyType originalType;
 
@@ -44,6 +44,12 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
     private Tween blinkTween;
     private Image damagePreviewFillImage;
 
+    // 타격감이랑 효과용
+    private SpriteRenderer spriteRenderer;
+    private Color originalColor;
+    private Tween flashTween;
+    private Tween knockbackTween;
+
     void Awake() // 또는 Start
     {
         // 게임 시작 시 프리팹에 설정된 타입을 원본으로 저장
@@ -52,7 +58,22 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
             originalType = enemyType;
             baseHP = maxHP;
             isInitialized = true;
-        }        
+        }
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+        {
+            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        }
+
+        if (spriteRenderer != null)
+        {
+            originalColor = spriteRenderer.color;
+        }
+        else
+        {
+            originalColor = Color.white; // 기본값
+        }
+
         Debug.Log($"[Enemy Awake] {enemyName} 생성됨, Collider: {GetComponent<Collider2D>() != null}");    }
     void OnEnable()
     {
@@ -68,6 +89,13 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
         if (hpText == null) hpText = GetComponentInChildren<TextMeshProUGUI>();
 
         blinkTween?.Kill();
+        flashTween?.Kill();
+        knockbackTween?.Kill();
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = originalColor;
+        }
+
         UpdateUI();
     }
     
@@ -231,7 +259,35 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
     {
         Debug.Log($"{enemyName}이(가) 처치되었습니다!");
         blinkTween?.Kill();
+        flashTween?.Kill();
+        knockbackTween?.Kill();
         gameObject.SetActive(false);
+    }
+
+    //플래시 효과
+    public void PlayHitFlash(Color flashColor, float duration)
+    {
+        flashTween?.Kill();
+        flashTween = DOTween.Sequence()
+            .Append(spriteRenderer.DOColor(flashColor, duration * 0.3f).SetUpdate(true))
+            .Append(spriteRenderer.DOColor(originalColor, duration * 0.7f).SetUpdate(true));
+    }
+
+    //넉백 효과
+    public void PlayKnockback(Vector3 hitDirection, float distance, float duration)
+    {
+        if (distance <= 0) return;
+
+        knockbackTween?.Kill();
+        Vector3 originalPos = transform.position;
+        Vector3 knockbackPos = originalPos + hitDirection.normalized * distance;
+
+        knockbackTween = transform.DOMove(knockbackPos, duration * 0.3f)
+            .SetEase(Ease.OutQuad)
+            .OnComplete(() =>
+            {
+                transform.DOMove(originalPos, duration * 0.7f).SetEase(Ease.InOutQuad);
+            });
     }
 
     public virtual void OnWaveStart(List<Enemy> allies) { }
