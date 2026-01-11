@@ -50,6 +50,10 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
     private Tween flashTween;
     private Tween knockbackTween;
 
+    private Material materialInstance;
+    private static readonly int FlashAmountID = Shader.PropertyToID("_FlashAmount");
+    private static readonly int FlashColorID = Shader.PropertyToID("_FlashColor");
+
     void Awake() // 또는 Start
     {
         // 게임 시작 시 프리팹에 설정된 타입을 원본으로 저장
@@ -68,6 +72,9 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
         if (spriteRenderer != null)
         {
             originalColor = spriteRenderer.color;
+            materialInstance = new Material(spriteRenderer.sharedMaterial);
+            spriteRenderer.material = materialInstance;
+            materialInstance.SetFloat(FlashAmountID, 0f);
         }
         else
         {
@@ -122,6 +129,20 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
     void OnDisable()
     {
         EffectManager.Instance.RemoveQueue(this.transform);
+    }
+
+    void OnDestroy()
+    {
+        // Tween 정리
+        flashTween?.Kill();
+        knockbackTween?.Kill();
+        
+        // Material 인스턴스 정리
+        if (materialInstance != null)
+        {
+            Destroy(materialInstance);
+            materialInstance = null;
+        }
     }
 
     public virtual string GetGimmickDescription()
@@ -268,9 +289,28 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
     public void PlayHitFlash(Color flashColor, float duration)
     {
         flashTween?.Kill();
+
+        // 플래시 색상 설정
+        materialInstance.SetColor(FlashColorID, flashColor);
+
+        // FlashAmount 애니메이션
         flashTween = DOTween.Sequence()
-            .Append(spriteRenderer.DOColor(flashColor, duration * 0.3f).SetUpdate(true))
-            .Append(spriteRenderer.DOColor(originalColor, duration * 0.7f).SetUpdate(true));
+            .Append(
+                DOTween.To(
+                    () => materialInstance.GetFloat(FlashAmountID),
+                    x => materialInstance.SetFloat(FlashAmountID, x),
+                    1f,
+                    duration * 0.3f
+                ).SetUpdate(true)
+            )
+            .Append(
+                DOTween.To(
+                    () => materialInstance.GetFloat(FlashAmountID),
+                    x => materialInstance.SetFloat(FlashAmountID, x),
+                    0f,
+                    duration * 0.7f
+                ).SetUpdate(true)
+            );
     }
 
     //넉백 효과

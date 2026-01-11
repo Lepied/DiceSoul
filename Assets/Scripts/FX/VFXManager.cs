@@ -203,7 +203,8 @@ public class VFXManager : MonoBehaviour
             }
 
             // DOTween으로 이동
-            float duration = config.travelDuration > 0 ? config.travelDuration : Vector3.Distance(from, to) / config.travelSpeed;
+            float distance = Vector3.Distance(from, to);
+            float duration = config.travelDuration > 0 ? config.travelDuration : distance / config.travelSpeed;
 
             Tween moveTween;
             if (config.arcHeight > 0)
@@ -237,17 +238,7 @@ public class VFXManager : MonoBehaviour
         // 2. 타겟 도착 콜백
         onReach?.Invoke();
 
-        // 2-1. 히트스톱 (시간 정지 효과) - 중복 방지
-        if (config.hitStopDuration > 0 && !isHitStopActive)
-        {
-            if (hitStopCoroutine != null)
-            {
-                StopCoroutine(hitStopCoroutine);
-            }
-            hitStopCoroutine = StartCoroutine(PlayHitStop(config.hitStopDuration));
-        }
-
-        // 2-2. 적 타격감 효과 (플래시, 넉백)
+        //플래시, 넉백
         if (target != null)
         {
             Enemy enemy = target.GetComponent<Enemy>();
@@ -268,6 +259,15 @@ public class VFXManager : MonoBehaviour
             }
         }
 
+        //히트스톱
+        if (config.hitStopDuration > 0 && !isHitStopActive)
+        {
+            if (hitStopCoroutine != null)
+            {
+                StopCoroutine(hitStopCoroutine);
+            }
+            hitStopCoroutine = StartCoroutine(PlayHitStop(config.hitStopDuration));
+        }
         // 3. 임팩트 VFX
         if (config.impactPrefab != null)
         {
@@ -393,14 +393,14 @@ public class VFXManager : MonoBehaviour
         return sum / positions.Length;
     }
 
-    // 히트스톱 재생 (중복 방지)
+    // 히트스톱 재생
     private IEnumerator PlayHitStop(float duration)
     {
         if (isHitStopActive) yield break;
 
         isHitStopActive = true;
 
-        // 원래 타임스케일 저장 (안전하게 1.0으로 가정)
+        // 원래 타임스케일 저장
         float originalTimeScale = 1.0f;
         
         // 시간 느리게
@@ -409,7 +409,7 @@ public class VFXManager : MonoBehaviour
         // 실제 시간으로 대기
         yield return new WaitForSecondsRealtime(duration);
         
-        // 반드시 복원
+        //복원
         Time.timeScale = originalTimeScale;
         
         isHitStopActive = false;

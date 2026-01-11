@@ -28,11 +28,6 @@ public class AttackDB : MonoBehaviour
     {
         VFXConfig missileVFX = Resources.Load<VFXConfig>("VFXConfigs/VFXConfig_Missile");
         
-        if (missileVFX == null)
-        {
-            Debug.LogWarning("[AttackDB] VFXConfig_Missile을 찾을 수 없습니다. Resources/VFXConfigs/ 경로를 확인하세요.");
-        }
-
         // 야찌 (5개)
         allJokbos.Add(new AttackJokbo(
             "야찌 (5개)", 150, 100,

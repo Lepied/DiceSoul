@@ -428,7 +428,7 @@ public class RelicEffectHandler : MonoBehaviour
     // 족보 완성 시 처리
     private void HandleJokboComplete(JokboContext ctx)
     {
-        // RLC_VAMPIRE_FANG: 흡혈귀의 이빨 - 족보 완성 시 체력 +1
+        // RLC_VAMPIRE_FANG: 흡혈귀의 이빨 - 족보 완성 시 체력 +10
         if (HasRelic("RLC_VAMPIRE_FANG") && GameManager.Instance != null)
         {
             // 악마의 계약서가 있으면 회복 불가
@@ -687,13 +687,13 @@ public class RelicEffectHandler : MonoBehaviour
 
             // === 체력 변경 유물 ===
             case "RLC_GLASS_CANNON":
-                gm.ModifyMaxHealth(-25);
-                Debug.Log("[유물] 유리 대포: 최대 체력 -25");
+                gm.ModifyMaxHealth(-50);
+                Debug.Log("[유물] 유리 대포: 최대 체력 -50");
                 break;
 
             case "RLC_GAMBLER_RING":
-                gm.ModifyMaxHealth(-45);
-                Debug.Log("[유물] 도박사의 반지: 최대 체력 -45");
+                gm.ModifyMaxHealth(-50);
+                Debug.Log("[유물] 도박사의 반지: 최대 체력 -90");
                 break;
 
             case "RLC_HEART_CONTAINER":

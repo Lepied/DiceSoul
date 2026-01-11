@@ -19,29 +19,29 @@ MonoBehaviour:
   impactPrefab: {fileID: 4277359279623481477, guid: e5cb1c1324fc10b40bb2bde8e21bd865, type: 3}
   buffPrefab: {fileID: 0}
   gatherDuration: 0.3
-  travelDuration: 0.5
-  travelSpeed: 10
-  impactDuration: 1
+  travelDuration: 0.3
+  travelSpeed: 15
+  impactDuration: 0.5
   moveCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 0.150016
-      outSlope: 0.150016
+      inSlope: 1
+      outSlope: 1
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
-      outWeight: 0.33333334
+      outWeight: 0
     - serializedVersion: 3
-      time: 1.0020905
-      value: 0.15032959
-      inSlope: 0.150016
-      outSlope: 0.150016
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
       tangentMode: 34
       weightedMode: 0
-      inWeight: 0.33333334
+      inWeight: 0
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
@@ -50,9 +50,9 @@ MonoBehaviour:
   launchSound: {fileID: 0}
   impactSound: {fileID: 0}
   shakeIntensity: 0
-  hitStopDuration: 0.2
+  hitStopDuration: 0.1
   enableHitFlash: 1
   flashColor: {r: 1, g: 1, b: 1, a: 1}
-  flashDuration: 0.3
-  knockbackDistance: 0.2
-  knockbackDuration: 0.2
+  flashDuration: 0.25
+  knockbackDistance: 0.3
+  knockbackDuration: 0.1
