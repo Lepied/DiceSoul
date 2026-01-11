@@ -269,12 +269,12 @@ public class StageManager : MonoBehaviour
             Vector3[] dicePos = diceController.GetDicePositions(jokbo.UsedDiceIndices);
             Vector3 centerPos = dicePos.Length > 0 ? CalculateCenterPosition(dicePos) : Vector3.zero;
 
-            // 주사위 제거 시작 (VFX와 동시)
+            // 주사위 제거 시작 
             diceController.RemoveDiceByIndices(jokbo.UsedDiceIndices);
 
-            // 버프 VFX 재생
+            // 버프 VFX 재생 -> 이거나중에 할지 생각
             VFXManager.Instance.PlayBuff(
-                GameManager.Instance.transform, // 플레이어에게 부착 (없으면 카메라)
+                GameManager.Instance.transform, 
                 jokbo.VfxConfig,
                 2f // 지속시간
             );

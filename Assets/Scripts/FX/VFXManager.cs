@@ -84,7 +84,7 @@ public class VFXManager : MonoBehaviour
         Destroy(vfx.gameObject, duration + 0.5f);
     }
 
-    // AoE 공격 VFX
+    // AoE 공격 VFX (startPoint에 따라 자동 분기)
     public void PlayAoEAttack(
         VFXConfig config,
         Vector3[] dicePositions,
@@ -92,7 +92,17 @@ public class VFXManager : MonoBehaviour
         Action<int> onImpact,
         Action onComplete)
     {
-        StartCoroutine(AoEAttackSequence(config, dicePositions, targetPositions, onImpact, onComplete));
+        // startPoint에 따라 분기
+        if (config != null && config.startPoint == VFXStartPoint.EachDice)
+        {
+            // 각 주사위 위치에서 발사
+            StartCoroutine(MultiSourceAoESequence(config, dicePositions, targetPositions, onImpact, onComplete));
+        }
+        else
+        {
+            // 중심점에서 발사 (기본)
+            StartCoroutine(AoEAttackSequence(config, dicePositions, targetPositions, onImpact, onComplete));
+        }
     }
 
     private IEnumerator AoEAttackSequence(
@@ -137,6 +147,12 @@ public class VFXManager : MonoBehaviour
 
             // 임팩트 시작 후 잠시 대기 후 데미지 적용
             yield return new WaitForSeconds(config.impactDuration * 0.5f);
+
+            // 카메라 쉐이크
+            if (config.shakeIntensity > 0 && CameraShake.Instance != null)
+            {
+                CameraShake.Instance.Shake(config.shakeIntensity, 0.15f);
+            }
 
             // 모든 타겟에 임팩트 콜백
             for (int i = 0; i < targetPositions.Length; i++)
@@ -193,7 +209,10 @@ public class VFXManager : MonoBehaviour
         if (config.projectilePrefab != null)
         {
             VFXInstance projectile = SpawnVFX(config.projectilePrefab, from, Quaternion.identity);
-            projectile.transform.LookAt(to);
+            Vector3 dir = to - from;
+            float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+
+            projectile.transform.rotation = Quaternion.AngleAxis(angle+90, Vector3.forward);
             projectile.Play();
 
             // 사운드
@@ -221,7 +240,7 @@ public class VFXManager : MonoBehaviour
             }
 
             // 도착 완료
-            moveTween.OnComplete(() => 
+            moveTween.OnComplete(() =>
             {
                 if (projectile != null && projectile.gameObject != null)
                 {
@@ -237,6 +256,12 @@ public class VFXManager : MonoBehaviour
 
         // 2. 타겟 도착 콜백
         onReach?.Invoke();
+
+        // 카메라 쉐이크
+        if (config.shakeIntensity > 0 && CameraShake.Instance != null)
+        {
+            CameraShake.Instance.Shake(config.shakeIntensity);
+        }
 
         //플래시, 넉백
         if (target != null)
@@ -331,27 +356,100 @@ public class VFXManager : MonoBehaviour
         onComplete?.Invoke();
     }
 
-    //타겟 위치에서 직접 발동
-    public void PlayOnTarget(
+    // 다중 발사점 → 다중 타겟 (PlayOnTarget 기반으로 간소화)
+    private IEnumerator MultiSourceAoESequence(
         VFXConfig config,
-        Vector3 targetPosition,
+        Vector3[] fromPositions,
+        Vector3[] toPositions,
+        Action<int> onEachImpact,
         Action onComplete)
     {
-        StartCoroutine(OnTargetSequence(config, targetPosition, onComplete));
+        if (config == null) config = defaultAoEConfig;
+        if (config == null || fromPositions == null || fromPositions.Length == 0)
+        {
+            Debug.LogWarning("[VFXManager] MultiSourceAoE Config 또는 발사 위치 없음!");
+            onComplete?.Invoke();
+            yield break;
+        }
+
+        // 1단계: 각 주사위 위치에서 발사 이펙트 (gatherPrefab)
+        if (config.gatherPrefab != null)
+        {
+            foreach (Vector3 pos in fromPositions)
+            {
+                PlayOnTarget(config.gatherPrefab, pos, config.gatherDuration);
+            }
+            yield return new WaitForSeconds(config.gatherDuration);
+        }
+
+        // 2단계: 각 적 위치에 임팩트 이펙트
+        if (config.impactPrefab != null && toPositions != null)
+        {
+            // 사운드 재생 (첫 번째만)
+            if (config.impactSound != null && SoundManager.Instance != null)
+            {
+                SoundManager.Instance.PlaySFX(config.impactSound);
+            }
+
+            // 모든 타겟에 임팩트 VFX
+            for (int i = 0; i < toPositions.Length; i++)
+            {
+                PlayOnTarget(config.impactPrefab, toPositions[i], config.impactDuration);
+            }
+
+            // 임팩트 시작 후 잠시 대기 후 데미지 적용
+            yield return new WaitForSeconds(config.impactDuration * 0.5f);
+
+            // 카메라 쉐이크
+            if (config.shakeIntensity > 0 && CameraShake.Instance != null)
+            {
+                CameraShake.Instance.Shake(config.shakeIntensity, 0.15f);
+            }
+
+            // 모든 타겟에 데미지 콜백
+            for (int i = 0; i < toPositions.Length; i++)
+            {
+                onEachImpact?.Invoke(i);
+            }
+
+            yield return new WaitForSeconds(config.impactDuration * 0.5f);
+        }
+        else
+        {
+            // VFX 없으면 즉시 데미지
+            for (int i = 0; i < (toPositions?.Length ?? 0); i++)
+            {
+                onEachImpact?.Invoke(i);
+            }
+        }
+
+        onComplete?.Invoke();
     }
 
-    private IEnumerator OnTargetSequence(VFXConfig config, Vector3 position, Action onComplete)
+    //타겟 위치에서 직접 발동
+    public void PlayOnTarget(
+        GameObject prefab,
+        Vector3 targetPosition,
+        float duration,
+        Action onComplete = null)
     {
-        if (config == null || config.impactPrefab == null)
+        StartCoroutine(OnTargetDirectSequence(prefab, targetPosition, duration, onComplete));
+    }
+
+
+
+    private IEnumerator OnTargetDirectSequence(GameObject prefab, Vector3 position, float duration, Action onComplete)
+    {
+        if (prefab == null)
         {
             onComplete?.Invoke();
             yield break;
         }
 
-        VFXInstance vfx = SpawnVFX(config.impactPrefab, position, Quaternion.identity);
+        VFXInstance vfx = SpawnVFX(prefab, position, Quaternion.identity);
         vfx.Play();
 
-        yield return new WaitForSeconds(config.impactDuration);
+        yield return new WaitForSeconds(duration);
 
         Destroy(vfx.gameObject, 1f);
         onComplete?.Invoke();
@@ -402,16 +500,16 @@ public class VFXManager : MonoBehaviour
 
         // 원래 타임스케일 저장
         float originalTimeScale = 1.0f;
-        
+
         // 시간 느리게
         Time.timeScale = 0.05f;
-        
+
         // 실제 시간으로 대기
         yield return new WaitForSecondsRealtime(duration);
-        
+
         //복원
         Time.timeScale = originalTimeScale;
-        
+
         isHitStopActive = false;
         hitStopCoroutine = null;
     }

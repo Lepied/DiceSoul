@@ -27,6 +27,17 @@ public class AttackDB : MonoBehaviour
     private void InitializeJokbos()
     {
         VFXConfig missileVFX = Resources.Load<VFXConfig>("VFXConfigs/VFXConfig_Missile");
+        VFXConfig straightVFX = Resources.Load<VFXConfig>("VFXConfigs/VFXConfig_Straight");
+        
+        if (missileVFX == null)
+        {
+            Debug.LogWarning("[AttackDB] VFXConfig_Missile을 찾을 수 없습니다!");
+        }
+        
+        if (straightVFX == null)
+        {
+            Debug.LogWarning("[AttackDB] VFXConfig_Straight을 찾을 수 없습니다! (스트레이트용)");
+        }
         
         // 야찌 (5개)
         allJokbos.Add(new AttackJokbo(
@@ -42,11 +53,11 @@ public class AttackDB : MonoBehaviour
             (diceValues) => diceValues.GroupBy(v => v).Any(g => g.Count() >= 4),
             (diceValues) => GetSameValueIndices(diceValues, 4),
             AttackTargetType.Hybrid,
-            1,  // RequiredTargetCount: 1명 선택
-            1,  // RandomTargetCount (Hybrid는 미사용)
+            1,
+            1, 
             AttackTargetType.AoE,  // SubTargetType
-            40, // SubDamage
-            1   // SubRandomTargetCount (AoE는 미사용)
+            40, 
+            1
         ));
 
         // 풀 하우스 (3+2) - 2명 선택 + 랜덤 공격
@@ -59,10 +70,10 @@ public class AttackDB : MonoBehaviour
             (diceValues) => GetFullHouseIndices(diceValues),
             AttackTargetType.Hybrid,
             2,  // 2명 선택
-            1,  // 주공격 RandomTargetCount (Hybrid는 미사용)
+            1,  // 주공격
             AttackTargetType.Random,
             35,
-            1   // 부가 공격: 랜덤 1명
+            1   // 부공격
         ));
 
         // 스트레이트 (5연속)
@@ -78,7 +89,8 @@ public class AttackDB : MonoBehaviour
                 return straight1 || straight2;
             },
             (diceValues) => GetStraightIndices(diceValues, 5),
-            AttackTargetType.AoE
+            AttackTargetType.AoE,
+            vfxConfig : straightVFX
         ));
         
         // 스트레이트 (4연속)
@@ -94,7 +106,8 @@ public class AttackDB : MonoBehaviour
                 return c1 || c2;
             },
             (diceValues) => GetStraightIndices(diceValues, 4),
-            AttackTargetType.AoE
+            AttackTargetType.AoE,
+            vfxConfig : straightVFX
         ));
         
         // 트리플 (3개) - 3명 선택

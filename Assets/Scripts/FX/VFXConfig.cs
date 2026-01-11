@@ -1,5 +1,12 @@
 using UnityEngine;
 
+// VFX 시작 위치 타입
+public enum VFXStartPoint
+{
+    CenterPoint,  // 중심점에서 시작
+    EachDice      // 각 주사위 위치에서 시작
+}
+
 // VFX 설정 ScriptableObject
 [CreateAssetMenu(fileName = "VFXConfig_", menuName = "DiceSoul/VFX Config")]
 public class VFXConfig : ScriptableObject
@@ -10,6 +17,9 @@ public class VFXConfig : ScriptableObject
     
     [Tooltip("VFX 타입")]
     public VFXType type = VFXType.Projectile;
+    
+    [Tooltip("VFX 시작 위치")]
+    public VFXStartPoint startPoint = VFXStartPoint.CenterPoint;
 
     [Header("프리팹 (Particle System 또는 VFX Graph)")]
     [Tooltip("주사위 수집/모이는 VFX (선택사항)")]
@@ -25,7 +35,7 @@ public class VFXConfig : ScriptableObject
     public GameObject buffPrefab;
 
     [Header("타이밍 설정")]
-    [Tooltip("주사위 수집 애니메이션 시간")]
+    [Tooltip("주사위 사라지는 애니메이션 시간")]
     public float gatherDuration = 0.3f;
     
     [Tooltip("투사체 이동 시간 (0이면 속도 기반)")]

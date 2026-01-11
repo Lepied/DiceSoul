@@ -10,12 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ec7838a7036d41147831aeaf995e99d1, type: 3}
-  m_Name: VFXConfig_Missile
+  m_Name: VFXConfig_Straight
   m_EditorClassIdentifier: Assembly-CSharp::VFXConfig
-  vfxName: Missile
-  type: 1
-  gatherPrefab: {fileID: 0}
-  projectilePrefab: {fileID: 8490477775743554221, guid: 0f8c111af40aa4e489c79bcde8b82df0, type: 3}
+  vfxName: Straight
+  type: 3
+  startPoint: 1
+  gatherPrefab: {fileID: 4277359279623481477, guid: e5cb1c1324fc10b40bb2bde8e21bd865, type: 3}
+  projectilePrefab: {fileID: 0}
   impactPrefab: {fileID: 4277359279623481477, guid: e5cb1c1324fc10b40bb2bde8e21bd865, type: 3}
   buffPrefab: {fileID: 0}
   gatherDuration: 0.3
@@ -49,8 +50,8 @@ MonoBehaviour:
   arcHeight: 0
   launchSound: {fileID: 0}
   impactSound: {fileID: 0}
-  shakeIntensity: 0
-  hitStopDuration: 0.1
+  shakeIntensity: 0.3
+  hitStopDuration: 0.2
   enableHitFlash: 1
   flashColor: {r: 1, g: 1, b: 1, a: 1}
   flashDuration: 0.25
