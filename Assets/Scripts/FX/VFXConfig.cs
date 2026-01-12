@@ -47,6 +47,18 @@ public class VFXConfig : ScriptableObject
     [Tooltip("임팩트 지속 시간")]
     public float impactDuration = 0.2f;
 
+    [Tooltip("순차 재생 딜레이 0이면 동시 재생")]
+    [Range(0f, 0.2f)]
+    public float sequentialDelay = 0f;
+
+    [Tooltip("임팩트 위치 랜덤 오프셋")]
+    [Range(0f, 5f)]
+    public float impactRandomOffset = 0f;
+
+    [Tooltip("각 타겟당 임팩트 반복 횟수")]
+    [Range(1, 10)]
+    public int impactRepeatCount = 1;
+
     [Header("이동 설정")]
     [Tooltip("투사체 이동 커브")]
     public AnimationCurve moveCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);

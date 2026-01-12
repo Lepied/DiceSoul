@@ -10,38 +10,40 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ec7838a7036d41147831aeaf995e99d1, type: 3}
-  m_Name: VFXConfig_Straight
+  m_Name: VFXConfig_Odd
   m_EditorClassIdentifier: Assembly-CSharp::VFXConfig
-  vfxName: Straight
+  vfxName: VFX Config_Odd
   type: 3
   startPoint: 1
-  gatherPrefab: {fileID: 3432958286849152088, guid: bc2a7a277120e91469848997f72018af, type: 3}
+  gatherPrefab: {fileID: 4021103657954561961, guid: 6e2de64a7df814246b374c15699e73bf, type: 3}
   projectilePrefab: {fileID: 0}
-  impactPrefab: {fileID: 725748389856807714, guid: 3e0383f55551fe74887d843d000bdc8d, type: 3}
+  impactPrefab: {fileID: 4306488877223958017, guid: a32af6557dc73b64d84a4891973dc8b5, type: 3}
   buffPrefab: {fileID: 0}
-  gatherDuration: 0.3
-  travelDuration: 0.3
-  travelSpeed: 10
-  impactDuration: 0.5
+  gatherDuration: 0.5
+  travelDuration: 0
+  travelSpeed: 0
+  impactDuration: 0.2
   sequentialDelay: 0
+  impactRandomOffset: 0.5
+  impactRepeatCount: 3
   moveCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 1
-      outSlope: 1
-      tangentMode: 34
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
       time: 1
       value: 1
-      inSlope: 1
-      outSlope: 1
-      tangentMode: 34
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0
       outWeight: 0
@@ -51,10 +53,10 @@ MonoBehaviour:
   arcHeight: 0
   launchSound: {fileID: 0}
   impactSound: {fileID: 0}
-  shakeIntensity: 0.3
-  hitStopDuration: 0.2
-  enableHitFlash: 1
+  shakeIntensity: 0
+  hitStopDuration: 0.3
+  enableHitFlash: 0
   flashColor: {r: 1, g: 1, b: 1, a: 1}
-  flashDuration: 0.25
-  knockbackDistance: 0.3
-  knockbackDuration: 0.1
+  flashDuration: 0.1
+  knockbackDistance: 0
+  knockbackDuration: 0.2

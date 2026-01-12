@@ -28,16 +28,9 @@ public class AttackDB : MonoBehaviour
     {
         VFXConfig missileVFX = Resources.Load<VFXConfig>("VFXConfigs/VFXConfig_Missile");
         VFXConfig straightVFX = Resources.Load<VFXConfig>("VFXConfigs/VFXConfig_Straight");
-        
-        if (missileVFX == null)
-        {
-            Debug.LogWarning("[AttackDB] VFXConfig_Missile을 찾을 수 없습니다!");
-        }
-        
-        if (straightVFX == null)
-        {
-            Debug.LogWarning("[AttackDB] VFXConfig_Straight을 찾을 수 없습니다! (스트레이트용)");
-        }
+        VFXConfig oddVFX = Resources.Load<VFXConfig>("VFXConfigs/VFXConfig_Odd");
+        VFXConfig evenVFX = Resources.Load<VFXConfig>("VFXConfigs/VFXConfig_Even");
+
         
         // 야찌 (5개)
         allJokbos.Add(new AttackJokbo(
@@ -143,7 +136,8 @@ public class AttackDB : MonoBehaviour
             "모두 짝수", 30, 15,
             (diceValues) => diceValues.All(v => v % 2 == 0),
             (diceValues) => GetAllIndices(diceValues),
-            AttackTargetType.AoE
+            AttackTargetType.AoE,
+            vfxConfig : evenVFX
         ));
         
         // 모두 홀수
@@ -151,7 +145,8 @@ public class AttackDB : MonoBehaviour
             "모두 홀수", 30, 15,
             (diceValues) => diceValues.All(v => v % 2 != 0),
             (diceValues) => GetAllIndices(diceValues),
-            AttackTargetType.AoE
+            AttackTargetType.AoE,
+            vfxConfig : oddVFX
         ));
 
         // 총합 (랜덤 타겟은 주사위 수만큼)

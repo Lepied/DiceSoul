@@ -136,7 +136,15 @@ public class VFXManager : MonoBehaviour
         // 2. 임팩트 VFX
         if (config.impactPrefab != null)
         {
-            VFXInstance impact = SpawnVFX(config.impactPrefab, centerPos, Quaternion.identity);
+            // 랜덤 오프셋 적용
+            Vector3 impactPos = centerPos;
+            if (config.impactRandomOffset > 0)
+            {
+                Vector2 randomOffset = UnityEngine.Random.insideUnitCircle * config.impactRandomOffset;
+                impactPos += new Vector3(randomOffset.x, randomOffset.y, 0);
+            }
+
+            VFXInstance impact = SpawnVFX(config.impactPrefab, impactPos, Quaternion.identity);
             impact.Play();
 
             // 사운드 재생
@@ -356,7 +364,7 @@ public class VFXManager : MonoBehaviour
         onComplete?.Invoke();
     }
 
-    // 다중 발사점 → 다중 타겟 (PlayOnTarget 기반으로 간소화)
+    // 다중 발사점 → 다중 타겟
     private IEnumerator MultiSourceAoESequence(
         VFXConfig config,
         Vector3[] fromPositions,
@@ -385,34 +393,59 @@ public class VFXManager : MonoBehaviour
         // 2단계: 각 적 위치에 임팩트 이펙트
         if (config.impactPrefab != null && toPositions != null)
         {
-            // 사운드 재생 (첫 번째만)
+            // 사운드 재생
             if (config.impactSound != null && SoundManager.Instance != null)
             {
                 SoundManager.Instance.PlaySFX(config.impactSound);
             }
 
-            // 모든 타겟에 임팩트 VFX
+            // 순차적으로 임팩트 VFX 재생 (반복 포함)
             for (int i = 0; i < toPositions.Length; i++)
             {
-                PlayOnTarget(config.impactPrefab, toPositions[i], config.impactDuration);
+                int index = i;
+                
+                // 각 타겟당 반복 재생
+                for (int repeat = 0; repeat < config.impactRepeatCount; repeat++)
+                {
+                    // 랜덤 오프셋 적용 (매번 다른 위치)
+                    Vector3 impactPos = toPositions[i];
+                    if (config.impactRandomOffset > 0)
+                    {
+                        Vector2 randomOffset = UnityEngine.Random.insideUnitCircle * config.impactRandomOffset;
+                        impactPos += new Vector3(randomOffset.x, randomOffset.y, 0);
+                    }
+                    
+                    // 임팩트 재생
+                    PlayOnTarget(config.impactPrefab, impactPos, config.impactDuration);
+                    
+                    // 반복 사이 짧은 딜레이 (마지막 반복 제외)
+                    if (repeat < config.impactRepeatCount - 1)
+                    {
+                        yield return new WaitForSeconds(config.sequentialDelay * 0.5f);
+                    }
+                }
+                
+                // 카메라 쉐이크 (타겟당 1번)
+                if (config.shakeIntensity > 0 && CameraShake.Instance != null)
+                {
+                    CameraShake.Instance.Shake(config.shakeIntensity * 0.5f, 0.1f);
+                }
+                
+                // 짧은 딜레이 후 데미지 적용
+                yield return new WaitForSeconds(config.impactDuration * 0.3f);
+                
+                // 데미지 콜백
+                onEachImpact?.Invoke(index);
+                
+                // 다음 타겟까지 딜레이
+                if (i < toPositions.Length - 1 && config.sequentialDelay > 0)
+                {
+                    yield return new WaitForSeconds(config.sequentialDelay);
+                }
             }
 
-            // 임팩트 시작 후 잠시 대기 후 데미지 적용
-            yield return new WaitForSeconds(config.impactDuration * 0.5f);
-
-            // 카메라 쉐이크
-            if (config.shakeIntensity > 0 && CameraShake.Instance != null)
-            {
-                CameraShake.Instance.Shake(config.shakeIntensity, 0.15f);
-            }
-
-            // 모든 타겟에 데미지 콜백
-            for (int i = 0; i < toPositions.Length; i++)
-            {
-                onEachImpact?.Invoke(i);
-            }
-
-            yield return new WaitForSeconds(config.impactDuration * 0.5f);
+            // 마지막 임팩트 끝날 때까지 대기
+            yield return new WaitForSeconds(config.impactDuration * 0.7f);
         }
         else
         {
