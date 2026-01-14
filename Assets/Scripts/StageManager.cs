@@ -624,23 +624,64 @@ public class StageManager : MonoBehaviour
 
         Debug.Log($"[복수 타겟 공격] {jokbo.Description} → {targets.Count}명의 적 - 데미지: {finalDamage}");
 
-        // 각 타겟에게 공격 실행
-        foreach (Enemy target in targets)
+        // VFX 통합 버전
+        if (VFXManager.Instance != null && jokbo.VfxConfig != null)
         {
-            if (target != null && !target.isDead)
-            {
-                int damageToTake = target.CalculateDamageTaken(jokbo) + bonusDamage;
-                target.TakeDamage(damageToTake, jokbo);
-                Debug.Log($"  → {target.name} - 데미지: {damageToTake}");
-            }
+            // 주사위 위치들
+            Vector3[] dicePos = diceController.GetDicePositions(jokbo.UsedDiceIndices);
+            Vector3 centerPos = dicePos.Length > 0 ? CalculateCenterPosition(dicePos) : Vector3.zero;
+            
+            // 살아있는 적만 필터링
+            List<Enemy> aliveTargets = targets.Where(t => t != null && !t.isDead).ToList();
+            Vector3[] targetPos = aliveTargets.Select(t => t.transform.position).ToArray();
+            Transform[] targetTransforms = aliveTargets.Select(t => t.transform).ToArray();
+
+
+            diceController.RemoveDiceByIndices(jokbo.UsedDiceIndices);
+
+            // VFX 재생
+            VFXManager.Instance.PlayMultiProjectileAttack(
+                config: jokbo.VfxConfig,
+                fromPosition: centerPos,
+                toPositions: targetPos,
+                targets: targetTransforms,
+                onEachReach: (int targetIndex) =>
+                {
+                    // 각 타겟에 데미지 적용
+                    if (targetIndex < aliveTargets.Count)
+                    {
+                        Enemy enemy = aliveTargets[targetIndex];
+                        int damageToTake = enemy.CalculateDamageTaken(jokbo) + bonusDamage;
+                        enemy.TakeDamage(damageToTake, jokbo);
+                        Debug.Log($"  → {enemy.name} - 데미지: {damageToTake}");
+                    }
+                },
+                onComplete: () =>
+                {
+                    // VFX 완료 후
+                    GameManager.Instance.AddGoldDirect(finalGold);
+                    GameEvents.RaiseAfterAttack(attackCtx);
+                    FinishAttackAndCheckChain(jokbo);
+                }
+            );
         }
+        else
+        {
+            // VFX 없으면 즉시 데미지
+            foreach (Enemy target in targets)
+            {
+                if (target != null && !target.isDead)
+                {
+                    int damageToTake = target.CalculateDamageTaken(jokbo) + bonusDamage;
+                    target.TakeDamage(damageToTake, jokbo);
+                    Debug.Log($"  → {target.name} - 데미지: {damageToTake}");
+                }
+            }
 
-        GameManager.Instance.AddGoldDirect(finalGold);
-        
-        // 공격 후 이벤트 발생 (회복 등 처리)
-        GameEvents.RaiseAfterAttack(attackCtx);
-
-        FinishAttackAndCheckChain(jokbo);
+            GameManager.Instance.AddGoldDirect(finalGold);
+            GameEvents.RaiseAfterAttack(attackCtx);
+            FinishAttackAndCheckChain(jokbo);
+        }
     }
 
     // 복합 공격 실행 (주공격 + 부가공격)
@@ -653,28 +694,66 @@ public class StageManager : MonoBehaviour
         // 실제 공격용 AttackContext 생성
         AttackContext attackCtx = CreateAttackContext(jokbo, finalDamage, finalGold);
 
-        Debug.Log($"[복합 - 주공격] {jokbo.Description} → {mainTargets.Count}명의 적 - 데미지: {finalDamage}");
+        Debug.Log($"[복합 공격] {jokbo.Description} → 주공격: {mainTargets.Count}명 - 데미지: {finalDamage}");
 
-        // 각 주 타겟에게 공격 실행 (적 타입별 데미지 계산 + 유물 보너스)
-        foreach (Enemy mainTarget in mainTargets)
+        // VFX
+        if (VFXManager.Instance != null && jokbo.VfxConfig != null)
         {
-            if (mainTarget != null && !mainTarget.isDead)
-            {
-                int mainDamageToTake = mainTarget.CalculateDamageTaken(jokbo) + bonusDamage;
-                mainTarget.TakeDamage(mainDamageToTake, jokbo);
-                Debug.Log($"  → {mainTarget.name} - 데미지: {mainDamageToTake}");
-            }
+            Vector3[] dicePos = diceController.GetDicePositions(jokbo.UsedDiceIndices);
+            Vector3 centerPos = dicePos.Length > 0 ? CalculateCenterPosition(dicePos) : Vector3.zero;
+            
+            List<Enemy> aliveMainTargets = mainTargets.Where(t => t != null && !t.isDead).ToList();
+            Vector3[] mainTargetPos = aliveMainTargets.Select(t => t.transform.position).ToArray();
+            Transform[] mainTargetTransforms = aliveMainTargets.Select(t => t.transform).ToArray();
+
+            diceController.RemoveDiceByIndices(jokbo.UsedDiceIndices);
+            VFXManager.Instance.PlayMultiProjectileAttack(
+                config: jokbo.VfxConfig,
+                fromPosition: centerPos,
+                toPositions: mainTargetPos,
+                targets: mainTargetTransforms,
+                onEachReach: (int targetIndex) =>
+                {
+                    if (targetIndex < aliveMainTargets.Count)
+                    {
+                        Enemy mainTarget = aliveMainTargets[targetIndex];
+                        int mainDamageToTake = mainTarget.CalculateDamageTaken(jokbo) + bonusDamage;
+                        mainTarget.TakeDamage(mainDamageToTake, jokbo);
+                        Debug.Log($"  → {mainTarget.name} - 주공격 데미지: {mainDamageToTake}");
+                    }
+                },
+                onComplete: () =>
+                {
+                    GameManager.Instance.AddGoldDirect(finalGold);
+                    GameEvents.RaiseAfterAttack(attackCtx);
+                    
+                    ExecuteSubAttack(jokbo, mainTargets);
+                    
+                    FinishAttackAndCheckChain(jokbo);
+                }
+            );
         }
+        else
+        {
+            // VFX 없으면 즉시 데미지
+            foreach (Enemy mainTarget in mainTargets)
+            {
+                if (mainTarget != null && !mainTarget.isDead)
+                {
+                    int mainDamageToTake = mainTarget.CalculateDamageTaken(jokbo) + bonusDamage;
+                    mainTarget.TakeDamage(mainDamageToTake, jokbo);
+                    Debug.Log($"  → {mainTarget.name} - 데미지: {mainDamageToTake}");
+                }
+            }
 
-        GameManager.Instance.AddGoldDirect(finalGold);
-        
-        // 공격 후 이벤트 발생 (회복 등 처리)
-        GameEvents.RaiseAfterAttack(attackCtx);
-
-        // 부가 공격 실행
-        ExecuteSubAttack(jokbo, mainTargets);
-
-        FinishAttackAndCheckChain(jokbo);
+            GameManager.Instance.AddGoldDirect(finalGold);
+            GameEvents.RaiseAfterAttack(attackCtx);
+            
+            // 부가 공격 실행
+            ExecuteSubAttack(jokbo, mainTargets);
+            
+            FinishAttackAndCheckChain(jokbo);
+        }
     }
 
     // 복합 공격의 부가 공격 실행
@@ -691,10 +770,38 @@ public class StageManager : MonoBehaviour
         {
             case AttackTargetType.AoE:
                 // 전체 공격
-                foreach (Enemy enemy in activeEnemies.Where(e => e != null && !e.isDead))
+                List<Enemy> allTargets = activeEnemies.Where(e => e != null && !e.isDead).ToList();
+                
+                if (VFXManager.Instance != null && jokbo.SubVfxConfig != null && allTargets.Count > 0)
                 {
-                    int damageToTake = enemy.CalculateDamageTaken(subJokbo);
-                    enemy.TakeDamage(damageToTake, subJokbo);
+                    // 부가공격 VFX 있으면 사용
+                    Vector3[] targetPos = allTargets.Select(e => e.transform.position).ToArray();
+                    
+                    VFXManager.Instance.PlayAoEAttack(
+                        config: jokbo.SubVfxConfig,
+                        dicePositions: new Vector3[0],
+                        targetPositions: targetPos,
+                        onImpact: (int targetIndex) =>
+                        {
+                            if (targetIndex < allTargets.Count)
+                            {
+                                Enemy enemy = allTargets[targetIndex];
+                                int damageToTake = enemy.CalculateDamageTaken(subJokbo);
+                                enemy.TakeDamage(damageToTake, subJokbo);
+                                Debug.Log($"  → {enemy.name} - 부가공격 데미지: {damageToTake}");
+                            }
+                        },
+                        onComplete: null
+                    );
+                }
+                else
+                {
+                    // VFX 없으면 즉시 데미지
+                    foreach (Enemy enemy in allTargets)
+                    {
+                        int damageToTake = enemy.CalculateDamageTaken(subJokbo);
+                        enemy.TakeDamage(damageToTake, subJokbo);
+                    }
                 }
                 break;
 
@@ -707,6 +814,7 @@ public class StageManager : MonoBehaviour
                 }
                 
                 int subRandomCount = Mathf.Min(jokbo.SubRandomTargetCount, otherEnemies.Count);
+                List<Enemy> randomTargets = new List<Enemy>();
                 List<Enemy> availableEnemies = new List<Enemy>(otherEnemies);
                 
                 for (int i = 0; i < subRandomCount; i++)
@@ -715,11 +823,43 @@ public class StageManager : MonoBehaviour
                     
                     int randomIndex = Random.Range(0, availableEnemies.Count);
                     Enemy randomTarget = availableEnemies[randomIndex];
+                    randomTargets.Add(randomTarget);
                     availableEnemies.RemoveAt(randomIndex);  // 중복 방지
+                }
+                
+                if (VFXManager.Instance != null && jokbo.SubVfxConfig != null && randomTargets.Count > 0)
+                {
+                    // 부가공격 VFX 있으면 사용
+                    Vector3[] targetPos = randomTargets.Select(e => e.transform.position).ToArray();
+                    Transform[] targetTransforms = randomTargets.Select(e => e.transform).ToArray();
                     
-                    int damageToTake = randomTarget.CalculateDamageTaken(subJokbo);
-                    randomTarget.TakeDamage(damageToTake, subJokbo);
-                    Debug.Log($"  → 랜덤 타겟: {randomTarget.name} - 데미지: {damageToTake}");
+                    VFXManager.Instance.PlayMultiProjectileAttack(
+                        config: jokbo.SubVfxConfig,
+                        fromPosition: Vector3.zero,
+                        toPositions: targetPos,
+                        targets: targetTransforms,
+                        onEachReach: (int targetIndex) =>
+                        {
+                            if (targetIndex < randomTargets.Count)
+                            {
+                                Enemy randomTarget = randomTargets[targetIndex];
+                                int damageToTake = randomTarget.CalculateDamageTaken(subJokbo);
+                                randomTarget.TakeDamage(damageToTake, subJokbo);
+                                Debug.Log($"  → 랜덤 타겟: {randomTarget.name} - 부가공격 데미지: {damageToTake}");
+                            }
+                        },
+                        onComplete: null
+                    );
+                }
+                else
+                {
+                    // VFX 없으면 즉시 데미지
+                    foreach (Enemy randomTarget in randomTargets)
+                    {
+                        int damageToTake = randomTarget.CalculateDamageTaken(subJokbo);
+                        randomTarget.TakeDamage(damageToTake, subJokbo);
+                        Debug.Log($"  → 랜덤 타겟: {randomTarget.name} - 데미지: {damageToTake}");
+                    }
                 }
                 break;
         }
@@ -746,13 +886,8 @@ public class StageManager : MonoBehaviour
     // 공격 완료 후 연쇄 공격 체크
     private void FinishAttackAndCheckChain(AttackJokbo usedJokbo)
     {
-        // 사용한 주사위 제거 (인덱스 기반)
-        if (usedJokbo.UsedDiceIndices != null && usedJokbo.UsedDiceIndices.Count > 0)
-        {
-            Debug.Log($"[주사위 제거] {usedJokbo.Description} - 인덱스: {string.Join(",", usedJokbo.UsedDiceIndices)}");
-            diceController.RemoveDiceByIndices(usedJokbo.UsedDiceIndices);
-        }
-
+        // 주사위는 이미 Execute 메서드에서 제거되었음 (이중 제거 방지)
+        
         isWaitingForAttackChoice = false;
         currentSelectedJokbo = null;
         currentSelectedTargets.Clear();

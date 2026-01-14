@@ -24,6 +24,8 @@ MonoBehaviour:
   travelSpeed: 10
   impactDuration: 0.5
   sequentialDelay: 0
+  impactRandomOffset: 0
+  impactRepeatCount: 1
   moveCurve:
     serializedVersion: 2
     m_Curve:
@@ -51,7 +53,7 @@ MonoBehaviour:
   arcHeight: 0
   launchSound: {fileID: 0}
   impactSound: {fileID: 0}
-  shakeIntensity: 0.3
+  shakeIntensity: 0.1
   hitStopDuration: 0.2
   enableHitFlash: 1
   flashColor: {r: 1, g: 1, b: 1, a: 1}

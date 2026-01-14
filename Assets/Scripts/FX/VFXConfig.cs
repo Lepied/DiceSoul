@@ -1,10 +1,9 @@
 using UnityEngine;
 
-// VFX 시작 위치 타입
 public enum VFXStartPoint
 {
-    CenterPoint,  // 중심점에서 시작
-    EachDice      // 각 주사위 위치에서 시작
+    CenterPoint,
+    EachDice 
 }
 
 // VFX 설정 ScriptableObject
@@ -71,7 +70,7 @@ public class VFXConfig : ScriptableObject
     public AudioClip impactSound;
     
     [Header("카메라 쉐이크")]
-    [Range(0f, 1f)]
+    [Range(0f, 5f)]
     public float shakeIntensity = 0f;
 
     [Header("타격감을 위해서..")]

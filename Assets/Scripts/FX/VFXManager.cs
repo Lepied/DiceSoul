@@ -84,7 +84,7 @@ public class VFXManager : MonoBehaviour
         Destroy(vfx.gameObject, duration + 0.5f);
     }
 
-    // AoE 공격 VFX (startPoint에 따라 자동 분기)
+    // AoE 공격 VFX 
     public void PlayAoEAttack(
         VFXConfig config,
         Vector3[] dicePositions,
@@ -92,7 +92,6 @@ public class VFXManager : MonoBehaviour
         Action<int> onImpact,
         Action onComplete)
     {
-        // startPoint에 따라 분기
         if (config != null && config.startPoint == VFXStartPoint.EachDice)
         {
             // 각 주사위 위치에서 발사
@@ -100,7 +99,7 @@ public class VFXManager : MonoBehaviour
         }
         else
         {
-            // 중심점에서 발사 (기본)
+            // 중심점에서 발사 
             StartCoroutine(AoEAttackSequence(config, dicePositions, targetPositions, onImpact, onComplete));
         }
     }
@@ -380,7 +379,7 @@ public class VFXManager : MonoBehaviour
             yield break;
         }
 
-        // 1단계: 각 주사위 위치에서 발사 이펙트 (gatherPrefab)
+        // 1단계: 각 주사위 위치에서 발사 이펙트
         if (config.gatherPrefab != null)
         {
             foreach (Vector3 pos in fromPositions)
@@ -399,15 +398,13 @@ public class VFXManager : MonoBehaviour
                 SoundManager.Instance.PlaySFX(config.impactSound);
             }
 
-            // 순차적으로 임팩트 VFX 재생 (반복 포함)
+            // 순차적으로 임팩트 VFX 재생
             for (int i = 0; i < toPositions.Length; i++)
             {
                 int index = i;
-                
-                // 각 타겟당 반복 재생
                 for (int repeat = 0; repeat < config.impactRepeatCount; repeat++)
                 {
-                    // 랜덤 오프셋 적용 (매번 다른 위치)
+                    // 랜덤 오프셋
                     Vector3 impactPos = toPositions[i];
                     if (config.impactRandomOffset > 0)
                     {
@@ -415,17 +412,16 @@ public class VFXManager : MonoBehaviour
                         impactPos += new Vector3(randomOffset.x, randomOffset.y, 0);
                     }
                     
-                    // 임팩트 재생
                     PlayOnTarget(config.impactPrefab, impactPos, config.impactDuration);
                     
-                    // 반복 사이 짧은 딜레이 (마지막 반복 제외)
+                    // 반복 딜레이 
                     if (repeat < config.impactRepeatCount - 1)
                     {
                         yield return new WaitForSeconds(config.sequentialDelay * 0.5f);
                     }
                 }
                 
-                // 카메라 쉐이크 (타겟당 1번)
+                // 카메라 쉐이크
                 if (config.shakeIntensity > 0 && CameraShake.Instance != null)
                 {
                     CameraShake.Instance.Shake(config.shakeIntensity * 0.5f, 0.1f);
@@ -449,7 +445,6 @@ public class VFXManager : MonoBehaviour
         }
         else
         {
-            // VFX 없으면 즉시 데미지
             for (int i = 0; i < (toPositions?.Length ?? 0); i++)
             {
                 onEachImpact?.Invoke(i);

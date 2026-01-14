@@ -30,6 +30,10 @@ public class AttackDB : MonoBehaviour
         VFXConfig straightVFX = Resources.Load<VFXConfig>("VFXConfigs/VFXConfig_Straight");
         VFXConfig oddVFX = Resources.Load<VFXConfig>("VFXConfigs/VFXConfig_Odd");
         VFXConfig evenVFX = Resources.Load<VFXConfig>("VFXConfigs/VFXConfig_Even");
+        VFXConfig pairVFX = Resources.Load<VFXConfig>("VFXConfigs/VFXConfig_Pairs");
+        VFXConfig twoPairVFX = Resources.Load<VFXConfig>("VFXConfigs/VFXConfig_TwoPairs");
+        VFXConfig tripleVFX = Resources.Load<VFXConfig>("VFXConfigs/VFXConfig_Triple");
+        VFXConfig fourCardVFX = Resources.Load<VFXConfig>("VFXConfigs/VFXConfig_FourCard");
 
         
         // 야찌 (5개)
@@ -50,7 +54,8 @@ public class AttackDB : MonoBehaviour
             1, 
             AttackTargetType.AoE,  // SubTargetType
             40, 
-            1
+            1,
+            vfxConfig : fourCardVFX
         ));
 
         // 풀 하우스 (3+2) - 2명 선택 + 랜덤 공격
@@ -66,7 +71,7 @@ public class AttackDB : MonoBehaviour
             1,  // 주공격
             AttackTargetType.Random,
             35,
-            1   // 부공격
+            3   // 부공격
         ));
 
         // 스트레이트 (5연속)
@@ -109,7 +114,8 @@ public class AttackDB : MonoBehaviour
             (diceValues) => diceValues.GroupBy(v => v).Any(g => g.Count() >= 3),
             (diceValues) => GetSameValueIndices(diceValues, 3),
             AttackTargetType.Single,
-            3  // 3명 선택
+            3,  // 3명 선택
+            vfxConfig : tripleVFX
         ));
 
         // 투 페어 (2+2) - 2명 선택
@@ -118,7 +124,8 @@ public class AttackDB : MonoBehaviour
             (diceValues) => diceValues.GroupBy(v => v).Count(g => g.Count() >= 2) >= 2,
             (diceValues) => GetTwoPairIndices(diceValues),
             AttackTargetType.Single,
-            2  // 2명 선택
+            2,
+            vfxConfig : twoPairVFX
         ));
 
         // 원 페어 (2)
@@ -127,8 +134,9 @@ public class AttackDB : MonoBehaviour
             (diceValues) => diceValues.GroupBy(v => v).Any(g => g.Count() >= 2),
             (diceValues) => GetSameValueIndices(diceValues, 2),
             AttackTargetType.Random,
-            0,  // RequiredTargetCount (랜덤은 선택 불필요)
-            1   // RandomTargetCount: 랜덤 1명
+            0,
+            1,
+            vfxConfig : pairVFX
         ));
 
         // 모두 짝수

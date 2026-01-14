@@ -10,53 +10,53 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ec7838a7036d41147831aeaf995e99d1, type: 3}
-  m_Name: VFXConfig_Even
+  m_Name: VFXConfig_TwoPairs
   m_EditorClassIdentifier: Assembly-CSharp::VFXConfig
-  vfxName: VFX Config_Even
-  type: 3
+  vfxName: VFXConfig_TwoPairs
+  type: 1
   startPoint: 1
-  gatherPrefab: {fileID: 4021103657954561961, guid: 15375a5efb610484d94b9b37a4d91817, type: 3}
-  projectilePrefab: {fileID: 0}
-  impactPrefab: {fileID: 5112403345868107898, guid: 78aa7a9e4fa993049940a49ee183c5b5, type: 3}
+  gatherPrefab: {fileID: 0}
+  projectilePrefab: {fileID: 8490477775743554221, guid: 0ef1b021bb8120344b70d9a2acd77b7b, type: 3}
+  impactPrefab: {fileID: 2054803858064431036, guid: 922b03aece1cd5b489ac4b5ea307bbb1, type: 3}
   buffPrefab: {fileID: 0}
-  gatherDuration: 0.5
-  travelDuration: 0
-  travelSpeed: 0
+  gatherDuration: 0
+  travelDuration: 0.5
+  travelSpeed: 30
   impactDuration: 0.2
-  sequentialDelay: 0
-  impactRandomOffset: 2
-  impactRepeatCount: 3
+  sequentialDelay: 0.05
+  impactRandomOffset: 0.2
+  impactRepeatCount: 1
   moveCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
       weightedMode: 0
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
       time: 1
       value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
       weightedMode: 0
       inWeight: 0
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  arcHeight: 0
+  arcHeight: 1
   launchSound: {fileID: 0}
   impactSound: {fileID: 0}
-  shakeIntensity: 0.4
-  hitStopDuration: 0.3
-  enableHitFlash: 0
+  shakeIntensity: 0.2
+  hitStopDuration: 0.1
+  enableHitFlash: 1
   flashColor: {r: 1, g: 1, b: 1, a: 1}
   flashDuration: 0.1
-  knockbackDistance: 0
-  knockbackDuration: 0
+  knockbackDistance: 0.3
+  knockbackDuration: 0.1

@@ -25,11 +25,9 @@ public class CameraShake : MonoBehaviour
         originalPosition = cameraTransform.localPosition;
     }
 
-    /// <summary>
-    /// 카메라 흔들기
-    /// </summary>
-    /// <param name="intensity">흔들림 강도 (0~1 권장)</param>
-    /// <param name="duration">지속 시간 (초)</param>
+    // 카메라 흔들기
+    /// <param name="intensity">흔들림 강도</param>
+    /// <param name="duration">지속 시간</param>
     public void Shake(float intensity, float duration = 0.2f)
     {
         if (intensity <= 0) return;
@@ -41,23 +39,21 @@ public class CameraShake : MonoBehaviour
         // DOTween으로 카메라 흔들기
         currentShakeTween = cameraTransform.DOShakePosition(
             duration,           // 지속 시간
-            intensity * 0.5f,   // 흔들림 강도 (0.5 곱해서 적당하게)
+            intensity * 0.5f,   // 강도
             10,                 // 진동 횟수
-            90f,                // 랜덤성
-            false,              // snapping (false = 부드럽게)
-            true                // fadeOut (true = 점점 약해짐)
-        ).SetUpdate(true)       // 히트스톱 무시 (realtime)
+            90f,                // 랜덤
+            false,              // snapping false가 부드럽게 true가 딱딱쓰
+            true                // fadeOut
+        ).SetUpdate(true)       // 히트스톱 무시
         .OnComplete(() =>
         {
-            // 완료 후 원래 위치로 확실하게 복원
+            // 완료 후 원래 위치로
             cameraTransform.localPosition = originalPosition;
             currentShakeTween = null;
         });
     }
 
-    /// <summary>
-    /// 즉시 원래 위치로 복원
-    /// </summary>
+    //즉시 원래 위치로 복원
     public void ResetPosition()
     {
         currentShakeTween?.Kill();

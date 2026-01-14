@@ -34,6 +34,7 @@ public class AttackJokbo
 
     // VFX 설정
     public VFXConfig VfxConfig { get; private set; }
+    public VFXConfig SubVfxConfig { get; private set; }  // 부가 공격용 VFX (Hybrid 전용)
 
     // 족보 달성 여부를 검사하는 로직
     public System.Func<List<int>, bool> CheckLogic { get; private set; }
@@ -59,7 +60,8 @@ public class AttackJokbo
         AttackTargetType subTargetType = AttackTargetType.AoE,
         int subDamage = 0,
         int subRandomTargetCount = 1,
-        VFXConfig vfxConfig = null)
+        VFXConfig vfxConfig = null,
+        VFXConfig subVfxConfig = null)
     {
         this.Description = description;
         this.BaseDamage = baseDamage;
@@ -73,6 +75,7 @@ public class AttackJokbo
         this.SubDamage = subDamage;
         this.SubRandomTargetCount = subRandomTargetCount;
         this.VfxConfig = vfxConfig;
+        this.SubVfxConfig = subVfxConfig;
     }
     
     //가변 데미지/점수 족보용 (예: "총합")
@@ -85,7 +88,8 @@ public class AttackJokbo
         AttackTargetType targetType = AttackTargetType.Random,
         int requiredTargetCount = 0,
         int randomTargetCount = 1,
-        VFXConfig vfxConfig = null)
+        VFXConfig vfxConfig = null,
+        VFXConfig subVfxConfig = null)
     {
         this.Description = description;
         this.CheckLogic = checkLogic;
@@ -99,6 +103,7 @@ public class AttackJokbo
         this.SubDamage = 0;
         this.SubRandomTargetCount = 1;
         this.VfxConfig = vfxConfig;
+        this.SubVfxConfig = subVfxConfig;
 
         // (가변 족보는 BaseDamage/Gold를 0으로 초기화)
         this.BaseDamage = 0;
@@ -124,6 +129,7 @@ public class AttackJokbo
         this.SubDamage = original.SubDamage;
         this.SubRandomTargetCount = original.SubRandomTargetCount;
         this.VfxConfig = original.VfxConfig;
+        this.SubVfxConfig = original.SubVfxConfig;
         this.UsedDiceIndices = new List<int>(original.UsedDiceIndices);
     }
 
