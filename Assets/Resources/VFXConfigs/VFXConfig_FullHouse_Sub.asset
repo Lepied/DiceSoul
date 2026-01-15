@@ -10,22 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ec7838a7036d41147831aeaf995e99d1, type: 3}
-  m_Name: VFXConfig_Even
+  m_Name: VFXConfig_FullHouse_Sub
   m_EditorClassIdentifier: Assembly-CSharp::VFXConfig
-  vfxName: VFX Config_Even
-  type: 3
-  startPoint: 1
-  gatherPrefab: {fileID: 4021103657954561961, guid: 15375a5efb610484d94b9b37a4d91817, type: 3}
+  vfxName: VFXConfig_FullHouse_Sub
+  type: 4
+  startPoint: 0
+  gatherPrefab: {fileID: 0}
   projectilePrefab: {fileID: 0}
-  impactPrefab: {fileID: 5112403345868107898, guid: 78aa7a9e4fa993049940a49ee183c5b5, type: 3}
+  impactPrefab: {fileID: 3304575869121838010, guid: bf97a46dbade4f04e93e2cb0cea1da89, type: 3}
   buffPrefab: {fileID: 0}
-  gatherDuration: 0.5
-  travelDuration: 0
-  travelSpeed: 0
+  gatherDuration: 0.3
+  travelDuration: 0.5
+  travelSpeed: 10
   impactDuration: 0.2
-  sequentialDelay: 0
-  impactRandomOffset: 3
-  impactRepeatCount: 3
+  sequentialDelay: 0.2
+  impactRandomOffset: 0
+  impactRepeatCount: 1
   moveCurve:
     serializedVersion: 2
     m_Curve:
@@ -53,10 +53,10 @@ MonoBehaviour:
   arcHeight: 0
   launchSound: {fileID: 0}
   impactSound: {fileID: 0}
-  shakeIntensity: 0.4
-  hitStopDuration: 0.3
+  shakeIntensity: 0
+  hitStopDuration: 0
   enableHitFlash: 0
   flashColor: {r: 1, g: 1, b: 1, a: 1}
   flashDuration: 0.1
   knockbackDistance: 0
-  knockbackDuration: 0
+  knockbackDuration: 0.2

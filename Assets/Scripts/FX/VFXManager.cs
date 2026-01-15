@@ -30,6 +30,7 @@ public class VFXManager : MonoBehaviour
     // 히트스탑 관리
     private bool isHitStopActive = false;
     private Coroutine hitStopCoroutine = null;
+    private float maxHitStopDuration = 0f;
 
     void Awake()
     {
@@ -132,28 +133,51 @@ public class VFXManager : MonoBehaviour
             Destroy(gather.gameObject, 1f);
         }
 
-        // 2. 임팩트 VFX
+        // 2. 임팩트 VFX 
         if (config.impactPrefab != null)
         {
-            // 랜덤 오프셋 적용
-            Vector3 impactPos = centerPos;
-            if (config.impactRandomOffset > 0)
-            {
-                Vector2 randomOffset = UnityEngine.Random.insideUnitCircle * config.impactRandomOffset;
-                impactPos += new Vector3(randomOffset.x, randomOffset.y, 0);
-            }
-
-            VFXInstance impact = SpawnVFX(config.impactPrefab, impactPos, Quaternion.identity);
-            impact.Play();
-
             // 사운드 재생
             if (config.impactSound != null && SoundManager.Instance != null)
             {
                 SoundManager.Instance.PlaySFX(config.impactSound);
             }
 
-            // 임팩트 시작 후 잠시 대기 후 데미지 적용
+            // 모든 타겟 위치에 임팩트 생성
+            for (int i = 0; i < targetPositions.Length; i++)
+            {
+                for (int repeat = 0; repeat < config.impactRepeatCount; repeat++)
+                {
+                    // 랜덤 오프셋 적용
+                    Vector3 impactPos = targetPositions[i];
+                    if (config.impactRandomOffset > 0)
+                    {
+                        Vector2 randomOffset = UnityEngine.Random.insideUnitCircle * config.impactRandomOffset;
+                        impactPos += new Vector3(randomOffset.x, randomOffset.y, 0);
+                    }
+
+                    PlayOnTarget(config.impactPrefab, impactPos, config.impactDuration);
+                    
+                    // 반복 간 딜레이
+                    if (repeat < config.impactRepeatCount - 1 && config.sequentialDelay > 0)
+                    {
+                        yield return new WaitForSeconds(config.sequentialDelay * 0.5f);
+                    }
+                }
+            }
+
+            // 임팩트가 떨어질 때까지 대기
             yield return new WaitForSeconds(config.impactDuration * 0.5f);
+
+            // 히트스탑
+            if (config.hitStopDuration > 0)
+            {
+                if (hitStopCoroutine != null)
+                {
+                    StopCoroutine(hitStopCoroutine);
+                }
+                hitStopCoroutine = StartCoroutine(PlayHitStop(config.hitStopDuration));
+                yield return new WaitForSecondsRealtime(config.hitStopDuration);
+            }
 
             // 카메라 쉐이크
             if (config.shakeIntensity > 0 && CameraShake.Instance != null)
@@ -161,15 +185,13 @@ public class VFXManager : MonoBehaviour
                 CameraShake.Instance.Shake(config.shakeIntensity, 0.15f);
             }
 
-            // 모든 타겟에 임팩트 콜백
+            // 모든 타겟에 데미지 적용 
             for (int i = 0; i < targetPositions.Length; i++)
             {
                 onImpact?.Invoke(i);
             }
 
             yield return new WaitForSeconds(config.impactDuration * 0.5f);
-
-            Destroy(impact.gameObject, 1f);
         }
         else
         {
@@ -430,6 +452,17 @@ public class VFXManager : MonoBehaviour
                 // 짧은 딜레이 후 데미지 적용
                 yield return new WaitForSeconds(config.impactDuration * 0.3f);
                 
+                // 히트스탑
+                if (i == 0 && config.hitStopDuration > 0)
+                {
+                    if (hitStopCoroutine != null)
+                    {
+                        StopCoroutine(hitStopCoroutine);
+                    }
+                    hitStopCoroutine = StartCoroutine(PlayHitStop(config.hitStopDuration));
+                    yield return new WaitForSecondsRealtime(config.hitStopDuration);
+                }
+                
                 // 데미지 콜백
                 onEachImpact?.Invoke(index);
                 
@@ -522,12 +555,18 @@ public class VFXManager : MonoBehaviour
     // 히트스톱 재생
     private IEnumerator PlayHitStop(float duration)
     {
-        if (isHitStopActive) yield break;
+        if (isHitStopActive && duration <= maxHitStopDuration)
+        {
+            yield break;
+        }
+        
+        if (isHitStopActive)
+        {
+            Time.timeScale = 1.0f;
+        }
 
         isHitStopActive = true;
-
-        // 원래 타임스케일 저장
-        float originalTimeScale = 1.0f;
+        maxHitStopDuration = duration;
 
         // 시간 느리게
         Time.timeScale = 0.05f;
@@ -535,10 +574,11 @@ public class VFXManager : MonoBehaviour
         // 실제 시간으로 대기
         yield return new WaitForSecondsRealtime(duration);
 
-        //복원
-        Time.timeScale = originalTimeScale;
+        // 복원
+        Time.timeScale = 1.0f;
 
         isHitStopActive = false;
+        maxHitStopDuration = 0f;
         hitStopCoroutine = null;
     }
 

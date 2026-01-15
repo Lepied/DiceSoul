@@ -5,6 +5,7 @@ using System.Collections.Generic; // List<T>
 using System.Linq;
 using DG.Tweening;
 using UnityEditor.SettingsManagement;
+using UnityEngine.InputSystem;
 
 public class DiceController : MonoBehaviour
 {
@@ -86,6 +87,58 @@ public class DiceController : MonoBehaviour
             Debug.LogError("Roll Button UI가 DiceController에 연결되지 않았습니다!");
         }
     }
+
+#if UNITY_EDITOR
+    void Update()
+    {
+        if (Keyboard.current == null) return;
+        
+        // F5: 야찌
+        if (Keyboard.current.f5Key.wasPressedThisFrame)
+        {
+            for (int i = 0; i < activeDice.Count && i < 5; i++)
+            {
+                activeDice[i].UpdateVisual(6);
+            }
+            StageManager.Instance?.OnRollFinished(currentValues, false);
+        }
+        
+        // F6: 포카드
+        if (Keyboard.current.f6Key.wasPressedThisFrame)
+        {
+            for (int i = 0; i < activeDice.Count && i < 4; i++)
+            {
+                activeDice[i].UpdateVisual(5);
+            }
+            if (activeDice.Count >= 5) activeDice[4].UpdateVisual(2);
+            StageManager.Instance?.OnRollFinished(currentValues, false);
+        }
+        
+        // F7: 풀하우스
+        if (Keyboard.current.f7Key.wasPressedThisFrame)
+        {
+            for (int i = 0; i < 3 && i < activeDice.Count; i++)
+            {
+                activeDice[i].UpdateVisual(4);
+            }
+            for (int i = 3; i < 5 && i < activeDice.Count; i++)
+            {
+                activeDice[i].UpdateVisual(3);
+            }
+            StageManager.Instance?.OnRollFinished(currentValues, false);
+        }
+        
+        // F8: 스트레이트
+        if (Keyboard.current.f8Key.wasPressedThisFrame)
+        {
+            for (int i = 0; i < activeDice.Count && i < 5; i++)
+            {
+                activeDice[i].UpdateVisual(i + 1); // 1,2,3,4,5
+            }
+            StageManager.Instance?.OnRollFinished(currentValues, false);
+        }
+    }
+#endif
 
     private void InitializeDiceSpriteDict()
     {

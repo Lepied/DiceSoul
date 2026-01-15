@@ -99,12 +99,6 @@ public class RelicDebugController : MonoBehaviour
             ExecuteCommand("preset dice");
         }
         
-        // F5: 경제 프리셋
-        if (keyboard.f5Key.wasPressedThisFrame)
-        {
-            ExecuteCommand("preset economy");
-        }
-        
         // F9: 유물 전부 제거
         if (keyboard.f9Key.wasPressedThisFrame)
         {
@@ -192,7 +186,7 @@ public class RelicDebugController : MonoBehaviour
 
         // 단축키 안내
         GUI.Label(new Rect(20, 360, 580, 40), 
-            "<color=gray>F1:상태 | F2~F5:프리셋 | F9:유물제거 | F10:힐 | F11:골드 | F12:킬</color>",
+            "<color=gray>F1:상태 | F2~F4:프리셋 | F9:유물제거 | F10:힐 | F11:골드 | F12:킬</color>",
             new GUIStyle(GUI.skin.label) { richText = true });
     }
 

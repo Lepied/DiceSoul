@@ -7,7 +7,7 @@ public class AttackDB : MonoBehaviour
 {
     public static AttackDB Instance { get; private set; }
 
-    // 게임에 존재하는 모든 공격 족보 리스트 (프로토타입)
+    // 게임에 존재하는 모든 공격 족보 리스트
     private List<AttackJokbo> allJokbos = new List<AttackJokbo>();
 
     void Awake()
@@ -34,14 +34,17 @@ public class AttackDB : MonoBehaviour
         VFXConfig twoPairVFX = Resources.Load<VFXConfig>("VFXConfigs/VFXConfig_TwoPairs");
         VFXConfig tripleVFX = Resources.Load<VFXConfig>("VFXConfigs/VFXConfig_Triple");
         VFXConfig fourCardVFX = Resources.Load<VFXConfig>("VFXConfigs/VFXConfig_FourCard");
-
+        VFXConfig fullHouseMainVFX = Resources.Load<VFXConfig>("VFXConfigs/VFXConfig_FullHouse_Main");
+        VFXConfig fullHouseSubVFX = Resources.Load<VFXConfig>("VFXConfigs/VFXConfig_FullHouse_Sub");
+        VFXConfig YachtVFX = Resources.Load<VFXConfig>("VFXConfigs/VFXConfig_Yacht");
         
         // 야찌 (5개)
         allJokbos.Add(new AttackJokbo(
             "야찌 (5개)", 150, 100,
             (diceValues) => diceValues.GroupBy(v => v).Any(g => g.Count() >= 5),
             (diceValues) => GetSameValueIndices(diceValues, 5),
-            AttackTargetType.AoE
+            AttackTargetType.AoE,
+            vfxConfig : YachtVFX
         ));
 
         // 포카드 (4개) - 1명 선택 + 전체 공격
@@ -67,11 +70,13 @@ public class AttackDB : MonoBehaviour
             },
             (diceValues) => GetFullHouseIndices(diceValues),
             AttackTargetType.Hybrid,
-            2,  // 2명 선택
-            1,  // 주공격
+            2,
+            1,
             AttackTargetType.Random,
             35,
-            3   // 부공격
+            3,
+            vfxConfig : fullHouseMainVFX,
+            subVfxConfig : fullHouseSubVFX
         ));
 
         // 스트레이트 (5연속)

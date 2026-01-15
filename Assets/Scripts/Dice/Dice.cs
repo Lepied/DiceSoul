@@ -26,7 +26,7 @@ public class Dice : MonoBehaviour
         UpdateVisual(1);
     }
 
-    // 이미지 갱신
+    // 이미지랑 값 갱신
     public void UpdateVisual(int newValue)
     {
         Value = newValue;
