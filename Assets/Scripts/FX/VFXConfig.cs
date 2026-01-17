@@ -66,8 +66,11 @@ public class VFXConfig : ScriptableObject
     public float arcHeight = 0f;
 
     [Header("사운드")]
-    public AudioClip launchSound;
-    public AudioClip impactSound;
+    [Tooltip("발사/시작 사운드")]
+    public SoundConfig launchSoundConfig;
+    
+    [Tooltip("임팩트/타격 사운드")]
+    public SoundConfig impactSoundConfig;
     
     [Header("카메라 쉐이크")]
     [Range(0f, 5f)]

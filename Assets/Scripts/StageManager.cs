@@ -1,7 +1,9 @@
 using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Random = UnityEngine.Random;
 
 public class StageManager : MonoBehaviour
 {
@@ -262,35 +264,11 @@ public class StageManager : MonoBehaviour
         
         Debug.Log($"[수비] {jokbo.Description} - 실드 {shieldAmount} 획득");
 
-        // VFX 재생
-        if (VFXManager.Instance != null && jokbo.VfxConfig != null)
-        {
-            // 주사위 위치
-            Vector3[] dicePos = diceController.GetDicePositions(jokbo.UsedDiceIndices);
-            Vector3 centerPos = dicePos.Length > 0 ? CalculateCenterPosition(dicePos) : Vector3.zero;
-
-            // 주사위 제거 시작 
-            diceController.RemoveDiceByIndices(jokbo.UsedDiceIndices);
-
-            // 버프 VFX 재생 -> 이거나중에 할지 생각
-            VFXManager.Instance.PlayBuff(
-                GameManager.Instance.transform, 
-                jokbo.VfxConfig,
-                2f // 지속시간
-            );
-
-            // 실드 획득 (즉시)
-            GameManager.Instance.AddShield(shieldAmount);
-
-            // 다음 족보 선택 가능
-            FinishAttackAndCheckChain(jokbo);
-        }
-        else
-        {
-            // VFX 없으면 기존 로직
-            GameManager.Instance.AddShield(shieldAmount);
-            FinishAttackAndCheckChain(jokbo);
-        }
+        diceController.RemoveDiceByIndices(jokbo.UsedDiceIndices);
+        
+        GameManager.Instance.AddShield(shieldAmount);
+        
+        CheckWaveStatus();
     }
 
     //전체 공격 (AoE) 실행
@@ -750,17 +728,22 @@ public class StageManager : MonoBehaviour
             GameEvents.RaiseAfterAttack(attackCtx);
             
             // 부가 공격 실행
-            ExecuteSubAttack(jokbo, mainTargets);
-            
-            FinishAttackAndCheckChain(jokbo);
+            ExecuteSubAttack(jokbo, mainTargets, onSubComplete: () =>
+            {
+                FinishAttackAndCheckChain(jokbo);
+            });
         }
     }
 
     // 복합 공격의 부가 공격 실행
-    private void ExecuteSubAttack(AttackJokbo jokbo, List<Enemy> mainTargets)
+    private void ExecuteSubAttack(AttackJokbo jokbo, List<Enemy> mainTargets, Action onSubComplete = null)
     {
         int subDamage = jokbo.SubDamage;
-        if (subDamage <= 0) return;
+        if (subDamage <= 0)
+        {
+            onSubComplete?.Invoke();
+            return;
+        }
 
         Debug.Log($"[복합 - 부가공격] 타입: {jokbo.SubTargetType}, 데미지: {subDamage}");
 
@@ -791,7 +774,7 @@ public class StageManager : MonoBehaviour
                                 Debug.Log($"  → {enemy.name} - 부가공격 데미지: {damageToTake}");
                             }
                         },
-                        onComplete: null
+                        onComplete: onSubComplete
                     );
                 }
                 else
@@ -802,6 +785,7 @@ public class StageManager : MonoBehaviour
                         int damageToTake = enemy.CalculateDamageTaken(subJokbo);
                         enemy.TakeDamage(damageToTake, subJokbo);
                     }
+                    onSubComplete?.Invoke();
                 }
                 break;
 
@@ -848,7 +832,7 @@ public class StageManager : MonoBehaviour
                                 Debug.Log($"  → 랜덤 타겟: {randomTarget.name} - 부가공격 데미지: {damageToTake}");
                             }
                         },
-                        onComplete: null
+                        onComplete: onSubComplete
                     );
                 }
                 else
@@ -860,6 +844,7 @@ public class StageManager : MonoBehaviour
                         randomTarget.TakeDamage(damageToTake, subJokbo);
                         Debug.Log($"  → 랜덤 타겟: {randomTarget.name} - 데미지: {damageToTake}");
                     }
+                    onSubComplete?.Invoke();
                 }
                 break;
         }

@@ -34,7 +34,7 @@ public class AttackJokbo
 
     // VFX 설정
     public VFXConfig VfxConfig { get; private set; }
-    public VFXConfig SubVfxConfig { get; private set; }  // 부가 공격용 VFX (Hybrid 전용)
+    public VFXConfig SubVfxConfig { get; private set; } 
 
     // 족보 달성 여부를 검사하는 로직
     public System.Func<List<int>, bool> CheckLogic { get; private set; }

@@ -128,6 +128,12 @@ public class VFXManager : MonoBehaviour
             VFXInstance gather = SpawnVFX(config.gatherPrefab, centerPos, Quaternion.identity);
             gather.Play();
 
+            // Launch Sound 재생
+            if (SoundManager.Instance != null && config.launchSoundConfig != null && config.launchSoundConfig.HasSound())
+            {
+                SoundManager.Instance.PlaySoundConfig(config.launchSoundConfig);
+            }
+
             yield return new WaitForSeconds(config.gatherDuration);
 
             Destroy(gather.gameObject, 1f);
@@ -136,17 +142,17 @@ public class VFXManager : MonoBehaviour
         // 2. 임팩트 VFX 
         if (config.impactPrefab != null)
         {
-            // 사운드 재생
-            if (config.impactSound != null && SoundManager.Instance != null)
-            {
-                SoundManager.Instance.PlaySFX(config.impactSound);
-            }
-
             // 모든 타겟 위치에 임팩트 생성
             for (int i = 0; i < targetPositions.Length; i++)
             {
                 for (int repeat = 0; repeat < config.impactRepeatCount; repeat++)
                 {
+                    // Impact Sound 재생
+                    if (SoundManager.Instance != null && config.impactSoundConfig != null && config.impactSoundConfig.HasSound())
+                    {
+                        SoundManager.Instance.PlaySoundConfig(config.impactSoundConfig);
+                    }
+
                     // 랜덤 오프셋 적용
                     Vector3 impactPos = targetPositions[i];
                     if (config.impactRandomOffset > 0)
@@ -244,10 +250,10 @@ public class VFXManager : MonoBehaviour
             projectile.transform.rotation = Quaternion.AngleAxis(angle+90, Vector3.forward);
             projectile.Play();
 
-            // 사운드
-            if (config.launchSound != null && SoundManager.Instance != null)
+            // Launch Sound 재생
+            if (SoundManager.Instance != null && config.launchSoundConfig != null && config.launchSoundConfig.HasSound())
             {
-                SoundManager.Instance.PlaySFX(config.launchSound);
+                SoundManager.Instance.PlaySoundConfig(config.launchSoundConfig);
             }
 
             // DOTween으로 이동
@@ -328,9 +334,10 @@ public class VFXManager : MonoBehaviour
             VFXInstance impact = SpawnVFX(config.impactPrefab, to, Quaternion.identity);
             impact.Play();
 
-            if (config.impactSound != null && SoundManager.Instance != null)
+            // Impact Sound 재생
+            if (SoundManager.Instance != null && config.impactSoundConfig != null && config.impactSoundConfig.HasSound())
             {
-                SoundManager.Instance.PlaySFX(config.impactSound);
+                SoundManager.Instance.PlaySoundConfig(config.impactSoundConfig);
             }
 
             yield return new WaitForSeconds(config.impactDuration);
@@ -404,6 +411,12 @@ public class VFXManager : MonoBehaviour
         // 1단계: 각 주사위 위치에서 발사 이펙트
         if (config.gatherPrefab != null)
         {
+            // Launch Sound 재생
+            if (SoundManager.Instance != null && config.launchSoundConfig != null && config.launchSoundConfig.HasSound())
+            {
+                SoundManager.Instance.PlaySoundConfig(config.launchSoundConfig);
+            }
+
             foreach (Vector3 pos in fromPositions)
             {
                 PlayOnTarget(config.gatherPrefab, pos, config.gatherDuration);
@@ -414,18 +427,18 @@ public class VFXManager : MonoBehaviour
         // 2단계: 각 적 위치에 임팩트 이펙트
         if (config.impactPrefab != null && toPositions != null)
         {
-            // 사운드 재생
-            if (config.impactSound != null && SoundManager.Instance != null)
-            {
-                SoundManager.Instance.PlaySFX(config.impactSound);
-            }
-
             // 순차적으로 임팩트 VFX 재생
             for (int i = 0; i < toPositions.Length; i++)
             {
                 int index = i;
                 for (int repeat = 0; repeat < config.impactRepeatCount; repeat++)
                 {
+                    // Impact Sound 재생
+                    if (SoundManager.Instance != null && config.impactSoundConfig != null && config.impactSoundConfig.HasSound())
+                    {
+                        SoundManager.Instance.PlaySoundConfig(config.impactSoundConfig);
+                    }
+
                     // 랜덤 오프셋
                     Vector3 impactPos = toPositions[i];
                     if (config.impactRandomOffset > 0)
@@ -517,16 +530,28 @@ public class VFXManager : MonoBehaviour
     }
 
     // 버프/실드 VFX 
-    public void PlayBuff(Transform target, VFXConfig config, float duration)
+    public void PlayBuff(Transform target, VFXConfig config, float duration, Action onComplete = null)
     {
         if (config == null) config = defaultBuffConfig;
-        if (config == null || config.buffPrefab == null) return;
+        if (config == null || config.buffPrefab == null)
+        {
+            onComplete?.Invoke();
+            return;
+        }
 
+        StartCoroutine(BuffSequence(target, config, duration, onComplete));
+    }
+    
+    private IEnumerator BuffSequence(Transform target, VFXConfig config, float duration, Action onComplete)
+    {
         VFXInstance buff = SpawnVFX(config.buffPrefab, target.position, Quaternion.identity);
         buff.transform.SetParent(target);
         buff.Play();
 
-        Destroy(buff.gameObject, duration);
+        yield return new WaitForSeconds(duration);
+        
+        Destroy(buff.gameObject, 1f);
+        onComplete?.Invoke();
     }
 
     // 임팩트만 간단히 재생

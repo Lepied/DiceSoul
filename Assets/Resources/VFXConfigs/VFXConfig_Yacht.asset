@@ -20,8 +20,8 @@ MonoBehaviour:
   impactPrefab: {fileID: 6297583202476385084, guid: ca520ffc1feb4694bb1d24139f24a6ad, type: 3}
   buffPrefab: {fileID: 0}
   gatherDuration: 0
-  travelDuration: 2
-  travelSpeed: 15
+  travelDuration: 0
+  travelSpeed: 0
   impactDuration: 2
   sequentialDelay: 0
   impactRandomOffset: 2
@@ -51,11 +51,29 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   arcHeight: 0
+  launchSoundConfig:
+    primarySound: {fileID: 0}
+    layeredSounds: []
+    volume: 1
+    useRandomPitch: 0
+    pitchVariation: 0.1
+  impactSoundConfig:
+    primarySound: {fileID: 8300000, guid: 2b5537524aaf0444e9b5b8301b14f8ae, type: 3}
+    layeredSounds: []
+    volume: 0.505
+    useRandomPitch: 0
+    pitchVariation: 0.1
+  subImpactSoundConfig:
+    primarySound: {fileID: 0}
+    layeredSounds: []
+    volume: 1
+    useRandomPitch: 0
+    pitchVariation: 0.1
   launchSound: {fileID: 0}
-  impactSound: {fileID: 0}
-  shakeIntensity: 3
-  hitStopDuration: 0.5
-  enableHitFlash: 0
+  impactSound: {fileID: 8300000, guid: 2b5537524aaf0444e9b5b8301b14f8ae, type: 3}
+  shakeIntensity: 2
+  hitStopDuration: 0.3
+  enableHitFlash: 1
   flashColor: {r: 1, g: 1, b: 1, a: 1}
   flashDuration: 0.1
   knockbackDistance: 0
