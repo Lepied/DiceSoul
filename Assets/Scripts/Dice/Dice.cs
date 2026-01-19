@@ -1,28 +1,41 @@
 using UnityEngine;
 using DG.Tweening;
+using UnityEngine.EventSystems;
 
-public class Dice : MonoBehaviour
+public enum DiceState
+{
+    Normal,
+    Locked,
+    Preserved
+}
+
+public class Dice : MonoBehaviour, IPointerClickHandler
 {
     [Header("연결")]
     public SpriteRenderer spriteRenderer;
-    public GameObject keepEffectObj;
+    public GameObject lockEffectObj;      // 잠금 이펙트
+    public GameObject preserveEffectObj;  // 보존 이펙트
+
 
     // 상태
     public string Type { get; private set; } 
     public int Value { get; private set; }
-    public bool IsKept { get; private set; }
+    public DiceState State { get; private set; } = DiceState.Normal;
+    public int lockDuration = 0; // 잠금 지속 턴 수
 
     // 초기화
     public void Initialize(string type)
     {
         Type = type;
-        IsKept = false;
+        State = DiceState.Normal;
+        lockDuration = 0;
 
         if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
-        if (keepEffectObj != null) keepEffectObj.SetActive(false);
+        if (lockEffectObj != null) lockEffectObj.SetActive(false);
+        if (preserveEffectObj != null) preserveEffectObj.SetActive(false);
         
         // 초기 이미지(1) 설정
-        UpdateKeepVisual();
+        UpdateStateVisual();
         UpdateVisual(1);
     }
 
@@ -35,62 +48,100 @@ public class Dice : MonoBehaviour
     }
 
     // --- 행동 (Actions) ---
-    private void OnMouseDown()
+    public void OnPointerClick(PointerEventData eventData)
     {
         if (DiceController.Instance == null) return;
         
-        // 이중 주사위 선택 모드 확인
+        if (State == DiceState.Locked) return;
+        
         int myIndex = DiceController.Instance.activeDice.IndexOf(this);
-        if (myIndex >= 0)
+        if (myIndex < 0) return;
+        
+        // 이중 주사위 선택 모드 확인
+        bool handled = DiceController.Instance.TryUseDoubleDiceOn(myIndex);
+        if (handled) return;
+        
+        // 보존 기회가 있고 Normal 상태면 바로 보존
+        if (State == DiceState.Normal && RelicEffectHandler.Instance != null)
         {
-            // 이중 주사위 클릭 처리 시도 (선택 모드일 때만 처리됨)
-            bool handled = DiceController.Instance.TryUseDoubleDiceOn(myIndex);
-            if (handled) return; // 이중 주사위로 처리되었으면 킵 토글 안함
+            if (RelicEffectHandler.Instance.CanUsePreserve())
+            {
+                bool success = RelicEffectHandler.Instance.UsePreserveCharge(myIndex);
+                if (success)
+                {
+                    // 유물 패널 업데이트
+                    if (UIManager.Instance != null && GameManager.Instance != null)
+                    {
+                        UIManager.Instance.UpdateRelicPanel(GameManager.Instance.activeRelics);
+                    }
+                }
+            }
         }
-        
-        // 일반 킵 토글 로직
-        if (DiceController.Instance.isRolling) return;
-        
-        int rolls = DiceController.Instance.currentRollCount;
-        int max = DiceController.Instance.maxRolls;
-        
-        // 첫 굴림 전이거나, 굴림 기회를 다 썼으면 조작 불가
-        if (rolls <= 0 || rolls >= max) return;
-
-        // 2. 킵 상태 토글
-        ToggleKeep();
-    }
-    //킵 토글
-    public void ToggleKeep()
-    {
-        SetKeep(!IsKept);
-    }
-
-    public void SetKeep(bool state)
-    {
-        IsKept = state;
-        UpdateKeepVisual();
     }
 
     //굴러가는 중 랜덤 이미지 보여주기
     public void ShowRandomFace()
     {
-        if (IsKept) return;
+        // Locked나 Preserved 상태면 굴러가지 않음
+        if (State != DiceState.Normal) return;
         
         // Controller에게 "나(Type)한테 맞는 랜덤 이미지 하나 줘" 요청
         Sprite s = DiceController.Instance.GetRandomAnimationSprite(Type);
         if (s != null) spriteRenderer.sprite = s;
     }
 
-    //킵킵
-    private void UpdateKeepVisual()
+    // 상태별 시각 효과
+    private void UpdateStateVisual()
     {
-        // 킵 효과 오브젝트 끄고 켜기 (나중에하나 넣기)
-        if (keepEffectObj != null) keepEffectObj.SetActive(IsKept);
+        if (spriteRenderer == null) return;
         
-        // 색변경
-        if (spriteRenderer != null) 
-            spriteRenderer.color = IsKept ? Color.gray : Color.white;
+        switch (State)
+        {
+            case DiceState.Normal:
+                spriteRenderer.color = Color.white;
+                if (lockEffectObj != null) lockEffectObj.SetActive(false);
+                if (preserveEffectObj != null) preserveEffectObj.SetActive(false);
+                break;
+                
+            case DiceState.Locked:
+                spriteRenderer.color = Color.gray; // 회색
+                if (lockEffectObj != null) lockEffectObj.SetActive(true);
+                if (preserveEffectObj != null) preserveEffectObj.SetActive(false);
+                break;
+                
+            case DiceState.Preserved:
+                spriteRenderer.color = new Color(1f, 0.9f, 0.5f); // 황금빛
+                if (lockEffectObj != null) lockEffectObj.SetActive(false);
+                if (preserveEffectObj != null) preserveEffectObj.SetActive(true);
+                break;
+        }
+    }
+    
+    // 상태 설정
+    public void SetState(DiceState newState)
+    {
+        State = newState;
+        UpdateStateVisual();
+    }
+    
+    // 잠금 애니메이션
+    public void PlayLockAnimation()
+    {
+        transform.DOPunchScale(Vector3.one * 0.2f, 0.3f, 5, 0.5f);
+    }
+    
+    // 해제 애니메이션
+    public void PlayUnlockAnimation()
+    {
+        transform.DOPunchScale(Vector3.one * 0.3f, 0.4f, 8, 0.8f);
+    }
+    
+    // 보존 애니메이션
+    public void PlayPreserveAnimation()
+    {
+        Sequence seq = DOTween.Sequence();
+        seq.Append(transform.DOScale(DiceController.Instance.diceScale * 1.3f, 0.2f));
+        seq.Append(transform.DOScale(DiceController.Instance.diceScale, 0.2f));
     }
 
     //뾰로롱

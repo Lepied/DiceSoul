@@ -396,7 +396,7 @@ public class UIManager : MonoBehaviour
     // 수동 유물 여부 확인
     private bool IsManualRelic(string relicID)
     {
-        return relicID == "RLC_DOUBLE_DICE" || relicID == "RLC_FATE_DICE" || relicID == "RLC_DICE_CUP";
+        return relicID == "RLC_DOUBLE_DICE" || relicID == "RLC_FATE_DICE";
     }
     
     // 수동 유물 클릭 핸들러
@@ -436,17 +436,7 @@ public class UIManager : MonoBehaviour
                 }
                 break;
                 
-            case "RLC_DICE_CUP":
-                if (RelicEffectHandler.Instance.CanUseDiceCup())
-                {
-                    // 주사위 컵 사용 (구현 필요 시 추가)
-                    Debug.Log("[유물] 주사위 컵 사용 (미구현)");
-                }
-                else
-                {
-                    ShowTemporaryMessage("주사위 컵은 이미 사용했습니다!");
-                }
-                break;
+
         }
     }
     
@@ -520,9 +510,6 @@ public class UIManager : MonoBehaviour
                 break;
             case "RLC_FATE_DICE":
                 canUse = RelicEffectHandler.Instance.CanUseFateDice();
-                break;
-            case "RLC_DICE_CUP":
-                canUse = RelicEffectHandler.Instance.CanUseDiceCup();
                 break;
         }
         

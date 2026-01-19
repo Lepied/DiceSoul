@@ -1,8 +1,9 @@
 using UnityEngine;
+using System.Linq;
 
 /// <summary>
 /// 슬라임 (평원 몬스터)
-/// [기믹]: 피격 시 50% 확률로 주사위 1개를 강제 킵(Keep)시킵니다.
+/// [기믹]: 피격 시 50% 확률로 주사위 1개를 1턴 동안 잠급니다.
 /// </summary>
 public class Slime : Enemy
 {
@@ -16,12 +17,19 @@ public class Slime : Enemy
         // 50% 확률 (Random.value는 0.0f ~ 1.0f 사이의 값)
         if (Random.value < 0.5f) 
         {
-           
             if (DiceController.Instance != null)
             {
+                var activeDice = DiceController.Instance.activeDice;
+                // Normal 상태인 주사위만 선택 가능
+                var availableDice = activeDice.Where(d => d.State == DiceState.Normal).ToList();
                 
-                EffectManager.Instance.ShowText(transform, "끈끈이!", Color.green);
-                DiceController.Instance.ForceKeepRandomDice();
+                if (availableDice.Count > 0)
+                {
+                    int randomIdx = activeDice.IndexOf(availableDice[Random.Range(0, availableDice.Count)]);
+                    DiceController.Instance.LockDice(randomIdx, 1); // 1턴 동안 잠금
+                    EffectManager.Instance.ShowText(transform, "끈끈이!", Color.green);
+                    Debug.Log($"[{enemyName}] 주사위 1개를 끈끈하게 만들었습니다!");
+                }
             }
         }
     }

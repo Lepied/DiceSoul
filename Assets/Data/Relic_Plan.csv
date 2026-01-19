@@ -43,7 +43,7 @@ RLC_SPRING,스프링,Common,MaintenanceReward,상품 리롤 시 소모되는 비
 RLC_FEATHER,가벼운 깃털,Uncommon,MaintenanceReward,6이 나온 주사위 재굴림,1,주사위 관련,O,RerollSixes,0,0,
 RLC_DOUBLE_DICE,이중 주사위,Uncommon,MaintenanceReward,선택한 주사위의 눈을 2배로 계산 (1회),1,주사위 관련,O,DoubleDiceValue,0,0,
 RLC_SCHOLAR_BOOK,학자의 서적,Uncommon,MaintenanceReward,미사용 족보로 공격 시 영구 데미지 +1%,3,성장 유틸리티,O,StackingDamage,0,0.01,
-RLC_DICE_CUP,주사위 컵,Uncommon,MaintenanceReward,굴리기 전 주사위 하나를 원하는 눈으로 고정,1,주사위 관련,O,LockDice,0,0,
+RLC_DICE_CUP,주사위 컵,Uncommon,MaintenanceReward,주사위 보존 횟수 +1,2,주사위 관련,O,LockDice,0,0,
 RLC_COUNTERWEIGHT,균형추,Rare,MaintenanceReward,D20이 10 이하면 +5,1,주사위 관련,O,BonusOnLowD20,5,0,
 RLC_HOURGLASS,시간의 모래시계,Rare,MaintenanceReward,남은 굴림 횟수가 적을수록 데미지 상승 (회당 +10%/최대 30%),1,캐릭터 스탯,O,DamageByRemainingRolls,0,0.1,
 RLC_ALCHEMY,연금술사의 돌,Rare,MaintenanceReward,1이 나온 주사위를 7로 취급,1,주사위 관련,O,ModifyDiceValue,7,0,

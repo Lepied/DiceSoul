@@ -51,8 +51,20 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   arcHeight: 1
-  launchSound: {fileID: 0}
-  impactSound: {fileID: 0}
+  launchSoundConfig:
+    primarySound: {fileID: 8300000, guid: b89702e66f9bca54a9603d44dbcafd46, type: 3}
+    layeredSounds: []
+    volume: 0.551
+    useRandomPitch: 0
+    pitchVariation: 0.1
+  impactSoundConfig:
+    primarySound: {fileID: 8300000, guid: 7b69beceabbd8f24e8bc62d77ac7ca1c, type: 3}
+    layeredSounds:
+    - {fileID: 8300000, guid: 175c764c306399d479481d7080802fed, type: 3}
+    - {fileID: 8300000, guid: b8237364e8b677d46bce9e3a79cf9ec1, type: 3}
+    volume: 0.576
+    useRandomPitch: 1
+    pitchVariation: 0.1
   shakeIntensity: 1
   hitStopDuration: 0.5
   enableHitFlash: 1

@@ -60,7 +60,6 @@ public class DiceController : MonoBehaviour
             return activeDice.Select(d => d.Value).ToList();
         }
     }
-    public List<bool> isKept { get; set; } = new List<bool>();
 
     void Awake()
     {
@@ -201,8 +200,6 @@ public class DiceController : MonoBehaviour
     public void SetDiceDeck(List<string> deck)
     {
         // 기존 삭제
-        if (diceContainer != null) diceContainer.gameObject.SetActive(true);
-
         foreach (Transform child in diceContainer) Destroy(child.gameObject);
         activeDice.Clear();
 
@@ -221,6 +218,9 @@ public class DiceController : MonoBehaviour
             dice.Initialize(deck[i]); //주사위 타입 설정
             activeDice.Add(dice);
         }
+        
+        // 주사위 굴리기 전까지 숨김
+        if (diceContainer != null) diceContainer.gameObject.SetActive(false);
 
         if (UIManager.Instance != null) UIManager.Instance.UpdateRollCount(currentRollCount, maxRolls);
     }
@@ -273,6 +273,12 @@ public class DiceController : MonoBehaviour
     {
         isRolling = true;
         SetRollButtonInteractable(false);
+        
+        // 첫 굴림 시 주사위 표시
+        if (diceContainer != null && !diceContainer.gameObject.activeSelf)
+        {
+            diceContainer.gameObject.SetActive(true);
+        }
 
         float duration = 0.5f;
         float timer = 0f;
@@ -291,7 +297,8 @@ public class DiceController : MonoBehaviour
         // 결과
         foreach (var dice in activeDice)
         {
-            if (!dice.IsKept)
+            // Normal 상태만 굴려짐 (Locked, Preserved는 고정)
+            if (dice.State == DiceState.Normal)
             {
                 int maxSide = GetMaxSideFromType(dice.Type);
                 int result = Random.Range(1, maxSide + 1);
@@ -326,7 +333,7 @@ public class DiceController : MonoBehaviour
             
             foreach (int idx in rollCtx.RerollIndices.Distinct())
             {
-                if (idx >= 0 && idx < activeDice.Count && !activeDice[idx].IsKept)
+                if (idx >= 0 && idx < activeDice.Count && activeDice[idx].State == DiceState.Normal)
                 {
                     int maxSide = GetMaxSideFromType(activeDice[idx].Type);
                     int newValue = Random.Range(1, maxSide + 1);
@@ -400,17 +407,6 @@ public class DiceController : MonoBehaviour
         Debug.Log($"유물 효과 적용: 최대 굴림 +{amount}. (현재: {maxRolls})");
     }
 
-    public void ForceKeepRandomDice()
-    {
-        var unkept = activeDice.Where(d => !d.IsKept).ToList();
-        if (unkept.Count > 0)
-        {
-            Dice target = unkept[Random.Range(0, unkept.Count)];
-            target.SetKeep(true);
-            Debug.Log("강제 킵!");
-        }
-    }
-
     //유물 연출(뾰로롱)
     public void PlayMagicChangeVisual(int index, int newValue) // (StageManager가 호출하기 쉽게 void나 Coroutine으로)
     {
@@ -454,6 +450,16 @@ public class DiceController : MonoBehaviour
             if (index >= 0 && index < activeDice.Count)
             {
                 Dice diceToRemove = activeDice[index];
+                
+                //Preserved 주사위는 제거하지 않고 Normal로
+                if (diceToRemove.State == DiceState.Preserved)
+                {
+                    diceToRemove.SetState(DiceState.Normal);
+                    diceToRemove.PlayPreserveAnimation(); 
+                    Debug.Log($"[보존] 주사위 {diceToRemove.Type}:{diceToRemove.Value}가 보존되었습니다!");
+                    continue; // 제거 스킵!
+                }
+                
                 activeDice.RemoveAt(index);
                 
                 // 페이드 아웃 애니메이션
@@ -496,15 +502,67 @@ public class DiceController : MonoBehaviour
     {
         return activeDice.Count;
     }
-    // 주사위 타입 목록 가져오기
+    
+    //사용 가능한 주사위 값 가져오기
+    public List<int> GetAvailableValues()
+    {
+        if (activeDice == null) return new List<int>();
+        return activeDice
+            .Where(d => d.State != DiceState.Locked)
+            .Select(d => d.Value)
+            .ToList();
+    }
+    
+    // 주사위 잠금
+    public void LockDice(int index, int duration = 1)
+    {
+        if (index >= 0 && index < activeDice.Count)
+        {
+            Dice dice = activeDice[index];
+            dice.SetState(DiceState.Locked);
+            dice.lockDuration = duration;
+            dice.PlayLockAnimation();
+            Debug.Log($"[잠금] 주사위 {dice.Type}:{dice.Value}가 {duration}턴 동안 잠겼습니다!");
+        }
+    }
+    
+    // 주사위 보존
+    public void PreserveDice(int index)
+    {
+        if (index >= 0 && index < activeDice.Count)
+        {
+            Dice dice = activeDice[index];
+            dice.SetState(DiceState.Preserved);
+            dice.PlayPreserveAnimation();
+            Debug.Log($"[보존] 주사위 {dice.Type}:{dice.Value}가 보존되었습니다!");
+        }
+    }
+    
+    // 턴 종료 시 잠금지속줄이기
+    public void DecreaseLockDurations()
+    {
+        foreach (var dice in activeDice)
+        {
+            if (dice.State == DiceState.Locked)
+            {
+                dice.lockDuration--;
+                if (dice.lockDuration <= 0)
+                {
+                    dice.SetState(DiceState.Normal);
+                    dice.PlayUnlockAnimation();
+                    Debug.Log($"[해제] 주사위 {dice.Type}:{dice.Value}의 잠금이 해제되었습니다!");
+                }
+            }
+        }
+    }
+    
+    // 남은 주사위 개수 반환
     public List<string> GetDiceTypes()
     {
         return activeDice.Select(d => d.Type).ToList();
     }
 
-    /// <summary>
-    /// 특정 인덱스의 주사위 위치 가져오기 (VFX 시작 위치용)
-    /// </summary>
+    // 특정 인덱스의 주사위 위치 가져오기 (VFX 시작 위치용)
     public Vector3 GetDicePosition(int index)
     {
         if (index >= 0 && index < activeDice.Count)
@@ -514,9 +572,7 @@ public class DiceController : MonoBehaviour
         return Vector3.zero;
     }
 
-    /// <summary>
-    /// 여러 인덱스의 주사위 위치들 가져오기
-    /// </summary>
+    // 여러 인덱스의 주사위 위치들 가져오기
     public Vector3[] GetDicePositions(List<int> indices)
     {
         if (indices == null || indices.Count == 0)
@@ -533,9 +589,7 @@ public class DiceController : MonoBehaviour
         return positions.ToArray();
     }
 
-    /// <summary>
-    /// 모든 주사위 위치 가져오기
-    /// </summary>
+    // 모든 주사위 위치 가져오기
     public Vector3[] GetAllDicePositions()
     {
         return activeDice.Select(d => d.transform.position).ToArray();
@@ -548,8 +602,6 @@ public class DiceController : MonoBehaviour
     {
         isDoubleDiceSelectionMode = true;
         Debug.Log("[DiceController] 이중 주사위 모드 활성화 - 주사위를 클릭하세요");
-        
-        // TODO: 선택 가능 표시추가하기
     }
     
     public bool TryUseDoubleDiceOn(int diceIndex)

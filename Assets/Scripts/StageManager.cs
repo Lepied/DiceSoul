@@ -181,7 +181,9 @@ public class StageManager : MonoBehaviour
     {
         if (AttackDB.Instance == null) return;
 
-        List<AttackJokbo> achievableJokbos = AttackDB.Instance.GetAchievableJokbos(finalValues);
+        // Locked 주사위 제외한 사용 가능한 값들로 족보 계산
+        List<int> availableValues = diceController.GetAvailableValues();
+        List<AttackJokbo> achievableJokbos = AttackDB.Instance.GetAchievableJokbos(availableValues);
 
         if (achievableJokbos.Count > 0)
         {
@@ -579,9 +581,9 @@ public class StageManager : MonoBehaviour
         // 족보 선택 메뉴로 돌아가기
         isWaitingForAttackChoice = true;
         
-        // 현재 주사위로 가능한 족보 다시 표시
-        List<int> currentValues = diceController.currentValues;
-        List<AttackJokbo> achievableJokbos = AttackDB.Instance.GetAchievableJokbos(currentValues);
+        // 현재 주사위로 가능한 족보 다시 표시 (Locked 제외)
+        List<int> availableValues = diceController.GetAvailableValues();
+        List<AttackJokbo> achievableJokbos = AttackDB.Instance.GetAchievableJokbos(availableValues);
         
         if (achievableJokbos.Count > 0 && UIManager.Instance != null)
         {
@@ -705,9 +707,10 @@ public class StageManager : MonoBehaviour
                     GameManager.Instance.AddGoldDirect(finalGold);
                     GameEvents.RaiseAfterAttack(attackCtx);
                     
-                    ExecuteSubAttack(jokbo, mainTargets);
-                    
-                    FinishAttackAndCheckChain(jokbo);
+                    ExecuteSubAttack(jokbo, mainTargets, onSubComplete: () =>
+                    {
+                        FinishAttackAndCheckChain(jokbo);
+                    });
                 }
             );
         }
@@ -906,20 +909,27 @@ public class StageManager : MonoBehaviour
             CheckWaveStatus();
             return;
         }
-
-        // 남은 주사위 1개면 자동으로 총합 랜덤 공격
-        if (remainingDice == 1)
+        
+        // 사용 가능한 주사위가 없으면 턴 종료
+        List<int> availableValues = diceController.GetAvailableValues();
+        if (availableValues.Count == 0)
         {
-            Debug.Log("[자동 공격] 남은 주사위 1개 - 총합 랜덤 공격 실행");
+            CheckWaveStatus();
+            return;
+        }
+
+        // 사용 가능한 주사위 1개면 자동으로 총합 랜덤 공격
+        if (availableValues.Count == 1)
+        {
+            Debug.Log("[자동 공격] 사용 가능한 주사위 1개 - 총합 랜덤 공격 실행");
             
-            List<int> currentValues = diceController.currentValues;
-            List<AttackJokbo> achievableJokbos = AttackDB.Instance.GetAchievableJokbos(currentValues);
+            List<AttackJokbo> autoAttackJokbos = AttackDB.Instance.GetAchievableJokbos(availableValues);
             
             // 총합 족보 찾기
-            AttackJokbo sumJokbo = achievableJokbos.FirstOrDefault(j => j.Description.Contains("총합"));
+            AttackJokbo sumJokbo = autoAttackJokbos.FirstOrDefault(j => j.Description.Contains("총합"));
             if (sumJokbo != null)
             {
-                sumJokbo.CheckAndCalculate(currentValues);
+                sumJokbo.CheckAndCalculate(availableValues);
                 ExecuteRandomAttack(sumJokbo);
             }
             else
@@ -931,18 +941,18 @@ public class StageManager : MonoBehaviour
         }
 
         // 남은 주사위로 만들 수 있는 족보 확인
-        List<int> currentValues2 = diceController.currentValues;
-        List<AttackJokbo> achievableJokbos2 = AttackDB.Instance.GetAchievableJokbos(currentValues2);
+        List<int> chainAvailableValues = diceController.GetAvailableValues();
+        List<AttackJokbo> chainJokbos = AttackDB.Instance.GetAchievableJokbos(chainAvailableValues);
 
-        if (achievableJokbos2.Count > 0)
+        if (chainJokbos.Count > 0)
         {
-            Debug.Log($"[연쇄 가능] 남은 주사위: {remainingDice}개, 가능한 족보: {achievableJokbos2.Count}개");
+            Debug.Log($"[연쇄 가능] 남은 주사위: {remainingDice}개, 가능한 족보: {chainJokbos.Count}개");
             
             // 족보 선택 UI 표시 (원본 그대로 사용)
             isWaitingForAttackChoice = true;
             if (UIManager.Instance != null)
             {
-                UIManager.Instance.ShowAttackOptions(achievableJokbos2);
+                UIManager.Instance.ShowAttackOptions(chainJokbos);
             }
         }
         else
@@ -957,6 +967,12 @@ public class StageManager : MonoBehaviour
     {
         //이벤트 시스템: 턴 종료 이벤트
         GameEvents.RaiseTurnEnd();
+        
+        // 주사위 잠금 지속시간 감소
+        if (diceController != null)
+        {
+            diceController.DecreaseLockDurations();
+        }
         
         if (activeEnemies.All(e => e == null || e.isDead))
         {

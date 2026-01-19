@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VFXConfig
   vfxName: Missile
   type: 1
+  startPoint: 0
   gatherPrefab: {fileID: 0}
   projectilePrefab: {fileID: 8490477775743554221, guid: 0f8c111af40aa4e489c79bcde8b82df0, type: 3}
   impactPrefab: {fileID: 4277359279623481477, guid: e5cb1c1324fc10b40bb2bde8e21bd865, type: 3}
@@ -22,6 +23,9 @@ MonoBehaviour:
   travelDuration: 0.3
   travelSpeed: 10
   impactDuration: 0.5
+  sequentialDelay: 0
+  impactRandomOffset: 0
+  impactRepeatCount: 1
   moveCurve:
     serializedVersion: 2
     m_Curve:
@@ -47,8 +51,19 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   arcHeight: 0
-  launchSound: {fileID: 0}
-  impactSound: {fileID: 0}
+  launchSoundConfig:
+    primarySound: {fileID: 8300000, guid: 372e8eb7f8bb92448b1c8eec23808d12, type: 3}
+    layeredSounds: []
+    volume: 0.25
+    useRandomPitch: 1
+    pitchVariation: 0.3
+  impactSoundConfig:
+    primarySound: {fileID: 8300000, guid: 2c1637102d6bd4247b49575a53b1ac2d, type: 3}
+    layeredSounds:
+    - {fileID: 8300000, guid: df41c5a1f678c5448974a81dcaf21244, type: 3}
+    volume: 0.25
+    useRandomPitch: 1
+    pitchVariation: 0.3
   shakeIntensity: 0
   hitStopDuration: 0.1
   enableHitFlash: 1

@@ -386,19 +386,12 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
     }
     public void OnPointerClick(PointerEventData eventData)
     {
-        Debug.Log($"[Enemy OnPointerClick] {enemyName} 클릭 감지! isDead={isDead}");
-        
         if (isDead) return;
         
         // 타겟 선택 모드일 때만 반응
         if (StageManager.Instance != null)
         {
-            Debug.Log($"[Enemy] StageManager.OnEnemySelected({enemyName}) 호출");
             StageManager.Instance.OnEnemySelected(this);
-        }
-        else
-        {
-            Debug.LogWarning("[Enemy] StageManager.Instance가 null입니다!");
         }
     }
 }

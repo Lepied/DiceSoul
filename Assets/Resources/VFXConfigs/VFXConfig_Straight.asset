@@ -54,23 +54,15 @@ MonoBehaviour:
   launchSoundConfig:
     primarySound: {fileID: 8300000, guid: 5ff823f546b52574a931e1d9b44290a6, type: 3}
     layeredSounds: []
-    volume: 0.5
+    volume: 0.4
     useRandomPitch: 1
     pitchVariation: 0.1
   impactSoundConfig:
     primarySound: {fileID: 8300000, guid: 1fd31868d68903d4f9e2c4a3b7ef98f3, type: 3}
     layeredSounds: []
-    volume: 0.5
+    volume: 0.3
     useRandomPitch: 1
     pitchVariation: 0.1
-  subImpactSoundConfig:
-    primarySound: {fileID: 0}
-    layeredSounds: []
-    volume: 1
-    useRandomPitch: 0
-    pitchVariation: 0.1
-  launchSound: {fileID: 8300000, guid: 5ff823f546b52574a931e1d9b44290a6, type: 3}
-  impactSound: {fileID: 8300000, guid: 1fd31868d68903d4f9e2c4a3b7ef98f3, type: 3}
   shakeIntensity: 0.1
   hitStopDuration: 0.2
   enableHitFlash: 1

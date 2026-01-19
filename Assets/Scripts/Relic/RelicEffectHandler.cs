@@ -19,6 +19,7 @@ public class RelicEffectHandler : MonoBehaviour
     private bool diceCupUsedThisWave = false;
     private bool doubleDiceUsedThisWave = false;
     private bool fateDiceUsedThisZone = false; // 존당 1회로 변경
+    private int preserveChargesRemaining = 0; // 주사위 보존 남은 기회
 
     // 캐싱된 Context (GC 방지)
     private RollContext cachedRollContext = new RollContext();
@@ -524,6 +525,17 @@ public class RelicEffectHandler : MonoBehaviour
         diceCupUsedThisWave = false;
         doubleDiceUsedThisWave = false;
         swiftHandsUsedThisWave.Clear();
+        
+        // 주사위 컵: 보존 기회 충전
+        if (HasRelic("RLC_DICE_CUP"))
+        {
+            preserveChargesRemaining = 1; // 웨이브당 1회
+            Debug.Log("[유물] 주사위 컵: 보존 기회 1회 충전");
+        }
+        else
+        {
+            preserveChargesRemaining = 0;
+        }
     }
 
     // 웨이브 종료 시
@@ -787,6 +799,27 @@ public class RelicEffectHandler : MonoBehaviour
         Debug.Log($"[유물] 이중 주사위: 주사위[{diceIndex}] {currentValue} → {newValue}");
         return newValue;
     }
+    
+    // 주사위 보존 기회 사용
+    public bool UsePreserveCharge(int diceIndex)
+    {
+        if (!HasRelic("RLC_DICE_CUP"))
+        {
+            Debug.Log("[유물] 주사위 컵을 보유하고 있지 않습니다.");
+            return false;
+        }
+        
+        if (preserveChargesRemaining <= 0)
+        {
+            Debug.Log("[유물] 주사위 컵: 남은 보존 기회가 없습니다.");
+            return false;
+        }
+        
+        preserveChargesRemaining--;
+        DiceController.Instance.PreserveDice(diceIndex);
+        Debug.Log($"[유물] 주사위 컵: 주사위[{diceIndex}] 보존 완료! (남은 기회: {preserveChargesRemaining})");
+        return true;
+    }
 
     //운명의 주사위 - 모든 주사위 최대값 (존당 1회)
     public bool UseFateDice(int[] diceValues, string[] diceTypes)
@@ -840,6 +873,7 @@ public class RelicEffectHandler : MonoBehaviour
     public bool CanUseDiceCup() => HasRelic("RLC_DICE_CUP") && !diceCupUsedThisWave;
     public bool CanUseDoubleDice() => HasRelic("RLC_DOUBLE_DICE") && !doubleDiceUsedThisWave;
     public bool CanUseFateDice() => HasRelic("RLC_FATE_DICE") && !fateDiceUsedThisZone;
+    public bool CanUsePreserve() => HasRelic("RLC_DICE_CUP") && preserveChargesRemaining > 0;
 
     // ===== 런 시작/종료 =====
 
