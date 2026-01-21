@@ -89,28 +89,13 @@ public class RelicDB : MonoBehaviour
         );
     }
 
-    private Sprite LoadRelicIcon(string relicID)
-    {
-        return Resources.Load<Sprite>("RelicIcons/" + relicID);
-    }
-
     // ID로 유물 조회 (기존 호환)
     public Relic GetRelicByID(string relicID)
     {
         return allRelics.TryGetValue(relicID, out var relic) ? relic : null;
     }
 
-    // ID로 RelicData 조회
-    public RelicData GetRelicDataByID(string relicID)
-    {
-        return allRelicData.TryGetValue(relicID, out var data) ? data : null;
-    }
 
-    //랜덤 유물 획득
-    public List<Relic> GetRandomRelics(int count)
-    {
-        return GetRandomRelics(count, null);
-    }
     // 획득 가능한 유물만
     public List<Relic> GetAcquirableRelics(int count)
     {
@@ -150,54 +135,6 @@ public class RelicDB : MonoBehaviour
         int actualCount = Mathf.Min(count, availablePool.Count);
         return availablePool.OrderBy(x => Random.value).Take(actualCount).ToList();
     }
-    // 획득 경로별 랜덤 유물 획득
-    public List<Relic> GetRandomRelics(int count, RelicDropPool? dropPool)
-    {
-        if (allRelics.Count == 0 || GameManager.Instance == null) 
-            return new List<Relic>();
-
-        List<Relic> playerRelics = GameManager.Instance.activeRelics;
-
-        // 플레이어 보유 유물 카운트
-        Dictionary<string, int> playerRelicCounts = new Dictionary<string, int>();
-        foreach (Relic relic in playerRelics)
-        {
-            if (playerRelicCounts.ContainsKey(relic.RelicID))
-                playerRelicCounts[relic.RelicID]++;
-            else
-                playerRelicCounts[relic.RelicID] = 1;
-        }
-
-        // 사용 가능한 유물 필터링
-        List<Relic> availablePool = new List<Relic>();
-        foreach (Relic masterRelic in allRelics.Values)
-        {
-            // 해금 체크
-            bool isUnlocked = masterRelic.IsUnLocked;
-            if (!isUnlocked && PlayerPrefs.GetInt($"Unlock_{masterRelic.RelicID}", 0) == 1)
-                isUnlocked = true;
-            if (!isUnlocked) continue;
-
-            // 획득 경로 체크 (RelicData가 있는 경우만)
-            if (dropPool.HasValue && allRelicData.TryGetValue(masterRelic.RelicID, out var relicData))
-            {
-                if (relicData.dropPool != dropPool.Value) continue;
-            }
-
-            // 최대 보유 개수 체크 (가벼운 가방 효과 반영)
-            if (masterRelic.MaxCount > 0)
-            {
-                playerRelicCounts.TryGetValue(masterRelic.RelicID, out int currentCount);
-                int effectiveMax = GameManager.Instance.GetEffectiveMaxCount(masterRelic.RelicID, masterRelic.MaxCount);
-                if (currentCount >= effectiveMax) continue;
-            }
-
-            availablePool.Add(masterRelic);
-        }
-
-        // 랜덤 셔플 후 반환
-        return availablePool.OrderBy(x => Random.value).Take(count).ToList();
-    }
 
     // 등급별 가중치를 적용한 랜덤 유물 획득
     public List<Relic> GetWeightedRandomRelics(int count, RelicDropPool dropPool)
@@ -235,36 +172,53 @@ public class RelicDB : MonoBehaviour
             }
         };
 
-        // 가용 유물 중 가중치 적용
-        var basePool = GetRandomRelics(count * 3, dropPool); // 여유있게 가져오기
-        List<Relic> result = new List<Relic>();
+        // 획득 가능한 유물만 가져오기 (가벼운 가방 효과 반영)
+        var basePool = GetAcquirableRelics(count * 3, dropPool);
+        
+        if (basePool.Count == 0)
+        {
+            Debug.LogWarning($"[RelicDB] {dropPool} 경로에서 획득 가능한 유물이 없습니다!");
+            return new List<Relic>();
+        }
 
+        // 등급별로 그룹화하여 가중치 풀 생성
+        List<Relic> weightedPool = new List<Relic>();
+        
         foreach (var relic in basePool)
         {
-            if (result.Count >= count) break;
-
+            // RelicData에서 등급 확인
+            RelicRarity rarity = RelicRarity.Common; // 기본값
             if (allRelicData.TryGetValue(relic.RelicID, out var data))
             {
-                float weight = weights.TryGetValue(data.rarity, out var w) ? w : 0.25f;
-                if (Random.value < weight)
-                    result.Add(relic);
+                rarity = data.rarity;
             }
-            else
+
+            // 가중치에 따라 복제 추가 (0.70 = 70개 추가)
+            float weight = weights.TryGetValue(rarity, out var w) ? w : 0.25f;
+            int copies = Mathf.RoundToInt(weight * 100);
+            
+            for (int i = 0; i < copies; i++)
             {
-                // RelicData 없으면 Common 취급
-                if (Random.value < weights[RelicRarity.Common])
-                    result.Add(relic);
+                weightedPool.Add(relic);
             }
         }
 
-        // 부족하면 남은 것에서 채우기
-        if (result.Count < count)
+        // 가중치 풀에서 랜덤 선택 (중복 제거)
+        var selected = weightedPool.OrderBy(x => Random.value)
+                                   .Distinct()
+                                   .Take(count)
+                                   .ToList();
+        
+        // 부족하면 남은 유물에서 채우기
+        if (selected.Count < count)
         {
-            var remaining = basePool.Except(result).Take(count - result.Count);
-            result.AddRange(remaining);
+            var remaining = basePool.Except(selected)
+                                   .OrderBy(x => Random.value)
+                                   .Take(count - selected.Count);
+            selected.AddRange(remaining);
         }
 
-        return result.Take(count).ToList();
+        return selected;
     }
 
     // 모든 유물 목록 (디버그용)
