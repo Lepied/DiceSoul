@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RelicData
   relicID: RLC_DICE_CUP
   relicName: "\uC8FC\uC0AC\uC704 \uCEF5"
-  description: "\uAD74\uB9AC\uAE30 \uC804 \uC8FC\uC0AC\uC704 \uD558\uB098\uB97C \uC6D0\uD558\uB294
-    \uB208\uC73C\uB85C \uACE0\uC815"
+  description: "\uC8FC\uC0AC\uC704 \uBCF4\uC874 \uD69F\uC218 +1"
   icon: {fileID: 1924966154351543697, guid: 0da9c5b23cc251d42a74e2f6dcd19d64, type: 3}
   rarity: 1
   dropPool: 2
@@ -25,7 +24,7 @@ MonoBehaviour:
   intValue: 0
   floatValue: 0
   stringValue: 
-  maxCount: 1
+  maxCount: 2
   isUnlockedByDefault: 1
   unlockCondition: 
   requiresManualActivation: 0

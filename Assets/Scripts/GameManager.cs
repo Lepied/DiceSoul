@@ -42,6 +42,17 @@ public class GameManager : MonoBehaviour
     public List<MetaUpgradeData> allMetaUpgrades; //메타 업그레이드데이터 리스트
 
     public List<string> nextZoneBuffs = new List<string>();
+    
+    [Header("런 통계 (Run Statistics)")]
+    public float playTime = 0f; // 플레이 시간 (초)
+    public int totalKills = 0; // 처치한 적 총 수
+    public int totalGoldEarned = 0; // 획득한 총 골드
+    public int maxDamageDealt = 0; // 최고 데미지
+    public int maxChainCount = 0; // 최장 연쇄
+    public Dictionary<string, int> jokboUsageCount = new Dictionary<string, int>(); // 족보 사용 횟수
+    public int bossesDefeated = 0; // 처치한 보스 수
+    public int perfectWaves = 0; // 무피해 웨이브 수
+    private bool wasDamagedThisWave = false; // 이번 웨이브에 피해 받았는지
 
     void Awake()
     {
@@ -67,6 +78,15 @@ public class GameManager : MonoBehaviour
         else
         {
             StartNewRun();
+        }
+    }
+    
+    void Update()
+    {
+        // 플레이 시간 추적 (게임이 진행 중일 때만)
+        if (PlayerHealth > 0)
+        {
+            playTime += Time.deltaTime;
         }
     }
     public void SaveCurrentRun()
@@ -173,6 +193,9 @@ public class GameManager : MonoBehaviour
         buffShieldValue = 0;
         buffRerollValue = 0;
         hasInsurance = false;
+        
+        // 런 통계 초기화
+        ResetRunStatistics();
 
         ApplyMetaUpgrades();
         ApplyMarketItems();
@@ -381,6 +404,7 @@ public class GameManager : MonoBehaviour
         finalGold = goldCtx.FinalAmount;
         
         CurrentGold += finalGold;
+        totalGoldEarned += finalGold;
 
         Debug.Log($"금화 획득(보너스): +{finalGold} (기본: {goldToAdd}, 전역배율: {globalMultiplier}x) (총: {CurrentGold})");
 
@@ -520,6 +544,10 @@ public class GameManager : MonoBehaviour
             else
             {
                 PlayerHealth -= damageCtx.FinalDamage;
+                
+                // 런 통계: 피격 기록
+                OnPlayerDamaged();
+                
                 //이벤트 시스템: 피격 후 이벤트
                 GameEvents.RaiseAfterPlayerDamaged(damageCtx);
             }
@@ -565,17 +593,9 @@ public class GameManager : MonoBehaviour
 
                 if (GameOverDirector.Instance != null)
                 {
-                    //ui들 없애기(연출해야되니까)
+                    //ui들 없애기
                     if (UIManager.Instance != null) UIManager.Instance.gameObject.SetActive(false);
                     GameOverDirector.Instance.PlayGameOverSequence(earnedCurrency);
-                }
-                else
-                {
-                    // 개발중 그냥게임씬에서 할떄
-                    if (UIManager.Instance != null)
-                    {
-                        UIManager.Instance.ShowGameOverScreen(earnedCurrency);
-                    }
                 }
                 return;
             }
@@ -594,7 +614,21 @@ public class GameManager : MonoBehaviour
             Debug.LogError("RelicDB가 씬에 없습니다!");
             return;
         }
-        List<Relic> rewardOptions = RelicDB.Instance.GetRandomRelics(3);
+        
+        // 획듍 가능한 유물만 선택 (가벼운 가방 효과 반영)
+        List<Relic> rewardOptions = RelicDB.Instance.GetAcquirableRelics(3);
+        
+        // 획듍 가능한 유물이 없으면 보상 대신 골드 지급
+        if (rewardOptions.Count == 0)
+        {
+            Debug.Log("모든 유물이 최대치 도달! 골드 보상 지급");
+            AddGold(150);
+            if (StageManager.Instance != null)
+            {
+                StageManager.Instance.PrepareNextWave();
+            }
+            return;
+        }
 
         if (UIManager.Instance != null)
         {
@@ -602,12 +636,58 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // 유물 획득 가능 여부
+    public bool CanAcquireRelic(Relic relic)
+    {
+        if (relic == null) return false;
+        
+        int currentCount = activeRelics.Count(r => r.RelicID == relic.RelicID);
+        int effectiveMax = GetEffectiveMaxCount(relic.RelicID, relic.MaxCount);
+        
+        // 무제한이면 항상 가능
+        if (effectiveMax <= 0) return true;
+        
+        // 현재 개수가 유효 최대치 미만이면 가능
+        return currentCount < effectiveMax;
+    }
+    
+    //유물 최대 개수 계산
+    public int GetEffectiveMaxCount(string relicID, int baseMaxCount)
+    {
+        // 무제한 유물 (0 또는 음수)
+        if (baseMaxCount <= 0) 
+            return baseMaxCount;
+        
+        // 최대 1개 유물은 영향 없음 고유 유물이니까
+        if (baseMaxCount == 1) 
+            return 1;
+        
+        // 가벼운 가방 자신은 영향 없음
+        if (relicID == "RLC_LIGHTWEIGHT_BAG") 
+            return baseMaxCount;
+        
+        // 가벼운 가방 개수만큼 한도 증가
+        int bagCount = activeRelics.Count(r => r.RelicID == "RLC_LIGHTWEIGHT_BAG");
+        return baseMaxCount + bagCount;
+    }
+
     public void AddRelic(Relic chosenRelic)
     {
         if (chosenRelic == null) return;
 
+        // 획득 가능 여부 체크
+        if (!CanAcquireRelic(chosenRelic))
+        {
+            Debug.LogWarning($"유물 획득 실패: {chosenRelic.Name} (최대 개수 도달)");
+            return;
+        }
+
         activeRelics.Add(chosenRelic);
-        Debug.Log($"유물 획득: {chosenRelic.Name}");
+        
+        int currentCount = activeRelics.Count(r => r.RelicID == chosenRelic.RelicID);
+        int effectiveMax = GetEffectiveMaxCount(chosenRelic.RelicID, chosenRelic.MaxCount);
+        string maxInfo = effectiveMax > 0 ? $" ({currentCount}/{effectiveMax})" : "";
+        Debug.Log($"유물 획득: {chosenRelic.Name}{maxInfo}");
 
         if (UIManager.Instance != null)
         {
@@ -615,7 +695,6 @@ public class GameManager : MonoBehaviour
         }
 
         //이벤트 시스템: 유물 획득 이벤트 발생
-        // 모든 '획득 즉시' 효과는 RelicEffectHandler.HandleRelicAcquire()에서 처리
         RelicContext relicCtx = new RelicContext
         {
             RelicID = chosenRelic.RelicID,
@@ -779,13 +858,6 @@ public class GameManager : MonoBehaviour
             if (UIManager.Instance != null) UIManager.Instance.gameObject.SetActive(false);
             GameOverDirector.Instance.PlayGameOverSequence(earnedCurrency);
         }
-        else
-        {
-            if (UIManager.Instance != null)
-            {
-                UIManager.Instance.ShowGameOverScreen(earnedCurrency);
-            }
-        }
     }
 
     public void HealPlayer(int amount)
@@ -930,6 +1002,90 @@ public class GameManager : MonoBehaviour
                 diceController.ApplyRollBonus(buffRerollValue);
             }
         }
+    }    
+    // 통계 초기화
+    private void ResetRunStatistics()
+    {
+        playTime = 0f;
+        totalKills = 0;
+        totalGoldEarned = 0;
+        maxDamageDealt = 0;
+        maxChainCount = 0;
+        jokboUsageCount.Clear();
+        bossesDefeated = 0;
+        perfectWaves = 0;
+        wasDamagedThisWave = false;
+    }
+    
+    // 적 처치 기록
+    public void RecordKill(bool isBoss = false)
+    {
+        totalKills++;
+        if (isBoss) bossesDefeated++;
+    }
+    
+    // 데미지 기록
+    public void RecordDamage(int damage)
+    {
+        if (damage > maxDamageDealt)
+        {
+            maxDamageDealt = damage;
+        }
+    }
+    
+    // 연쇄 공격 기록
+    public void RecordChainCount(int chainCount)
+    {
+        if (chainCount > maxChainCount)
+        {
+            maxChainCount = chainCount;
+        }
+    }
+    
+    // 족보 사용 기록
+    public void RecordJokboUsage(string jokboName)
+    {
+        if (!jokboUsageCount.ContainsKey(jokboName))
+        {
+            jokboUsageCount[jokboName] = 0;
+        }
+        jokboUsageCount[jokboName]++;
+    }
+    
+    // 웨이브 시작 시
+    public void OnWaveStart()
+    {
+        wasDamagedThisWave = false;
+    }
+    
+    // 플레이어 피격 시
+    public void OnPlayerDamaged()
+    {
+        wasDamagedThisWave = true;
+    }
+    
+    // 웨이브 종료 시
+    public void OnWaveComplete()
+    {
+        if (!wasDamagedThisWave)
+        {
+            perfectWaves++;
+        }
+    }
+    
+    // 플레이 시간 포맷
+    public string GetFormattedPlayTime()
+    {
+        int minutes = Mathf.FloorToInt(playTime / 60f);
+        int seconds = Mathf.FloorToInt(playTime % 60f);
+        return $"{minutes:00}:{seconds:00}";
+    }
+    
+    // 가장 많이 사용한 족보
+    public string GetMostUsedJokbo()
+    {
+        if (jokboUsageCount.Count == 0) return "없음";
+        return jokboUsageCount.OrderByDescending(x => x.Value).First().Key;
     }
 
 }

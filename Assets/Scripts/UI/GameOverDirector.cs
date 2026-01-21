@@ -27,7 +27,6 @@ public class GameOverDirector : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
             
-            // SceneController의 페이드(999)보다 위에 표시되도록 설정
             if (myCanvas != null)
             {
                 myCanvas.sortingOrder = 1000;
@@ -76,6 +75,17 @@ public class GameOverDirector : MonoBehaviour
             DiceController.Instance.HideAllDice();
         }
 
+        // 모든 적 오브젝트 비활성화
+        Enemy[] allEnemies = FindObjectsByType<Enemy>(FindObjectsSortMode.None);
+        foreach (Enemy enemy in allEnemies)
+        {
+            if (enemy != null && enemy.gameObject != null)
+            {
+                enemy.gameObject.SetActive(false);
+            }
+        }
+        Debug.Log($"[GameOverDirector] {allEnemies.Length}개의 적 비활성화 완료");
+
         if (enemyTransform == null)
         {
             Enemy activeEnemy = FindFirstObjectByType<Enemy>();
@@ -111,36 +121,20 @@ public class GameOverDirector : MonoBehaviour
             Color c = transitionImage.color;
             c.a = 0; // 투명
             transitionImage.color = c;
-
-            //파티클시작
-            if (speedLineEffect != null)
-            {
-                seq.AppendCallback(() =>
-                {
-                    speedLineEffect.gameObject.SetActive(true);
-                    speedLineEffect.Play();
-                });
-            }
-
-            // 파티클이 나오고 아주 잠깐 뒤에 패널이 슈슉 올라옴
-            seq.AppendInterval(0.4f);
-
-            // 천천히 어두워지기
-            seq.Join(transitionImage.DOFade(1f, fadeDuration).SetEase(Ease.Linear));
-
-            // 다어두워지고 씬이동
-            seq.AppendInterval(0.5f);
+            
+            // 성벽 파괴 후 게임오버 스크린 표시하고 멈춤
             seq.AppendCallback(() =>
             {
-                if (SceneController.Instance != null)
+                if (GameOverScreen.Instance != null)
                 {
-                    SceneController.Instance.LoadMainMenu();
+                    GameOverScreen.TriggerGameOver(0.5f);
                 }
                 else
                 {
-                    SceneManager.LoadScene("MainMenu");
                 }
             });
+            
+            // 여기서 멈춤 - 사용자 버튼 입력 대기
         }
     }
     //메인화면 도착 연출
@@ -225,6 +219,88 @@ public class GameOverDirector : MonoBehaviour
             if (mainMenu.quitGameButton != null) mainMenu.quitGameButton.gameObject.SetActive(true);
             if (mainMenu.metaCurrencyText != null) mainMenu.metaCurrencyText.gameObject.SetActive(true);
         }
+    }
+    
+    // 메인 메뉴로 전환
+    public void PlayTransitionToMainMenu()
+    {
+        if (transitionImage == null) return;
+        
+        Sequence seq = DOTween.Sequence();
+        
+        if (speedLineEffect != null)
+        {
+            seq.AppendCallback(() =>
+            {
+                speedLineEffect.gameObject.SetActive(true);
+                speedLineEffect.Play();
+            });
+        }
+        
+        seq.AppendInterval(0.4f);
+        seq.AppendCallback(() =>
+        {
+            transitionImage.gameObject.SetActive(true);
+            Color c = transitionImage.color;
+            c.a = 0;
+            transitionImage.color = c;
+        });
+        
+        seq.Append(transitionImage.DOFade(1f, fadeDuration).SetEase(Ease.Linear));
+        seq.AppendInterval(0.5f);
+        seq.AppendCallback(() =>
+        {
+            if (SceneController.Instance != null)
+            {
+                SceneController.Instance.LoadMainMenu();
+            }
+            else
+            {
+                SceneManager.LoadScene("MainMenu");
+            }
+        });
+    }
+    
+    // 게임 재시작
+    public void PlayTransitionToRestart()
+    {
+        if (transitionImage == null) return;
+        
+        Sequence seq = DOTween.Sequence();
+        
+        // 슈슈슥 파티클 시작
+        if (speedLineEffect != null)
+        {
+            seq.AppendCallback(() =>
+            {
+                speedLineEffect.gameObject.SetActive(true);
+                speedLineEffect.Play();
+            });
+        }
+        
+
+        seq.AppendInterval(0.4f); 
+        seq.AppendCallback(() =>
+        {
+            transitionImage.gameObject.SetActive(true);
+            Color c = transitionImage.color;
+            c.a = 0;
+            transitionImage.color = c;
+        });
+        
+        seq.Append(transitionImage.DOFade(1f, fadeDuration).SetEase(Ease.Linear));
+        seq.AppendInterval(0.5f);
+        seq.AppendCallback(() =>
+        {
+            // 새 런 시작
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.StartNewRun();
+            }
+            
+            // 씬 재로드
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        });
     }
 
 }

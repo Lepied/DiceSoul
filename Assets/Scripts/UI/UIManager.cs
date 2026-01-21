@@ -53,7 +53,7 @@ public class UIManager : MonoBehaviour
     public Button rerollButton;
     public TextMeshProUGUI rerollCostText;
 
-    [Header("통합 툴팁 (재사용)")]
+    [Header("통합 툴팁")]
     public GameObject genericTooltipPopup;
     public TextMeshProUGUI tooltipTitle;
     public TextMeshProUGUI tooltipDesc;
@@ -76,16 +76,14 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI relicDetailName;
     public TextMeshProUGUI relicDetailDescription;
 
+    [Header("인게임 UI")]
+    public GameObject rollPanel;
+    public GameObject infoButton;
+
     [Header("전환 연출")]
     public CanvasGroup fadeCanvasGroup;
     public CanvasGroup zoneTitleGroup;
     public TextMeshProUGUI zoneTitleText;
-
-    [Header("게임 오버 UI")]
-    public GameObject gameOverPanel;
-    public TextMeshProUGUI earnedCurrencyText;
-    public Button mainMenuButton;
-    public string mainMenuSceneName = "MainMenu";
 
 
     void Awake()
@@ -142,11 +140,6 @@ public class UIManager : MonoBehaviour
         if (relicPanel != null) relicPanel.SetActive(true);
         if (relicDetailPopup != null) relicDetailPopup.SetActive(false);
 
-        if (gameOverPanel != null) gameOverPanel.SetActive(false);
-        if (mainMenuButton != null)
-        {
-            mainMenuButton.onClick.AddListener(OnMainMenuButton);
-        }
         if (rerollButton != null) rerollButton.onClick.AddListener(OnRerollClick);
         if (exitShopButton != null)
         {
@@ -812,13 +805,39 @@ public class UIManager : MonoBehaviour
             {
                 Relic relic = relicOptions[i];
                 relicNameTexts[i].text = relic.Name;
-                relicDescriptionTexts[i].text = relic.Description;
-                relicChoiceButtons[i].onClick.RemoveAllListeners();
-                relicChoiceButtons[i].onClick.AddListener(() =>
+                
+                // 획득 가능 여부 체크 및 설명 업데이트
+                bool canAcquire = GameManager.Instance.CanAcquireRelic(relic);
+                int currentCount = GameManager.Instance.activeRelics.Count(r => r.RelicID == relic.RelicID);
+                int effectiveMax = GameManager.Instance.GetEffectiveMaxCount(relic.RelicID, relic.MaxCount);
+                
+                string description = relic.Description;
+                if (effectiveMax > 0)
                 {
-                    GameManager.Instance.AddRelic(relic);
-                    rewardScreenPanel.SetActive(false);
-                });
+                    description += $"\n<color=#888888>보유: {currentCount}/{effectiveMax}</color>";
+                }
+                relicDescriptionTexts[i].text = description;
+                
+                // 버튼 설정
+                relicChoiceButtons[i].onClick.RemoveAllListeners();
+                relicChoiceButtons[i].interactable = canAcquire;
+                
+                if (canAcquire)
+                {
+                    relicChoiceButtons[i].onClick.AddListener(() =>
+                    {
+                        GameManager.Instance.AddRelic(relic);
+                        rewardScreenPanel.SetActive(false);
+                    });
+                }
+                else
+                {
+                    // 최대 개수 도달 시 회색 처리
+                    var colors = relicChoiceButtons[i].colors;
+                    colors.disabledColor = new Color(0.5f, 0.5f, 0.5f, 0.5f);
+                    relicChoiceButtons[i].colors = colors;
+                }
+                
                 relicChoiceButtons[i].gameObject.SetActive(true);
             }
             else
@@ -917,29 +936,6 @@ public class UIManager : MonoBehaviour
         if (genericTooltipPopup != null) genericTooltipPopup.SetActive(false);
     }
 
-    public void ShowGameOverScreen(int earnedCurrency)
-    {
-        HideAllInGameUI();
-        
-        if (gameOverPanel == null)
-        {
-            Debug.LogError("[UIManager] gameOverPanel이 null입니다!");
-            return;
-        }
-        
-        gameOverPanel.SetActive(true);
-        if (earnedCurrencyText != null)
-        {
-            earnedCurrencyText.text = $"획득한 영혼의 파편: {earnedCurrency}";
-        }
-    }
-
-    private void OnMainMenuButton()
-    {
-        DG.Tweening.DOTween.KillAll();
-        SceneManager.LoadScene(mainMenuSceneName);
-    }
-
     public void HideAllInGameUI()
     {
         // 주요 패널들 비활성화
@@ -952,8 +948,17 @@ public class UIManager : MonoBehaviour
         if (relicDetailPopup != null) relicDetailPopup.SetActive(false);
         if (genericTooltipPopup != null) genericTooltipPopup.SetActive(false);
         if (targetSelectionPanel != null) targetSelectionPanel.SetActive(false);
+ 
+        // RollPanel과 InfoButton 숨김
+        if (rollPanel != null) rollPanel.SetActive(false);
+        if (infoButton != null) infoButton.SetActive(false);
 
-        //상단 패널 숨기기
+        // 상단 패널 숨기기
+        if (waveText != null) waveText.gameObject.SetActive(false);
+        if (totalGoldText != null) totalGoldText.gameObject.SetActive(false);
+        if (healthText != null) healthText.gameObject.SetActive(false);
+        if (rollCountText != null) rollCountText.gameObject.SetActive(false);
+
         if (waveText != null && waveText.transform.parent != null)
         {
             waveText.transform.parent.gameObject.SetActive(false);

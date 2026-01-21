@@ -354,6 +354,12 @@ public class StageManager : MonoBehaviour
             FinishAttackAndCheckChain(jokbo);
             return;
         }
+        
+        // 런 통계: 족보 사용 기록
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RecordJokboUsage(jokbo.Description);
+        }
 
         // 최종 데미지 계산 (유물 효과 포함)
         (int finalDamage, int finalGold) = GetPreviewValues(jokbo);
@@ -883,6 +889,12 @@ public class StageManager : MonoBehaviour
         // 연쇄 공격 카운터 증가
         currentChainCount++;
         Debug.Log($"[연쇄 공격] 현재 연쇄 횟수: {currentChainCount}");
+        
+        // 런 통계: 연쇄 공격 기록
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RecordChainCount(currentChainCount);
+        }
 
         // 적이 모두 죽었는지 확인
         int aliveEnemyCount = activeEnemies.Count(e => e != null && !e.isDead);
@@ -976,6 +988,12 @@ public class StageManager : MonoBehaviour
         
         if (activeEnemies.All(e => e == null || e.isDead))
         {
+            // 런 통계: 웨이브 완료
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.OnWaveComplete();
+            }
+            
             int rollsRemaining = diceController.maxRolls - diceController.currentRollCount;
             GameManager.Instance.ProcessWaveClear(true, rollsRemaining);
         }
@@ -1087,6 +1105,10 @@ public class StageManager : MonoBehaviour
         if (GameManager.Instance != null && diceController != null)
         {
             GameManager.Instance.StartNewWave();
+            
+            // 런 통계: 웨이브 시작
+            GameManager.Instance.OnWaveStart();
+            
             diceController.PrepareNewTurn();
             GameManager.Instance.ApplyAllRelicEffects(diceController);
             GameManager.Instance.ApplyWaveStartBuffs(diceController);

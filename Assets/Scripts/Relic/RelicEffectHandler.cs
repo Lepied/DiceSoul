@@ -490,15 +490,6 @@ public class RelicEffectHandler : MonoBehaviour
                 }
             }
         }
-
-        // RLC_TOUGH_ARMOR: 튼튼한 갑옷 - 방어력 적용 (레거시 호환)
-        int armorCount = GetRelicCount("RLC_TOUGH_ARMOR");
-        if (armorCount > 0)
-        {
-            int reduction = armorCount * 3;
-            ctx.FinalDamage = Mathf.Max(0, ctx.FinalDamage - reduction);
-            Debug.Log($"[유물] 튼튼한 갑옷: 피해 -{reduction}");
-        }
     }
 
     // 플레이어 사망 시 처리 (부활)
@@ -526,15 +517,11 @@ public class RelicEffectHandler : MonoBehaviour
         doubleDiceUsedThisWave = false;
         swiftHandsUsedThisWave.Clear();
         
+        int diceCup = GetRelicCount("RLC_DICE_CUP");
         // 주사위 컵: 보존 기회 충전
-        if (HasRelic("RLC_DICE_CUP"))
+        if(diceCup > 0)
         {
-            preserveChargesRemaining = 1; // 웨이브당 1회
-            Debug.Log("[유물] 주사위 컵: 보존 기회 1회 충전");
-        }
-        else
-        {
-            preserveChargesRemaining = 0;
+            preserveChargesRemaining = diceCup;
         }
     }
 
@@ -582,12 +569,10 @@ public class RelicEffectHandler : MonoBehaviour
     // 턴 시작 시
     private void HandleTurnStart()
     {
-        // 턴 관련 상태 초기화 (필요시 추가)
+        // 턴 관련 상태 초기화
     }
 
     // 굴림 횟수가 0이 됐을 때 호출 - 날쌘 손놀림 효과
-    // waveNumber: 현재 웨이브 번호
-    // 반환: 무료 굴림을 제공했는지 여부
     public bool CheckFreeRollAtZero(int waveNumber)
     {
         // RLC_SWIFT_HANDS: 날쌘 손놀림 - 굴림 가능 횟수가 0일 때 1회 무료 충전
@@ -739,42 +724,7 @@ public class RelicEffectHandler : MonoBehaviour
         }
     }
 
-    // ===== 수동 발동 유물 (외부에서 호출) =====
-
-    // [수동] 주사위 컵 - 원하는 주사위 2개 고정 (웨이브당 1회)
-    // DiceController나 UI에서 호출
-    // diceIndices: 고정할 주사위 인덱스들
-    // 반환: 성공 여부
-    public bool UseDiceCup(int[] diceIndices)
-    {
-        if (!HasRelic("RLC_DICE_CUP"))
-        {
-            Debug.Log("[유물] 주사위 컵을 보유하고 있지 않습니다.");
-            return false;
-        }
-
-        if (diceCupUsedThisWave)
-        {
-            Debug.Log("[유물] 주사위 컵: 이번 웨이브에서 이미 사용했습니다.");
-            return false;
-        }
-
-        var relic = GetRelic("RLC_DICE_CUP");
-        int maxFix = relic?.IntValue ?? 2;
-
-        if (diceIndices == null || diceIndices.Length > maxFix)
-        {
-            Debug.Log($"[유물] 주사위 컵: 최대 {maxFix}개까지 고정 가능합니다.");
-            return false;
-        }
-
-        diceCupUsedThisWave = true;
-        
-        // 실제 고정 로직은 DiceController에서 처리 필요
-        // 여기서는 인덱스 정보만 반환하고, 외부에서 SetKeep() 호출
-        Debug.Log($"[유물] 주사위 컵: {diceIndices.Length}개 주사위 고정!");
-        return true;
-    }
+    // ===== 수동 발동 유물 =====
 
     // [수동] 이중 주사위 - 선택한 주사위 값 2배 (웨이브당 1회)
     // diceIndex: 2배로 만들 주사위 인덱스
@@ -805,7 +755,6 @@ public class RelicEffectHandler : MonoBehaviour
     {
         if (!HasRelic("RLC_DICE_CUP"))
         {
-            Debug.Log("[유물] 주사위 컵을 보유하고 있지 않습니다.");
             return false;
         }
         

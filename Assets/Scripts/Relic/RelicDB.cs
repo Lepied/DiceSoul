@@ -106,12 +106,50 @@ public class RelicDB : MonoBehaviour
         return allRelicData.TryGetValue(relicID, out var data) ? data : null;
     }
 
-    //랜덤 유물 획득 (기존 호환)
+    //랜덤 유물 획득
     public List<Relic> GetRandomRelics(int count)
     {
         return GetRandomRelics(count, null);
     }
+    // 획득 가능한 유물만
+    public List<Relic> GetAcquirableRelics(int count)
+    {
+        return GetAcquirableRelics(count, null);
+    }
 
+    // 획득 가능한 유물만 필터링 (획득 경로 지정용)
+    public List<Relic> GetAcquirableRelics(int count, RelicDropPool? dropPool)
+    {
+        if (allRelics.Count == 0 || GameManager.Instance == null) 
+            return new List<Relic>();
+
+        // 획득 가능한 유물 필터링
+        List<Relic> availablePool = new List<Relic>();
+
+        //되는지 안되는지 다 체크하기
+        foreach (Relic masterRelic in allRelics.Values)
+        {
+            bool isUnlocked = masterRelic.IsUnLocked;
+            if (!isUnlocked && PlayerPrefs.GetInt($"Unlock_{masterRelic.RelicID}", 0) == 1)
+                isUnlocked = true;
+            if (!isUnlocked) continue;
+            if (dropPool.HasValue && allRelicData.TryGetValue(masterRelic.RelicID, out var relicData))
+            {
+                if (relicData.dropPool != dropPool.Value) continue;
+            }
+            if (!GameManager.Instance.CanAcquireRelic(masterRelic)) continue;
+
+            availablePool.Add(masterRelic);
+        }
+
+        if (availablePool.Count == 0)
+        {
+            Debug.LogWarning("[RelicDB] 획듍 가능한 유물이 없습니다!");
+            return new List<Relic>();
+        }
+        int actualCount = Mathf.Min(count, availablePool.Count);
+        return availablePool.OrderBy(x => Random.value).Take(actualCount).ToList();
+    }
     // 획득 경로별 랜덤 유물 획득
     public List<Relic> GetRandomRelics(int count, RelicDropPool? dropPool)
     {
@@ -146,11 +184,12 @@ public class RelicDB : MonoBehaviour
                 if (relicData.dropPool != dropPool.Value) continue;
             }
 
-            // 최대 보유 개수 체크
+            // 최대 보유 개수 체크 (가벼운 가방 효과 반영)
             if (masterRelic.MaxCount > 0)
             {
                 playerRelicCounts.TryGetValue(masterRelic.RelicID, out int currentCount);
-                if (currentCount >= masterRelic.MaxCount) continue;
+                int effectiveMax = GameManager.Instance.GetEffectiveMaxCount(masterRelic.RelicID, masterRelic.MaxCount);
+                if (currentCount >= effectiveMax) continue;
             }
 
             availablePool.Add(masterRelic);

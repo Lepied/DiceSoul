@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
+using System.Linq;
 
 public class ShopItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
@@ -22,13 +23,31 @@ public class ShopItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
         // 텍스트 갱신
         if (nameText) nameText.text = item.Name;
+        
+        // 유물인 경우 획득 가능 여부 체크
+        bool canAcquire = true;
+        if (item.ItemType == ShopItemType.Relic && item.RelicData != null)
+        {
+            canAcquire = GameManager.Instance.CanAcquireRelic(item.RelicData);
+            
+            // 최대 개수 정보 표시
+            int currentCount = GameManager.Instance.activeRelics.Count(r => r.RelicID == item.RelicData.RelicID);
+            int effectiveMax = GameManager.Instance.GetEffectiveMaxCount(item.RelicData.RelicID, item.RelicData.MaxCount);
+            
+            if (effectiveMax > 0 && nameText != null)
+            {
+                nameText.text = $"{item.Name} ({currentCount}/{effectiveMax})";
+            }
+        }
+        
         if (priceText)
         {
             priceText.text = $"{item.Price}";
-            // 돈 부족하면 빨간색
+            // 돈 부족하거나 획득 불가하면 빨간색
             bool canAfford = GameManager.Instance.CurrentGold >= item.Price;
-            priceText.color = canAfford ? Color.white : Color.red;
-            buyButton.interactable = canAfford;
+            bool canBuy = canAfford && canAcquire;
+            priceText.color = canBuy ? Color.white : Color.red;
+            buyButton.interactable = canBuy;
         }
 
         // 아이콘 갱신 로직

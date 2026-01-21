@@ -228,6 +228,12 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
 
         currentHP -= finalDamage;
         Debug.Log($"{enemyName} 피격! 데미지: {finalDamage}. 남은 체력: {currentHP}/{maxHP}");
+        
+        // 런 통계: 데미지 기록
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RecordDamage(finalDamage);
+        }
 
         OnDamageTaken(finalDamage, attackerJokbo);
 
@@ -235,6 +241,13 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
         {
             currentHP = 0;
             isDead = true;
+            
+            // 런 통계: 적 처치 기록
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.RecordKill(isBoss);
+            }
+            
             OnDeath();
         }
 
