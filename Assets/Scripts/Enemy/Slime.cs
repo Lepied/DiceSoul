@@ -20,7 +20,6 @@ public class Slime : Enemy
             if (DiceController.Instance != null)
             {
                 var activeDice = DiceController.Instance.activeDice;
-                // Normal 상태인 주사위만 선택 가능
                 var availableDice = activeDice.Where(d => d.State == DiceState.Normal).ToList();
                 
                 if (availableDice.Count > 0)

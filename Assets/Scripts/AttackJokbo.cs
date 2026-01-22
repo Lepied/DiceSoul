@@ -156,4 +156,10 @@ public class AttackJokbo
         }
         return false;
     }
+    
+    // 사용된 주사위 개수 반환
+    public int GetUsedDiceCount()
+    {
+        return UsedDiceIndices?.Count ?? 0;
+    }
 }

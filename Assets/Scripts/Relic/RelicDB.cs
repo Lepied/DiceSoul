@@ -89,7 +89,7 @@ public class RelicDB : MonoBehaviour
         );
     }
 
-    // ID로 유물 조회 (기존 호환)
+    // ID로 유물 조회
     public Relic GetRelicByID(string relicID)
     {
         return allRelics.TryGetValue(relicID, out var relic) ? relic : null;
@@ -102,7 +102,7 @@ public class RelicDB : MonoBehaviour
         return GetAcquirableRelics(count, null);
     }
 
-    // 획득 가능한 유물만 필터링 (획득 경로 지정용)
+    // 획득 가능한 유물만 필터링
     public List<Relic> GetAcquirableRelics(int count, RelicDropPool? dropPool)
     {
         if (allRelics.Count == 0 || GameManager.Instance == null) 
@@ -172,7 +172,7 @@ public class RelicDB : MonoBehaviour
             }
         };
 
-        // 획득 가능한 유물만 가져오기 (가벼운 가방 효과 반영)
+        // 획득 가능한 유물만 가져오기)
         var basePool = GetAcquirableRelics(count * 3, dropPool);
         
         if (basePool.Count == 0)
@@ -187,13 +187,13 @@ public class RelicDB : MonoBehaviour
         foreach (var relic in basePool)
         {
             // RelicData에서 등급 확인
-            RelicRarity rarity = RelicRarity.Common; // 기본값
+            RelicRarity rarity = RelicRarity.Common; 
             if (allRelicData.TryGetValue(relic.RelicID, out var data))
             {
                 rarity = data.rarity;
             }
 
-            // 가중치에 따라 복제 추가 (0.70 = 70개 추가)
+            // 가중치에 따라 복제 추가
             float weight = weights.TryGetValue(rarity, out var w) ? w : 0.25f;
             int copies = Mathf.RoundToInt(weight * 100);
             
@@ -203,7 +203,7 @@ public class RelicDB : MonoBehaviour
             }
         }
 
-        // 가중치 풀에서 랜덤 선택 (중복 제거)
+        // 가중치 풀에서 랜덤 선택
         var selected = weightedPool.OrderBy(x => Random.value)
                                    .Distinct()
                                    .Take(count)

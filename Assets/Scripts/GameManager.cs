@@ -314,7 +314,14 @@ public class GameManager : MonoBehaviour
         AddGold(bonusGold);
 
         //임시 체력 
-        CurrentShield = (int)GetTotalMetaBonus(MetaEffectType.Shield);
+        CurrentShield = (int)GetTotalMetaBonus(MetaEffectType.StartShield);
+        
+        // 시작 주사위 추가 (6단계)
+        int bonusDice = (int)GetTotalMetaBonus(MetaEffectType.StartDiceBonus);
+        for (int i = 0; i < bonusDice; i++)
+        {
+            AddDiceToDeck("D4");
+        }
 
         //TODO
         //리롤 횟수 등은 DiceController나 필요한 시점에 GetTotalMetaBonus로 가져다 씀
@@ -615,10 +622,8 @@ public class GameManager : MonoBehaviour
             return;
         }
         
-        // 획듍 가능한 유물만 선택 (가벼운 가방 효과 반영)
         List<Relic> rewardOptions = RelicDB.Instance.GetAcquirableRelics(3);
         
-        // 획듍 가능한 유물이 없으면 보상 대신 골드 지급
         if (rewardOptions.Count == 0)
         {
             Debug.Log("모든 유물이 최대치 도달! 골드 보상 지급");

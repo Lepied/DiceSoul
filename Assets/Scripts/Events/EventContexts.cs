@@ -42,6 +42,10 @@ public class AttackContext
     public int HealAfterAttack;           // 공격 후 회복량
     public Enemy TargetEnemy;             // 공격 대상 적
     
+    // 치명타 시스템
+    public bool IsCritical;               // 치명타 발동 여부
+    public float CritMultiplier = 1.5f;   // 치명타 배율
+    
     public void Reset()
     {
         Jokbo = null;
@@ -58,13 +62,15 @@ public class AttackContext
         RemainingRolls = 0;
         HealAfterAttack = 0;
         TargetEnemy = null;
+        IsCritical = false;
+        CritMultiplier = 1.5f;
     }
     
 
     // 최종 값 계산
     public void Calculate()
     {
-        FinalDamage = (int)((BaseDamage + FlatDamageBonus) * DamageMultiplier);
+        FinalDamage = CalculateFinalDamage();
         FinalGold = (int)((BaseGold + FlatGoldBonus) * GoldMultiplier);
     }
     
@@ -72,7 +78,15 @@ public class AttackContext
     // 최종 데미지 계산 후 반환
     public int CalculateFinalDamage()
     {
-        return (int)((BaseDamage + FlatDamageBonus) * DamageMultiplier);
+        int damage = (int)((BaseDamage + FlatDamageBonus) * DamageMultiplier);
+        
+        // 치명타 적용
+        if (IsCritical)
+        {
+            damage = (int)(damage * CritMultiplier);
+        }
+        
+        return damage;
     }
     
 

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdbc2bec5452d654d969b498aa42ab81, type: 3}
+  m_Name: Data_Splash
+  m_EditorClassIdentifier: Assembly-CSharp::MetaUpgradeData
+  id: Upgrade_Splash
+  displayName: "\uD6C4\uD3ED\uD48D"
+  description: "\uB2E8\uC77C \uACF5\uACA9 \uC871\uBCF4\uC758 \uC77C\uBD80 \uB370\uBBF8\uC9C0\uB97C
+    \uBAA8\uB4E0 \uC801\uC5D0\uAC8C \uC785\uD799\uB2C8\uB2E4."
+  icon: {fileID: 8580356322217644466, guid: 140900c40bc36134297812ceb869758f, type: 3}
+  maxLevel: 3
+  baseCost: 800
+  costMultiplier: 1.5
+  category: 1
+  tier: 4
+  prerequisiteID: Upgrade_Crit
+  effectType: 12
+  effectValuePerLevel: 10

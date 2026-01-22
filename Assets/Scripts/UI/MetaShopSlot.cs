@@ -26,8 +26,10 @@ public class MetaShopSlot : MonoBehaviour
         this.manager = shopManager;
 
         if (data != null && iconImage != null)
+        {
             iconImage.sprite = data.icon;
-
+        }
+        
         // 버튼 클릭 시: 매니저 호출 + 카메라 이동 요청
         if (clickButton != null)
         {
@@ -76,24 +78,88 @@ public class MetaShopSlot : MonoBehaviour
     public void RefreshUI()
     {
         if (data == null) return;
+        
+        // 현재 레벨
         int currentLevel = PlayerPrefs.GetInt(data.id, 0);
+        
+        // 해금햇는지안햇는지
+        bool isLocked = !IsUnlocked();
 
-        if (currentLevel == 0)
+        if (iconImage != null)
+        {
+            iconImage.color = isLocked 
+                ? new Color(0.5f, 0.5f, 0.5f, 1f) 
+                : new Color(255f/255f, 140f/255f, 140f/255f, 1f);
+        }
+        
+        if (clickButton != null)
+        {
+            clickButton.interactable = !isLocked;
+        }
+        
+        // 레벨 표시
+        if (currentLevel == 0 && isLocked)
         {
             if (pipsContainer != null) pipsContainer.gameObject.SetActive(false);
         }
         else
         {
-            // 레벨이 1 이상이면 켜고 상태 갱신
+            // 레벨이 1 이상이거나 해금된 경우 pip 표시
             if (pipsContainer != null) pipsContainer.gameObject.SetActive(true);
 
             for (int i = 0; i < pips.Count; i++)
             {
-                bool isUnlocked = (i < currentLevel);
-
-                // (Pip 스크립트에 상태 전달)
-                if (pips[i] != null) pips[i].SetStatus(isUnlocked);
+                bool isPipUnlocked = (i < currentLevel);
+                if (pips[i] != null) pips[i].SetStatus(isPipUnlocked);
             }
         }
+    }
+    
+    // 해금 여부 체크
+    private bool IsUnlocked()
+    {
+        if (data == null) return false;
+        
+        // 1단계는 항상 해금
+        if (data.tier == 1)
+            return true;
+        
+        // prerequisiteID가 있으면 그것을 우선 체크
+        if (!string.IsNullOrEmpty(data.prerequisiteID))
+        {
+            int prereqLevel = PlayerPrefs.GetInt(data.prerequisiteID, 0);
+            
+            // 선행 업그레이드의 maxLevel 찾기
+            if (manager != null && manager.allMetaUpgrades != null)
+            {
+                foreach (var other in manager.allMetaUpgrades)
+                {
+                    if (other.id == data.prerequisiteID)
+                    {
+                        bool unlocked = prereqLevel >= other.maxLevel;
+                        return unlocked;
+                    }
+                }
+            }
+            return false;
+        }
+        
+        // prerequisiteID가 없으면
+        int previousTier = data.tier - 1;
+        
+        if (manager == null || manager.allMetaUpgrades == null)
+            return false;
+        
+        foreach (var other in manager.allMetaUpgrades)
+        {
+            if (other.category == data.category && other.tier == previousTier)
+            {
+                int otherLevel = PlayerPrefs.GetInt(other.id, 0);
+                if (otherLevel >= other.maxLevel)
+                    return true;
+            }
+        }
+        
+        return false;
     }
 }

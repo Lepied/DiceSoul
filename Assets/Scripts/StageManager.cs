@@ -1163,11 +1163,46 @@ public class StageManager : MonoBehaviour
             HealAfterAttack = 0
         };
         
+        // 치명타 판정
+        ctx.IsCritical = RollCritical();
+        ctx.CritMultiplier = GetCritMultiplier();
+        
         // 메타 업그레이드 보너스 추가
         if (GameManager.Instance != null)
         {
+            // 기본 데미지/골드
             ctx.FlatDamageBonus += (int)GameManager.Instance.GetTotalMetaBonus(MetaEffectType.BaseDamage);
             ctx.FlatGoldBonus += (int)GameManager.Instance.GetTotalMetaBonus(MetaEffectType.GoldBonus);
+            
+            // 리롤 데미지 보너스 (4A)
+            float rerollBonus = GameManager.Instance.GetTotalMetaBonus(MetaEffectType.RerollDamageBonus);
+            if (rerollBonus > 0)
+            {
+                int rerollCount = diceController.currentRollCount - 1;
+                ctx.FlatDamageBonus += (int)(rerollBonus * rerollCount);
+            }
+            
+            // 4주사위 이상 족보 데미지 보너스 (4B)
+            float fourDiceBonus = GameManager.Instance.GetTotalMetaBonus(MetaEffectType.FourDiceDamageBonus);
+            if (fourDiceBonus > 0 && jokbo != null)
+            {
+                int usedDiceCount = jokbo.GetUsedDiceCount();
+                if (usedDiceCount >= 4)
+                {
+                    ctx.DamageMultiplier *= (1 + fourDiceBonus / 100f);
+                }
+            }
+            
+            // 콤보 보너스 (5단계)
+            float comboBonus = GameManager.Instance.GetTotalMetaBonus(MetaEffectType.ComboBonus);
+            if (comboBonus > 0)
+            {
+                int chainCount = GetCurrentChainCount();
+                if (chainCount > 1)
+                {
+                    ctx.DamageMultiplier += (comboBonus / 100f);
+                }
+            }
             
             // 포션 버프
             if (GameManager.Instance.buffDuration > 0)
@@ -1184,6 +1219,24 @@ public class StageManager : MonoBehaviour
         GameEvents.RaiseBeforeAttack(ctx);
         
         return (ctx.CalculateFinalDamage(), ctx.CalculateFinalGold());
+    }
+    
+    // 치명타 판정
+    private bool RollCritical()
+    {
+        if (GameManager.Instance == null) return false;
+        
+        float critChance = GameManager.Instance.GetTotalMetaBonus(MetaEffectType.CritChance);
+        return UnityEngine.Random.value < (critChance / 100f);
+    }
+    
+    // 치명타 배율 가져오기
+    private float GetCritMultiplier()
+    {
+        if (GameManager.Instance == null) return 1.5f;
+        
+        float critMult = GameManager.Instance.GetTotalMetaBonus(MetaEffectType.CritMultiplier);
+        return critMult > 0 ? 2.0f : 1.5f;
     }
 
     public void ShowAttackPreview(AttackJokbo jokbo)

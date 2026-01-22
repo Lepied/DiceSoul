@@ -210,7 +210,7 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
         return finalDamage;
     }
 
-    public bool TakeDamage(int finalDamage, AttackJokbo attackerJokbo)
+    public bool TakeDamage(int finalDamage, AttackJokbo attackerJokbo, bool isSplash = false)
     {
         if (isDead) return true;
         if (finalDamage > 0)
@@ -236,6 +236,26 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
         }
 
         OnDamageTaken(finalDamage, attackerJokbo);
+        
+        // 스플래시 데미지/  Single 타겟 공격만발동하게
+        if (!isSplash && attackerJokbo != null && attackerJokbo.TargetType == AttackTargetType.Single && GameManager.Instance != null)
+        {
+            float splashPercent = GameManager.Instance.GetTotalMetaBonus(MetaEffectType.SplashDamage);
+            if (splashPercent > 0)
+            {
+                int splashDamage = Mathf.RoundToInt(finalDamage * splashPercent / 100f);
+                if (splashDamage > 0 && StageManager.Instance != null)
+                {
+                    foreach (Enemy nearby in StageManager.Instance.activeEnemies)
+                    {
+                        if (nearby != this && nearby != null && !nearby.isDead)
+                        {
+                            nearby.TakeDamage(splashDamage, null, isSplash: true);
+                        }
+                    }
+                }
+            }
+        }
 
         if (currentHP <= 0)
         {

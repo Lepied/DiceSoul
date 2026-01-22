@@ -10,6 +10,7 @@ public class MainMenuManager : MonoBehaviour
     public string gameSceneName = "Game";
 
     [Header("영구 재화")]
+    public GameObject currencyPanel;
     public TextMeshProUGUI metaCurrencyText;
     public string metaCurrencyKey = "MetaCurrency";
 

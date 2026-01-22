@@ -16,7 +16,6 @@ public class FrostWisp : Enemy
     /// <summary>
     /// [기믹: 빙결]
     /// 피격 시, 50% 확률로 플레이어의 주사위 1개를 얼려서(잠금)
-    /// 족보 계산에 포함되지 않게 만듭니다.
     /// </summary>
     public override void OnDamageTaken(int damageTaken, AttackJokbo jokbo)
     {
@@ -29,7 +28,6 @@ public class FrostWisp : Enemy
             if (DiceController.Instance != null)
             {
                 var activeDice = DiceController.Instance.activeDice;
-                // Normal 상태인 주사위만 선택 가능
                 var availableDice = activeDice.Where(d => d.State == DiceState.Normal).ToList();
                 
                 if (availableDice.Count > 0)

@@ -131,7 +131,7 @@ public class ShopManager : MonoBehaviour
 
     private void AddRandomRelic()
     {
-        // 획득 가능한 유물만 선택 (가벼운 가방 효과 반영)
+        // 획득 가능한 유물만 선택
         List<Relic> randomRelics = RelicDB.Instance.GetAcquirableRelics(1, RelicDropPool.ShopOnly);
         
         if (randomRelics.Count > 0)

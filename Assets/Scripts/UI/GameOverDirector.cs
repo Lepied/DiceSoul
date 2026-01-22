@@ -189,19 +189,17 @@ public class GameOverDirector : MonoBehaviour
         MainMenuManager mainMenu = FindFirstObjectByType<MainMenuManager>();
         if (mainMenu != null)
         {
-            // 모든 UI GameObject 비활성화
             if (mainMenu.deckSelectionPanel != null) mainMenu.deckSelectionPanel.SetActive(false);
             if (mainMenu.upgradeShopPanel != null) mainMenu.upgradeShopPanel.SetActive(false);
             if (mainMenu.generalStorePanel != null) mainMenu.generalStorePanel.SetActive(false);
+            if (mainMenu.currencyPanel != null) mainMenu.currencyPanel.SetActive(false);
             
-            // 메인 버튼 GameObject들 비활성화
             if (mainMenu.startGameButton != null) mainMenu.startGameButton.gameObject.SetActive(false);
             if (mainMenu.continueButton != null) mainMenu.continueButton.gameObject.SetActive(false);
             if (mainMenu.openUpgradeButton != null) mainMenu.openUpgradeButton.gameObject.SetActive(false);
             if (mainMenu.openDeckButton != null) mainMenu.openDeckButton.gameObject.SetActive(false);
             if (mainMenu.openStoreButton != null) mainMenu.openStoreButton.gameObject.SetActive(false);
             if (mainMenu.quitGameButton != null) mainMenu.quitGameButton.gameObject.SetActive(false);
-            if (mainMenu.metaCurrencyText != null) mainMenu.metaCurrencyText.gameObject.SetActive(false);
         }
     }
 
@@ -210,14 +208,13 @@ public class GameOverDirector : MonoBehaviour
         MainMenuManager mainMenu = FindFirstObjectByType<MainMenuManager>();
         if (mainMenu != null)
         {
-            // 모든 UI GameObject 활성화
+            if(mainMenu.currencyPanel != null) mainMenu.currencyPanel.SetActive(true);
             if (mainMenu.startGameButton != null) mainMenu.startGameButton.gameObject.SetActive(true);
             if (mainMenu.continueButton != null) mainMenu.continueButton.gameObject.SetActive(true);
             if (mainMenu.openUpgradeButton != null) mainMenu.openUpgradeButton.gameObject.SetActive(true);
             if (mainMenu.openDeckButton != null) mainMenu.openDeckButton.gameObject.SetActive(true);
             if (mainMenu.openStoreButton != null) mainMenu.openStoreButton.gameObject.SetActive(true);
             if (mainMenu.quitGameButton != null) mainMenu.quitGameButton.gameObject.SetActive(true);
-            if (mainMenu.metaCurrencyText != null) mainMenu.metaCurrencyText.gameObject.SetActive(true);
         }
     }
     

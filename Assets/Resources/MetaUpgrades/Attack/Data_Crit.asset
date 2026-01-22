@@ -10,15 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fdbc2bec5452d654d969b498aa42ab81, type: 3}
-  m_Name: Data_Suppressive_Fire
+  m_Name: Data_Crit
   m_EditorClassIdentifier: Assembly-CSharp::MetaUpgradeData
-  id: Upgrade_Suppressive_Fire
-  displayName: "\uBC1C\uB9AC\uC2A4\uD0C0"
-  description: "\uC77C\uC81C \uC0AC\uACA9\uC73C\uB85C \uC6E8\uC774\uBE0C \uC2DC\uC791
-    \uC2DC \uBAA8\uB4E0 \uC801\uC5D0\uAC8C \uC989\uC2DC \uD53C\uD574\uB97C \uC785\uD799\uB2C8\uB2E4."
-  icon: {fileID: 8855524617260664186, guid: c6ccd2d78a290f64285769f78db5df16, type: 3}
-  maxLevel: 5
-  baseCost: 200
+  id: Upgrade_Crit
+  displayName: "\uC57D\uC810 \uD3EC\uCC29"
+  description: "\uAE09\uC18C\uB97C \uB178\uB9B4 \uD655\uB960\uC774 \uC99D\uAC00\uD569\uB2C8\uB2E4."
+  icon: {fileID: 1729117732102537548, guid: 140900c40bc36134297812ceb869758f, type: 3}
+  maxLevel: 3
+  baseCost: 600
   costMultiplier: 1.5
-  effectType: 4
+  category: 1
+  tier: 3
+  prerequisiteID: Upgrade_Suppressive_Fire
+  effectType: 9
   effectValuePerLevel: 5
