@@ -254,6 +254,15 @@ public class DiceController : MonoBehaviour
         if (GameManager.Instance != null)
         {
             GameManager.Instance.ClearShield();
+            
+            // 4C: 구르기 - 리롤 1회당 Shield 획듍
+            float shieldPerReroll = GameManager.Instance.GetTotalMetaBonus(MetaEffectType.ShieldPerReroll);
+            if (shieldPerReroll > 0)
+            {
+                int shieldAmount = (int)shieldPerReroll;
+                GameManager.Instance.AddShield(shieldAmount);
+                Debug.Log($"[구르기] 리롤 시 Shield +{shieldAmount}");
+            }
         }
 
         currentRollCount++;

@@ -124,12 +124,10 @@ public class MetaShopSlot : MonoBehaviour
         if (data.tier == 1)
             return true;
         
-        // prerequisiteID가 있으면 그것을 우선 체크
         if (!string.IsNullOrEmpty(data.prerequisiteID))
         {
             int prereqLevel = PlayerPrefs.GetInt(data.prerequisiteID, 0);
             
-            // 선행 업그레이드의 maxLevel 찾기
             if (manager != null && manager.allMetaUpgrades != null)
             {
                 foreach (var other in manager.allMetaUpgrades)
@@ -143,8 +141,8 @@ public class MetaShopSlot : MonoBehaviour
             }
             return false;
         }
-        
-        // prerequisiteID가 없으면
+
+        // 같은 카테고리의 이전 단계완료되었는지 체크
         int previousTier = data.tier - 1;
         
         if (manager == null || manager.allMetaUpgrades == null)

@@ -57,6 +57,7 @@ public class RelicEffectHandler : MonoBehaviour
         GameEvents.OnGoldGain += HandleGoldGain;
         GameEvents.OnShopRefresh += HandleShopRefresh;
         GameEvents.OnRelicAcquire += HandleRelicAcquire;
+        GameEvents.OnPlayerHeal += HandlePlayerHeal;
     }
 
     void OnDisable()
@@ -622,6 +623,11 @@ public class RelicEffectHandler : MonoBehaviour
         }
 
         ctx.Calculate();
+    }
+    //플레이어 회복 시
+    private void HandlePlayerHeal(HealContext ctx)
+    {
+        //회복관련 유물 얻으면 추가하기
     }
 
     // 상점 새로고침 시

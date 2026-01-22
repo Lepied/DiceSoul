@@ -1170,11 +1170,10 @@ public class StageManager : MonoBehaviour
         // 메타 업그레이드 보너스 추가
         if (GameManager.Instance != null)
         {
-            // 기본 데미지/골드
             ctx.FlatDamageBonus += (int)GameManager.Instance.GetTotalMetaBonus(MetaEffectType.BaseDamage);
             ctx.FlatGoldBonus += (int)GameManager.Instance.GetTotalMetaBonus(MetaEffectType.GoldBonus);
             
-            // 리롤 데미지 보너스 (4A)
+            // 리롤할때마다  데미지 보너스
             float rerollBonus = GameManager.Instance.GetTotalMetaBonus(MetaEffectType.RerollDamageBonus);
             if (rerollBonus > 0)
             {
@@ -1182,7 +1181,7 @@ public class StageManager : MonoBehaviour
                 ctx.FlatDamageBonus += (int)(rerollBonus * rerollCount);
             }
             
-            // 4주사위 이상 족보 데미지 보너스 (4B)
+            // 주사위 4개 이상 사용하는 족보 데미지 보너스
             float fourDiceBonus = GameManager.Instance.GetTotalMetaBonus(MetaEffectType.FourDiceDamageBonus);
             if (fourDiceBonus > 0 && jokbo != null)
             {
@@ -1193,7 +1192,7 @@ public class StageManager : MonoBehaviour
                 }
             }
             
-            // 콤보 보너스 (5단계)
+            // 콤보 보너스
             float comboBonus = GameManager.Instance.GetTotalMetaBonus(MetaEffectType.ComboBonus);
             if (comboBonus > 0)
             {

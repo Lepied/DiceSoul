@@ -13,6 +13,10 @@ public class GameManager : MonoBehaviour
     public int CurrentGold { get; private set; }
     public int CurrentShield { get; private set; } //임시 체력
 
+    //메타강화
+    private bool firstHitThisWave = false; //한대 막기
+    private bool hasRevived = false; //수호천사
+
     [Header("덱 정보")]
     public List<string> playerDiceDeck = new List<string>();
     public List<Relic> activeRelics = new List<Relic>();
@@ -301,22 +305,18 @@ public class GameManager : MonoBehaviour
 
     //영구강화 적용
     private void ApplyMetaUpgrades()
-    {
-        // ScriptableObject 리스트를 순회하며 자동으로 합산
-        
+    {        
         // 최대 체력 
         int bonusHealth = (int)GetTotalMetaBonus(MetaEffectType.MaxHealth);
         ModifyMaxHealth(bonusHealth); 
-        PlayerHealth = MaxPlayerHealth; // 체력 100%로 시작
+        PlayerHealth = MaxPlayerHealth;
 
         // 시작 자금
         int bonusGold = (int)GetTotalMetaBonus(MetaEffectType.StartGold);
         AddGold(bonusGold);
 
-        //임시 체력 
-        CurrentShield = (int)GetTotalMetaBonus(MetaEffectType.StartShield);
         
-        // 시작 주사위 추가 (6단계)
+        // 시작 주사위 추가
         int bonusDice = (int)GetTotalMetaBonus(MetaEffectType.StartDiceBonus);
         for (int i = 0; i < bonusDice; i++)
         {
@@ -359,6 +359,15 @@ public class GameManager : MonoBehaviour
     public void StartNewWave()
     {
         Debug.Log($"[Zone {CurrentZone} - Wave {CurrentWave}] 웨이브 시작.");
+        
+        // 메타업그레이드중에 이전 웨이브 Shield 저장
+        float carryPercent = GetTotalMetaBonus(MetaEffectType.ShieldCarryOver);
+        if (carryPercent > 0 && CurrentShield > 0)
+        {
+            int carriedShield = Mathf.RoundToInt(CurrentShield * carryPercent / 100f);
+            PlayerPrefs.SetInt("CarriedShield", carriedShield);
+            Debug.Log($"[보존의 장막] Shield {CurrentShield}의 {carryPercent}% ({carriedShield}) 저장");
+        }
         
         // 웨이브 시작 시 실드 초기화
         ClearShield();
@@ -501,13 +510,21 @@ public class GameManager : MonoBehaviour
                     CurrentZone++;
                     CurrentWave = 1;
                     
-                    //이벤트 시스템: 존 시작 이벤트 (작은 방패 등 초기화)
+                    //이벤트 시스템: 존 시작 이벤트
                     ZoneContext zoneCtx = new ZoneContext
                     {
                         ZoneNumber = CurrentZone,
                         ZoneName = WaveGenerator.Instance?.GetCurrentZoneData(CurrentZone)?.zoneName ?? "Unknown"
                     };
                     GameEvents.RaiseZoneStart(zoneCtx);
+                    
+                    //성벽 수리 - 존 시작 시 회복
+                    int zoneHeal = (int)GetTotalMetaBonus(MetaEffectType.ZoneStartHeal);
+                    if (zoneHeal > 0)
+                    {
+                        HealPlayer(zoneHeal);
+                        Debug.Log($"[성벽 수리] 존 {CurrentZone} 시작 - 체력 +{zoneHeal} 회복");
+                    }
                     
                     UIManager.Instance.StartMaintenancePhase();
                     UIManager.Instance.FadeIn();
@@ -789,6 +806,18 @@ public class GameManager : MonoBehaviour
     {
         if (damageCtx.FinalDamage <= 0) return;
         
+        //  첫 피격 무효화
+        if (firstHitThisWave)
+        {
+            firstHitThisWave = false;
+            Debug.Log("첫 피격 무효화!");
+            if (EffectManager.Instance != null && UIManager.Instance != null)
+            {
+                EffectManager.Instance.ShowText(UIManager.Instance.transform, "무효", Color.cyan);
+            }
+            return;
+        }
+        
         // 이벤트 시스템: 피해 전 이벤트
         GameEvents.RaiseBeforePlayerDamaged(damageCtx);
         
@@ -797,6 +826,15 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log($"[이벤트] {damageCtx.Source}의 피해가 무효화되었습니다!");
             return;
+        }
+        
+        // 메타강화로 받는 피해 감소
+        int reduction = (int)GetTotalMetaBonus(MetaEffectType.DamageReduction);
+        if (reduction > 0)
+        {
+            int beforeReduce = damageCtx.FinalDamage;
+            damageCtx.FinalDamage = Mathf.Max(1, damageCtx.FinalDamage - reduction);
+            Debug.Log($"[강철 피부] 피해 감소: {beforeReduce} → {damageCtx.FinalDamage} (-{reduction})");
         }
         
         // 쉴드 먼저 소모
@@ -832,7 +870,26 @@ public class GameManager : MonoBehaviour
     // 플레이어 사망 처리
     private void HandlePlayerDeath()
     {
-        // 이벤트 시스템: 사망 이벤트 (유물이 부활 가능)
+        // 메타강화 수호천사로 사망 시 1회 부활
+        if (!hasRevived)
+        {
+            float reviveLevel = GetTotalMetaBonus(MetaEffectType.Revive);
+            if (reviveLevel > 0)
+            {
+                hasRevived = true;
+                PlayerHealth = Mathf.RoundToInt(MaxPlayerHealth * 0.3f);
+                Debug.Log($"[수호천사] 부활! 체력 {PlayerHealth}로 회복");
+                EffectManager.Instance?.ShowText(UIManager.Instance.transform, "부활!", Color.yellow);
+                
+                if (UIManager.Instance != null)
+                {
+                    UIManager.Instance.UpdateHealth(PlayerHealth, MaxPlayerHealth);
+                }
+                return;
+            }
+        }
+        
+        // 이벤트 시스템: 사망 이벤트 (유물로부활)
         DeathContext deathCtx = new DeathContext
         {
             Revived = false,
@@ -1061,6 +1118,26 @@ public class GameManager : MonoBehaviour
     public void OnWaveStart()
     {
         wasDamagedThisWave = false;
+        
+        // 메타강화 재생성 장벽 - 웨이브 시작 시 실드
+        int waveShield = (int)GetTotalMetaBonus(MetaEffectType.WaveStartShield);
+        if (waveShield > 0)
+        {
+            AddShield(waveShield);
+        }
+        
+        //  메타강화 보존의 장막 - 이전 웨이브에서 이월된 실드얻기
+        int carriedShield = PlayerPrefs.GetInt("CarriedShield", 0);
+        if (carriedShield > 0)
+        {
+            AddShield(carriedShield);
+            PlayerPrefs.DeleteKey("CarriedShield");
+            Debug.Log($"[보존의 장막] 이월된 Shield +{carriedShield}");
+        }
+        
+        //메타강화 절대 방어 - 첫 피격 무효화
+        float immuneLevel = GetTotalMetaBonus(MetaEffectType.FirstHitImmune);
+        firstHitThisWave = (immuneLevel > 0);
     }
     
     // 플레이어 피격 시
@@ -1075,6 +1152,14 @@ public class GameManager : MonoBehaviour
         if (!wasDamagedThisWave)
         {
             perfectWaves++;
+        }
+        
+        //메타강화 재생성 장벽 → 웨이브 종료 시 회복
+        int waveHeal = (int)GetTotalMetaBonus(MetaEffectType.WaveEndHeal);
+        if (waveHeal > 0)
+        {
+            HealPlayer(waveHeal);
+            Debug.Log($"[재생성 장벽] 웨이브 종료 - 체력 +{waveHeal} 회복");
         }
     }
     
