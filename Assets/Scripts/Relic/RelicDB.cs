@@ -171,6 +171,29 @@ public class RelicDB : MonoBehaviour
                 { RelicRarity.Epic, 0.25f }
             }
         };
+        
+        // 메타강화 - 유물 확률 증가
+        if (GameManager.Instance != null)
+        {
+            float rareBonusPercent = GameManager.Instance.GetTotalMetaBonus(MetaEffectType.RareRelicRate);
+            if (rareBonusPercent > 0)
+            {
+                float rareBonusFactor = rareBonusPercent / 100f;
+                
+                // Common 확률 감소, Rare/Epic 확률 증가
+                float commonReduction = weights[RelicRarity.Common] * rareBonusFactor * 0.5f;
+                float uncommonReduction = weights[RelicRarity.Uncommon] * rareBonusFactor * 0.3f;
+                
+                weights[RelicRarity.Common] -= commonReduction;
+                weights[RelicRarity.Uncommon] -= uncommonReduction;
+                weights[RelicRarity.Rare] += (commonReduction + uncommonReduction) * 0.7f;
+                weights[RelicRarity.Epic] += (commonReduction + uncommonReduction) * 0.3f;
+                
+                // 음수 방지
+                weights[RelicRarity.Common] = Mathf.Max(0.05f, weights[RelicRarity.Common]);
+                weights[RelicRarity.Uncommon] = Mathf.Max(0.05f, weights[RelicRarity.Uncommon]);
+            }
+        }
 
         // 획득 가능한 유물만 가져오기)
         var basePool = GetAcquirableRelics(count * 3, dropPool);

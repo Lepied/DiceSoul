@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fdbc2bec5452d654d969b498aa42ab81, type: 3}
-  m_Name: Data_Wall_Fix
+  m_Name: Data_Revive
   m_EditorClassIdentifier: Assembly-CSharp::MetaUpgradeData
-  id: Upgrade_Wall_Fix
-  displayName: "\uC131\uBCBD \uC218\uB9AC"
-  description: "\uB9E4 \uC874 \uC2DC\uC791 \uC2DC \uB9C8\uB2E4 \uC131\uBCBD\uC744
-    \uC218\uB9AC\uD558\uC5EC \uCCB4\uB825\uC744 \uD68C\uBCF5\uC2DC\uD0B5\uB2C8\uB2E4."
+  id: Upgrade_Revive
+  displayName: "\uC218\uD638\uCC9C\uC0AC"
+  description: "\uAC8C\uC784\uC5D0\uC11C \uD55C \uBC88. \uCCB4\uB825\uC758 30\uD37C\uC13C\uD2B8\uB85C
+    \uBD80\uD65C\uD569\uB2C8\uB2E4."
   icon: {fileID: -3655869207735741034, guid: c6ccd2d78a290f64285769f78db5df16, type: 3}
-  maxLevel: 3
-  baseCost: 300
+  maxLevel: 1
+  baseCost: 10000
   costMultiplier: 1.5
   category: 0
-  tier: 2
-  prerequisiteID: Upgrade_Wall_HP
-  effectType: 1
-  effectValuePerLevel: 15
+  tier: 7
+  prerequisiteID: Upgrade_Immune
+  effectType: 8
+  effectValuePerLevel: 30

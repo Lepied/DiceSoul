@@ -40,37 +40,40 @@ public class MetaUpgradeData : ScriptableObject
 public enum MetaEffectType
 {
     // 방어 카테고리
-    MaxHealth,              // 1: 기초 보강 - 최대 체력
-    ZoneStartHeal,          // 2: 성벽 수리 - 존 시작 시 회복
-    WaveStartShield,        // 3: 재생성 장벽 - 웨이브 시작 시 실드
-    DamageReduction,        // 4A: 강철 피부 - 받는 피해 감소
-    WaveEndHeal,            // 4B: 재생성 장벽 → 웨이브 종료 시 회복
-    ShieldPerReroll,        // 4C: 구르기 - 리롤당 실드 획득
-    ShieldCarryOver,        // 5: 보존의 장막 - 실드 이월
-    FirstHitImmune,         // 6: 절대 방어 - 첫 피격 무효화
-    Revive,                 // 7: 수호천사 - 사망 시 부활
+    MaxHealth,              // 1: 최대 체력
+    ZoneStartHeal,          // 2:- 존 시작 시 회복
+    WaveStartShield,        // 3: 웨이브 시작 시 실드
+    DamageReduction,        // 4A:받는 피해 감소
+    WaveEndHeal,            // 4B:  웨이브 종료 시 회복
+    ShieldPerReroll,        // 4C: 리롤당 실드 획득
+    ShieldCarryOver,        // 5:실드 이월
+    FirstHitImmune,         // 6: 첫 피격 무효화
+    Revive,                 // 7: 사망 시 부활
     
     // 공격 카테고리 (Offense)
-    BaseDamage,             // 1: 발리스타 연마 - 기본 데미지
-    StartDamage,            // 2: 제압 사격 - 웨이브 시작 데미지
-    CritChance,             // 3: 약점 포착 - 치명타 확률
-    RerollDamageBonus,      // 4A: 도박사의 손기술 - 리롤당 데미지
-    FourDiceDamageBonus,    // 4B: 족보의 완성 - 주사위 4개이상 사용하면 데미지 보너스
-    SplashDamage,           // 4C: 광역 충격 - 스플래시 데미지
-    ComboBonus,             // 5: 콤보 마스터 - 연속 공격 데미지
-    StartDiceBonus,         // 6: 시작 주사위+ - 시작 주사위 추가
-    CritMultiplier,         // 7: 치명적인 일격 - 치명타 배율
+    BaseDamage,             // 1: 기본 데미지
+    StartDamage,            // 2: 웨이브 시작 데미지
+    CritChance,             // 3: 치명타 확률
+    RerollDamageBonus,      // 4A:리롤당 데미지
+    FourDiceDamageBonus,    // 4B: 주사위 4개이상 사용하면 데미지 보너스
+    SplashDamage,           // 4C:스플래시 데미지
+    ComboBonus,             // 5: 연속 공격 데미지
+    StartDiceBonus,         // 6: 시작 주사위 추가
+    CritMultiplier,         // 7:치명타 배율
     
     // ============================================
     // 유틸 카테고리 (Utility)
     // ============================================
-    StartGold,              // 시작 골드
-    GoldMultiplier,         // 골드 배율
-    MaxRerolls,             // 최대 리롤
-    RelicDropRate,          // 유물 드롭률
-    GoldBonus,              // 족보 골드 보너스
-    ShopDiscount,           // 상점 할인
-    RareRelicRate,          // 레어 유물 확률
+    StartGold,              // 1단계: 전쟁 자금 - 시작 골드
+    GoldBonus,              // 2단계: 전리품 수거 - 족보 골드 보너스
+    ShopDiscount,           // 3단계: 단골 손님 - 상점 할인
+    GoldMultiplier,         // 4A: 황금의 손 - 골드 배율
+    RareRelicRate,          // 4B: 보물 사냥꾼 - 레어 유물 확률
+    MaxRerolls,             // 4C: 리롤 숙련 - 최대 리롤
+    ShopRefreshCostFixed,   // 5단계: VIP 회원권 - 상점 새로고침 비용 고정
+    InterestRate,           // 6단계: 이자 수익 - 존 클리어 시 골드 추가
+    StartingRelicChoice,    // 7단계: 유산 상속 - 시작 유물 선택
+    RelicDropRate,          // (미사용)
     
     // ============================================
     // 레거시 / 미사용

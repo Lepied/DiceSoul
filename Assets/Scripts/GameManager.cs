@@ -81,7 +81,16 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            StartNewRun();
+            // 메타강화 - 시작 유물 선택 후 게임 시작
+            float startRelicLevel = GetTotalMetaBonus(MetaEffectType.StartingRelicChoice);
+            if (startRelicLevel > 0 && RelicDB.Instance != null)
+            {
+                ShowStartingRelicChoice();
+            }
+            else
+            {
+                StartNewRun();
+            }
         }
     }
     
@@ -497,6 +506,28 @@ public class GameManager : MonoBehaviour
 
             if (CurrentWave > wavesPerZone)
             {
+                // 메타강화 - 존 클리어 시 골드 추가
+                float interestRate = GetTotalMetaBonus(MetaEffectType.InterestRate);
+                if (interestRate > 0)
+                {
+                    int currentGoldBeforeInterest = CurrentGold;
+                    int interestGold = Mathf.RoundToInt(currentGoldBeforeInterest * interestRate / 100f);
+                    if (interestGold > 0)
+                    {
+                        AddGold(interestGold);
+                        Debug.Log($"[이자 수익] 골드 {currentGoldBeforeInterest}의 {interestRate}% = {interestGold} 골드 추가 획득!");
+                        
+                        if (EffectManager.Instance != null && UIManager.Instance != null)
+                        {
+                            EffectManager.Instance.ShowText(
+                                UIManager.Instance.transform, 
+                                $"+{interestGold} (이자)", 
+                                Color.yellow
+                            );
+                        }
+                    }
+                }
+                
                 //이벤트 시스템: 존 종료 이벤트
                 ZoneContext zoneEndCtx = new ZoneContext
                 {
@@ -656,6 +687,31 @@ public class GameManager : MonoBehaviour
         {
             UIManager.Instance.ShowRewardScreen(rewardOptions);
         }
+    }
+    
+    // 메타강화 게임 시작 시 유물 선택
+    private void ShowStartingRelicChoice()
+    {
+        if (RelicDB.Instance == null || UIManager.Instance == null)
+        {
+            StartNewRun();
+            return;
+        }
+        
+        // 높은 등급 유물 위주로 3개 선택지 제공
+        List<Relic> startingOptions = RelicDB.Instance.GetWeightedRandomRelics(3, RelicDropPool.MaintenanceReward);
+        
+        if (startingOptions.Count == 0)
+        {
+            StartNewRun();
+            return;
+        }
+        
+        // UI에 표시 (기존 웨이브 보상 UI 재활용)
+        UIManager.Instance.ShowRewardScreen(startingOptions, () => {
+            // 유물 선택 후 게임 시작
+            StartNewRun();
+        });
     }
 
     // 유물 획득 가능 여부

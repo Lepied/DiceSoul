@@ -111,6 +111,9 @@ public class ShopManager : MonoBehaviour
             case "D12": price = 900; break;
             case "D20": price = 1500; break;
         }
+        
+        // 3단계: 단골 손님 - 상점 할인
+        price = ApplyShopDiscount(price);
 
         Sprite icon = unknownDiceIcon;
         if (DiceController.Instance != null)
@@ -137,9 +140,10 @@ public class ShopManager : MonoBehaviour
         if (randomRelics.Count > 0)
         {
             Relic relic = randomRelics[0];
+            int price = ApplyShopDiscount(600); // 메타강화 적용시키기( 이거 가격 600말고 변동있게?)
             currentShopItems.Add(new ShopItem(
-                relic, // 유물 데이터 전달
-                600, // 가격 <- 나중에 유물 등급생기면 등급별로 다르게?
+                relic,
+                price, 
                 () => { GameManager.Instance.AddRelic(relic); }
             ));
         }
@@ -181,6 +185,9 @@ public class ShopManager : MonoBehaviour
                 pColor = new Color(1f, 0.8f, 0.2f); // 골드
                 break;
         }
+        
+        // 메타강화 적용
+        price = ApplyShopDiscount(price);
 
         // 포션 아이템 생성 
         currentShopItems.Add(new ShopItem(
@@ -190,6 +197,18 @@ public class ShopManager : MonoBehaviour
             pColor,          //색
             () => GameManager.Instance.AddNextZoneBuff(buffKey)
         ));
+    }
+    
+    // 상점할인 메타강화 적용
+    private int ApplyShopDiscount(int basePrice)
+    {
+        if (GameManager.Instance == null) return basePrice;
+        
+        float discountPercent = GameManager.Instance.GetTotalMetaBonus(MetaEffectType.ShopDiscount);
+        if (discountPercent <= 0) return basePrice;
+        
+        int discountedPrice = Mathf.RoundToInt(basePrice * (1f - discountPercent / 100f));
+        return Mathf.Max(0, discountedPrice);
     }
 
     public void BuyItem(ShopItem item)
@@ -217,7 +236,24 @@ public class ShopManager : MonoBehaviour
         if (GameManager.Instance.SubtractGold(currentRerollCost))
         {
             int paidCost = currentRerollCost; // 지불한 비용 저장
-            currentRerollCost += 100; // 리롤할수록 비싸짐
+            
+            //메타강화 새로고침 비용 강화
+            float vipLevel = 0;
+            if (GameManager.Instance != null)
+            {
+                vipLevel = GameManager.Instance.GetTotalMetaBonus(MetaEffectType.ShopRefreshCostFixed);
+            }
+            
+            if (vipLevel > 0)
+            {
+
+                Debug.Log($"메타강화 새로고침 비용 증가 없음 (고정 {baseRerollCost})");
+            }
+            else
+            {
+                currentRerollCost += 100;
+            }
+            
             GenerateShopItems();
             
             // 스프링 유물: FreeRefresh가 true면 비용 환불

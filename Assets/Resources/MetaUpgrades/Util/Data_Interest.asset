@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fdbc2bec5452d654d969b498aa42ab81, type: 3}
-  m_Name: Data_Start_Gold
+  m_Name: Data_Interest
   m_EditorClassIdentifier: Assembly-CSharp::MetaUpgradeData
-  id: Upgrade_StartGold
-  displayName: "\uBCF4\uAE09\uD488 \uC900\uBE44"
-  description: "\uBCF4\uAE09\uD488\uC744 \uC900\uBE44\uD574 \uCD9C\uACA9 \uC2DC \uACE8\uB4DC\uB97C
-    \uC5BB\uC2B5\uB2C8\uB2E4."
+  id: Upgrade_Interest
+  displayName: "\uC774\uC790 \uC218\uC775"
+  description: "\uC6E8\uC774\uBE0C \uD074\uB9AC\uC5B4 \uC2DC \uBCF4\uC720 \uACE8\uB4DC\uC758
+    \uC77C\uC815\uB7C9\uB9CC\uD07C \uCD94\uAC00\uB85C \uACE8\uB4DC\uB97C \uD68D\uB4DD\uD569\uB2C8\uB2E4."
   icon: {fileID: 7089528063075033485, guid: c6ccd2d78a290f64285769f78db5df16, type: 3}
   maxLevel: 5
-  baseCost: 100
+  baseCost: 2500
   costMultiplier: 1.5
   category: 2
-  tier: 1
-  prerequisiteID: 
-  effectType: 18
-  effectValuePerLevel: 50
+  tier: 6
+  prerequisiteID: Upgrade_Refresh
+  effectType: 25
+  effectValuePerLevel: 1

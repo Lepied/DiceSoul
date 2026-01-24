@@ -795,7 +795,7 @@ public class UIManager : MonoBehaviour
         return attackOptionsPanel != null && attackOptionsPanel.activeSelf;
     }
 
-    public void ShowRewardScreen(List<Relic> relicOptions)
+    public void ShowRewardScreen(List<Relic> relicOptions, System.Action onRelicSelected = null)
     {
         if (rewardScreenPanel == null) return;
         rewardScreenPanel.SetActive(true);
@@ -828,6 +828,7 @@ public class UIManager : MonoBehaviour
                     {
                         GameManager.Instance.AddRelic(relic);
                         rewardScreenPanel.SetActive(false);
+                        onRelicSelected?.Invoke(); 
                     });
                 }
                 else

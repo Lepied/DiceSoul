@@ -1173,6 +1173,10 @@ public class StageManager : MonoBehaviour
             ctx.FlatDamageBonus += (int)GameManager.Instance.GetTotalMetaBonus(MetaEffectType.BaseDamage);
             ctx.FlatGoldBonus += (int)GameManager.Instance.GetTotalMetaBonus(MetaEffectType.GoldBonus);
             
+            // 4A: 황금의 손 - 골드 배율
+            float goldMult = GameManager.Instance.GetTotalMetaBonus(MetaEffectType.GoldMultiplier);
+            ctx.GoldMultiplier *= (1 + goldMult / 100f);
+            
             // 리롤할때마다  데미지 보너스
             float rerollBonus = GameManager.Instance.GetTotalMetaBonus(MetaEffectType.RerollDamageBonus);
             if (rerollBonus > 0)

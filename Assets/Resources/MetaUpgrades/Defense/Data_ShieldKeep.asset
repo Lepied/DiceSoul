@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fdbc2bec5452d654d969b498aa42ab81, type: 3}
-  m_Name: Data_Wall_Fix
+  m_Name: Data_ShieldKeep
   m_EditorClassIdentifier: Assembly-CSharp::MetaUpgradeData
-  id: Upgrade_Wall_Fix
-  displayName: "\uC131\uBCBD \uC218\uB9AC"
-  description: "\uB9E4 \uC874 \uC2DC\uC791 \uC2DC \uB9C8\uB2E4 \uC131\uBCBD\uC744
-    \uC218\uB9AC\uD558\uC5EC \uCCB4\uB825\uC744 \uD68C\uBCF5\uC2DC\uD0B5\uB2C8\uB2E4."
+  id: Upgrade_ShieldKeep
+  displayName: "\uBCF4\uC874"
+  description: "\uC2E4\uB4DC\uC758 \uC77C\uC815\uB7C9\uC774 \uB2E4\uC74C \uC6E8\uC774\uBE0C\uB85C
+    \uC774\uC6D4\uB429\uB2C8\uB2E4."
   icon: {fileID: -3655869207735741034, guid: c6ccd2d78a290f64285769f78db5df16, type: 3}
-  maxLevel: 3
-  baseCost: 300
+  maxLevel: 1
+  baseCost: 5000
   costMultiplier: 1.5
   category: 0
-  tier: 2
-  prerequisiteID: Upgrade_Wall_HP
-  effectType: 1
-  effectValuePerLevel: 15
+  tier: 5
+  prerequisiteID: Upgrade_WaveEndHeal
+  effectType: 6
+  effectValuePerLevel: 30

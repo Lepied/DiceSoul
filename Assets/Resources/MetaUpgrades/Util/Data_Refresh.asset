@@ -10,15 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fdbc2bec5452d654d969b498aa42ab81, type: 3}
-  m_Name: Data_Gold_Gain
+  m_Name: Data_Refresh
   m_EditorClassIdentifier: Assembly-CSharp::MetaUpgradeData
-  id: Upgrade_Gold_Gain
-  displayName: "\uC804\uB9AC\uD488 \uC218\uAC70"
-  description: "\uC871\uBCF4 \uC644\uC131\uC2DC\uC5D0 \uD68D\uB4DD\uD558\uB294 \uACE8\uB4DC\uAC00
-    \uC99D\uAC00\uD569\uB2C8\uB2E4."
+  id: Upgrade_Refresh
+  displayName: VIP
+  description: "\uCD9C\uACA9\uC5D0\uC11C \uB9CC\uB098\uB294 \uC0C1\uC810\uC758 \uC0C8\uB85C\uACE0\uCE68
+    \uBE44\uC6A9\uC774 \uC99D\uAC00\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
   icon: {fileID: 7089528063075033485, guid: c6ccd2d78a290f64285769f78db5df16, type: 3}
-  maxLevel: 3
-  baseCost: 300
+  maxLevel: 1
+  baseCost: 4500
   costMultiplier: 1.5
-  effectType: 6
-  effectValuePerLevel: 10
+  category: 2
+  tier: 5
+  prerequisiteID: Upgrade_Discount
+  effectType: 24
+  effectValuePerLevel: 1

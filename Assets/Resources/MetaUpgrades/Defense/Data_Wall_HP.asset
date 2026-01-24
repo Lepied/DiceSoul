@@ -20,5 +20,8 @@ MonoBehaviour:
   maxLevel: 5
   baseCost: 100
   costMultiplier: 1.5
+  category: 0
+  tier: 1
+  prerequisiteID: 
   effectType: 0
   effectValuePerLevel: 20

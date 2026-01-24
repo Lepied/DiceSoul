@@ -255,7 +255,7 @@ public class DiceController : MonoBehaviour
         {
             GameManager.Instance.ClearShield();
             
-            // 4C: 구르기 - 리롤 1회당 Shield 획듍
+            // 메타강화 구르기 - 리롤 1회당 실드 획득
             float shieldPerReroll = GameManager.Instance.GetTotalMetaBonus(MetaEffectType.ShieldPerReroll);
             if (shieldPerReroll > 0)
             {
@@ -371,6 +371,13 @@ public class DiceController : MonoBehaviour
     {
         currentRollCount = 0;
         maxRolls = baseMaxRolls;
+        
+        // 4C: 리롤 숙련 - 메타 업그레이드 보너스
+        if (GameManager.Instance != null)
+        {
+            int bonusRerolls = (int)GameManager.Instance.GetTotalMetaBonus(MetaEffectType.MaxRerolls);
+            maxRolls += bonusRerolls;
+        }
         
         // 유물 효과로 굴림 횟수 보너스 재적용
         if (GameManager.Instance != null)

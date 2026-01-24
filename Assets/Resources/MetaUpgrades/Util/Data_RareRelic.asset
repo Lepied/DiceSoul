@@ -10,17 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fdbc2bec5452d654d969b498aa42ab81, type: 3}
-  m_Name: Data_Shield
+  m_Name: Data_RareRelic
   m_EditorClassIdentifier: Assembly-CSharp::MetaUpgradeData
-  id: Upgrade_Shield
-  displayName: "\uB9C8\uBC95 \uC7A5\uBCBD"
-  description: "\uC6E8\uC774\uBE0C \uC2DC\uC791 \uC2DC \uC2E4\uB4DC\uB97C \uC5BB\uC2B5\uB2C8\uB2E4."
-  icon: {fileID: -3655869207735741034, guid: c6ccd2d78a290f64285769f78db5df16, type: 3}
-  maxLevel: 5
-  baseCost: 500
+  id: Upgrade_RareRelic
+  displayName: "\uBCF4\uBB3C\uC0AC\uB0E5\uAFBC"
+  description: "\uD76C\uADC0\uC774\uC0C1 \uC720\uBB3C \uD68D\uB4DD \uD655\uB960\uC774
+    \uC99D\uAC00\uD569\uB2C8\uB2E4."
+  icon: {fileID: 7089528063075033485, guid: c6ccd2d78a290f64285769f78db5df16, type: 3}
+  maxLevel: 3
+  baseCost: 800
   costMultiplier: 1.5
-  category: 0
-  tier: 3
-  prerequisiteID: Upgrade_Wall_Fix
-  effectType: 2
+  category: 2
+  tier: 4
+  prerequisiteID: Upgrade_Discount
+  effectType: 22
   effectValuePerLevel: 10
