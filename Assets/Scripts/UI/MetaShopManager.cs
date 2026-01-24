@@ -22,6 +22,10 @@ public class MetaShopManager : MonoBehaviour
     public TextMeshProUGUI detailEffect;
     public Button buyButton;
     public TextMeshProUGUI buyCostText;
+    
+    [Header("연결선 설정")]
+    public Transform mapContentTransform;
+    public GameObject upgradePanel;
 
     private MetaShopSlot currentSlot;
 
@@ -48,6 +52,21 @@ public class MetaShopManager : MonoBehaviour
 
         if (detailPanel != null) detailPanel.SetActive(false);
         if (buyButton != null) buyButton.onClick.AddListener(TryBuyUpgrade);
+        
+        // 노드 연결선 생성 (패널을 임시로 활성화)
+        bool wasActive = upgradePanel != null && upgradePanel.activeSelf;
+        
+        if (upgradePanel != null && !wasActive)
+        {
+            upgradePanel.SetActive(true);
+        }
+        
+        CreateConnectionLines();
+        
+        if (upgradePanel != null && !wasActive)
+        {
+            upgradePanel.SetActive(false);
+        }
     }
 
     public void UpdateCurrencyUI()
@@ -168,5 +187,84 @@ public class MetaShopManager : MonoBehaviour
             }
             
         }
+    }
+    
+    // 노드 간 연결선 생성
+    private void CreateConnectionLines()
+    {
+        Transform linesContainer = mapContentTransform.Find("ConnectionLines");
+
+        // 슬롯마다 ID로 매핑해서 빠른검색
+        Dictionary<string, MetaShopSlot> slotMap = new Dictionary<string, MetaShopSlot>();
+        foreach (var slot in allSlots)
+        {
+            if (slot != null && slot.data != null)
+            {
+                slotMap[slot.data.id] = slot;
+            }
+        }
+        
+        // 각 업그레이드마다 연결선
+        foreach (var upgrade in allMetaUpgrades)
+        {
+            if (upgrade.tier == 1) continue;
+            
+            // 같은 카테고리의 이전 단계 노드들 찾기
+            List<MetaUpgradeData> parentUpgrades = allMetaUpgrades.FindAll(u => 
+                u != null &&
+                u.category == upgrade.category && 
+                u.tier == upgrade.tier - 1
+            );
+            
+            // 각 노드마다 선 그리기
+            foreach (var parent in parentUpgrades)
+            {
+                if (slotMap.ContainsKey(parent.id) && slotMap.ContainsKey(upgrade.id))
+                {
+                    CreateLine(
+                        linesContainer,
+                        slotMap[parent.id],
+                        slotMap[upgrade.id],
+                        upgrade.category
+                    );
+                }
+            }
+        }
+    }
+    
+    // 두 위치 사이에 선 생성
+    private void CreateLine(Transform container, MetaShopSlot fromSlot, MetaShopSlot toSlot, MetaCategory category)
+    {
+        if (fromSlot == null || toSlot == null) return;
+        
+        // 선 오브젝트 생성
+        GameObject lineObj = new GameObject($"Line_{fromSlot.data.id}_to_{toSlot.data.id}");
+        lineObj.transform.SetParent(container, false);
+        RectTransform lineRect = lineObj.AddComponent<RectTransform>();
+        lineRect.pivot = new Vector2(0.5f, 0.5f);
+        Image lineImage = lineObj.AddComponent<Image>();
+        lineImage.sprite = null; // 기본 흰색 사각형
+        lineImage.raycastTarget = false;
+        
+        //색
+        lineImage.color = new Color(0.5f, 0.5f, 0.5f, 0.35f);
+        
+        // 위치/크기/회전
+        RectTransform fromRect = fromSlot.GetComponent<RectTransform>();
+        RectTransform toRect = toSlot.GetComponent<RectTransform>();
+        
+        if (fromRect == null || toRect == null) return;
+        
+        Vector2 startPos = fromRect.anchoredPosition;
+        Vector2 endPos = toRect.anchoredPosition;
+        Vector2 midPoint = (startPos + endPos) / 2f;
+        
+        float distance = Vector2.Distance(startPos, endPos);
+        float angle = Mathf.Atan2(endPos.y - startPos.y, endPos.x - startPos.x) * Mathf.Rad2Deg;
+        
+        // 선 설정
+        lineRect.anchoredPosition = midPoint;
+        lineRect.sizeDelta = new Vector2(distance, 3f); // 높이=3px
+        lineRect.localRotation = Quaternion.Euler(0, 0, angle);
     }
 }

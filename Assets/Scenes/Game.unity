@@ -15434,11 +15434,6 @@ MonoBehaviour:
   hasInsurance: 0
   metaCurrencySaveKey: MetaCurrency
   allMetaUpgrades:
-  - {fileID: 11400000, guid: 71c8f58ef3a3ce747a4d8868c7483a6d, type: 2}
-  - {fileID: 11400000, guid: 717055642ff0d294dacf1c660143034d, type: 2}
-  - {fileID: 11400000, guid: 7dd3a472ec0f42d42ab1a2b4e793555f, type: 2}
-  - {fileID: 11400000, guid: a839657068e109849bdd3670f922db1b, type: 2}
-  - {fileID: 11400000, guid: 86bd42036041bed4db4b1c705777d142, type: 2}
   - {fileID: 11400000, guid: 1e49253f097f4454a8403a4996d62dd4, type: 2}
   - {fileID: 11400000, guid: 0b3b98607c9172b438784956c334b76c, type: 2}
   - {fileID: 11400000, guid: bb252eb72fe8b464c983f3496e832d32, type: 2}
@@ -15448,6 +15443,24 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 36cea424192761e47b4330a077384f47, type: 2}
   - {fileID: 11400000, guid: eb18418154a2d824b80bee01ee663ea9, type: 2}
   - {fileID: 11400000, guid: 3867209bb775b2b439b1a36098a921d7, type: 2}
+  - {fileID: 11400000, guid: 44e7a6a703972bd44a06d50fef858c35, type: 2}
+  - {fileID: 11400000, guid: 5096a0b6a9b91674e9ee045507b1cd34, type: 2}
+  - {fileID: 11400000, guid: a564c3b30ce7aca47bede3be4951b656, type: 2}
+  - {fileID: 11400000, guid: 7dd3a472ec0f42d42ab1a2b4e793555f, type: 2}
+  - {fileID: 11400000, guid: e9c14fee5ac9e0447bf648c1f5b117a9, type: 2}
+  - {fileID: 11400000, guid: 03db65b48536169419802d8aaa69c8bb, type: 2}
+  - {fileID: 11400000, guid: a839657068e109849bdd3670f922db1b, type: 2}
+  - {fileID: 11400000, guid: 86bd42036041bed4db4b1c705777d142, type: 2}
+  - {fileID: 11400000, guid: efada3a23fc1be643bab1cce907cecb7, type: 2}
+  - {fileID: 11400000, guid: 96d233169092f31458672a0588a2bae4, type: 2}
+  - {fileID: 11400000, guid: 717055642ff0d294dacf1c660143034d, type: 2}
+  - {fileID: 11400000, guid: aa2c9c9f2cf638f46a098b94f502af62, type: 2}
+  - {fileID: 11400000, guid: f6ec932277defd7489e561304fa18f2f, type: 2}
+  - {fileID: 11400000, guid: cf9255e65b6d8da419309defd7af2835, type: 2}
+  - {fileID: 11400000, guid: 88e1788da57ff9348a055e5c63e54b48, type: 2}
+  - {fileID: 11400000, guid: 3b03bfdee43f95348895910fd14d461c, type: 2}
+  - {fileID: 11400000, guid: 71c8f58ef3a3ce747a4d8868c7483a6d, type: 2}
+  - {fileID: 11400000, guid: e8f5313350275584c993347277a1cd31, type: 2}
   nextZoneBuffs: []
   playTime: 0
   totalKills: 0

@@ -88,7 +88,7 @@ public class MetaShopSlot : MonoBehaviour
         if (iconImage != null)
         {
             iconImage.color = isLocked 
-                ? new Color(0.5f, 0.5f, 0.5f, 1f) 
+                ? new Color(0.7f, 0.7f, 0.7f, 1f) 
                 : new Color(255f/255f, 140f/255f, 140f/255f, 1f);
         }
         
