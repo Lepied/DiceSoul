@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: "\uC218\uD638\uCC9C\uC0AC"
   description: "\uAC8C\uC784\uC5D0\uC11C \uD55C \uBC88. \uCCB4\uB825\uC758 30\uD37C\uC13C\uD2B8\uB85C
     \uBD80\uD65C\uD569\uB2C8\uB2E4."
-  icon: {fileID: -3655869207735741034, guid: c6ccd2d78a290f64285769f78db5df16, type: 3}
+  icon: {fileID: -6629222517536274835, guid: 5cb51196f344ded438f60f17a9f15911, type: 3}
   maxLevel: 1
   baseCost: 10000
   costMultiplier: 1.5

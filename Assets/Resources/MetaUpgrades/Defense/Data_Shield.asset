@@ -15,7 +15,7 @@ MonoBehaviour:
   id: Upgrade_Shield
   displayName: "\uB9C8\uBC95 \uC7A5\uBCBD"
   description: "\uC6E8\uC774\uBE0C \uC2DC\uC791 \uC2DC \uC2E4\uB4DC\uB97C \uC5BB\uC2B5\uB2C8\uB2E4."
-  icon: {fileID: -3655869207735741034, guid: c6ccd2d78a290f64285769f78db5df16, type: 3}
+  icon: {fileID: 2259442905515319083, guid: 5cb51196f344ded438f60f17a9f15911, type: 3}
   maxLevel: 5
   baseCost: 500
   costMultiplier: 1.5

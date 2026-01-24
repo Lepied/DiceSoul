@@ -15,7 +15,7 @@ MonoBehaviour:
   id: Upgrade_MaxReroll
   displayName: "\uB9AC\uB864 \uC219\uB828"
   description: "\uCD5C\uB300 \uB9AC\uB864 \uD69F\uC218\uB97C \uC99D\uAC00\uC2DC\uD0B5\uB2C8\uB2E4."
-  icon: {fileID: 7089528063075033485, guid: c6ccd2d78a290f64285769f78db5df16, type: 3}
+  icon: {fileID: 6031925184510419064, guid: 98223199e1a734d49b58f2389765ad3e, type: 3}
   maxLevel: 1
   baseCost: 3000
   costMultiplier: 1.5
