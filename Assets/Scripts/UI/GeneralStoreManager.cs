@@ -11,6 +11,11 @@ public class GeneralStoreManager : MonoBehaviour
     public GameObject marketSlotPrefab;
     public MainMenuManager mainMenuManager; 
     public TextMeshProUGUI currencyText;
+    
+    [Header("NPC 대사")]
+    public TextMeshProUGUI npcDialogueText; 
+    public GameObject npcDialogueBubble;
+    public float dialogueDuration = 3f; // 대사 표시 시간
 
     // 저장 키
     private const string KEY_LAST_RUN = "Store_LastRunCount";
@@ -19,9 +24,29 @@ public class GeneralStoreManager : MonoBehaviour
 
     void Start()
     {
+        if (npcDialogueBubble != null)
+        {
+            npcDialogueBubble.SetActive(false);
+        }
+        
         CheckAndRestock();
         DisplayShop();
-        RefreshCurrencyDisplay(); 
+        RefreshCurrencyDisplay();
+    }
+    
+    // 잡화점 패널이 활성화될 때마다 인사말 표시
+    void OnEnable()
+    {
+        if (npcDialogueBubble != null && npcDialogueText != null)
+        {
+            StartCoroutine(ShowDelayedWelcome());
+        }
+    }
+    
+    private System.Collections.IEnumerator ShowDelayedWelcome()
+    {
+        yield return new UnityEngine.WaitForSeconds(0.5f);
+        ShowDialogue(GetRandomWelcomeDialogue());
     }
 
     private void CheckAndRestock()
@@ -43,7 +68,7 @@ public class GeneralStoreManager : MonoBehaviour
     {
         if (MarketItemDB.Instance == null) return;
 
-        // 구매 내역 초기화 (더 넓은 범위로 초기화)
+        // 구매 내역 초기화
         for(int i=0; i<10; i++) {
             PlayerPrefs.DeleteKey($"Store_Bought_Basic_{i}");
             PlayerPrefs.DeleteKey($"Store_Bought_Combat_{i}");
@@ -123,22 +148,83 @@ public class GeneralStoreManager : MonoBehaviour
             // UI 갱신 
             DisplayShop();
             RefreshCurrencyDisplay();
+            ShowDialogue(GetRandomPurchaseDialogue());
             
             // 상단 재화 텍스트 갱신 로직 필요
             Debug.Log($"구매 성공: {item.Name}");
         }
         else
         {
+            ShowDialogue(GetRandomInsufficientDialogue());
             Debug.Log("마석이 부족합니다.");
         }
     }
 
     public void RefreshCurrencyDisplay()
-{
-    int currency = PlayerPrefs.GetInt("MetaCurrency", 0);
-    if (currencyText != null)
     {
-        currencyText.text = $"마석 : {currency}";
+        int currency = PlayerPrefs.GetInt("MetaCurrency", 0);
+        if (currencyText != null)
+        {
+            currencyText.text = $"마석 : {currency}";
+        }
     }
-}
+    
+    // NPC 대사 표시
+    private void ShowDialogue(string dialogue)
+    {
+        npcDialogueText.text = dialogue;
+        npcDialogueBubble.SetActive(true);
+
+
+        StopAllCoroutines();
+        StartCoroutine(HideDialogueAfterDelay());
+    }
+    
+    // 일정 시간 후 말풍선 숨기기
+    private System.Collections.IEnumerator HideDialogueAfterDelay()
+    {
+        yield return new UnityEngine.WaitForSeconds(dialogueDuration);
+        
+        if (npcDialogueBubble != null)
+        {
+            npcDialogueBubble.SetActive(false);
+        }
+    }
+    
+    // 환영 대사
+    private string GetRandomWelcomeDialogue()
+    {
+        string[] dialogues = new string[]
+        {
+            "어서오세요, 성주님!",
+            "환영합니다!\n좋은 물건들이 많아요.",
+            "오늘도 좋은 하루네요.\n무엇을 찾으시나요?",
+            "이번 출전에\n필요한 게 있으신가요?",
+        };
+        return dialogues[Random.Range(0, dialogues.Length)];
+    }
+    
+    // 구매 성공 대사
+    private string GetRandomPurchaseDialogue()
+    {
+        string[] dialogues = new string[]
+        {
+            "좋은 선택이에요!",
+            "감사합니다.\n도움이 되길 바래요!",
+            "훌륭한 거래였어요",
+        };
+        return dialogues[Random.Range(0, dialogues.Length)];
+    }
+    
+    // 재화 부족 대사
+    private string GetRandomInsufficientDialogue()
+    {
+        string[] dialogues = new string[]
+        {
+            "마석이 조금 부족하신 것 같아요...",
+            "조금 더 필요하신 것 같아요...",
+            "저, 죄송하지만 마석이 부족해요.",
+        };
+        return dialogues[Random.Range(0, dialogues.Length)];
+    }
 }

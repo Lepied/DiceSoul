@@ -41,21 +41,39 @@ public class MarketItemDB : MonoBehaviour
 
         basicSupplies.Add(new MarketItem(
             "POT_INSURANCE", "여행자 보험", "사망 시, 획득한 골드의 30%를 마석으로 환급받습니다.", 
-            2000, MarketItemType.Potion, "Insurance_30"));
+            1000, MarketItemType.Potion, "Insurance_30"));
 
+        basicSupplies.Add(new MarketItem(
+            "POT_RELIC_PACK", "유물 꾸러미", "랜덤 유물 1개 획득", 
+            800, MarketItemType.Potion, "RandomRelic_Common_1"));
+        basicSupplies.Add(new MarketItem(
+            "POT_JOKBO_BOOK", "족보 교본", "런 시작 시 족보 데미지 +10% (영구).", 
+            700, MarketItemType.Potion, "JokboDamage_10"));
+
+        basicSupplies.Add(new MarketItem(
+            "POT_UPGRADE_BOX", "강화석 상자", "시작 덱의 모든 D6 주사위를 D8로 업그레이드.", 
+            900, MarketItemType.Potion, "UpgradeDice_D6_D8"));
 
         // 전투 보조  - 초반용(n웨이브동안지속되는 효과)
         combatSupports.Add(new MarketItem(
-            "POT_CROSSBOW", "석궁", "초반 3웨이브 동안 기본 데미지 +2.", 
-            250, MarketItemType.Potion, "Buff_Damage_3wave_2"));
+            "POT_CROSSBOW", "석궁", "초반 5웨이브 동안 모든 데미지 +5.", 
+            300, MarketItemType.Potion, "Buff_Damage_5wave_5"));
 
         combatSupports.Add(new MarketItem(
-            "POT_OINTMENT", "미끈한 연고", "초반 3웨이브 동안, 매 웨이브 시작 시 Shield +3.", 
-            200, MarketItemType.Potion, "Buff_Shield_3wave_3"));
+            "POT_OINTMENT", "미끈한 연고", "초반 5웨이브 동안, 매 웨이브 시작 시 Shield + 10.", 
+            300, MarketItemType.Potion, "Buff_Shield_5wave_10"));
 
         combatSupports.Add(new MarketItem(
-            "POT_SPEEEDLOADER", "스피드로더", "초반 3웨이브 동안 리롤 횟수 +2.", 
-            500, MarketItemType.Potion, "Buff_Reroll_3wave_2"));
+            "POT_SPEEEDLOADER", "스피드로더", "초반 5웨이브 동안 리롤 횟수 +2.", 
+            500, MarketItemType.Potion, "Buff_Reroll_5wave_2"));
+
+        combatSupports.Add(new MarketItem(
+            "POT_LUCKY_COIN", "행운의 동전", "초반 5웨이브 동안 치명타 확률 +20%.", 
+            500, MarketItemType.Potion, "Buff_CritChance_5wave_20"));
+
+        combatSupports.Add(new MarketItem(
+            "POT_TACTICIAN_MAP", "전략가의 지도", "초반 5웨이브 동안, 매 웨이브 시작 시 골드 +20.", 
+            400, MarketItemType.Potion, "Buff_WaveGold_5wave_20"));
     }
 
     public MarketItem GetItemByID(string id)
