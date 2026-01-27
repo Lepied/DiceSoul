@@ -6,6 +6,7 @@ using System.Linq;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using DG.Tweening;
+using UnityEngine.InputSystem;
 
 public class UIManager : MonoBehaviour
 {
@@ -85,6 +86,9 @@ public class UIManager : MonoBehaviour
     public CanvasGroup zoneTitleGroup;
     public TextMeshProUGUI zoneTitleText;
 
+    [Header("설정 패널")]
+    public SettingsPanelController settingsPanelController;
+
 
     void Awake()
     {
@@ -155,6 +159,18 @@ public class UIManager : MonoBehaviour
         if (cancelTargetButton != null)
         {
             cancelTargetButton.onClick.AddListener(OnCancelTargetButton);
+        }
+    }
+
+    void Update()
+    {
+        // ESC 키로 설정 패널 열기/닫기
+        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            if (settingsPanelController != null)
+            {
+                settingsPanelController.ToggleSettings();
+            }
         }
     }
 

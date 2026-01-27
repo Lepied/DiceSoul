@@ -3,6 +3,7 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine.InputSystem;
 
 public class MainMenuManager : MonoBehaviour
 {
@@ -20,6 +21,7 @@ public class MainMenuManager : MonoBehaviour
     public Button openUpgradeButton;
     public Button openDeckButton;
     public Button openStoreButton;
+    public Button settingsButton;
     public Button quitGameButton;
 
     [Header("덱 선택 UI (Carousel)")]
@@ -52,6 +54,9 @@ public class MainMenuManager : MonoBehaviour
     public GameObject infoPopup;
     public TextMeshProUGUI infoNameText;
     public TextMeshProUGUI infoDescText;
+
+    [Header("설정 패널")]
+    public SettingsPanelController settingsPanelController;
 
     // 내부 상태 변수
     private List<DeckListItem> spawnedItems = new List<DeckListItem>();
@@ -90,8 +95,23 @@ public class MainMenuManager : MonoBehaviour
         if (openStoreButton != null) openStoreButton.onClick.AddListener(OnOpenStore);
         if (closeStoreButton != null) closeStoreButton.onClick.AddListener(OnCloseStore);
 
+        // 설정 버튼 연결
+        if (settingsButton != null) settingsButton.onClick.AddListener(OnOpenSettings);
+
         // 덱 목록 생성
         GenerateDeckList();
+    }
+
+    void Update()
+    {
+        // ESC 키로 설정 열기/닫기
+        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            if (settingsPanelController != null)
+            {
+                settingsPanelController.ToggleSettings();
+            }
+        }
     }
 
     void LoadMetaCurrency()
@@ -332,6 +352,15 @@ public class MainMenuManager : MonoBehaviour
         {
             generalStorePanel.SetActive(false);
             LoadMetaCurrency();
+        }
+    }
+
+    // --- 설정 패널 제어 ---
+    private void OnOpenSettings()
+    {
+        if (settingsPanelController != null)
+        {
+            settingsPanelController.OpenSettings();
         }
     }
 
