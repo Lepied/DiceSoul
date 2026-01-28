@@ -46,13 +46,6 @@ public class MarketItemDB : MonoBehaviour
         basicSupplies.Add(new MarketItem(
             "POT_RELIC_PACK", "유물 꾸러미", "랜덤 유물 1개 획득", 
             800, MarketItemType.Potion, "RandomRelic_Common_1"));
-        basicSupplies.Add(new MarketItem(
-            "POT_JOKBO_BOOK", "족보 교본", "런 시작 시 족보 데미지 +10% (영구).", 
-            700, MarketItemType.Potion, "JokboDamage_10"));
-
-        basicSupplies.Add(new MarketItem(
-            "POT_UPGRADE_BOX", "강화석 상자", "시작 덱의 모든 D6 주사위를 D8로 업그레이드.", 
-            900, MarketItemType.Potion, "UpgradeDice_D6_D8"));
 
         // 전투 보조  - 초반용(n웨이브동안지속되는 효과)
         combatSupports.Add(new MarketItem(

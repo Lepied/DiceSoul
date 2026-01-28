@@ -1216,12 +1216,6 @@ public class StageManager : MonoBehaviour
             {
                 ctx.FlatDamageBonus += 15;
             }
-            
-            // 잡화점 - 족보 교본 (10% 데미지 증가)
-            if (GameManager.Instance.hasJokboBonus)
-            {
-                ctx.DamageMultiplier *= 1.1f;
-            }
         }
         
         // 이벤트 시스템으로 유물 효과 적용
@@ -1236,13 +1230,6 @@ public class StageManager : MonoBehaviour
         if (GameManager.Instance == null) return false;
         
         float critChance = GameManager.Instance.GetTotalMetaBonus(MetaEffectType.CritChance);
-        
-        // 잡화점 버프 - 행운의 동전
-        if (GameManager.Instance.buffDuration > 0)
-        {
-            critChance += GameManager.Instance.buffCritChanceValue;
-        }
-        
         return UnityEngine.Random.value < (critChance / 100f);
     }
     

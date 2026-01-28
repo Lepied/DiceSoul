@@ -120,7 +120,11 @@ public class SettingsPanelController : MonoBehaviour
     // 현재 저장된 설정을 UI에 반영
     private void LoadCurrentSettings()
     {
-        if (SettingsManager.Instance == null) return;
+        if (SettingsManager.Instance == null)
+        {
+            Debug.LogWarning("[SettingsPanelController] SettingsManager가 없습니다!");
+            return;
+        }
 
         tempBGMVolume = SettingsManager.Instance.BGMVolume;
         tempSFXVolume = SettingsManager.Instance.SFXVolume;

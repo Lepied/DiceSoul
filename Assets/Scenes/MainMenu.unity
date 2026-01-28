@@ -1053,7 +1053,7 @@ RectTransform:
   m_Father: {fileID: 1146277090}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -2471,7 +2471,7 @@ RectTransform:
   m_Father: {fileID: 1389465342}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -5928,7 +5928,7 @@ RectTransform:
   m_Father: {fileID: 1955538698}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 1, y: 0.5}
@@ -6392,7 +6392,7 @@ MonoBehaviour:
   infoPopup: {fileID: 1924947693}
   infoNameText: {fileID: 1287837984}
   infoDescText: {fileID: 608313242}
-  settingsPanelController: {fileID: 2092743889}
+  settingsPanelController: {fileID: 1566902935}
 --- !u!114 &920731566
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9675,13 +9675,14 @@ GameObject:
   - component: {fileID: 1566902932}
   - component: {fileID: 1566902934}
   - component: {fileID: 1566902933}
+  - component: {fileID: 1566902935}
   m_Layer: 5
   m_Name: SettingPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1566902932
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9747,6 +9748,28 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1566902931}
   m_CullTransparentMesh: 1
+--- !u!114 &1566902935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1566902931}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c969068d901a5e4aa1304b55856236d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SettingsPanelController
+  settingsPanel: {fileID: 1566902931}
+  bgmVolumeSlider: {fileID: 315922499}
+  sfxVolumeSlider: {fileID: 738236854}
+  fullscreenToggle: {fileID: 825779324}
+  resolutionDropdown: {fileID: 307947511}
+  closeButton: {fileID: 219891091}
+  saveButton: {fileID: 781428660}
+  resetButton: {fileID: 1206311523}
+  bgmVolumeText: {fileID: 571377228}
+  sfxVolumeText: {fileID: 1909392820}
 --- !u!1 &1594735515
 GameObject:
   m_ObjectHideFlags: 0
@@ -10050,7 +10073,7 @@ RectTransform:
   m_Father: {fileID: 1080573468}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 1, y: 0.5}
@@ -13530,7 +13553,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2092743888}
   - component: {fileID: 2092743887}
-  - component: {fileID: 2092743889}
   m_Layer: 0
   m_Name: SettingManager
   m_TagString: Untagged
@@ -13568,28 +13590,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2092743889
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2092743886}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0c969068d901a5e4aa1304b55856236d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SettingsPanelController
-  settingsPanel: {fileID: 1566902931}
-  bgmVolumeSlider: {fileID: 315922499}
-  sfxVolumeSlider: {fileID: 738236854}
-  fullscreenToggle: {fileID: 825779324}
-  resolutionDropdown: {fileID: 307947511}
-  closeButton: {fileID: 219891091}
-  saveButton: {fileID: 781428660}
-  resetButton: {fileID: 1206311523}
-  bgmVolumeText: {fileID: 571377228}
-  sfxVolumeText: {fileID: 1909392820}
 --- !u!1 &2104204274
 GameObject:
   m_ObjectHideFlags: 0

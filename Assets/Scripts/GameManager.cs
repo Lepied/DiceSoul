@@ -24,7 +24,7 @@ public class GameManager : MonoBehaviour
     [Header("게임 밸런스")]
     public int bonusPerRollRemaining = 5;
     public int wavesPerZone = 5;
-    public int maxDiceCount = 8;
+    public int maxDiceCount = 15;
     public int minDiceCount = 3;
 
     [Header("런(Run) 진행 상태")]
@@ -36,10 +36,7 @@ public class GameManager : MonoBehaviour
     public int buffDamageValue = 0;
     public int buffShieldValue = 0;
     public int buffRerollValue = 0;
-    public int buffCritChanceValue = 0; // 치명타 확률 버프
-    public int buffWaveGoldValue = 0; // 웨이브 시작 시 골드
     public bool hasInsurance = false; // 보험 가입 여부
-    public bool hasJokboBonus = false; // 족보 교본 효과
 
     [Header("영구 재화")]
     public string metaCurrencySaveKey = "MetaCurrency";
@@ -208,10 +205,7 @@ public class GameManager : MonoBehaviour
         buffDamageValue = 0;
         buffShieldValue = 0;
         buffRerollValue = 0;
-        buffCritChanceValue = 0;
-        buffWaveGoldValue = 0;
         hasInsurance = false;
-        hasJokboBonus = false;
         
         // 런 통계 초기화
         ResetRunStatistics();
@@ -363,26 +357,7 @@ public class GameManager : MonoBehaviour
             //전투 보조
             else if (key == "Buff_Damage_5wave_5") { buffDuration = 5; buffDamageValue = 5; }
             else if (key == "Buff_Shield_5wave_10") { buffDuration = 5; buffShieldValue = 10; }
-            else if (key == "Buff_Reroll_5wave_2") { buffDuration = 5; buffRerollValue = 2; }
-            else if (key == "Buff_CritChance_5wave_20") { buffDuration = 5; buffCritChanceValue = 20; }
-            else if (key == "Buff_WaveGold_5wave_20") { buffDuration = 5; buffWaveGoldValue = 20; }
-            
-            // 기초 보급품 - 족보 교본
-            else if (key == "JokboDamage_10") { hasJokboBonus = true; }
-            
-            // 기초 보급품 - 강화석 상자 (D6→D8 업그레이드)
-            else if (key == "UpgradeDice_D6_D8")
-            {
-                for (int i = 0; i < playerDiceDeck.Count; i++)
-                {
-                    if (playerDiceDeck[i] == "D6")
-                    {
-                        playerDiceDeck[i] = "D8";
-                    }
-                }
-                Debug.Log("[강화석 상자] 모든 D6 주사위가 D8로 업그레이드되었습니다!");
-            }
-            
+            else if (key == "Buff_Reroll_5wave_2") { buffDuration = 5; buffRerollValue = 2; }      
             // 유물 꾸러미 (랜덤 일반 유물)
             else if (key == "RandomRelic_Common_1")
             {
@@ -406,13 +381,7 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log($"[Zone {CurrentZone} - Wave {CurrentWave}] 웨이브 시작.");
         
-        // 잡화점 버프 - 웨이브 시작 시 골드
-        if (buffDuration > 0 && buffWaveGoldValue > 0)
-        {
-            AddGold(buffWaveGoldValue);
-            Debug.Log($"[전략가의 지도] 웨이브 시작 - 골드 +{buffWaveGoldValue}");
-        }
-        
+
         // 메타업그레이드중에 이전 웨이브 Shield 저장
         float carryPercent = GetTotalMetaBonus(MetaEffectType.ShieldCarryOver);
         if (carryPercent > 0 && CurrentShield > 0)
@@ -544,8 +513,6 @@ public class GameManager : MonoBehaviour
                     buffDamageValue = 0;
                     buffShieldValue = 0;
                     buffRerollValue = 0;
-                    buffCritChanceValue = 0;
-                    buffWaveGoldValue = 0;
                     Debug.Log("버프 효과 종료.");
                 }
             }

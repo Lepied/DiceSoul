@@ -89,6 +89,9 @@ public class UIManager : MonoBehaviour
     [Header("설정 패널")]
     public SettingsPanelController settingsPanelController;
 
+    // Zone 연출중인지
+    private bool isZoneTitlePlaying = false;
+
 
     void Awake()
     {
@@ -165,7 +168,7 @@ public class UIManager : MonoBehaviour
     void Update()
     {
         // ESC 키로 설정 패널 열기/닫기
-        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        if (Keyboard.current.escapeKey.wasPressedThisFrame && !isZoneTitlePlaying)
         {
             if (settingsPanelController != null)
             {
@@ -244,6 +247,7 @@ public class UIManager : MonoBehaviour
     public void ShowZoneTitle(string zoneName)
     {
         zoneTitleText.text = zoneName;
+        isZoneTitlePlaying = true;
 
         Sequence seq = DOTween.Sequence();
         // 1. 텍스트 등장 
@@ -258,6 +262,11 @@ public class UIManager : MonoBehaviour
 
         // 3. 사라짐
         seq.Append(zoneTitleGroup.DOFade(0, 0.5f));
+        
+        // 4. 연출 완료
+        seq.OnComplete(() => {
+            isZoneTitlePlaying = false;
+        });
     }
 
     public void UpdateWaveInfoPanel(List<Enemy> activeEnemies)

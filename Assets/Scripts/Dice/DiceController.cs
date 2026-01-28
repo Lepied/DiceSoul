@@ -21,7 +21,10 @@ public class DiceController : MonoBehaviour
     public int baseMaxRolls = 3;
 
     [Header("배치 설정")]
-    public float horizontalSpacing = 2.0f;
+    public float maxHorizontalSpacing = 2.0f;
+    public float minHorizontalSpacing = 0.8f;
+    public int overlapThreshold = 8; //이거이상이면주사위 겹치게
+    public float maxTotalWidth = 14f;
     public float yPosition = 0f;
     public float diceScale = 0.4f;
 
@@ -197,18 +200,36 @@ public class DiceController : MonoBehaviour
         return null;
     }
 
+    /// 주사위 개수에 따라 간격계산
+    private float CalculateDynamicSpacing(int diceCount)
+    {
+        if (diceCount <= overlapThreshold)
+        {
+            // 8개 이하 그냥 나란히
+            return maxHorizontalSpacing;
+        }
+        else
+        {
+            // 8개 초과 동적으로 간격재기
+            float totalWidth = maxTotalWidth;
+            float spacing = totalWidth / (diceCount - 1);
+            return Mathf.Clamp(spacing, minHorizontalSpacing, maxHorizontalSpacing);
+        }
+    }
+
     public void SetDiceDeck(List<string> deck)
     {
         // 기존 삭제
         foreach (Transform child in diceContainer) Destroy(child.gameObject);
         activeDice.Clear();
 
-        float startX = -((deck.Count - 1) * horizontalSpacing) / 2.0f;
+        float spacing = CalculateDynamicSpacing(deck.Count);
+        float startX = -((deck.Count - 1) * spacing) / 2.0f;
 
         for (int i = 0; i < deck.Count; i++)
         {
             GameObject go = Instantiate(dicePrefab, diceContainer);
-            go.transform.localPosition = new Vector3(startX + (i * horizontalSpacing), 0, 0);
+            go.transform.localPosition = new Vector3(startX + (i * spacing), yPosition, 0);
             go.transform.localScale = Vector3.one * diceScale;
 
             // Dice 컴포넌트 초기화
@@ -217,6 +238,16 @@ public class DiceController : MonoBehaviour
 
             dice.Initialize(deck[i]); //주사위 타입 설정
             activeDice.Add(dice);
+            
+            // Sorting Order 설정
+            SpriteRenderer sr = go.GetComponent<SpriteRenderer>();
+            if (sr != null)
+            {
+                sr.sortingOrder = i;
+            }
+            
+            // 원래 위치와 순서 저장
+            dice.SetOriginalTransform(go.transform.localPosition, go.transform.localScale, i);
         }
         
         // 주사위 굴리기 전까지 숨김
@@ -504,12 +535,21 @@ public class DiceController : MonoBehaviour
     {
         if (activeDice.Count == 0) return;
 
-        float startX = -((activeDice.Count - 1) * horizontalSpacing) / 2.0f;
+        // 동적 간격 계산
+        float spacing = CalculateDynamicSpacing(activeDice.Count);
+        float startX = -((activeDice.Count - 1) * spacing) / 2.0f;
 
         for (int i = 0; i < activeDice.Count; i++)
         {
-            Vector3 targetPos = new Vector3(startX + (i * horizontalSpacing), 0, 0);
+            Vector3 targetPos = new Vector3(startX + (i * spacing), yPosition, 0);
             activeDice[i].transform.DOLocalMove(targetPos, 0.4f).SetEase(Ease.OutQuad);
+            SpriteRenderer sr = activeDice[i].GetComponent<SpriteRenderer>();
+            if (sr != null)
+            {
+                sr.sortingOrder = i;
+            }
+            // 원래 위치 업데이트
+            activeDice[i].SetOriginalTransform(targetPos, activeDice[i].transform.localScale, i);
         }
     }
 

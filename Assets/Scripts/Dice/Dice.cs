@@ -9,19 +9,30 @@ public enum DiceState
     Preserved
 }
 
-public class Dice : MonoBehaviour, IPointerClickHandler
+public class Dice : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("연결")]
     public SpriteRenderer spriteRenderer;
     public GameObject lockEffectObj;      // 잠금 이펙트
     public GameObject preserveEffectObj;  // 보존 이펙트
 
+    [Header("호버 효과")]
+    public float hoverMoveUp = 0.5f; 
+    public float hoverScale = 1.3f;
+    public int hoverSortOrderBoost = 100;
+    public float hoverDuration = 0.15f;
 
     // 상태
     public string Type { get; private set; } 
     public int Value { get; private set; }
     public DiceState State { get; private set; } = DiceState.Normal;
     public int lockDuration = 0; // 잠금 지속 턴 수
+    
+    // 호버 관련
+    private Vector3 originalPosition;
+    private Vector3 originalScale;
+    private int originalSortOrder;
+    private bool isHovering = false;
 
     // 초기화
     public void Initialize(string type)
@@ -168,5 +179,44 @@ public class Dice : MonoBehaviour, IPointerClickHandler
         DOVirtual.DelayedCall(0.4f, () => {
             UpdateVisual(newValue);
         });
+    }
+    
+    //호버관련
+    public void SetOriginalTransform(Vector3 pos, Vector3 scale, int sortOrder)
+    {
+        originalPosition = pos;
+        originalScale = scale;
+        originalSortOrder = sortOrder;
+    }
+    
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (isHovering) return;
+        
+        isHovering = true;
+        
+        // 위로 올라가기
+        transform.DOLocalMoveY(originalPosition.y + hoverMoveUp, hoverDuration).SetEase(Ease.OutQuad);
+        // 렌더 순서 앞으로 (다른 주사위 위에 표시)
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.sortingOrder = originalSortOrder + hoverSortOrderBoost;
+        }
+    }
+    
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (!isHovering) return;
+        
+        isHovering = false;
+        
+        // 원래 위치로 복귀
+        transform.DOLocalMove(originalPosition, hoverDuration).SetEase(Ease.OutQuad);
+        
+        // 렌더 순서 복원
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.sortingOrder = originalSortOrder;
+        }
     }
 }

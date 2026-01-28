@@ -61,25 +61,17 @@ public enum MetaEffectType
     StartDiceBonus,         // 6: 시작 주사위 추가
     CritMultiplier,         // 7:치명타 배율
     
-    // ============================================
     // 유틸 카테고리 (Utility)
-    // ============================================
-    StartGold,              // 1단계: 전쟁 자금 - 시작 골드
-    GoldBonus,              // 2단계: 전리품 수거 - 족보 골드 보너스
-    ShopDiscount,           // 3단계: 단골 손님 - 상점 할인
-    GoldMultiplier,         // 4A: 황금의 손 - 골드 배율
-    RareRelicRate,          // 4B: 보물 사냥꾼 - 레어 유물 확률
-    MaxRerolls,             // 4C: 리롤 숙련 - 최대 리롤
-    ShopRefreshCostFixed,   // 5단계: VIP 회원권 - 상점 새로고침 비용 고정
-    InterestRate,           // 6단계: 이자 수익 - 존 클리어 시 골드 추가
-    StartingRelicChoice,    // 7단계: 유산 상속 - 시작 유물 선택
-    RelicDropRate,          // (미사용)
-    
-    // ============================================
-    // 레거시 / 미사용
-    // ============================================
-    StartShield,            // (미사용)
-    RepairAmount,           // (미사용)
+    StartGold,              // 1: 시작 골드
+    GoldBonus,              // 2: 족보 골드 보너스
+    ShopDiscount,           // 3: 상점 할인
+    GoldMultiplier,         // 4A: 골드 배율
+    RareRelicRate,          // 4B: 레어 유물 확률
+    MaxRerolls,             // 4C: 최대 리롤
+    ShopRefreshCostFixed,   // 5: 상점 새로고침 비용 고정
+    InterestRate,           // 6:존 클리어 시 골드 추가
+    StartingRelicChoice,    // 7: 시작 유물 선택
+
 }
 
 public enum MetaCategory

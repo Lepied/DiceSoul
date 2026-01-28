@@ -230,7 +230,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 3, y: 3}
+  m_Size: {x: 3.5, y: 3.5}
   m_EdgeRadius: 0
 --- !u!114 &550129003641540171
 MonoBehaviour:
@@ -247,6 +247,10 @@ MonoBehaviour:
   spriteRenderer: {fileID: 4158110990596856129}
   lockEffectObj: {fileID: 4948826670140619705}
   preserveEffectObj: {fileID: 3858018270438079262}
+  hoverMoveUp: 0.5
+  hoverScale: 1.3
+  hoverSortOrderBoost: 100
+  hoverDuration: 0.15
   lockDuration: 0
 --- !u!1 &4948826670140619705
 GameObject:
