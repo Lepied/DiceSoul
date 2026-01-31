@@ -66,6 +66,14 @@ public class MainMenuManager : MonoBehaviour
 
     void Start()
     {
+        //튜토리얼 미완료 시 바로 Game 씬으로 이동
+        bool tutorialCompleted = PlayerPrefs.GetInt("TutorialCompleted", 0) == 1;
+        if (!tutorialCompleted)
+        {
+            SceneManager.LoadScene(gameSceneName);
+            return;
+        }
+        
         LoadMetaCurrency();
 
         // 패널 초기화

@@ -28,6 +28,9 @@ public class StageManager : MonoBehaviour
     public List<Enemy> activeEnemies = new List<Enemy>();
     private bool isWaitingForAttackChoice = false;
 
+    // 튜토리얼 콜백
+    public System.Action onJokboSelectedCallback;
+
     // 연쇄 공격 시스템 변수
     private AttackJokbo currentSelectedJokbo = null;      // 현재 선택된 족보
     private List<Enemy> currentSelectedTargets = new List<Enemy>();  // 선택된 타겟들
@@ -231,6 +234,9 @@ public class StageManager : MonoBehaviour
         if (!isWaitingForAttackChoice) return;
 
         currentSelectedJokbo = chosenJokbo;
+        
+        // 튜토리얼 콜백 호출
+        onJokboSelectedCallback?.Invoke();
 
         // 공격 타입에 따라 처리 분기
         switch (chosenJokbo.TargetType)
@@ -1091,6 +1097,16 @@ public class StageManager : MonoBehaviour
             }
         }
 
+        // 튜토리얼 모드이고 Wave 2라면 적 정보 튜토리얼 시작
+        if (GameManager.Instance.isTutorialMode && currentZone == 1 && currentWave == 2)
+        {
+            TutorialWave2Controller wave2Tutorial = FindFirstObjectByType<TutorialWave2Controller>();
+            if (wave2Tutorial != null)
+            {
+                Invoke(nameof(StartWave2Tutorial), 1f);
+            }
+        }
+        
         foreach (Enemy enemy in activeEnemies.ToArray())
         {
             if (enemy != null)
@@ -1383,5 +1399,14 @@ public class StageManager : MonoBehaviour
             sum += pos;
         }
         return sum / positions.Length;
+    }
+    
+    private void StartWave2Tutorial()
+    {
+        TutorialWave2Controller wave2Tutorial = FindFirstObjectByType<TutorialWave2Controller>();
+        if (wave2Tutorial != null)
+        {
+            wave2Tutorial.StartWave2Tutorial();
+        }
     }
 }

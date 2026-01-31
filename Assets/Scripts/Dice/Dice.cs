@@ -45,9 +45,20 @@ public class Dice : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         if (lockEffectObj != null) lockEffectObj.SetActive(false);
         if (preserveEffectObj != null) preserveEffectObj.SetActive(false);
         
-        // 초기 이미지(1) 설정
+        // 초기 이미지 설정 (랜덤값)
         UpdateStateVisual();
-        UpdateVisual(1);
+        
+        // DiceController 초기화 확인
+        if (DiceController.Instance != null)
+        {
+            int maxSide = DiceController.Instance.GetMaxSideFromType(type);
+            UpdateVisual(Random.Range(1, maxSide + 1));
+        }
+        else
+        {
+            // DiceController가 아직 준비 안 됨
+            Debug.LogWarning("DiceController Instance가 아직 초기화되지 않았습니다.");
+        }
     }
 
     // 이미지랑 값 갱신
@@ -197,7 +208,7 @@ public class Dice : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         
         // 위로 올라가기
         transform.DOLocalMoveY(originalPosition.y + hoverMoveUp, hoverDuration).SetEase(Ease.OutQuad);
-        // 렌더 순서 앞으로 (다른 주사위 위에 표시)
+        // 렌더 순서 앞으로
         if (spriteRenderer != null)
         {
             spriteRenderer.sortingOrder = originalSortOrder + hoverSortOrderBoost;

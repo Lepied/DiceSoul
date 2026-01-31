@@ -43,6 +43,10 @@ public class GameManager : MonoBehaviour
 
     private string selectedDeckKey = "SelectedDeck";
 
+    [Header("튜토리얼")]
+    public bool isTutorialMode = false; 
+    private bool tutorialCompleted = false;
+
     public List<MetaUpgradeData> allMetaUpgrades; //메타 업그레이드데이터 리스트
 
     public List<string> nextZoneBuffs = new List<string>();
@@ -73,6 +77,8 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        // 튜토리얼 완료 여부 확인
+        tutorialCompleted = PlayerPrefs.GetInt("TutorialCompleted", 0) == 1;
 
         if (SaveManager.shouldLoadSave)
         {
@@ -81,15 +87,23 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            // 메타강화 - 시작 유물 선택 후 게임 시작
-            float startRelicLevel = GetTotalMetaBonus(MetaEffectType.StartingRelicChoice);
-            if (startRelicLevel > 0 && RelicDB.Instance != null)
+            // 튜토리얼 미완료 시 튜토리얼 모드로 시작
+            if (!tutorialCompleted)
             {
-                ShowStartingRelicChoice();
+                StartTutorialMode();
             }
             else
             {
-                StartNewRun();
+                // 메타강화 - 시작 유물 선택 후 게임 시작
+                float startRelicLevel = GetTotalMetaBonus(MetaEffectType.StartingRelicChoice);
+                if (startRelicLevel > 0 && RelicDB.Instance != null)
+                {
+                    ShowStartingRelicChoice();
+                }
+                else
+                {
+                    StartNewRun();
+                }
             }
         }
     }
@@ -196,6 +210,7 @@ public class GameManager : MonoBehaviour
         MaxPlayerHealth = 100;
         PlayerHealth = MaxPlayerHealth; 
         CurrentShield = 0; 
+        isTutorialMode = false;
 
         playerDiceDeck.Clear();
         activeRelics.Clear();
@@ -519,6 +534,20 @@ public class GameManager : MonoBehaviour
 
             if (CurrentWave > wavesPerZone)
             {
+                // 튜토리얼 모드일 때는 존 2로 가지 않고 메인 메뉴로
+                if (isTutorialMode)
+                {
+                    Debug.Log("튜토리얼 모드 - 존 1 완료, 메인 메뉴로 복귀");
+                    PlayerPrefs.SetInt("TutorialCompleted", 1);
+                    PlayerPrefs.Save();
+                    
+                    UIManager.Instance.FadeOut(1.0f, () =>
+                    {
+                        UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+                    });
+                    return;
+                }
+                
                 // 메타강화 - 존 클리어 시 골드 추가
                 float interestRate = GetTotalMetaBonus(MetaEffectType.InterestRate);
                 if (interestRate > 0)
@@ -578,7 +607,17 @@ public class GameManager : MonoBehaviour
             else
             {
                 Debug.Log("웨이브 클리어! 유물 보상.");
-                ShowRewardScreen();
+                
+                // 튜토리얼 모드이고 Wave 1이면 튜토리얼 완료 대기
+                if (isTutorialMode && CurrentWave == 2)
+                {
+                    isWaitingForWave1Tutorial = true;
+                    Debug.Log("Wave 1 튜토리얼 완료 대기 중...");
+                }
+                else
+                {
+                    ShowRewardScreen();
+                }
             }
 
             SaveCurrentRun();
@@ -699,6 +738,25 @@ public class GameManager : MonoBehaviour
         if (UIManager.Instance != null)
         {
             UIManager.Instance.ShowRewardScreen(rewardOptions);
+        }
+        
+        // 튜토리얼 모드이고 Wave 1 클리어 후라면 유물 튜토리얼 시작
+        if (isTutorialMode && CurrentZone == 1 && CurrentWave == 2)
+        {
+            TutorialRelicController relicTutorial = FindFirstObjectByType<TutorialRelicController>();
+            if (relicTutorial != null)
+            {
+                Invoke(nameof(StartRelicTutorial), 0.5f);
+            }
+        }
+    }
+    
+    private void StartRelicTutorial()
+    {
+        TutorialRelicController relicTutorial = FindFirstObjectByType<TutorialRelicController>();
+        if (relicTutorial != null)
+        {
+            relicTutorial.StartRelicTutorial();
         }
     }
     
@@ -1229,6 +1287,108 @@ public class GameManager : MonoBehaviour
         {
             HealPlayer(waveHeal);
             Debug.Log($"[재생성 장벽] 웨이브 종료 - 체력 +{waveHeal} 회복");
+        }
+    }
+    
+    //튜토리얼 관련
+    private bool isWaitingForWave1Tutorial = false;
+    
+    public void OnWave1TutorialComplete()
+    {
+        Debug.Log("Wave 1 튜토리얼 완료 확인!");
+        if (isWaitingForWave1Tutorial)
+        {
+            isWaitingForWave1Tutorial = false;
+            ShowRewardScreen();
+        }
+    }
+    
+    public void StartTutorialMode()
+    {
+        Debug.Log("튜토리얼 모드 시작!");
+        isTutorialMode = true;
+        
+        // 기본 게임 시작
+        CurrentGold = 0;
+        CurrentZone = 1;
+        CurrentWave = 1;
+        MaxPlayerHealth = 100;
+        PlayerHealth = MaxPlayerHealth;
+        CurrentShield = 0;
+        
+        playerDiceDeck.Clear();
+        activeRelics.Clear();
+        
+        for (int i = 0; i < 6; i++)
+        {
+            playerDiceDeck.Add("D6");
+        }
+        
+        // 통계 초기화
+        playTime = 0f;
+        totalKills = 0;
+        totalGoldEarned = 0;
+        maxDamageDealt = 0;
+        maxChainCount = 0;
+        jokboUsageCount.Clear();
+        bossesDefeated = 0;
+        perfectWaves = 0;
+        wasDamagedThisWave = false;
+        
+        // 웨이브 생성
+        if (WaveGenerator.Instance != null)
+        {
+            WaveGenerator.Instance.BuildRunZoneOrder();
+        }
+        
+        // UI 업데이트
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdateHealth(PlayerHealth, MaxPlayerHealth);
+            UIManager.Instance.UpdateGold(CurrentGold);
+            UIManager.Instance.UpdateRelicPanel(activeRelics);
+            UIManager.Instance.UpdateWaveText(CurrentZone, CurrentWave);
+        }
+        
+        // 스테이지 준비
+        if (StageManager.Instance != null)
+        {
+            StageManager.Instance.PrepareNextWave();
+        }
+        
+        // 튜토리얼 시작 (Wave1Controller)
+        TutorialWave1Controller wave1Tutorial = FindFirstObjectByType<TutorialWave1Controller>();
+        if (wave1Tutorial != null)
+        {
+            Invoke(nameof(StartWave1Tutorial), 0.2f); // 딜레이 감소: 1초 → 0.2초
+        }
+    }
+    
+    private void StartWave1Tutorial()
+    {
+        TutorialWave1Controller wave1Tutorial = FindFirstObjectByType<TutorialWave1Controller>();
+        if (wave1Tutorial != null)
+        {
+            wave1Tutorial.StartWave1Tutorial();
+        }
+    }
+    
+    // 튜토리얼 완료 콜백
+    public void OnTutorialCompleted()
+    {
+        Debug.Log("튜토리얼 완료! 메인 메뉴로 이동합니다.");
+        isTutorialMode = false;
+        tutorialCompleted = true;
+        
+        // 메인 메뉴로 이동
+        if (SceneController.Instance != null)
+        {
+            SceneController.Instance.LoadScene("MainMenu");
+        }
+        else
+        {
+            // SceneController가 없으면 직접 로드
+            UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
         }
     }
     

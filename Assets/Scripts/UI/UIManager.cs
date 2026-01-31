@@ -853,7 +853,17 @@ public class UIManager : MonoBehaviour
                     {
                         GameManager.Instance.AddRelic(relic);
                         rewardScreenPanel.SetActive(false);
-                        onRelicSelected?.Invoke(); 
+                        onRelicSelected?.Invoke();
+                        
+                        // 튜토리얼 모드일 때 유물 선택 알림
+                        if (GameManager.Instance.isTutorialMode)
+                        {
+                            TutorialRelicController relicTutorial = FindFirstObjectByType<TutorialRelicController>();
+                            if (relicTutorial != null)
+                            {
+                                relicTutorial.OnRelicSelected();
+                            }
+                        }
                     });
                 }
                 else
@@ -882,6 +892,25 @@ public class UIManager : MonoBehaviour
         // UI 표시
         UpdateShopUI(ShopManager.Instance.currentShopItems, ShopManager.Instance.currentRerollCost);
         maintenancePanel.SetActive(true);
+        
+        // 튜토리얼 모드이고 Zone 1 클리어 후라면 상점 튜토리얼 시작
+        if (GameManager.Instance != null && GameManager.Instance.isTutorialMode)
+        {
+            TutorialShopController shopTutorial = FindFirstObjectByType<TutorialShopController>();
+            if (shopTutorial != null)
+            {
+                Invoke(nameof(StartShopTutorial), 0.5f);
+            }
+        }
+    }
+    
+    private void StartShopTutorial()
+    {
+        TutorialShopController shopTutorial = FindFirstObjectByType<TutorialShopController>();
+        if (shopTutorial != null)
+        {
+            shopTutorial.StartShopTutorial();
+        }
     }
     public void UpdateShopUI(List<ShopItem> items, int rerollCost)
     {

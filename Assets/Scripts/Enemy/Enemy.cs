@@ -118,6 +118,13 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
         // EnemyScaling 시스템으로 최종 HP 계산
         int scaledHP = EnemyScaling.GetScaledHP(baseHP, zone, wave, isBoss);
         
+        // 튜토리얼 모드일 때 적 약해지게
+        if (GameManager.Instance != null && GameManager.Instance.isTutorialMode)
+        {
+            scaledHP = Mathf.Max(1, Mathf.RoundToInt(scaledHP * 0.3f));
+            attackDamage = Mathf.Max(1, Mathf.RoundToInt(attackDamage * 0.5f));
+        }
+        
         // 최종 HP 적용
         maxHP = scaledHP;
         currentHP = scaledHP;
