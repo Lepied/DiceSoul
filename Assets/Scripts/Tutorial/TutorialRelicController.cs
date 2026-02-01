@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
-// 유물 선택 튜토리얼 - Wave 1 클리어 직후
 public class TutorialRelicController : MonoBehaviour
 {
     [Header("References")]
@@ -18,23 +17,14 @@ public class TutorialRelicController : MonoBehaviour
     
     public void StartRelicTutorial()
     {
-        if (tutorialManager == null)
-        {
-            Debug.LogError("TutorialManager가 설정되지 않았습니다!");
-            return;
-        }
-        
         isActive = true;
         ShowStep1_RelicIntro();
     }
     
-    // Step 1: 유물 시스템 소개 (화면 전체 어둡게)
     private void ShowStep1_RelicIntro()
     {
         if (!isActive) return;
         
-        // 화면 전체 어둡게 + 중앙 메시지
-        // 마스크로 화면 전체 덮기
         if (tutorialManager.topMask != null)
         {
             tutorialManager.topMask.gameObject.SetActive(true);
@@ -44,12 +34,10 @@ public class TutorialRelicController : MonoBehaviour
             tutorialManager.topMask.offsetMax = Vector2.zero;
         }
         
-        // 나머지 마스크는 숨기기 (Top 하나로 전체 덮음)
         if (tutorialManager.bottomMask != null) tutorialManager.bottomMask.gameObject.SetActive(false);
         if (tutorialManager.leftMask != null) tutorialManager.leftMask.gameObject.SetActive(false);
         if (tutorialManager.rightMask != null) tutorialManager.rightMask.gameObject.SetActive(false);
-        
-        // 하이라이트 숨기기
+
         if (tutorialManager.highlightRect != null)
         {
             tutorialManager.highlightRect.gameObject.SetActive(false);
@@ -60,7 +48,6 @@ public class TutorialRelicController : MonoBehaviour
         tutorialManager.tooltipPanel.GetComponent<RectTransform>().position = 
             new Vector2(Screen.width / 2, Screen.height / 2);
         
-        // 화살표 숨기기
         if (tutorialManager.tooltipArrow != null)
         {
             tutorialManager.tooltipArrow.gameObject.SetActive(false);
@@ -81,14 +68,12 @@ public class TutorialRelicController : MonoBehaviour
         ShowStep2_SelectRelic();
     }
     
-    // Step 2: 유물 선택 안내 (밝게)
     private void ShowStep2_SelectRelic()
     {
         if (!isActive) return;
         
         if (relicCardsArea == null)
         {
-            Debug.LogWarning("유물 카드 영역이 설정되지 않았습니다!");
             CompleteRelicTutorial();
             return;
         }
@@ -97,13 +82,11 @@ public class TutorialRelicController : MonoBehaviour
             relicCardsArea, 
             relicSelectMessage, 
             TooltipPosition.Bottom,
-            false  // 유물 클릭으로 자동 진행
+            false 
         );
         
-        // 유물 선택은 외부에서 OnRelicSelected() 호출 필요
     }
     
-    // 유물 선택 완료 (외부에서 호출)
     public void OnRelicSelected()
     {
         if (!isActive) return;
@@ -116,10 +99,6 @@ public class TutorialRelicController : MonoBehaviour
     {
         isActive = false;
         tutorialManager.HideTutorial();
-        
-        Debug.Log("유물 튜토리얼 완료!");
-        
-        // Wave 2 시작 (StageManager가 자동 처리)
     }
     
     public void StopTutorial()

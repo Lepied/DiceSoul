@@ -537,7 +537,6 @@ public class GameManager : MonoBehaviour
                 // 튜토리얼 모드일 때는 존 2로 가지 않고 메인 메뉴로
                 if (isTutorialMode)
                 {
-                    Debug.Log("튜토리얼 모드 - 존 1 완료, 메인 메뉴로 복귀");
                     PlayerPrefs.SetInt("TutorialCompleted", 1);
                     PlayerPrefs.Save();
                     
@@ -612,7 +611,6 @@ public class GameManager : MonoBehaviour
                 if (isTutorialMode && CurrentWave == 2)
                 {
                     isWaitingForWave1Tutorial = true;
-                    Debug.Log("Wave 1 튜토리얼 완료 대기 중...");
                 }
                 else
                 {
@@ -1295,9 +1293,19 @@ public class GameManager : MonoBehaviour
     
     public void OnWave1TutorialComplete()
     {
-        Debug.Log("Wave 1 튜토리얼 완료 확인!");
-        if (isWaitingForWave1Tutorial)
+
+        // 튜토리얼 완료 시점에 적이 남아잇나?
+        bool allEnemiesDead = StageManager.Instance != null && 
+                              StageManager.Instance.activeEnemies.All(e => e == null || e.isDead);
+        
+        if (allEnemiesDead && CurrentWave == 2)
         {
+            // 이미 적을 다 잡은 상태면
+            ShowRewardScreen();
+        }
+        else if (isWaitingForWave1Tutorial)
+        {
+            // 웨이브 클리어 후 튜토리얼 완료 대기 중이면
             isWaitingForWave1Tutorial = false;
             ShowRewardScreen();
         }
@@ -1305,7 +1313,6 @@ public class GameManager : MonoBehaviour
     
     public void StartTutorialMode()
     {
-        Debug.Log("튜토리얼 모드 시작!");
         isTutorialMode = true;
         
         // 기본 게임 시작
@@ -1360,7 +1367,7 @@ public class GameManager : MonoBehaviour
         TutorialWave1Controller wave1Tutorial = FindFirstObjectByType<TutorialWave1Controller>();
         if (wave1Tutorial != null)
         {
-            Invoke(nameof(StartWave1Tutorial), 0.2f); // 딜레이 감소: 1초 → 0.2초
+            Invoke(nameof(StartWave1Tutorial), 0.2f);
         }
     }
     
@@ -1376,7 +1383,6 @@ public class GameManager : MonoBehaviour
     // 튜토리얼 완료 콜백
     public void OnTutorialCompleted()
     {
-        Debug.Log("튜토리얼 완료! 메인 메뉴로 이동합니다.");
         isTutorialMode = false;
         tutorialCompleted = true;
         

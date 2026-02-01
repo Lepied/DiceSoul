@@ -146,17 +146,12 @@ public class DiceController : MonoBehaviour
     {
         diceLookupMap.Clear();
         diceAnimationList.Clear();
-        
-        Debug.Log($"[DiceController] 주사위 스프라이트 초기화 시작. diceSpriteSettings 개수: {diceSpriteSettings.Count}");
-        
         foreach (var data in diceSpriteSettings)
         {
             Dictionary<int, Sprite> valueMap = new Dictionary<int, Sprite>(); //검색용 맵
             List<Sprite> spriteList = new List<Sprite>();
 
             int maxSide = GetMaxSideFromType(data.diceType);
-            
-            Debug.Log($"[DiceController] 타입: {data.diceType}, 최대: {maxSide}, Faces 개수: {data.faces.Count}");
 
             foreach (var pair in data.faces)
             {
@@ -164,7 +159,6 @@ public class DiceController : MonoBehaviour
                 if (!valueMap.ContainsKey(pair.value))
                 {
                     valueMap[pair.value] = pair.sprite;
-                    Debug.Log($"  - 값 {pair.value}: {(pair.sprite != null ? pair.sprite.name : "NULL")}");
                 }
                 // 애니메이션 용 리스트에는 최대값 이하만 등록시키기
                 if (pair.value <= maxSide)
@@ -176,11 +170,8 @@ public class DiceController : MonoBehaviour
             {
                 diceLookupMap.Add(data.diceType, valueMap);
                 diceAnimationList.Add(data.diceType, spriteList);
-                Debug.Log($"[DiceController] {data.diceType} 등록 완료. valueMap 크기: {valueMap.Count}");
             }
         }
-        
-        Debug.Log($"[DiceController] 주사위 스프라이트 초기화 완료. 총 {diceLookupMap.Count}개 타입 등록");
     }
     //다이스타입에서 최대값뽑는용
     public int GetMaxSideFromType(string diceType)
@@ -199,7 +190,6 @@ public class DiceController : MonoBehaviour
         {
             return sprite;
         }
-        Debug.LogWarning($"스프라이트 누락: 타입 {diceType}의 값 {value}에 대한 이미지가 없습니다!");
         return null;
     }
     public Sprite GetRandomAnimationSprite(string type)
