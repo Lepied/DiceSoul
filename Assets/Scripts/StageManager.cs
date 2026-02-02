@@ -276,7 +276,7 @@ public class StageManager : MonoBehaviour
         
         GameManager.Instance.AddShield(shieldAmount);
         
-        CheckWaveStatus();
+        FinishAttackAndCheckChain(jokbo);
     }
 
     //전체 공격 (AoE) 실행
@@ -928,19 +928,37 @@ public class StageManager : MonoBehaviour
             return;
         }
         
-        // 사용 가능한 주사위가 없으면 턴 종료
+        // 사용 가능한 주사위가 없으면 잠금 체크 후 턴 종료
         List<int> availableValues = diceController.GetAvailableValues();
         if (availableValues.Count == 0)
         {
-            CheckWaveStatus();
-            return;
+            // 잠긴 주사위가 있는지 확인하고 잇으면 잠금풀고 자동공격나가게 
+            bool hasLockedDice = diceController.activeDice.Any(d => d.State == DiceState.Locked);
+            
+            if (hasLockedDice)
+            {
+                diceController.DecreaseLockDurations();
+                
+                // 잠금 해제 후 다시 체크
+                availableValues = diceController.GetAvailableValues();
+                
+                // 여전히 사용 가능한 주사위가 없으면 턴 종료
+                if (availableValues.Count == 0)
+                {
+                    CheckWaveStatus();
+                    return;
+                }
+            }
+            else
+            {
+                CheckWaveStatus();
+                return;
+            }
         }
 
         // 사용 가능한 주사위 1개면 자동으로 총합 랜덤 공격
         if (availableValues.Count == 1)
-        {
-            Debug.Log("[자동 공격] 사용 가능한 주사위 1개 - 총합 랜덤 공격 실행");
-            
+        {            
             List<AttackJokbo> autoAttackJokbos = AttackDB.Instance.GetAchievableJokbos(availableValues);
             
             // 총합 족보 찾기
@@ -952,7 +970,6 @@ public class StageManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning("[자동 공격 실패] 총합 족보를 찾을 수 없습니다");
                 CheckWaveStatus();
             }
             return;
@@ -964,8 +981,6 @@ public class StageManager : MonoBehaviour
 
         if (chainJokbos.Count > 0)
         {
-            Debug.Log($"[연쇄 가능] 남은 주사위: {remainingDice}개, 가능한 족보: {chainJokbos.Count}개");
-            
             // 족보 선택 UI 표시 (원본 그대로 사용)
             isWaitingForAttackChoice = true;
             if (UIManager.Instance != null)
@@ -975,8 +990,6 @@ public class StageManager : MonoBehaviour
         }
         else
         {
-            // 만들 수 있는 족보 없음 → 턴 종료
-            Debug.Log("[연쇄 종료] 가능한 족보 없음");
             CheckWaveStatus();
         }
     }

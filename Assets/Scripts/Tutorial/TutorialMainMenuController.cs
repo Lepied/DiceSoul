@@ -2,17 +2,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
-/// <summary>
-/// 메인 메뉴 튜토리얼 - 메타샵과 잡화점 안내
-/// Zone 1 튜토리얼 완료 후 메인 메뉴로 돌아왔을 때 실행
-/// </summary>
+
 public class TutorialMainMenuController : MonoBehaviour
 {
     [Header("References")]
     public TutorialManager tutorialManager;
     public RectTransform metaShopButton;
     public RectTransform generalStoreButton;
-    public RectTransform deckSelectionButton;      // 덱 선택 버튼 추가
+    public RectTransform deckSelectionButton;
     public RectTransform startGameButton;
     
     [Header("Messages")]
@@ -27,7 +24,7 @@ public class TutorialMainMenuController : MonoBehaviour
     
     void Start()
     {
-        // 메인 메뉴 튜토리얼 완료 여부 확인
+        // 메인 메뉴 튜토리얼 완료 여부
         hasShownTutorial = PlayerPrefs.GetInt("MainMenuTutorialCompleted", 0) == 1;
         
         // Zone 1 튜토리얼만 완료했고 메인 메뉴 튜토리얼은 안 했을 때
@@ -35,7 +32,6 @@ public class TutorialMainMenuController : MonoBehaviour
         
         if (zone1TutorialCompleted && !hasShownTutorial)
         {
-            // 약간의 딜레이 후 시작
             StartCoroutine(WaitAndStart());
         }
     }
@@ -48,29 +44,19 @@ public class TutorialMainMenuController : MonoBehaviour
     
     public void StartMainMenuTutorial()
     {
-        if (tutorialManager == null)
-        {
-            Debug.LogError("TutorialManager가 설정되지 않았습니다!");
-            return;
-        }
-        
         isActive = true;
         ShowStep1_Welcome();
     }
     
-    // Step 1: 환영 메시지
     private void ShowStep1_Welcome()
     {
         if (!isActive) return;
-        
-        // 화면 중앙에 메시지
-        // 마스크 모두 표시
+
         if (tutorialManager.topMask != null) tutorialManager.topMask.gameObject.SetActive(true);
         if (tutorialManager.bottomMask != null) tutorialManager.bottomMask.gameObject.SetActive(true);
         if (tutorialManager.leftMask != null) tutorialManager.leftMask.gameObject.SetActive(true);
         if (tutorialManager.rightMask != null) tutorialManager.rightMask.gameObject.SetActive(true);
         
-        // 하이라이트 숨기기
         if (tutorialManager.highlightRect != null)
         {
             tutorialManager.highlightRect.gameObject.SetActive(false);
@@ -96,12 +82,10 @@ public class TutorialMainMenuController : MonoBehaviour
         ShowStep2_MetaShop();
     }
     
-    // Step 2: 메타샵 안내
     private void ShowStep2_MetaShop()
     {
         if (!isActive || metaShopButton == null) 
         {
-            // 메타샵 버튼이 없으면 잡화점으로 건너뛰기
             ShowStep3_GeneralStore();
             return;
         }
@@ -114,13 +98,11 @@ public class TutorialMainMenuController : MonoBehaviour
         tutorialManager.nextButton.onClick.RemoveAllListeners();
         tutorialManager.nextButton.onClick.AddListener(ShowStep3_GeneralStore);
     }
-    
-    // Step 3: 잡화점 안내
+
     private void ShowStep3_GeneralStore()
     {
         if (!isActive || generalStoreButton == null)
         {
-            // 잡화점 버튼이 없으면 덱 선택으로 건너뛰기
             ShowStep4_DeckSelection();
             return;
         }
@@ -134,12 +116,10 @@ public class TutorialMainMenuController : MonoBehaviour
         tutorialManager.nextButton.onClick.AddListener(ShowStep4_DeckSelection);
     }
     
-    // Step 4: 덱 선택 안내
     private void ShowStep4_DeckSelection()
     {
         if (!isActive || deckSelectionButton == null)
         {
-            // 덱 선택 버튼이 없으면 게임 시작으로 건너뛰기
             ShowStep5_StartGame();
             return;
         }
@@ -153,7 +133,6 @@ public class TutorialMainMenuController : MonoBehaviour
         tutorialManager.nextButton.onClick.AddListener(ShowStep5_StartGame);
     }
     
-    // Step 5: 게임 시작 안내
     private void ShowStep5_StartGame()
     {
         if (!isActive || startGameButton == null)
@@ -171,19 +150,17 @@ public class TutorialMainMenuController : MonoBehaviour
         tutorialManager.nextButton.onClick.AddListener(CompleteMainMenuTutorial);
     }
     
-    // 메인 메뉴 튜토리얼 완료
     private void CompleteMainMenuTutorial()
     {
         isActive = false;
         hasShownTutorial = true;
         
-        // 완료 저장
         PlayerPrefs.SetInt("MainMenuTutorialCompleted", 1);
         PlayerPrefs.Save();
         
         tutorialManager.HideTutorial();
         
-        Debug.Log("메인 메뉴 튜토리얼 완료!");
+        Debug.Log("메인 메뉴 튜토리얼 끄읕");
     }
     
     public void StopTutorial()

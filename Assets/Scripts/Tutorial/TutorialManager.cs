@@ -61,13 +61,6 @@ public class TutorialManager : MonoBehaviour
     // 단계
     public void ShowStep(RectTransform target, string message, TooltipPosition position, bool showNextBtn = true)
     {
-        if (target == null)
-        {
-            Debug.LogWarning("타겟 UI가 없습니다!");
-            return;
-        }
-
-
         CacheTargetInfo(target);
         ShowMasks();
         HighlightUI();
