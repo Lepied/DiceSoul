@@ -1867,6 +1867,7 @@ RectTransform:
   - {fileID: 1206034520}
   - {fileID: 1803119747}
   - {fileID: 1108745014}
+  - {fileID: 1430221462}
   m_Father: {fileID: 468377340}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
@@ -4093,6 +4094,8 @@ MonoBehaviour:
   relicDetailPopup: {fileID: 6125078354844680817}
   relicDetailName: {fileID: 3636127356976939253}
   relicDetailDescription: {fileID: 8026155119100926090}
+  diceInventoryContainer: {fileID: 1430221462}
+  diceInventoryItemPrefab: {fileID: 2192477737694357681, guid: c11c5f898626cbd48baad5778b426d46, type: 3}
   rollPanel: {fileID: 129778525}
   infoButton: {fileID: 675211629}
   fadeCanvasGroup: {fileID: 1749721824}
@@ -16016,9 +16019,6 @@ MonoBehaviour:
     \uC218 \uC788\uC2B5\uB2C8\uB2E4."
   completeMessage: "\uC88B\uC2B5\uB2C8\uB2E4! \uC801\uC5D0\uAC8C \uB370\uBBF8\uC9C0\uB97C
     \uC8FC\uC5C8\uC2B5\uB2C8\uB2E4!\n\uC774\uB807\uAC8C \uC804\uD22C\uB97C \uC9C4\uD589\uD569\uB2C8\uB2E4."
-  waitForJokboDelay: 1.5
-  waitForRemainingMessage: 1.5
-  waitForCompleteDelay: 1.5
 --- !u!1 &1304416429
 GameObject:
   m_ObjectHideFlags: 0
@@ -17219,6 +17219,68 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1428716239}
   m_CullTransparentMesh: 1
+--- !u!1 &1430221461
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1430221462}
+  - component: {fileID: 1430221463}
+  m_Layer: 5
+  m_Name: DiceIconContainer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1430221462
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1430221461}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 193843629}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -400, y: 0}
+  m_SizeDelta: {x: 600, y: 100}
+  m_Pivot: {x: 1, y: 1}
+--- !u!114 &1430221463
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1430221461}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.HorizontalLayoutGroup
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 5
+  m_Spacing: 10
+  m_ChildForceExpandWidth: 0
+  m_ChildForceExpandHeight: 0
+  m_ChildControlWidth: 0
+  m_ChildControlHeight: 0
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
+  m_ReverseArrangement: 0
 --- !u!1 &1486710534
 GameObject:
   m_ObjectHideFlags: 0

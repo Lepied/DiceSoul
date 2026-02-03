@@ -77,6 +77,10 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI relicDetailName;
     public TextMeshProUGUI relicDetailDescription;
 
+    [Header("주사위 인벤토리 UI")]
+    public Transform diceInventoryContainer;
+    public GameObject diceInventoryItemPrefab;
+
     [Header("인게임 UI")]
     public GameObject rollPanel;
     public GameObject infoButton;
@@ -191,6 +195,7 @@ public class UIManager : MonoBehaviour
     public void UpdateWaveText(int zone, int wave)
     {
         if (waveText != null) waveText.text = $"Zone {zone} - Wave {wave}";
+        UpdateDiceInventoryUI();
     }
     public void UpdateGold(int gold)
     {
@@ -208,6 +213,78 @@ public class UIManager : MonoBehaviour
             else
             {
                 healthText.text = $"HP: {current} / {max}";
+            }
+        }
+    }
+
+    // 주사위 덱의 타입별 개수 계산
+    private Dictionary<string, int> GetDiceDeckCounts()
+    {
+        var counts = new Dictionary<string, int>();
+        
+        if (GameManager.Instance == null || GameManager.Instance.playerDiceDeck == null)
+            return counts;
+        
+        foreach (string diceType in GameManager.Instance.playerDiceDeck)
+        {
+            if (counts.ContainsKey(diceType))
+                counts[diceType]++;
+            else
+                counts[diceType] = 1;
+        }
+        
+        return counts;
+    }
+
+    // 주사위 인벤토리 UI 업데이트
+    public void UpdateDiceInventoryUI()
+    {
+        if (diceInventoryContainer == null || diceInventoryItemPrefab == null)
+            return;
+        foreach (Transform child in diceInventoryContainer)
+        {
+            Destroy(child.gameObject);
+        }
+        
+        var diceCounts = GetDiceDeckCounts();
+        
+        var sortedCounts = diceCounts.OrderBy(kvp => 
+        {
+            string type = kvp.Key;
+            if (type.StartsWith("D") && int.TryParse(type.Substring(1), out int sides))
+                return sides;
+            return 0;
+        });
+        
+        foreach (var kvp in sortedCounts)
+        {
+            string diceType = kvp.Key;
+            int count = kvp.Value;
+            
+            GameObject item = Instantiate(diceInventoryItemPrefab, diceInventoryContainer);
+            
+            // Icon 설정 (서브 스프라이트 로드하기)
+            Transform iconTransform = item.transform.Find("Icon");
+            if (iconTransform != null)
+            {
+                Image icon = iconTransform.GetComponent<Image>();
+                if (icon != null)
+                {
+                    Sprite[] sprites = Resources.LoadAll<Sprite>("DiceIcons/white_dice_icons");
+                    Sprite iconSprite = System.Array.Find(sprites, s => s.name == $"{diceType}_Icon");
+                    
+                    icon.sprite = iconSprite;
+                }
+            }
+            
+            Transform countTextTransform = item.transform.Find("CountText");
+            if (countTextTransform != null)
+            {
+            TextMeshProUGUI countText = countTextTransform.GetComponent<TextMeshProUGUI>();
+                if (countText != null)
+                {
+                    countText.text = $"x{count}";
+                }
             }
         }
     }
