@@ -15,6 +15,17 @@ public class SettingsPanelController : MonoBehaviour
     public Button saveButton;
     public Button resetButton;
 
+    [Header("인게임 메뉴 버튼")]
+    public Button resumeButton;
+    public Button returnToMainButton;
+    public Button quitGameButton;
+
+    [Header("확인 팝업")]
+    public GameObject confirmPopup;
+    public TextMeshProUGUI confirmMessage;
+    public Button confirmYesButton;
+    public Button confirmNoButton;
+
     [Header("텍스트")]
     public TextMeshProUGUI bgmVolumeText;
     public TextMeshProUGUI sfxVolumeText;
@@ -36,10 +47,6 @@ public class SettingsPanelController : MonoBehaviour
     void Start()
     {
         // 버튼 리스너 연결
-        if (closeButton != null)
-        {
-            closeButton.onClick.AddListener(OnCloseButton);
-        }
         if (saveButton != null)
         {
             saveButton.onClick.AddListener(OnSaveButton);
@@ -47,6 +54,30 @@ public class SettingsPanelController : MonoBehaviour
         if (resetButton != null)
         {
             resetButton.onClick.AddListener(OnResetButton);
+        }
+        if (resumeButton != null)
+        {
+            resumeButton.onClick.AddListener(CancelAndClose);
+        }
+        if (returnToMainButton != null)
+        {
+            returnToMainButton.onClick.AddListener(OnReturnToMainMenu);
+        }
+        if (quitGameButton != null)
+        {
+            quitGameButton.onClick.AddListener(OnQuitGame);
+        }
+        if (confirmYesButton != null)
+        {
+            confirmYesButton.onClick.AddListener(OnConfirmYes);
+        }
+        if (confirmNoButton != null)
+        {
+            confirmNoButton.onClick.AddListener(OnConfirmNo);
+        }
+        if (closeButton != null)
+        {
+            closeButton.onClick.AddListener(CancelAndClose);
         }
 
         // 슬라이더 리스너 연결
@@ -89,6 +120,10 @@ public class SettingsPanelController : MonoBehaviour
         {
             settingsPanel.SetActive(false);
         }
+        if (confirmPopup != null)
+        {
+            confirmPopup.SetActive(false);
+        }
     }
     //설정 패널 열기
     public void OpenSettings()
@@ -101,8 +136,18 @@ public class SettingsPanelController : MonoBehaviour
         // 현재 설정 불러오기
         LoadCurrentSettings();
 
-        // 일시정지
-        Time.timeScale = 0f;
+        // 버튼 활성화/비활성화
+        bool isRunActive = IsRunActive();
+    
+        resumeButton.gameObject.SetActive(isRunActive);
+        returnToMainButton.gameObject.SetActive(isRunActive);
+        quitGameButton.gameObject.SetActive(true);
+        closeButton.gameObject.SetActive(!isRunActive);
+        // 런 진행 중이면 일시정지
+        if (isRunActive)
+        {
+            Time.timeScale = 0f;
+        }
     }
 
     // 설정 패널 닫기
@@ -117,14 +162,21 @@ public class SettingsPanelController : MonoBehaviour
         Time.timeScale = 1f;
     }
 
+    // 변경사항 취소하고 닫기
+    private void CancelAndClose()
+    {
+        // 저장 안 하고 닫기
+        if (SettingsManager.Instance != null)
+        {
+            SettingsManager.Instance.LoadSettings();
+        }
+        CloseSettings();
+    }
+
     // 현재 저장된 설정을 UI에 반영
     private void LoadCurrentSettings()
     {
-        if (SettingsManager.Instance == null)
-        {
-            Debug.LogWarning("[SettingsPanelController] SettingsManager가 없습니다!");
-            return;
-        }
+        if (SettingsManager.Instance == null) return;
 
         tempBGMVolume = SettingsManager.Instance.BGMVolume;
         tempSFXVolume = SettingsManager.Instance.SFXVolume;
@@ -240,17 +292,6 @@ public class SettingsPanelController : MonoBehaviour
         CloseSettings();
     }
 
-    private void OnCloseButton()
-    {
-        // 저장 안 하고 닫기
-        if (SettingsManager.Instance != null)
-        {
-            SettingsManager.Instance.LoadSettings();
-        }
-
-        CloseSettings();
-    }
-
     private void OnResetButton()
     {
         // 기본값으로 초기화
@@ -296,5 +337,120 @@ public class SettingsPanelController : MonoBehaviour
         {
             OpenSettings();
         }
+    }
+
+    // 런이 진행 중인지 확인
+    private bool IsRunActive()
+    {
+        return UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Game" 
+            && GameManager.Instance != null;
+    }
+
+    // 확인 팝업이 활성화되어 있는지
+    public bool IsConfirmPopupActive()
+    {
+        return confirmPopup != null && confirmPopup.activeSelf;
+    }
+
+    // 메인으로 돌아가 (포기)
+    private void OnReturnToMainMenu()
+    {
+        ShowConfirmPopup("출정을 포기하고\n영지로 돌아가시겠습니까?", ConfirmAction.ReturnToMain);
+    }
+
+    // 게임 종료
+    private void OnQuitGame()
+    {
+        ShowConfirmPopup("게임을\n종료하시겠습니까?", ConfirmAction.QuitGame);
+    }
+
+    private enum ConfirmAction
+    {
+        ReturnToMain,
+        QuitGame
+    }
+
+    private ConfirmAction currentConfirmAction;
+
+    // 확인 팝업 표시
+    private void ShowConfirmPopup(string message, ConfirmAction action)
+    {
+        if (confirmPopup != null && confirmMessage != null)
+        {
+            confirmMessage.text = message;
+            confirmPopup.SetActive(true);
+            currentConfirmAction = action;
+        }
+    }
+
+    // 확인 팝업 - 예
+    private void OnConfirmYes()
+    {
+        if (confirmPopup != null)
+        {
+            confirmPopup.SetActive(false);
+        }
+
+        switch (currentConfirmAction)
+        {
+            case ConfirmAction.ReturnToMain:
+                OnConfirmReturnToMain();
+                break;
+            case ConfirmAction.QuitGame:
+                OnConfirmQuit();
+                break;
+        }
+    }
+
+    // 확인 팝업 - 아니오
+    private void OnConfirmNo()
+    {
+        if (confirmPopup != null)
+        {
+            confirmPopup.SetActive(false);
+        }
+    }
+
+    // 포기 확정
+    private void OnConfirmReturnToMain()
+    {
+        // 설정 패널과 확인 팝업 비활성화 (게임오버 연출이 보이도록)
+        if (confirmPopup != null)
+        {
+            confirmPopup.SetActive(false);
+        }
+        if (settingsPanel != null)
+        {
+            settingsPanel.SetActive(false);
+        }
+        
+        Time.timeScale = 1f; // 일시정지 해제
+        
+        // 게임오버 절차 밟기 (영구 재화 계산, 게임오버 연출)
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ProcessAbandonRun();
+        }
+        else
+        {
+            // GameManager가 없으면 그냥 메인 메뉴로
+            if (SceneController.Instance != null)
+            {
+                SceneController.Instance.LoadMainMenuWithFade();
+            }
+            else
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+            }
+        }
+    }
+
+    // 게임 종료 확정
+    private void OnConfirmQuit()
+    {
+        Application.Quit();
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
     }
 }

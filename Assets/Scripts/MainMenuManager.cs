@@ -22,7 +22,6 @@ public class MainMenuManager : MonoBehaviour
     public Button openDeckButton;
     public Button openStoreButton;
     public Button settingsButton;
-    public Button quitGameButton;
 
     [Header("덱 선택 UI (Carousel)")]
     public GameObject deckSelectionPanel;
@@ -84,7 +83,7 @@ public class MainMenuManager : MonoBehaviour
 
         // 메인 버튼 리스너 연결
         if (startGameButton != null) startGameButton.onClick.AddListener(OnStartGame);
-        if (quitGameButton != null) quitGameButton.onClick.AddListener(OnQuitGame);
+        if (settingsButton != null) settingsButton.onClick.AddListener(OnOpenSettings);
         if (continueButton != null)
         {
             bool hasSave = SaveManager.Instance.HasSaveFile();
@@ -127,13 +126,11 @@ public class MainMenuManager : MonoBehaviour
         totalMetaCurrency = PlayerPrefs.GetInt(metaCurrencyKey, 0);
         if (metaCurrencyText != null)
         {
-            metaCurrencyText.text = $"보유 파편: {totalMetaCurrency}";
+            metaCurrencyText.text = $"마석: {totalMetaCurrency}";
         }
     }
 
-    /// <summary>
-    /// 덱 목록을 생성하고 스냅 스크롤러를 초기화합니다.
-    /// </summary>
+    // 덱 목록을 생성하고 스냅 스크롤러를 초기화
     void GenerateDeckList()
     {
         if (deckListContent == null) return;
@@ -184,9 +181,7 @@ public class MainMenuManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 현재 중앙에 있는 덱의 상태(잠김/해금/장착중)에 따라 하단 버튼을 갱신합니다.
-    /// </summary>
+    //덱 해금관련버튼 갱신
     private void UpdateActionButtonUI()
     {
         if (currentFocusedItem == null || actionButton == null) return;
@@ -395,9 +390,5 @@ public class MainMenuManager : MonoBehaviour
         {
             SceneManager.LoadScene(gameSceneName);
         }
-    }
-    public void OnQuitGame()
-    {
-        Application.Quit();
     }
 }

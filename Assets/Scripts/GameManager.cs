@@ -1047,6 +1047,22 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // 런 포기 처리 (메인 메뉴로 버튼용)
+    public void ProcessAbandonRun()
+    {
+        Debug.Log("런 포기. 게임 오버 처리를 시작합니다.");
+        
+        // 게임오버 절차와 동일하게 처리
+        int earnedCurrency = CalculateAndSaveMetaCurrency();
+        SaveManager.Instance.DeleteSaveFile();
+        
+        if (GameOverDirector.Instance != null)
+        {
+            if (UIManager.Instance != null) UIManager.Instance.gameObject.SetActive(false);
+            GameOverDirector.Instance.PlayGameOverSequence(earnedCurrency);
+        }
+    }
+
     public void HealPlayer(int amount)
     {
         //이벤트 시스템: 회복 이벤트

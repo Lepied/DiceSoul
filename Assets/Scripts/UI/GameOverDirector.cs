@@ -199,7 +199,7 @@ public class GameOverDirector : MonoBehaviour
             if (mainMenu.openUpgradeButton != null) mainMenu.openUpgradeButton.gameObject.SetActive(false);
             if (mainMenu.openDeckButton != null) mainMenu.openDeckButton.gameObject.SetActive(false);
             if (mainMenu.openStoreButton != null) mainMenu.openStoreButton.gameObject.SetActive(false);
-            if (mainMenu.quitGameButton != null) mainMenu.quitGameButton.gameObject.SetActive(false);
+            if (mainMenu.settingsButton != null) mainMenu.settingsButton.gameObject.SetActive(false);
         }
     }
 
@@ -214,7 +214,7 @@ public class GameOverDirector : MonoBehaviour
             if (mainMenu.openUpgradeButton != null) mainMenu.openUpgradeButton.gameObject.SetActive(true);
             if (mainMenu.openDeckButton != null) mainMenu.openDeckButton.gameObject.SetActive(true);
             if (mainMenu.openStoreButton != null) mainMenu.openStoreButton.gameObject.SetActive(true);
-            if (mainMenu.quitGameButton != null) mainMenu.quitGameButton.gameObject.SetActive(true);
+            if (mainMenu.settingsButton != null) mainMenu.settingsButton.gameObject.SetActive(true);
         }
     }
     
