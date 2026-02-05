@@ -1047,13 +1047,24 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // 런 포기 처리 (메인 메뉴로 버튼용)
+    // 런 포기
     public void ProcessAbandonRun()
     {
-        Debug.Log("런 포기. 게임 오버 처리를 시작합니다.");
+        int earnedCurrency = 0;
         
-        // 게임오버 절차와 동일하게 처리
-        int earnedCurrency = CalculateAndSaveMetaCurrency();
+        // 그래도 게임은 해야지 90초 이상 해야 마석얻음
+        if (playTime >= 90f)
+        {
+            earnedCurrency = CalculateAndSaveMetaCurrency();
+        }
+        else
+        {
+            // 런 카운트는 증가
+            int runCount = PlayerPrefs.GetInt("TotalRunCount", 0);
+            PlayerPrefs.SetInt("TotalRunCount", runCount + 1);
+            PlayerPrefs.Save();
+        }
+        
         SaveManager.Instance.DeleteSaveFile();
         
         if (GameOverDirector.Instance != null)

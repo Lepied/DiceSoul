@@ -7,6 +7,7 @@ public class TutorialMainMenuController : MonoBehaviour
 {
     [Header("References")]
     public TutorialManager tutorialManager;
+    public RectTransform currencyPanel;
     public RectTransform metaShopButton;
     public RectTransform generalStoreButton;
     public RectTransform deckSelectionButton;
@@ -14,6 +15,7 @@ public class TutorialMainMenuController : MonoBehaviour
     
     [Header("Messages")]
     public string welcomeMessage = "튜토리얼을 완료했습니다!\n이제 메인 메뉴의 기능들을 알아봅시다.";
+    public string currencyMessage = "출정을 통해 마석을 얻을 수 있고,\n얻은 마석은 여기에 표시됩니다.";
     public string metaShopMessage = "메타샵에서는 영구 업그레이드를 구매할 수 있습니다.\n게임이 끝나도 유지되는 강력한 효과들이에요!";
     public string generalStoreMessage = "잡화점에서는 일시적인 버프를 구매할 수 있습니다.\n다음 런에만 적용됩니다.";
     public string deckSelectionMessage = "덱 선택에서 다양한 덱을 해금하고 선택할 수 있습니다.\n각 덱마다 고유한 플레이 스타일이 있어요!";
@@ -69,24 +71,31 @@ public class TutorialMainMenuController : MonoBehaviour
         
         tutorialManager.nextButton.gameObject.SetActive(true);
         tutorialManager.nextButton.onClick.RemoveAllListeners();
-        tutorialManager.nextButton.onClick.AddListener(() => 
-        {
-            StartCoroutine(WaitAndShowStep2());
-        });
+        tutorialManager.nextButton.onClick.AddListener(ShowStep2_CurrencyPanel);
+
     }
-    
-    private IEnumerator WaitAndShowStep2()
+    private void ShowStep2_CurrencyPanel()
     {
-        tutorialManager.HideTutorial();
-        yield return new WaitForSeconds(0.3f);
-        ShowStep2_MetaShop();
+        if (!isActive || currencyPanel == null) 
+        {
+            ShowStep3_MetaShop();
+            return;
+        }
+        
+        tutorialManager.ShowStep(currencyPanel, 
+                                currencyMessage, 
+                                TooltipPosition.Bottom,
+                                true);
+        
+        tutorialManager.nextButton.onClick.RemoveAllListeners();
+        tutorialManager.nextButton.onClick.AddListener(ShowStep3_MetaShop);
     }
-    
-    private void ShowStep2_MetaShop()
+        
+    private void ShowStep3_MetaShop()
     {
         if (!isActive || metaShopButton == null) 
         {
-            ShowStep3_GeneralStore();
+            ShowStep4_GeneralStore();
             return;
         }
         
@@ -96,14 +105,14 @@ public class TutorialMainMenuController : MonoBehaviour
                                 true);
         
         tutorialManager.nextButton.onClick.RemoveAllListeners();
-        tutorialManager.nextButton.onClick.AddListener(ShowStep3_GeneralStore);
+        tutorialManager.nextButton.onClick.AddListener(ShowStep4_GeneralStore);
     }
 
-    private void ShowStep3_GeneralStore()
+    private void ShowStep4_GeneralStore()
     {
         if (!isActive || generalStoreButton == null)
         {
-            ShowStep4_DeckSelection();
+            ShowStep5_DeckSelection();
             return;
         }
         
@@ -113,14 +122,14 @@ public class TutorialMainMenuController : MonoBehaviour
                                 true);
         
         tutorialManager.nextButton.onClick.RemoveAllListeners();
-        tutorialManager.nextButton.onClick.AddListener(ShowStep4_DeckSelection);
+        tutorialManager.nextButton.onClick.AddListener(ShowStep5_DeckSelection);
     }
     
-    private void ShowStep4_DeckSelection()
+    private void ShowStep5_DeckSelection()
     {
         if (!isActive || deckSelectionButton == null)
         {
-            ShowStep5_StartGame();
+            ShowStep6_StartGame();
             return;
         }
         
@@ -130,10 +139,10 @@ public class TutorialMainMenuController : MonoBehaviour
                                 true);
         
         tutorialManager.nextButton.onClick.RemoveAllListeners();
-        tutorialManager.nextButton.onClick.AddListener(ShowStep5_StartGame);
+        tutorialManager.nextButton.onClick.AddListener(ShowStep6_StartGame);
     }
     
-    private void ShowStep5_StartGame()
+    private void ShowStep6_StartGame()
     {
         if (!isActive || startGameButton == null)
         {

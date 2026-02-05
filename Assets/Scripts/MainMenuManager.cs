@@ -12,6 +12,7 @@ public class MainMenuManager : MonoBehaviour
 
     [Header("영구 재화")]
     public GameObject currencyPanel;
+    public Image currencyIcon;
     public TextMeshProUGUI metaCurrencyText;
     public string metaCurrencyKey = "MetaCurrency";
 
@@ -126,7 +127,7 @@ public class MainMenuManager : MonoBehaviour
         totalMetaCurrency = PlayerPrefs.GetInt(metaCurrencyKey, 0);
         if (metaCurrencyText != null)
         {
-            metaCurrencyText.text = $"마석: {totalMetaCurrency}";
+            metaCurrencyText.text = totalMetaCurrency.ToString();
         }
     }
 

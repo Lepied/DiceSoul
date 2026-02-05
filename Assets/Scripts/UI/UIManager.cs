@@ -176,7 +176,6 @@ public class UIManager : MonoBehaviour
         {
             if (settingsPanelController != null)
             {
-                // 설정 패널이 열려있으면
                 if (settingsPanelController.IsOpen())
                 {
                     // 확인 팝업이 떠있지 않을 때만 닫기
