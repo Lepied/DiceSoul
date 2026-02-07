@@ -1197,6 +1197,12 @@ public class GameManager : MonoBehaviour
         PlayerPrefs.SetInt("TotalRunCount", runCount + 1);
         PlayerPrefs.Save();
 
+        // 세이브 파일 삭제 (런 종료)
+        if (SaveManager.Instance != null)
+        {
+            SaveManager.Instance.DeleteSaveFile();
+        }
+
         Debug.Log($"이번 런 획득 재화: {earnedCurrency}. 저장된 총 재화: {totalMetaCurrency}");
         return earnedCurrency;
     }

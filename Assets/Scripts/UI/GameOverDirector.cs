@@ -18,7 +18,7 @@ public class GameOverDirector : MonoBehaviour
     [Header("설정")]
     public float monsterRetreatDuration = 1.0f; // 몬스터가 물러나는 시간
     public float wallCrumbleDuration = 1.5f;   // 성벽 와르르 연출
-    public float fadeDuration = 2.0f;
+    public float fadeDuration = 1.5f;
 
     void Awake()
     {
@@ -84,7 +84,6 @@ public class GameOverDirector : MonoBehaviour
                 enemy.gameObject.SetActive(false);
             }
         }
-        Debug.Log($"[GameOverDirector] {allEnemies.Length}개의 적 비활성화 완료");
 
         if (enemyTransform == null)
         {
@@ -125,16 +124,8 @@ public class GameOverDirector : MonoBehaviour
             // 성벽 파괴 후 게임오버 스크린 표시하고 멈춤
             seq.AppendCallback(() =>
             {
-                if (GameOverScreen.Instance != null)
-                {
-                    GameOverScreen.TriggerGameOver(0.5f);
-                }
-                else
-                {
-                }
+                GameOverScreen.TriggerGameOver(0.5f);
             });
-            
-            // 여기서 멈춤 - 사용자 버튼 입력 대기
         }
     }
     //메인화면 도착 연출
@@ -153,9 +144,6 @@ public class GameOverDirector : MonoBehaviour
         }
         Sequence seq = DOTween.Sequence();
 
-        // 잠시 숨고르기
-        seq.AppendInterval(0.5f);
-
         // 파티클 서서히 정지
         seq.AppendCallback(() =>
         {
@@ -165,9 +153,6 @@ public class GameOverDirector : MonoBehaviour
         // 다시 밝아지기
         seq.Append(transitionImage.DOFade(0f, 1.0f).SetEase(Ease.Linear));
 
-        // 파티클 잔여물이 사라질 때까지 대기
-        seq.AppendInterval(2.0f);
-        
         // 연출이 다 끝나면 UI 표시 후 Director 파괴
         seq.OnComplete(() =>
         {
@@ -195,7 +180,6 @@ public class GameOverDirector : MonoBehaviour
             if (mainMenu.currencyPanel != null) mainMenu.currencyPanel.SetActive(false);
             
             if (mainMenu.startGameButton != null) mainMenu.startGameButton.gameObject.SetActive(false);
-            if (mainMenu.continueButton != null) mainMenu.continueButton.gameObject.SetActive(false);
             if (mainMenu.openUpgradeButton != null) mainMenu.openUpgradeButton.gameObject.SetActive(false);
             if (mainMenu.openDeckButton != null) mainMenu.openDeckButton.gameObject.SetActive(false);
             if (mainMenu.openStoreButton != null) mainMenu.openStoreButton.gameObject.SetActive(false);
@@ -210,7 +194,6 @@ public class GameOverDirector : MonoBehaviour
         {
             if(mainMenu.currencyPanel != null) mainMenu.currencyPanel.SetActive(true);
             if (mainMenu.startGameButton != null) mainMenu.startGameButton.gameObject.SetActive(true);
-            if (mainMenu.continueButton != null) mainMenu.continueButton.gameObject.SetActive(true);
             if (mainMenu.openUpgradeButton != null) mainMenu.openUpgradeButton.gameObject.SetActive(true);
             if (mainMenu.openDeckButton != null) mainMenu.openDeckButton.gameObject.SetActive(true);
             if (mainMenu.openStoreButton != null) mainMenu.openStoreButton.gameObject.SetActive(true);

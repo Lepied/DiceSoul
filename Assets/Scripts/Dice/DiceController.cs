@@ -16,6 +16,9 @@ public class DiceController : MonoBehaviour
     public Transform diceContainer;
     public Button rollButtonUI;
     public AudioClip rollSound;
+    
+    [Header("Roll Count Display")]
+    public RollCountDisplay rollCountDisplay;
 
     [Header("게임 로직 설정")]
     public int baseMaxRolls = 3;
@@ -87,6 +90,11 @@ public class DiceController : MonoBehaviour
         else
         {
             Debug.LogError("Roll Button UI가 DiceController에 연결되지 않았습니다!");
+        }
+        
+        if (rollCountDisplay != null)
+        {
+            rollCountDisplay.Initialize(baseMaxRolls);
         }
     }
 
@@ -253,6 +261,11 @@ public class DiceController : MonoBehaviour
         if (diceContainer != null) diceContainer.gameObject.SetActive(false);
 
         if (UIManager.Instance != null) UIManager.Instance.UpdateRollCount(currentRollCount, maxRolls);
+        
+        if (rollCountDisplay != null)
+        {
+            rollCountDisplay.UpdateDisplay(currentRollCount, maxRolls);
+        }
     }
 
     private void OnRollButton()
@@ -304,6 +317,10 @@ public class DiceController : MonoBehaviour
         if (UIManager.Instance != null)
         {
             UIManager.Instance.UpdateRollCount(currentRollCount, maxRolls);
+        }
+        if (rollCountDisplay != null)
+        {
+            rollCountDisplay.OnDiceRolled(currentRollCount);
         }
 
         StartCoroutine(RollSequence());
@@ -407,6 +424,16 @@ public class DiceController : MonoBehaviour
         {
             int bonusRerolls = (int)GameManager.Instance.GetTotalMetaBonus(MetaEffectType.MaxRerolls);
             maxRolls += bonusRerolls;
+        }
+        
+        // RollCountDisplay 리셋
+        if (rollCountDisplay != null)
+        {
+            if (rollCountDisplay.GetRemainingRolls() != maxRolls)
+            {
+                rollCountDisplay.Initialize(maxRolls);
+            }
+            rollCountDisplay.ResetRollCount();
         }
         
         // 유물 효과로 굴림 횟수 보너스 재적용

@@ -18,29 +18,27 @@ public class MainMenuManager : MonoBehaviour
 
     [Header("메인 화면 버튼")]
     public Button startGameButton;
-    public Button continueButton;
     public Button openUpgradeButton;
     public Button openDeckButton;
     public Button openStoreButton;
     public Button settingsButton;
 
-    [Header("덱 선택 UI (Carousel)")]
+    [Header("덱 선택 UI")]
     public GameObject deckSelectionPanel;
-    public Button closeDeckButton;        // 덱 패널 닫기
-    public Transform deckListContent;     // ScrollView의 Content
+    public Button closeDeckButton;
+    public Transform deckListContent;
     public GameObject deckListItemPrefab;
 
-    [Tooltip("모든 덱 데이터 (ScriptableObject)")]
+    [Tooltip("모든 덱 데이터")]
     public List<DeckData> allDecks;
 
     [Header("캐러셀 & 액션 버튼")]
-    [Tooltip("새로 만든 DeckSnapScroller 스크립트를 연결하세요")]
     public DeckSnapScroller snapScroller;
 
-    [Tooltip("패널 하단 중앙에 고정된 기능 수행 버튼")]
+    [Tooltip("패널 하단 기능 수행 버튼")]
     public Button actionButton;
     public TextMeshProUGUI actionButtonText;
-    public GameObject lockIcon;       // 버튼 옆 자물쇠 아이콘 (선택사항)
+    public GameObject lockIcon;
 
     [Header("업그레이드 UI")]
     public GameObject upgradeShopPanel;
@@ -74,6 +72,14 @@ public class MainMenuManager : MonoBehaviour
             return;
         }
         
+        // 세이브 파일 있으면 바로 이어하기로
+        if (SaveManager.Instance != null && SaveManager.Instance.HasSaveFile())
+        {
+            SaveManager.shouldLoadSave = true;
+            SceneManager.LoadScene(gameSceneName);
+            return;
+        }
+        
         LoadMetaCurrency();
 
         // 패널 초기화
@@ -85,12 +91,7 @@ public class MainMenuManager : MonoBehaviour
         // 메인 버튼 리스너 연결
         if (startGameButton != null) startGameButton.onClick.AddListener(OnStartGame);
         if (settingsButton != null) settingsButton.onClick.AddListener(OnOpenSettings);
-        if (continueButton != null)
-        {
-            bool hasSave = SaveManager.Instance.HasSaveFile();
-            continueButton.interactable = hasSave; // 파일 없으면 비활성화
-            continueButton.onClick.AddListener(OnContinueGame);
-        }
+
 
         // 덱 패널 버튼 연결
         if (openDeckButton != null) openDeckButton.onClick.AddListener(OnOpenDeckPanel);
@@ -371,18 +372,6 @@ public class MainMenuManager : MonoBehaviour
     // --- 게임 실행 ---
     public void OnStartGame()
     {
-        if (SceneController.Instance != null)
-        {
-            SceneController.Instance.LoadGameWithFade();
-        }
-        else
-        {
-            SceneManager.LoadScene(gameSceneName);
-        }
-    }
-    public void OnContinueGame()
-    {
-        SaveManager.shouldLoadSave = true;
         if (SceneController.Instance != null)
         {
             SceneController.Instance.LoadGameWithFade();
