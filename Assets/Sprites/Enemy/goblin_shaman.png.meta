@@ -1,13 +1,13 @@
 fileFormatVersion: 2
-guid: 19cc8b59adf724f4388bdfd227a6b2a8
+guid: 155bdf7bea11b1949a1e944187f0eea9
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1278124986143583511
-    second: goblin_shaman_0
+      213: 6659162010804943760
+    second: goblin_shaman 1_0
   - first:
-      213: 2741481336981043720
-    second: goblin_shaman_1
+      213: 521469024264947973
+    second: goblin_shaman 1_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -112,27 +112,62 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: goblin_shaman_1
+      name: goblin_shaman 1_0
       rect:
         serializedVersion: 2
-        x: 21
-        y: 79
-        width: 436
-        height: 368
+        x: 135
+        y: 161
+        width: 154
+        height: 680
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 80a3e1140c2bb0620800000000000000
-      internalID: 2741481336981043720
+      spriteID: 09bfdcb21981a6c50800000000000000
+      internalID: 6659162010804943760
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: goblin_shaman 1_1
+      rect:
+        serializedVersion: 2
+        x: 310
+        y: 237
+        width: 610
+        height: 557
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5098ea09051ac3700800000000000000
+      internalID: 521469024264947973
       vertices: []
       indices: 
       edges: []
@@ -141,7 +176,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 6517d913042a7b0418897c5320b8ba03
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -151,8 +186,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      goblin_shaman_0: 1278124986143583511
-      goblin_shaman_1: 2741481336981043720
+      goblin_shaman 1_0: 6659162010804943760
+      goblin_shaman 1_1: 521469024264947973
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -493,9 +493,6 @@ public class GameManager : MonoBehaviour
                     break;
             }
         }
-
-        if (UIManager.Instance != null)
-            UIManager.Instance.UpdateRollCount(0, diceController.maxRolls);
     }
 
     public void ProcessWaveClear(bool isSuccess, int rollsRemaining)
@@ -863,11 +860,6 @@ public class GameManager : MonoBehaviour
         Debug.Log("보유한 유물 효과를 모두 적용합니다...");
 
         ApplyZoneBuffs(diceController);
-
-        if (UIManager.Instance != null)
-        {
-            UIManager.Instance.UpdateRollCount(0, diceController.maxRolls);
-        }
     }
 
     // --- 상점 구매용 함수들 ---

@@ -16,7 +16,6 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI waveText;
     public TextMeshProUGUI totalGoldText;
     public TextMeshProUGUI healthText;
-    public TextMeshProUGUI rollCountText;
 
     [Header("공격 선택 UI")]
     public GameObject attackOptionsPanel;
@@ -44,6 +43,7 @@ public class UIManager : MonoBehaviour
     public Button[] relicChoiceButtons;
     public TextMeshProUGUI[] relicNameTexts;
     public TextMeshProUGUI[] relicDescriptionTexts;
+    public Image[] relicIconImages;
 
     [Header("상점/정비 UI")]
     public GameObject maintenancePanel;
@@ -300,11 +300,6 @@ public class UIManager : MonoBehaviour
             }
         }
     }
-    public void UpdateRollCount(int current, int max)
-    {
-        if (rollCountText != null) rollCountText.text = $"Roll: {current} / {max}";
-    }
-
     public void FadeIn(float duration = 2.0f)
     {
         if (SoundManager.Instance != null && SoundManager.Instance.bgmSource != null)
@@ -424,8 +419,8 @@ public class UIManager : MonoBehaviour
         }
 
         enemyDetailPopup.transform.position = iconRect.transform.position;
-        float offset = (iconRect.rect.width * iconRect.lossyScale.x / 2) + (enemyDetailPopup.GetComponent<RectTransform>().rect.width * enemyDetailPopup.GetComponent<RectTransform>().lossyScale.x / 2) + 10f;
-        enemyDetailPopup.transform.position += new Vector3(offset, 0, 0);
+        float offset = iconRect.rect.width * iconRect.lossyScale.x + 40f;
+        enemyDetailPopup.transform.position += new Vector3(offset, -100f, 0);
     }
     public void HideEnemyDetail()
     {
@@ -526,7 +521,6 @@ public class UIManager : MonoBehaviour
                 else
                 {
                     Debug.Log("[유물] 이중 주사위: 이번 웨이브에서 이미 사용했습니다.");
-                    ShowTemporaryMessage("이중 주사위는 이미 사용했습니다!");
                 }
                 break;
                 
@@ -539,7 +533,6 @@ public class UIManager : MonoBehaviour
                 else
                 {
                     Debug.Log("[유물] 운명의 주사위: 이번 런에서 이미 사용했습니다.");
-                    ShowTemporaryMessage("운명의 주사위는 이미 사용했습니다!");
                 }
                 break;
                 
@@ -551,7 +544,6 @@ public class UIManager : MonoBehaviour
     private void StartDoubleDiceSelection()
     {
         Debug.Log("[UI] 이중 주사위 사용 - 2배로 만들 주사위를 클릭하세요");
-        ShowTemporaryMessage("2배로 만들 주사위를 클릭하세요!");
         
         // DiceController에 선택 모드 활성화 신호 보내기
         if (DiceController.Instance != null)
@@ -575,7 +567,6 @@ public class UIManager : MonoBehaviour
         
         if (currentValues.Count == 0)
         {
-            ShowTemporaryMessage("주사위가 없습니다!");
             return;
         }
         
@@ -590,7 +581,6 @@ public class UIManager : MonoBehaviour
         {
             // DiceController에 변경된 값 적용
             DiceController.Instance.ApplyFateDiceValues(values);
-            ShowTemporaryMessage("모든 주사위가 최대값이 되었습니다!");
             
             // 유물 패널 업데이트 (회색 처리)
             if (GameManager.Instance != null)
@@ -630,16 +620,6 @@ public class UIManager : MonoBehaviour
         {
             button.interactable = canUse;
         }
-    }
-    
-    // 임시 메시지 표시 (2초간)
-    private void ShowTemporaryMessage(string message)
-    {
-        // 기존 메시지 UI가 있으면 사용, 없으면 콘솔 로그
-        Debug.Log($"[알림] {message}");
-        
-        // TODO: 실제 UI 팝업 구현 시 여기에 추가
-        // 예: messageText.text = message; StartCoroutine(HideMessageAfterDelay(2f));
     }
     
     public void ShowRelicDetail(Relic relic, RectTransform iconRect)
@@ -919,12 +899,14 @@ public class UIManager : MonoBehaviour
             {
                 Relic relic = relicOptions[i];
                 relicNameTexts[i].text = relic.Name;
-                
+                relicIconImages[i].sprite = relic.Icon;
+
                 // 획득 가능 여부 체크 및 설명 업데이트
                 bool canAcquire = GameManager.Instance.CanAcquireRelic(relic);
                 int currentCount = GameManager.Instance.activeRelics.Count(r => r.RelicID == relic.RelicID);
                 int effectiveMax = GameManager.Instance.GetEffectiveMaxCount(relic.RelicID, relic.MaxCount);
-                
+
+
                 string description = relic.Description;
                 if (effectiveMax > 0)
                 {
@@ -1101,7 +1083,6 @@ public class UIManager : MonoBehaviour
         if (waveText != null) waveText.gameObject.SetActive(false);
         if (totalGoldText != null) totalGoldText.gameObject.SetActive(false);
         if (healthText != null) healthText.gameObject.SetActive(false);
-        if (rollCountText != null) rollCountText.gameObject.SetActive(false);
 
         if (waveText != null && waveText.transform.parent != null)
         {

@@ -7349,7 +7349,6 @@ MonoBehaviour:
   metaCurrencyText: {fileID: 1745716444}
   metaCurrencyKey: MetaCurrency
   startGameButton: {fileID: 715771324}
-  continueButton: {fileID: 0}
   openUpgradeButton: {fileID: 2016553257}
   openDeckButton: {fileID: 401893756}
   openStoreButton: {fileID: 257158082}

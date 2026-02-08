@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 90a1d4239cfd03a4d9770fcd01a6bce8
+guid: 64c11ee8a470d9d4ba8cb1a47b70489b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7050238911309303443
-    second: goblin_archer_0
+      213: -3530080870302512563
+    second: goblin_archer 1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -109,17 +109,30 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: goblin_archer_0
+      name: goblin_archer 1_0
       rect:
         serializedVersion: 2
-        x: 59
-        y: 48
-        width: 388
-        height: 397
+        x: 114
+        y: 92
+        width: 800
+        height: 896
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 39e4a32afea77d160800000000000000
-      internalID: 7050238911309303443
+      spriteID: d4a8731d622a20fc0800000000000000
+      internalID: -3530080870302512563
       vertices: []
       indices: 
       edges: []
@@ -148,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      goblin_archer_0: 7050238911309303443
+      goblin_archer 1_0: -3530080870302512563
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

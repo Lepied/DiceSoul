@@ -259,8 +259,6 @@ public class DiceController : MonoBehaviour
         
         // 주사위 굴리기 전까지 숨김
         if (diceContainer != null) diceContainer.gameObject.SetActive(false);
-
-        if (UIManager.Instance != null) UIManager.Instance.UpdateRollCount(currentRollCount, maxRolls);
         
         if (rollCountDisplay != null)
         {
@@ -313,10 +311,6 @@ public class DiceController : MonoBehaviour
         if (SoundManager.Instance != null && rollSound != null)
         {
             SoundManager.Instance.PlayRandomPitchSFX(rollSound);
-        }
-        if (UIManager.Instance != null)
-        {
-            UIManager.Instance.UpdateRollCount(currentRollCount, maxRolls);
         }
         if (rollCountDisplay != null)
         {
