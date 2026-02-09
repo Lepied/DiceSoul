@@ -40,7 +40,7 @@ public class AttackDB : MonoBehaviour
         
         // 야찌 (5개)
         allJokbos.Add(new AttackJokbo(
-            "야찌 (5개)", 150, 100,
+            "야찌", 150, 100,
             (diceValues) => diceValues.GroupBy(v => v).Any(g => g.Count() >= 5),
             (diceValues) => GetSameValueIndices(diceValues, 5),
             AttackTargetType.AoE,
@@ -49,7 +49,7 @@ public class AttackDB : MonoBehaviour
 
         // 포카드 (4개) - 1명 선택 + 전체 공격
         allJokbos.Add(new AttackJokbo(
-            "포카드 (4개)", 80, 50,
+            "포카드", 80, 50,
             (diceValues) => diceValues.GroupBy(v => v).Any(g => g.Count() >= 4),
             (diceValues) => GetSameValueIndices(diceValues, 4),
             AttackTargetType.Hybrid,
@@ -63,7 +63,7 @@ public class AttackDB : MonoBehaviour
 
         // 풀 하우스 (3+2) - 2명 선택 + 랜덤 공격
         allJokbos.Add(new AttackJokbo(
-            "풀 하우스 (3+2)", 70, 40,
+            "풀 하우스", 70, 40,
             (diceValues) => {
                 var groups = diceValues.GroupBy(v => v);
                 return groups.Any(g => g.Count() == 3) && groups.Any(g => g.Count() == 2);
@@ -81,7 +81,7 @@ public class AttackDB : MonoBehaviour
 
         // 스트레이트 (5연속)
         allJokbos.Add(new AttackJokbo(
-            "스트레이트 (5연속)",
+            "스트레이트(5)",
             70,
             40, 
             (diceValues) => {
@@ -98,7 +98,7 @@ public class AttackDB : MonoBehaviour
         
         // 스트레이트 (4연속)
         allJokbos.Add(new AttackJokbo(
-            "스트레이트 (4연속)",
+            "스트레이트(4)",
             50,
             25, 
             (diceValues) => {
@@ -115,7 +115,7 @@ public class AttackDB : MonoBehaviour
         
         // 트리플 (3개) - 3명 선택
         allJokbos.Add(new AttackJokbo(
-            "트리플 (3개)", 40, 20,
+            "트리플", 40, 20,
             (diceValues) => diceValues.GroupBy(v => v).Any(g => g.Count() >= 3),
             (diceValues) => GetSameValueIndices(diceValues, 3),
             AttackTargetType.Single,
@@ -125,7 +125,7 @@ public class AttackDB : MonoBehaviour
 
         // 투 페어 (2+2) - 2명 선택
         allJokbos.Add(new AttackJokbo(
-            "투 페어 (2+2)", 25, 10,
+            "투 페어", 25, 10,
             (diceValues) => diceValues.GroupBy(v => v).Count(g => g.Count() >= 2) >= 2,
             (diceValues) => GetTwoPairIndices(diceValues),
             AttackTargetType.Single,
@@ -135,7 +135,7 @@ public class AttackDB : MonoBehaviour
 
         // 원 페어 (2)
         allJokbos.Add(new AttackJokbo(
-            "원 페어 (2)", 15, 5,
+            "원 페어", 15, 5,
             (diceValues) => diceValues.GroupBy(v => v).Any(g => g.Count() >= 2),
             (diceValues) => GetSameValueIndices(diceValues, 2),
             AttackTargetType.Random,

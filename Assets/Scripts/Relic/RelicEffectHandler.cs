@@ -143,39 +143,45 @@ public class RelicEffectHandler : MonoBehaviour
         if (HasRelic("RLC_LODESTONE"))
         {
             ctx.RerollIndices = ctx.RerollIndices ?? new List<int>();
+            int oddCount = 0;
             for (int i = 0; i < ctx.DiceValues.Length; i++)
             {
-                if (ctx.DiceValues[i] % 2 == 1) // 홀수
+                if (ctx.DiceValues[i] % 2 == 1 && !ctx.RerollIndices.Contains(i))
+                {
                     ctx.RerollIndices.Add(i);
+                    oddCount++;
+                }
             }
-            if (ctx.RerollIndices.Count > 0)
-                Debug.Log($"[유물] 자철석: 홀수 {ctx.RerollIndices.Count}개 재굴림");
         }
 
         // RLC_TANZANITE: 탄자나이트 - 짝수 재굴림
         if (HasRelic("RLC_TANZANITE"))
         {
             ctx.RerollIndices = ctx.RerollIndices ?? new List<int>();
+            int evenCount = 0;
             for (int i = 0; i < ctx.DiceValues.Length; i++)
             {
-                if (ctx.DiceValues[i] % 2 == 0) // 짝수
+                if (ctx.DiceValues[i] % 2 == 0 && !ctx.RerollIndices.Contains(i))
+                {
                     ctx.RerollIndices.Add(i);
+                    evenCount++;
+                }
             }
-            if (ctx.RerollIndices.Count > 0)
-                Debug.Log($"[유물] 탄자나이트: 짝수 {ctx.RerollIndices.Count}개 재굴림");
         }
 
         // RLC_FEATHER: 가벼운 깃털 - 6 재굴림
         if (HasRelic("RLC_FEATHER"))
         {
             ctx.RerollIndices = ctx.RerollIndices ?? new List<int>();
+            int sixCount = 0;
             for (int i = 0; i < ctx.DiceValues.Length; i++)
             {
-                if (ctx.DiceValues[i] == 6)
+                if (ctx.DiceValues[i] == 6 && !ctx.RerollIndices.Contains(i))
+                {
                     ctx.RerollIndices.Add(i);
+                    sixCount++;
+                }
             }
-            if (ctx.RerollIndices.Count > 0)
-                Debug.Log($"[유물] 가벼운 깃털: 6이 {ctx.RerollIndices.Count}개 재굴림");
         }
 
         // RLC_QUICK_RELOAD: 빠른 장전 - 첫 굴림 시 주사위 2개 재굴림

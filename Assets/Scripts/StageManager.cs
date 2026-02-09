@@ -102,67 +102,13 @@ public class StageManager : MonoBehaviour
             }
         }
 
-        // 2. 이벤트 시스템으로 유물 효과 적용
-        RollContext rollCtx = new RollContext
-        {
-            DiceValues = initialValues.ToArray(),
-            DiceTypes = GameManager.Instance.playerDiceDeck.ToArray(),
-            IsFirstRoll = (diceController.currentRollCount == 1),
-            RerollIndices = new List<int>()
-        };
-        GameEvents.RaiseDiceRolled(rollCtx);
+        // 2. DiceController에서 이미 유물 효과 및 재굴림 처리 완료
+        // initialValues는 이미 모든 유물 효과가 적용된 최종 값
         
-        // 이벤트에서 수정된 값 적용
-        List<int> modifiedValues = rollCtx.DiceValues.ToList();
-
-        bool anyChange = false;
-
-        // 3. 값이 바뀐 주사위 찾아내서 연출 재생
-        for (int i = 0; i < initialValues.Count; i++)
-        {
-            if (initialValues[i] != modifiedValues[i])
-            {
-                anyChange = true;
-                int oldVal = initialValues[i];
-                int newVal = modifiedValues[i];
-
-                // 여기서 연출 고르기. 각 유물 효과 적용해서 구분시키기
-                if (oldVal == 1 && newVal == 7)
-                {
-                    // 연금술사의 돌 등: 뾰로롱 연출
-                    DiceController.Instance.PlayMagicChangeVisual(i, newVal);
-                }
-                else
-                {
-                    // 가벼운 깃털, 자철석 등: 다시 굴리기 연출
-                    DiceController.Instance.PlayRerollVisual(i, newVal);
-                }
-            }
-        }
-        
-        // 4. RerollIndices가 있으면 해당 주사위 재굴림 처리
-        if (rollCtx.RerollIndices != null && rollCtx.RerollIndices.Count > 0)
-        {
-            anyChange = true;
-            foreach (int idx in rollCtx.RerollIndices)
-            {
-                if (idx >= 0 && idx < modifiedValues.Count)
-                {
-                    string diceType = GameManager.Instance.playerDiceDeck[idx];
-                    int newVal = RollSingleDice(diceType);
-                    DiceController.Instance.PlayRerollVisual(idx, newVal);
-                    modifiedValues[idx] = newVal;
-                }
-            }
-        }
-
-        // 5. 변화가 있었다면, 연출이 끝날 때까지 잠시 대기
-        if (anyChange)
-        {
-            yield return new WaitForSeconds(0.6f);
-        }
         //최종값으로 족보 계산
-        CheckJokbo(modifiedValues);
+        CheckJokbo(initialValues);
+        
+        yield break;
     }
     
     // 단일 주사위 굴림 헬퍼
@@ -276,7 +222,7 @@ public class StageManager : MonoBehaviour
         
         GameManager.Instance.AddShield(shieldAmount);
         
-        FinishAttackAndCheckChain(jokbo);
+        FinishAttackAndCheckChain();
     }
 
     //전체 공격 (AoE) 실행
@@ -294,7 +240,7 @@ public class StageManager : MonoBehaviour
         List<Enemy> targets = activeEnemies.Where(e => e != null && !e.isDead).ToList();
         if (targets.Count == 0)
         {
-            FinishAttackAndCheckChain(jokbo);
+            FinishAttackAndCheckChain();
             return;
         }
 
@@ -331,7 +277,7 @@ public class StageManager : MonoBehaviour
                     // VFX 완료 후
                     GameManager.Instance.AddGoldDirect(finalGold);
                     GameEvents.RaiseAfterAttack(attackCtx);
-                    FinishAttackAndCheckChain(jokbo);
+                    FinishAttackAndCheckChain();
                 }
             );
         }
@@ -347,7 +293,7 @@ public class StageManager : MonoBehaviour
 
             GameManager.Instance.AddGoldDirect(finalGold);
             GameEvents.RaiseAfterAttack(attackCtx);
-            FinishAttackAndCheckChain(jokbo);
+            FinishAttackAndCheckChain();
         }
     }
 
@@ -357,7 +303,7 @@ public class StageManager : MonoBehaviour
         List<Enemy> aliveEnemies = activeEnemies.Where(e => e != null && !e.isDead).ToList();
         if (aliveEnemies.Count == 0)
         {
-            FinishAttackAndCheckChain(jokbo);
+            FinishAttackAndCheckChain();
             return;
         }
         
@@ -432,7 +378,7 @@ public class StageManager : MonoBehaviour
                 onComplete: () =>
                 {
                     GameManager.Instance.AddGoldDirect(finalGold);
-                    FinishAttackAndCheckChain(jokbo);
+                    FinishAttackAndCheckChain();
                 }
             );
         }
@@ -447,7 +393,7 @@ public class StageManager : MonoBehaviour
             }
 
             GameManager.Instance.AddGoldDirect(finalGold);
-            FinishAttackAndCheckChain(jokbo);
+            FinishAttackAndCheckChain();
         }
     }
 
@@ -653,7 +599,7 @@ public class StageManager : MonoBehaviour
                     // VFX 완료 후
                     GameManager.Instance.AddGoldDirect(finalGold);
                     GameEvents.RaiseAfterAttack(attackCtx);
-                    FinishAttackAndCheckChain(jokbo);
+                    FinishAttackAndCheckChain();
                 }
             );
         }
@@ -672,7 +618,7 @@ public class StageManager : MonoBehaviour
 
             GameManager.Instance.AddGoldDirect(finalGold);
             GameEvents.RaiseAfterAttack(attackCtx);
-            FinishAttackAndCheckChain(jokbo);
+            FinishAttackAndCheckChain();
         }
     }
 
@@ -721,7 +667,7 @@ public class StageManager : MonoBehaviour
                     
                     ExecuteSubAttack(jokbo, mainTargets, onSubComplete: () =>
                     {
-                        FinishAttackAndCheckChain(jokbo);
+                        FinishAttackAndCheckChain();
                     });
                 }
             );
@@ -745,7 +691,7 @@ public class StageManager : MonoBehaviour
             // 부가 공격 실행
             ExecuteSubAttack(jokbo, mainTargets, onSubComplete: () =>
             {
-                FinishAttackAndCheckChain(jokbo);
+                FinishAttackAndCheckChain();
             });
         }
     }
@@ -879,12 +825,13 @@ public class StageManager : MonoBehaviour
             GoldMultiplier = 1.0f,
             IsFirstRoll = (diceController.currentRollCount == 1),
             RemainingRolls = diceController.maxRolls - diceController.currentRollCount,
-            HealAfterAttack = 0
+            HealAfterAttack = 0,
+            IsFirstAttackThisWave = (currentChainCount == 0)
         };
     }
 
     // 공격 완료 후 연쇄 공격 체크
-    private void FinishAttackAndCheckChain(AttackJokbo usedJokbo)
+    private void FinishAttackAndCheckChain()
     {
         // 주사위는 이미 Execute 메서드에서 제거되었음 (이중 제거 방지)
         
@@ -906,7 +853,6 @@ public class StageManager : MonoBehaviour
         int aliveEnemyCount = activeEnemies.Count(e => e != null && !e.isDead);
         if (aliveEnemyCount == 0)
         {
-            Debug.Log("[연쇄 종료] 모든 적 처치 완료");
             CheckWaveStatus();
             return;
         }
@@ -923,7 +869,6 @@ public class StageManager : MonoBehaviour
         if (remainingDice <= 0)
         {
             // 주사위 소진 → 턴 종료
-            Debug.Log("[연쇄 종료] 주사위 소진");
             CheckWaveStatus();
             return;
         }

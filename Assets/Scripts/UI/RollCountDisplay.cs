@@ -118,6 +118,41 @@ public class RollCountDisplay : MonoBehaviour
         }
     }
     
+    public void FillPipWithAnimation(int pipIndex)
+    {
+        if (pipIndex < 0 || pipIndex >= pipIcons.Count)
+            return;
+        
+        Image pip = pipIcons[pipIndex];
+        if (pip == null) return;
+        
+        RectTransform pipRect = pip.GetComponent<RectTransform>();
+        
+        if (useAnimation)
+        {
+            Sequence seq = DOTween.Sequence();
+            
+            // 스프라이트를 먼저 변경
+            seq.AppendCallback(() => 
+            {
+                pip.sprite = filledPipSprite;
+            });
+            
+            // 반짝이는 효과
+            Color originalColor = pip.color;
+            seq.Append(pip.DOColor(new Color(1f, 1f, 0.5f, 1f), 0.15f)); // 황금빛
+            seq.Append(pip.DOColor(originalColor, 0.2f));
+            
+            // 크기 변화
+            seq.Join(pipRect.DOScale(1.1f, 0.15f));
+            seq.Append(pipRect.DOScale(1.0f, 0.2f).SetEase(Ease.OutBack));
+        }
+        else
+        {
+            pip.sprite = filledPipSprite;
+        }
+    }
+    
     public void OnDiceRolled(int currentRollCount)
     {
         int pipToEmpty = maxRollCount - currentRollCount;

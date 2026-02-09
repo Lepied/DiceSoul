@@ -278,8 +278,11 @@ public class DiceController : MonoBehaviour
                 bool freeRollGranted = RelicEffectHandler.Instance.CheckFreeRollAtZero(GameManager.Instance.CurrentWave);
                 if (freeRollGranted)
                 {
-                    // 무료 굴림있음
-                    Debug.Log("[날쌘 손놀림] 무료 굴림");
+                    // 무료 굴림
+                    currentRollCount--;
+                    int restoredPipIndex = maxRolls - currentRollCount - 1;
+                    rollCountDisplay.FillPipWithAnimation(restoredPipIndex);
+                    rollCountDisplay.UpdateDisplay(currentRollCount, maxRolls);
                 }
                 else
                 {
@@ -366,7 +369,7 @@ public class DiceController : MonoBehaviour
         };
         GameEvents.RaiseDiceRolled(rollCtx);
 
-        // ★ 유물이 주사위 값을 변환했으면 UI에 반영
+        // 유물이 주사위 값을 변환했으면 UI에 반영
         for (int i = 0; i < activeDice.Count && i < rollCtx.DiceValues.Length; i++)
         {
             if (activeDice[i].Value != rollCtx.DiceValues[i])
@@ -376,7 +379,7 @@ public class DiceController : MonoBehaviour
             }
         }
 
-        // ★ 유물이 재굴림을 요청했으면 처리
+        // 유물이 재굴림을 요청했으면 처리
         if (rollCtx.RerollIndices != null && rollCtx.RerollIndices.Count > 0)
         {
             yield return new WaitForSeconds(0.3f); // 연출 대기
@@ -404,7 +407,6 @@ public class DiceController : MonoBehaviour
         {
             // Dice 리스트에서 값만 뽑아서 전달
             string debugValues = string.Join(", ", currentValues);
-            Debug.Log($"[DiceController] 굴림 완료! StageManager로 보내는 값: {debugValues}");
             StageManager.Instance.OnRollFinished(currentValues);
         }
     }

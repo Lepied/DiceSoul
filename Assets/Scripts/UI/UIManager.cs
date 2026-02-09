@@ -717,7 +717,7 @@ public class UIManager : MonoBehaviour
                 }
                 else
                 {
-                    attackValueTexts[i].text = $"Dmg: {finalBaseDamage} / Gold: {finalBaseGold}";
+                    attackValueTexts[i].text = $"Dmg: {finalBaseDamage}\nGold: {finalBaseGold}";
                 }
 
                 // 3. EventTrigger 가져오기
