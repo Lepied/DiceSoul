@@ -48,7 +48,7 @@ public class AttackContext
     
     public void Reset()
     {
-        Hand = null;
+        hand = null;
         BaseDamage = 0;
         FlatDamageBonus = 0;
         DamageMultiplier = 1f;
@@ -100,8 +100,8 @@ public class AttackContext
 // 족보 컨텍스트
 public class HandContext
 {
-    public AttackHand Hand;             // 선택된 족보
-    public List<AttackHand> AchievedHands; // 달성한 족보 목록
+    public AttackHand hand;             // 선택된 족보
+    public List<AttackHand> achievedHands; // 달성한 족보 목록
     public int[] DiceValues;              // 주사위 값들 (int[])
     public List<int> DiceValuesList;      // 주사위 값들 (List<int>)
     public bool ConsumeRoll = true;       // 굴림 횟수 소모 여부
@@ -110,8 +110,8 @@ public class HandContext
     
     public void Reset()
     {
-        Hand = null;
-        AchievedHands = null;
+        hand = null;
+        achievedHands = null;
         DiceValues = null;
         DiceValuesList = null;
         ConsumeRoll = true;

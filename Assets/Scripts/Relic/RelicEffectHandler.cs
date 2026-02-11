@@ -291,7 +291,7 @@ public class RelicEffectHandler : MonoBehaviour
                 case RelicEffectType.AddBaseGold:
                 case RelicEffectType.HandGoldAdd:
                     if (relic.StringValue == "ALL" || 
-                        (ctx.Hand != null && ctx.Hand.Description.Contains(relic.StringValue)))
+                        (ctx.hand != null && ctx.hand.Description.Contains(relic.StringValue)))
                     {
                         ctx.FlatGoldBonus += relic.IntValue;
                     }
@@ -299,7 +299,7 @@ public class RelicEffectHandler : MonoBehaviour
 
                 // === 족보별 데미지 추가 (검술 교본, 가시 장갑 등) ===
                 case RelicEffectType.HandDamageAdd:
-                    if (ctx.Hand != null && ctx.Hand.Description.Contains(relic.StringValue))
+                    if (ctx.hand != null && ctx.hand.Description.Contains(relic.StringValue))
                     {
                         ctx.FlatDamageBonus += relic.IntValue;
                     }
@@ -312,7 +312,7 @@ public class RelicEffectHandler : MonoBehaviour
 
                 // === 족보별 골드 배율 (백마법서, 흑마법서, 보석왕관 등) ===
                 case RelicEffectType.HandGoldMultiplier:
-                    if (ctx.Hand != null && ctx.Hand.Description.Contains(relic.StringValue))
+                    if (ctx.hand != null && ctx.hand.Description.Contains(relic.StringValue))
                     {
                         ctx.GoldMultiplier *= relic.FloatValue;
                     }
@@ -320,7 +320,7 @@ public class RelicEffectHandler : MonoBehaviour
 
                 // === 족보별 데미지 배율 (신규) ===
                 case RelicEffectType.HandDamageMultiplier:
-                    if (ctx.Hand != null && ctx.Hand.Description.Contains(relic.StringValue))
+                    if (ctx.hand != null && ctx.hand.Description.Contains(relic.StringValue))
                     {
                         ctx.DamageMultiplier *= relic.FloatValue;
                     }

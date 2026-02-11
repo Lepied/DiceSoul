@@ -12,37 +12,37 @@ RLC_TINY_DICE_DESC,덱에 D4 추가,Add D4 to deck
 RLC_QUICK_RELOAD_NAME,빠른 장전,Quick Reload
 RLC_QUICK_RELOAD_DESC,첫 굴림 시 주사위 2개 즉시 재굴림,Reroll 2 dice on first roll
 RLC_FOUNDATION_NAME,기틀,Foundation
-RLC_FOUNDATION_DESC,총합 패 데미지 +10,Sum Hand Damage +10
+RLC_FOUNDATION_DESC,총합 데미지 +10,Sum Damage +10
 RLC_SHARP_BLADE_NAME,날카로운 칼날,Sharp Blade
-RLC_SHARP_BLADE_DESC,스트레이트 패 데미지 +20,Straight Hand Damage +20
+RLC_SHARP_BLADE_DESC,스트레이트 데미지 +20,Straight Damage +20
 RLC_POLISHED_ORB_NAME,광택 구슬,Polished Orb
 RLC_POLISHED_ORB_DESC,연쇄 공격 시 공격마다 데미지 +30%,Chain attacks: +30% damage per attack
 RLC_SPIKE_GLOVE_NAME,가시 돋친 장갑,Spiked Glove
-RLC_SPIKE_GLOVE_DESC,투 페어 패 데미지 +15,Two Pair Hand Damage +15
+RLC_SPIKE_GLOVE_DESC,투 페어 데미지 +15,Two Pair Damage +15
 RLC_TRIPOD_NAME,삼각대,Tripod
-RLC_TRIPOD_DESC,트리플 패 골드 2배,Triple Hand Gold x2
+RLC_TRIPOD_DESC,트리플 골드 2배,Triple Gold x2
 RLC_HOUSE_NAME,집 모형,House Model
-RLC_HOUSE_DESC,풀 하우스 패 데미지 +25,Full House Hand Damage +25
+RLC_HOUSE_DESC,풀 하우스 데미지 +25,Full House Damage +25
 RLC_SMALL_SHIELD_NAME,작은 방패,Small Shield
 RLC_SMALL_SHIELD_DESC,최대 체력 20% 이하일 때 피해 무효화 (존 당 1회),Nullify damage when HP ≤20% (once per zone)
 RLC_SWIFT_HANDS_NAME,날쌘 손놀림,Swift Hands
 RLC_SWIFT_HANDS_DESC,굴림 가능 횟수가 0일 때 1회 무료 충전,Grant 1 free roll when out of rolls
 RLC_WHITEBOOK_NAME,백마법서,White Grimoire
-RLC_WHITEBOOK_DESC,모두 짝수 패 골드 2배,All Even Hand Gold x2
+RLC_WHITEBOOK_DESC,모두 짝수 골드 2배,All Even Gold x2
 RLC_DARKBOOK_NAME,흑마법서,Dark Grimoire
-RLC_DARKBOOK_DESC,모두 홀수 패 골드 2배,All Odd Hand Gold x2
+RLC_DARKBOOK_DESC,모두 홀수 골드 2배,All Odd Gold x2
 RLC_SWORD_BOOK_NAME,검술 교본,Swordsmanship Manual
-RLC_SWORD_BOOK_DESC,모든 스트레이트 패 데미지 +30,All Straight Hand Damage +30
+RLC_SWORD_BOOK_DESC,모든 스트레이트 데미지 +30,All Straight Damage +30
 RLC_SPIKED_HAMMER_NAME,가시 망치,Spiked Hammer
-RLC_SPIKED_HAMMER_DESC,포카드 패 데미지 +20,Four of a Kind Hand Damage +20
+RLC_SPIKED_HAMMER_DESC,포카드 데미지 +20,Four of a Kind Damage +20
 RLC_EVEN_BOOK_NAME,짝수의 서,Book of Evens
 RLC_EVEN_BOOK_DESC,모두 짝수일 때 데미지 1.5배,All Even: Damage x1.5
 RLC_ODD_BOOK_NAME,홀수의 서,Book of Odds
 RLC_ODD_BOOK_DESC,모두 홀수일 때 데미지 1.5배,All Odd: Damage x1.5
 RLC_LUCKY_RING_NAME,행운의 반지,Lucky Ring
-RLC_LUCKY_RING_DESC,트리플 패 데미지 +20,Triple Hand Damage +20
+RLC_LUCKY_RING_DESC,트리플 데미지 +20,Triple Damage +20
 RLC_IRON_FIST_NAME,철제 주먹,Iron Fist
-RLC_IRON_FIST_DESC,투 페어 패 데미지 +10,Two Pair Hand Damage +10
+RLC_IRON_FIST_DESC,투 페어 데미지 +10,Two Pair Damage +10
 RLC_GAMBLER_RING_NAME,도박사의 반지,Gambler's Ring
 RLC_GAMBLER_RING_DESC,모든 패 데미지+20%; 최대 체력 -9,All Hand Damage +20%; Max HP -9
 RLC_LUCKY_CLOVER_NAME,행운의 네잎클로버,Lucky Four-Leaf Clover
