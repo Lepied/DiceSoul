@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic; // List<T>
 using System.Linq;
 using DG.Tweening;
-using UnityEditor.SettingsManagement;
 using UnityEngine.InputSystem;
 
 public class DiceController : MonoBehaviour
