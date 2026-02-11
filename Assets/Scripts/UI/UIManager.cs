@@ -206,25 +206,37 @@ public class UIManager : MonoBehaviour
     }
     public void UpdateWaveText(int zone, int wave)
     {
-        if (waveText != null) waveText.text = $"Zone {zone} - Wave {wave}";
+        if (waveText != null)
+        {
+            string zoneLabel = LocalizationManager.Instance.GetText("INGAME_ZONE");
+            string waveLabel = LocalizationManager.Instance.GetText("INGAME_WAVE");
+            waveText.text = $"{zoneLabel} {zone} - {waveLabel} {wave}";
+        }
         UpdateDiceInventoryUI();
     }
     public void UpdateGold(int gold)
     {
-        if (totalGoldText != null) totalGoldText.text = $"Gold: {gold}";
+        if (totalGoldText != null)
+        {
+            string goldLabel = LocalizationManager.Instance.GetText("INGAME_GOLD");
+            totalGoldText.text = $"{goldLabel}: {gold}";
+        }
     }
     public void UpdateHealth(int current, int max)
     {
         int shield = GameManager.Instance != null ? GameManager.Instance.CurrentShield : 0;
         if (healthText != null)
         {
+            string hpLabel = LocalizationManager.Instance.GetText("INGAME_HP");
             if (shield > 0)
             {
-                healthText.text = $"HP: {current} / {max} (+{shield})";
+                string shieldPrefix = LocalizationManager.Instance.GetText("INGAME_SHIELD_PREFIX");
+                string shieldSuffix = LocalizationManager.Instance.GetText("INGAME_SHIELD_SUFFIX");
+                healthText.text = $"{hpLabel}: {current} / {max} {shieldPrefix}{shield}{shieldSuffix}";
             }
             else
             {
-                healthText.text = $"HP: {current} / {max}";
+                healthText.text = $"{hpLabel}: {current} / {max}";
             }
         }
     }
@@ -407,12 +419,26 @@ public class UIManager : MonoBehaviour
             SpriteRenderer enemySprite = enemy.GetComponent<SpriteRenderer>();
             if (enemySprite != null) enemyDetailIcon.sprite = enemySprite.sprite;
         }
-        if (enemyDetailName != null) enemyDetailName.text = enemy.enemyName + (enemy.isBoss ? " (Boss)" : "");
-        if (enemyDetailHP != null) enemyDetailHP.text = $"HP: {enemy.maxHP} / ATK: {enemy.attackDamage}";
+        
+        if (enemyDetailName != null)
+        {
+            string bossSuffix = enemy.isBoss ? " " + LocalizationManager.Instance.GetText("INGAME_BOSS_SUFFIX") : "";
+            enemyDetailName.text = enemy.GetLocalizedName() + bossSuffix;
+        }
+        
+        if (enemyDetailHP != null)
+        {
+            string hpLabel = LocalizationManager.Instance.GetText("INGAME_HP");
+            string atkLabel = LocalizationManager.Instance.GetText("INGAME_ATK");
+            enemyDetailHP.text = $"{hpLabel}: {enemy.maxHP} / {atkLabel}: {enemy.attackDamage}";
+        }
+        
         if (enemyDetailType != null)
         {
-            enemyDetailType.text = $"타입: {enemy.enemyType.ToString()}";
+            string typeLabel = LocalizationManager.Instance.GetText("INGAME_ENEMY_TYPE");
+            enemyDetailType.text = $"{typeLabel}: {enemy.enemyType.ToString()}";
         }
+        
         if (enemyDetailGimmick != null)
         {
             enemyDetailGimmick.text = enemy.GetGimmickDescription();
@@ -626,8 +652,8 @@ public class UIManager : MonoBehaviour
     {
         if (relicDetailPopup == null) return;
         relicDetailPopup.SetActive(true);
-        if (relicDetailName != null) relicDetailName.text = relic.Name;
-        if (relicDetailDescription != null) relicDetailDescription.text = relic.Description;
+        if (relicDetailName != null) relicDetailName.text = relic.GetLocalizedName();
+        if (relicDetailDescription != null) relicDetailDescription.text = relic.GetLocalizedDescription();
         Vector3 iconBottomPosition = iconRect.transform.position - new Vector3(0, iconRect.rect.height / 2 * iconRect.lossyScale.y, 0);
         relicDetailPopup.transform.position = iconBottomPosition;
         float yOffset = (relicDetailPopup.GetComponent<RectTransform>().rect.height / 2 * relicDetailPopup.GetComponent<RectTransform>().lossyScale.y) + 5f;
@@ -710,14 +736,17 @@ public class UIManager : MonoBehaviour
                     StageManager.Instance.GetPreviewValues(jokbo);
 
                 // 2. 최종 계산된 값으로 텍스트 설정
-                attackNameTexts[i].text = jokbo.Description;
+                attackNameTexts[i].text = jokbo.GetLocalizedDescription();
                 if (jokbo.TargetType == AttackTargetType.Defense)
                 {
-                    attackValueTexts[i].text = $"Shield: {finalBaseDamage}";
+                    string shieldLabel = LocalizationManager.Instance.GetText("INGAME_SHIELD");
+                    attackValueTexts[i].text = $"{shieldLabel}: {finalBaseDamage}";
                 }
                 else
                 {
-                    attackValueTexts[i].text = $"Dmg: {finalBaseDamage}\nGold: {finalBaseGold}";
+                    string dmgLabel = LocalizationManager.Instance.GetText("INGAME_DMG");
+                    string goldLabel = LocalizationManager.Instance.GetText("INGAME_GOLD");
+                    attackValueTexts[i].text = $"{dmgLabel}: {finalBaseDamage}\n{goldLabel}: {finalBaseGold}";
                 }
 
                 // 3. EventTrigger 가져오기
@@ -898,7 +927,7 @@ public class UIManager : MonoBehaviour
             if (i < relicOptions.Count)
             {
                 Relic relic = relicOptions[i];
-                relicNameTexts[i].text = relic.Name;
+                relicNameTexts[i].text = relic.GetLocalizedName();
                 relicIconImages[i].sprite = relic.Icon;
 
                 // 획득 가능 여부 체크 및 설명 업데이트
@@ -907,10 +936,11 @@ public class UIManager : MonoBehaviour
                 int effectiveMax = GameManager.Instance.GetEffectiveMaxCount(relic.RelicID, relic.MaxCount);
 
 
-                string description = relic.Description;
+                string description = relic.GetLocalizedDescription();
                 if (effectiveMax > 0)
                 {
-                    description += $"\n<color=#888888>보유: {currentCount}/{effectiveMax}</color>";
+                    string ownedLabel = LocalizationManager.Instance.GetText("UI_OWNED");
+                    description += $"\n<color=#888888>{ownedLabel}: {currentCount}/{effectiveMax}</color>";
                 }
                 relicDescriptionTexts[i].text = description;
                 
@@ -1002,7 +1032,11 @@ public class UIManager : MonoBehaviour
         }
 
         // 3. 리롤 버튼 업데이트
-        if (rerollCostText != null) rerollCostText.text = $"{rerollCost} Gold";
+        if (rerollCostText != null)
+        {
+            string goldSuffix = LocalizationManager.Instance.GetText("INGAME_REROLL_COST_SUFFIX");
+            rerollCostText.text = $"{rerollCost} {goldSuffix}";
+        }
         if (rerollButton != null)
         {
             rerollButton.interactable = GameManager.Instance.CurrentGold >= rerollCost;
@@ -1120,7 +1154,8 @@ public class UIManager : MonoBehaviour
     {
         if (targetSelectionText != null)
         {
-            targetSelectionText.text = $"적을 선택하세요 ({currentCount}/{requiredCount})";
+            string selectLabel = LocalizationManager.Instance.GetText("INGAME_TARGET_SELECT");
+            targetSelectionText.text = $"{selectLabel} ({currentCount}/{requiredCount})";
         }
     }
 

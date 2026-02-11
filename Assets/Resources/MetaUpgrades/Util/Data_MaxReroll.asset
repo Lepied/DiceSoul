@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Data_MaxReroll
   m_EditorClassIdentifier: Assembly-CSharp::MetaUpgradeData
   id: Upgrade_MaxReroll
-  displayName: "\uB9AC\uB864 \uC219\uB828"
+  displayName: "\uC219\uB828"
   description: "\uCD5C\uB300 \uB9AC\uB864 \uD69F\uC218\uB97C \uC99D\uAC00\uC2DC\uD0B5\uB2C8\uB2E4."
   icon: {fileID: 6031925184510419064, guid: 98223199e1a734d49b58f2389765ad3e, type: 3}
   maxLevel: 1

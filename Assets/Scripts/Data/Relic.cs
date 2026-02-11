@@ -118,4 +118,34 @@ public class Relic
         this.StringValue = stringValue;
         this.MaxCount = maxCount;
     }
+    
+    // 로컬라이제이션된 이름 반환
+    public string GetLocalizedName()
+    {
+        if (LocalizationManager.Instance != null)
+        {
+            string key = $"{RelicID}_NAME";
+            string localized = LocalizationManager.Instance.GetText(key);
+            if (!localized.StartsWith("[")) // 키가 존재하면
+            {
+                return localized;
+            }
+        }
+        return Name;
+    }
+    
+    // 로컬라이제이션된 설명 반환
+    public string GetLocalizedDescription()
+    {
+        if (LocalizationManager.Instance != null)
+        {
+            string key = $"{RelicID}_DESC";
+            string localized = LocalizationManager.Instance.GetText(key);
+            if (!localized.StartsWith("[")) // 키가 존재하면
+            {
+                return localized;
+            }
+        }
+        return Description;
+    }
 }

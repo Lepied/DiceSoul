@@ -12,7 +12,7 @@ RLC_SPIKE_GLOVE,가시 돋친 장갑,Common,WaveReward,투 페어 족보 데미�
 RLC_TRIPOD,삼각대,Common,WaveReward,트리플 족보 골드 2배,3,족보 특화,O,JokboGoldMultiplier,0,2.0,트리플
 RLC_HOUSE,집 모형,Common,WaveReward,풀 하우스 족보 데미지 +25,무제한,족보 특화,O,JokboDamageAdd,25,0,풀 하우스
 RLC_SMALL_SHIELD,작은 방패,Uncommon,WaveReward,최대 체력 20% 이하일 때 피해 무효화 (존 당 1회),3,생존 유틸리티,O,DamageImmuneLowHP,0,0.2,
-RLC_SWIFT_HANDS,날쌘 손놀림,Uncommon,WaveReward,굴림 가능 횟수가 0일 때 1회 무료 충전,3,유틸리티,O,FreeRollAtZero,1,0,
+RLC_SWIFT_HANDS,날쌘 손놀림,Uncommon,WaveReward,굴림 가능 횟수가 0일 때 웨이브당 1회 충전,3,유틸리티,O,FreeRollAtZero,1,0,
 RLC_WHITEBOOK,백마법서,Uncommon,WaveReward,모두 짝수 족보 골드 2배,1,족보 특화,O,JokboGoldMultiplier,0,2.0,모두 짝수
 RLC_DARKBOOK,흑마법서,Uncommon,WaveReward,모두 홀수 족보 골드 2배,1,족보 특화,O,JokboGoldMultiplier,0,2.0,모두 홀수
 RLC_SWORD_BOOK,검술 교본,Uncommon,WaveReward,모든 스트레이트 족보 데미지 +30,무제한,족보 특화,O,JokboDamageAdd,30,0,스트레이트

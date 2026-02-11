@@ -102,10 +102,7 @@ public class StageManager : MonoBehaviour
             }
         }
 
-        // 2. DiceController에서 이미 유물 효과 및 재굴림 처리 완료
-        // initialValues는 이미 모든 유물 효과가 적용된 최종 값
-        
-        //최종값으로 족보 계산
+
         CheckJokbo(initialValues);
         
         yield break;

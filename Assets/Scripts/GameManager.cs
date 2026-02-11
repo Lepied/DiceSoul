@@ -79,6 +79,7 @@ public class GameManager : MonoBehaviour
     {
         // 튜토리얼 완료 여부 확인
         tutorialCompleted = PlayerPrefs.GetInt("TutorialCompleted", 0) == 1;
+        Debug.Log($"[GameManager] Start - TutorialCompleted: {tutorialCompleted}");
 
         if (SaveManager.shouldLoadSave)
         {
@@ -90,6 +91,7 @@ public class GameManager : MonoBehaviour
             // 튜토리얼 미완료 시 튜토리얼 모드로 시작
             if (!tutorialCompleted)
             {
+                Debug.Log("[GameManager] 튜토리얼 모드 시작");
                 StartTutorialMode();
             }
             else
@@ -531,15 +533,16 @@ public class GameManager : MonoBehaviour
 
             if (CurrentWave > wavesPerZone)
             {
-                // 튜토리얼 모드일 때는 존 2로 가지 않고 메인 메뉴로
+                // 튜토리얼 모드일 때는 상점 튜토리얼로 이동
                 if (isTutorialMode)
                 {
-                    PlayerPrefs.SetInt("TutorialCompleted", 1);
-                    PlayerPrefs.Save();
-                    
+                    Debug.Log("[GameManager] 튜토리얼 Zone 1 완료 - 상점으로 이동");
                     UIManager.Instance.FadeOut(1.0f, () =>
                     {
-                        UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+                        CurrentZone++;
+                        CurrentWave = 1;
+                        UIManager.Instance.StartMaintenancePhase();
+                        UIManager.Instance.FadeIn();
                     });
                     return;
                 }
@@ -1338,6 +1341,7 @@ public class GameManager : MonoBehaviour
     
     public void StartTutorialMode()
     {
+        Debug.Log("[GameManager] StartTutorialMode() 호출됨");
         isTutorialMode = true;
         
         // 기본 게임 시작
@@ -1392,7 +1396,12 @@ public class GameManager : MonoBehaviour
         TutorialWave1Controller wave1Tutorial = FindFirstObjectByType<TutorialWave1Controller>();
         if (wave1Tutorial != null)
         {
+            Debug.Log("[GameManager] TutorialWave1Controller 찾음 - 0.2초 후 시작");
             Invoke(nameof(StartWave1Tutorial), 0.2f);
+        }
+        else
+        {
+            Debug.LogWarning("[GameManager] TutorialWave1Controller를 찾을 수 없습니다!");
         }
     }
     
@@ -1401,7 +1410,12 @@ public class GameManager : MonoBehaviour
         TutorialWave1Controller wave1Tutorial = FindFirstObjectByType<TutorialWave1Controller>();
         if (wave1Tutorial != null)
         {
+            Debug.Log("[GameManager] StartWave1Tutorial() - TutorialWave1Controller.StartWave1Tutorial() 호출");
             wave1Tutorial.StartWave1Tutorial();
+        }
+        else
+        {
+            Debug.LogError("[GameManager] StartWave1Tutorial() - TutorialWave1Controller를 찾을 수 없습니다!");
         }
     }
     

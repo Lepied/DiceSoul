@@ -162,4 +162,40 @@ public class AttackJokbo
     {
         return UsedDiceIndices?.Count ?? 0;
     }
+    
+    // 로컬라이제이션된 족보 이름 반환
+    public string GetLocalizedDescription()
+    {
+        // Description (한국어 족보 이름)을 키로 변환
+        string key = DescriptionToKey(Description);
+        
+        if (LocalizationManager.Instance != null && !string.IsNullOrEmpty(key))
+        {
+            return LocalizationManager.Instance.GetText(key);
+        }
+        
+        // Fallback: 원본 Description 반환
+        return Description;
+    }
+    
+    // 족보 이름을 Localization Key로 변환 (static으로 외부에서도 사용 가능)
+    public static string DescriptionToKey(string description)
+    {
+        switch (description)
+        {
+            case "야찌": return "JOKBO_YACHT";
+            case "포카드": return "JOKBO_FOUR_OF_KIND";
+            case "풀 하우스": return "JOKBO_FULL_HOUSE";
+            case "스트레이트(5)": return "JOKBO_STRAIGHT_5";
+            case "스트레이트(4)": return "JOKBO_STRAIGHT_4";
+            case "트리플": return "JOKBO_THREE_OF_KIND";
+            case "투 페어": return "JOKBO_TWO_PAIR";
+            case "원 페어": return "JOKBO_ONE_PAIR";
+            case "모두 짝수": return "JOKBO_ALL_EVEN";
+            case "모두 홀수": return "JOKBO_ALL_ODD";
+            case "총합": return "JOKBO_SUM";
+            case "수비": return "JOKBO_DEFENSE";
+            default: return "";
+        }
+    }
 }

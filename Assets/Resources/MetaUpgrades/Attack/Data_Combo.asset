@@ -23,5 +23,5 @@ MonoBehaviour:
   category: 1
   tier: 5
   prerequisiteID: Upgrade_Reroll
-  effectType: 13
+  effectType: 15
   effectValuePerLevel: 10

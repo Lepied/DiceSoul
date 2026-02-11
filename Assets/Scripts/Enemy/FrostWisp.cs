@@ -34,7 +34,10 @@ public class FrostWisp : Enemy
                 {
                     int randomIdx = activeDice.IndexOf(availableDice[Random.Range(0, availableDice.Count)]);
                     DiceController.Instance.LockDice(randomIdx, 1); // 1턴 동안 잠금
-                    EffectManager.Instance.ShowText(transform, "빙결!", Color.cyan);
+                    string freezeText = LocalizationManager.Instance != null 
+                        ? LocalizationManager.Instance.GetText("ENEMY_EFFECT_FREEZE") 
+                        : "빙결!";
+                    EffectManager.Instance.ShowText(transform, freezeText, Color.cyan);
                     Debug.Log($"[{enemyName}] '빙결' 효과 발동! 주사위가 얼어붙습니다.");
                 }
             }

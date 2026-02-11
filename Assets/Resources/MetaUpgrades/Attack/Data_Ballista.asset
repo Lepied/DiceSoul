@@ -23,5 +23,5 @@ MonoBehaviour:
   category: 1
   tier: 1
   prerequisiteID: 
-  effectType: 7
+  effectType: 9
   effectValuePerLevel: 10

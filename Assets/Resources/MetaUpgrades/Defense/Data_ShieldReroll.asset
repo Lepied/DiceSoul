@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Data_ShieldReroll
   m_EditorClassIdentifier: Assembly-CSharp::MetaUpgradeData
   id: Upgrade_ShieldReroll
-  displayName: "\uC7AC\uC0DD\uC131 \uBCF4\uD638"
+  displayName: "\uC7AC\uC0DD\uC131 \uBCF4\uD638\uB9C9"
   description: "\uB9AC\uB864\uC744 \uD560 \uB54C \uB9C8\uB2E4 \uC2E4\uB4DC\uB97C
     \uD68D\uB4DD\uD569\uB2C8\uB2E4."
   icon: {fileID: -8701916726285286897, guid: 5cb51196f344ded438f60f17a9f15911, type: 3}

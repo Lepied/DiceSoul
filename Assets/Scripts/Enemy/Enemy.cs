@@ -154,6 +154,32 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
 
     public virtual string GetGimmickDescription()
     {
+        string key = "";
+        switch (enemyType)
+        {
+            case EnemyType.Biological:
+                key = "ENEMY_TYPE_BIOLOGICAL";
+                break;
+            case EnemyType.Spirit:
+                key = "ENEMY_TYPE_SPIRIT";
+                break;
+            case EnemyType.Undead:
+                key = "ENEMY_TYPE_UNDEAD";
+                break;
+            case EnemyType.Armored:
+                key = "ENEMY_TYPE_ARMORED";
+                break;
+            default:
+                key = "ENEMY_TYPE_NONE";
+                break;
+        }
+        
+        if (LocalizationManager.Instance != null)
+        {
+            return LocalizationManager.Instance.GetText(key);
+        }
+        
+        // Fallback
         switch (enemyType)
         {
             case EnemyType.Biological:
@@ -167,6 +193,21 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
             default:
                 return "특성 없음.";
         }
+    }
+    
+    public virtual string GetLocalizedName()
+    {
+        // 클래스 이름을 기반으로 키 생성
+        string className = GetType().Name.ToUpper();
+        string key = $"ENEMY_{className}";
+        
+        if (LocalizationManager.Instance != null && LocalizationManager.Instance.HasKey(key))
+        {
+            return LocalizationManager.Instance.GetText(key);
+        }
+        
+        // Fallback: enemyName 사용
+        return enemyName;
     }
 
     public virtual int CalculateDamageTaken(AttackJokbo jokbo)

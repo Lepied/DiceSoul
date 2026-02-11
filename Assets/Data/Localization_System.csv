@@ -1,0 +1,10 @@
+Key,Korean,English
+SYSTEM_LOADING,로딩 중...,Loading...
+SYSTEM_SAVED,저장되었습니다,Saved
+SYSTEM_LOADED,불러왔습니다,Loaded
+DEBUG_DICE_ROLLED,주사위 굴림:,Dice Rolled:
+DEBUG_WAVE_START,웨이브 시작,Wave Start
+DEBUG_WAVE_END,웨이브 종료,Wave End
+DEBUG_ENEMY_DEFEATED,적 처치,Enemy Defeated
+DEBUG_DAMAGE_DEALT,데미지:,Damage:
+DEBUG_GOLD_GAINED,골드 획득:,Gold Gained:

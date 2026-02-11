@@ -10,12 +10,6 @@ public class TutorialWave2Controller : MonoBehaviour
     public RectTransform rollCountUI;
     public RectTransform topInfoPanel;
 
-    [Header("Messages")]
-    public string enemyIntroMessage = "이번 웨이브부터 다양한 적들이 등장합니다!\n적마다 특별한 능력을 가지고 있습니다.";
-    public string enemyInfoButtonMessage = "적 정보 버튼을 눌러\n적들의 능력을 확인할 수 있습니다";
-    public string rollCountMessage = "리롤 횟수가 정해져 있습니다.\n이 안에 적을 모두 처치하지 못하면 피해를 받습니다";
-    public string topInfoMessage = "현재 HP, 획득한 골드, 스테이지, 획득한 유물을\n이곳에서 확인할 수 있습니다.";
-    public string completeMessage = "좋습니다!\n이제 혼자서 플레이해보세요.";
 
     private bool isActive = false;
 
@@ -40,7 +34,7 @@ public class TutorialWave2Controller : MonoBehaviour
         }
 
         tutorialManager.tooltipPanel.SetActive(true);
-        tutorialManager.tooltipText.text = enemyIntroMessage;
+        tutorialManager.tooltipText.text = LocalizationManager.Instance.GetText("TUTORIAL_WAVE2_INTRO");
         tutorialManager.tooltipPanel.GetComponent<RectTransform>().position =
             new Vector2(Screen.width / 2, Screen.height / 2);
 
@@ -75,7 +69,7 @@ public class TutorialWave2Controller : MonoBehaviour
 
         tutorialManager.ShowStep(
             enemyInfoButton.GetComponent<RectTransform>(),
-            enemyInfoButtonMessage,
+            LocalizationManager.Instance.GetText("TUTORIAL_WAVE2_ENEMYINFO"),
             TooltipPosition.Right,
             true
         );
@@ -106,7 +100,7 @@ public class TutorialWave2Controller : MonoBehaviour
 
         tutorialManager.ShowStep(
             rollCountUI,
-            rollCountMessage,
+            LocalizationManager.Instance.GetText("TUTORIAL_WAVE2_ROLLCOUNT"),
             TooltipPosition.Bottom,
             true
         );
@@ -137,7 +131,7 @@ public class TutorialWave2Controller : MonoBehaviour
 
         tutorialManager.ShowStep(
             topInfoPanel,
-            topInfoMessage,
+            LocalizationManager.Instance.GetText("TUTORIAL_WAVE2_TOPINFO"),
             TooltipPosition.Bottom,
             true
         );
@@ -161,7 +155,7 @@ public class TutorialWave2Controller : MonoBehaviour
         }
 
         tutorialManager.tooltipPanel.SetActive(true);
-        tutorialManager.tooltipText.text = completeMessage;
+        tutorialManager.tooltipText.text = LocalizationManager.Instance.GetText("TUTORIAL_WAVE2_COMPLETE");
         tutorialManager.tooltipPanel.GetComponent<RectTransform>().position =
             new Vector2(Screen.width / 2, Screen.height / 2);
 

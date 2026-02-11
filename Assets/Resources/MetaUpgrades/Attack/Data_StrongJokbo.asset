@@ -23,5 +23,5 @@ MonoBehaviour:
   category: 1
   tier: 4
   prerequisiteID: Upgrade_Crit
-  effectType: 11
+  effectType: 13
   effectValuePerLevel: 10

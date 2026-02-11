@@ -22,5 +22,5 @@ MonoBehaviour:
   category: 1
   tier: 7
   prerequisiteID: Upgrade_Combo
-  effectType: 15
+  effectType: 17
   effectValuePerLevel: 1

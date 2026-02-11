@@ -1,0 +1,49 @@
+Key,Korean,English
+UI_ROLL_BUTTON,굴리기,Roll
+UI_ATTACK,공격,Attack
+UI_SHOP,상점,Shop
+UI_WAVE,웨이브,Wave
+UI_START,시작,Start
+UI_CONTINUE,계속,Continue
+UI_SETTINGS,설정,Settings
+UI_QUIT,종료,Quit
+UI_DAMAGE,데미지,Damage
+UI_GOLD,골드,Gold
+UI_HP,체력,HP
+UI_MAX_HP,최대 체력,Max HP
+UI_ARMOR,방어력,Armor
+UI_RELIC,유물,Relic
+UI_DICE,주사위,Dice
+UI_ROLL_COUNT,굴림 횟수,Roll Count
+UI_CHAIN,연쇄,Chain
+UI_SELL,판매,Sell
+UI_BUY,구매,Buy
+UI_REFRESH,새로고침,Refresh
+UI_NEXT_WAVE,다음 웨이브,Next Wave
+UI_VICTORY,승리!,Victory!
+UI_DEFEAT,패배,Defeat
+UI_STAGE,스테이지,Stage
+UI_ZONE,존,Zone
+UI_CONFIRM,확인,Confirm
+UI_CANCEL,취소,Cancel
+UI_CLOSE,닫기,Close
+UI_LANGUAGE,언어,Language
+UI_PRICE,가격,Price
+UI_DESCRIPTION,설명,Description
+UI_EFFECT,효과,Effect
+UI_LEVEL,레벨,Level
+UI_COST,비용,Cost
+UI_OWNED,보유,Owned
+UI_LOCKED,잠김,Locked
+UI_UNLOCKED,해금,Unlocked
+UI_PURCHASE,구매하기,Purchase
+UI_SOLD_OUT,품절,Sold Out
+UI_INSUFFICIENT_CURRENCY,재화 부족,Insufficient Currency
+UI_MAX_LEVEL,최대 레벨,Max Level
+UI_UPGRADE,강화,Upgrade
+UI_ENEMY_INFO,적\n정보,Enemy\nInfo
+META_LOCKED,이전 단계를 완료하세요,Complete previous tier
+META_MAX_LEVEL,최고 레벨 도달,Max Level Reached
+META_CURRENT_EFFECT,현재 효과,Current Effect
+META_NEXT_ARROW,▶,▶
+DECK_FREE,무료,Free

@@ -22,5 +22,5 @@ MonoBehaviour:
   category: 1
   tier: 3
   prerequisiteID: Upgrade_Suppressive_Fire
-  effectType: 9
+  effectType: 11
   effectValuePerLevel: 5

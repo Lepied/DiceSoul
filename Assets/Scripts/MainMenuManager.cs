@@ -46,6 +46,7 @@ public class MainMenuManager : MonoBehaviour
 
     [Header("잡화점 UI")]
     public GameObject generalStorePanel;
+    public GeneralStoreManager generalStoreManager;
     public Button closeStoreButton;
 
     [Header("정보 팝업")]
@@ -55,6 +56,11 @@ public class MainMenuManager : MonoBehaviour
 
     [Header("설정 패널")]
     public SettingsPanelController settingsPanelController;
+    
+    [Header("언어 선택 UI")]
+    public GameObject languageSelectionPanel;
+    public Button koreanButton;
+    public Button englishButton;
 
     // 내부 상태 변수
     private List<DeckListItem> spawnedItems = new List<DeckListItem>();
@@ -64,6 +70,14 @@ public class MainMenuManager : MonoBehaviour
 
     void Start()
     {
+        // ===== 1. 최초 언어 선택 체크 =====
+        bool hasSelectedLanguage = PlayerPrefs.GetInt("LanguageSelected", 0) == 1;
+        if (!hasSelectedLanguage)
+        {
+            ShowLanguageSelection();
+            return;
+        }
+        
         //튜토리얼 미완료 시 바로 Game 씬으로 이동
         bool tutorialCompleted = PlayerPrefs.GetInt("TutorialCompleted", 0) == 1;
         if (!tutorialCompleted)
@@ -72,13 +86,122 @@ public class MainMenuManager : MonoBehaviour
             return;
         }
         
-        // 세이브 파일 있으면 바로 이어하기로
-        if (SaveManager.Instance != null && SaveManager.Instance.HasSaveFile())
+        // 세이브 파일 있으면 바로 이어하기로 (단, 방금 튜토리얼 완료한 경우 제외)
+        bool justCompletedTutorial = PlayerPrefs.GetInt("JustCompletedTutorial", 0) == 1;
+        if (justCompletedTutorial)
+        {
+            // 플래그 리셋
+            PlayerPrefs.DeleteKey("JustCompletedTutorial");
+            PlayerPrefs.Save();
+            Debug.Log("[MainMenu] 튜토리얼 방금 완료 - 세이브 파일 무시");
+        }
+        else if (SaveManager.Instance != null && SaveManager.Instance.HasSaveFile())
         {
             SaveManager.shouldLoadSave = true;
             SceneManager.LoadScene(gameSceneName);
             return;
         }
+        
+        InitializeMainMenu();
+    }
+    
+    /// <summary>
+    /// 언어 선택 UI 표시
+    /// </summary>
+    private void ShowLanguageSelection()
+    {
+        // 모든 메인 메뉴 UI 숨기기
+        if (currencyPanel != null) currencyPanel.SetActive(false);
+        if (startGameButton != null) startGameButton.gameObject.SetActive(false);
+        if (openUpgradeButton != null) openUpgradeButton.gameObject.SetActive(false);
+        if (openDeckButton != null) openDeckButton.gameObject.SetActive(false);
+        if (openStoreButton != null) openStoreButton.gameObject.SetActive(false);
+        if (settingsButton != null) settingsButton.gameObject.SetActive(false);
+        
+        // 언어 선택 패널 표시
+        if (languageSelectionPanel != null)
+        {
+            languageSelectionPanel.SetActive(true);
+            
+            // 한국어 버튼
+            if (koreanButton != null)
+            {
+                var koreanText = koreanButton.GetComponentInChildren<TextMeshProUGUI>();
+                if (koreanText != null) koreanText.text = "한국어";
+                koreanButton.onClick.RemoveAllListeners();
+                koreanButton.onClick.AddListener(() => OnLanguageSelected(Language.Korean));
+            }
+            
+            // English 버튼
+            if (englishButton != null)
+            {
+                var englishText = englishButton.GetComponentInChildren<TextMeshProUGUI>();
+                if (englishText != null) englishText.text = "English";
+                englishButton.onClick.RemoveAllListeners();
+                englishButton.onClick.AddListener(() => OnLanguageSelected(Language.English));
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 언어 선택 완료 처리
+    /// </summary>
+    private void OnLanguageSelected(Language selectedLanguage)
+    {
+        // LocalizationManager에 언어 설정
+        if (LocalizationManager.Instance != null)
+        {
+            LocalizationManager.Instance.ChangeLanguage(selectedLanguage);
+        }
+        
+        // PlayerPrefs에 선택 완료 기록
+        PlayerPrefs.SetInt("LanguageSelected", 1);
+        
+        // 튜토리얼 체크
+        bool tutorialCompleted = PlayerPrefs.GetInt("TutorialCompleted", 0) == 1;
+        
+        // 최초 실행 (언어 선택 직후)이고 튜토리얼 미완료면 명시적으로 0 설정
+        if (!tutorialCompleted)
+        {
+            PlayerPrefs.SetInt("TutorialCompleted", 0);
+            Debug.Log("[MainMenu] 튜토리얼 시작 준비 - TutorialCompleted = 0");
+        }
+        
+        PlayerPrefs.Save();
+        
+        Debug.Log($"[MainMenu] 언어 선택: {selectedLanguage}, 튜토리얼 완료 여부: {tutorialCompleted}");
+        
+        // 언어 선택 패널 숨기기
+        if (languageSelectionPanel != null)
+        {
+            languageSelectionPanel.SetActive(false);
+        }
+        
+        // 튜토리얼 체크 및 게임 진행
+        if (!tutorialCompleted)
+        {
+            // 튜토리얼 시작
+            Debug.Log("[MainMenu] 튜토리얼 시작을 위해 Game 씬으로 이동");
+            SceneManager.LoadScene(gameSceneName);
+            return;
+        }
+        
+        // 메인 메뉴 표시
+        InitializeMainMenu();
+    }
+    
+    /// <summary>
+    /// 메인 메뉴 초기화
+    /// </summary>
+    private void InitializeMainMenu()
+    {
+        // UI 표시
+        if (currencyPanel != null) currencyPanel.SetActive(true);
+        if (startGameButton != null) startGameButton.gameObject.SetActive(true);
+        if (openUpgradeButton != null) openUpgradeButton.gameObject.SetActive(true);
+        if (openDeckButton != null) openDeckButton.gameObject.SetActive(true);
+        if (openStoreButton != null) openStoreButton.gameObject.SetActive(true);
+        if (settingsButton != null) settingsButton.gameObject.SetActive(true);
         
         LoadMetaCurrency();
 
@@ -109,6 +232,29 @@ public class MainMenuManager : MonoBehaviour
 
         // 덱 목록 생성
         GenerateDeckList();
+        
+        // 로컬라이제이션 이벤트 구독
+        if (LocalizationManager.Instance != null)
+        {
+            LocalizationManager.Instance.OnLanguageChanged += OnLanguageChanged;
+        }
+    }
+    
+    void OnDestroy()
+    {
+        if (LocalizationManager.Instance != null)
+        {
+            LocalizationManager.Instance.OnLanguageChanged -= OnLanguageChanged;
+        }
+    }
+    
+    private void OnLanguageChanged()
+    {
+        // 덱 선택 패널이 열려있으면 버튼 텍스트 갱신
+        if (deckSelectionPanel != null && deckSelectionPanel.activeSelf && currentFocusedItem != null)
+        {
+            UpdateActionButtonUI();
+        }
     }
 
     void Update()
@@ -209,13 +355,13 @@ public class MainMenuManager : MonoBehaviour
             {
                 // [상태 1-A: 이미 장착 중]
                 actionButton.interactable = false;
-                if (actionButtonText) actionButtonText.text = "장착 중";
+                if (actionButtonText) actionButtonText.text = LocalizationManager.Instance.GetText("MAIN_EQUIPPED");
             }
             else
             {
                 // [상태 1-B: 장착 가능]
                 actionButton.interactable = true;
-                if (actionButtonText) actionButtonText.text = "선택하기";
+                if (actionButtonText) actionButtonText.text = LocalizationManager.Instance.GetText("MAIN_SELECT");
                 actionButton.onClick.AddListener(() => SelectDeck(data.deckKey));
             }
         }
@@ -228,7 +374,9 @@ public class MainMenuManager : MonoBehaviour
             bool canAfford = currentMoney >= data.unlockCost;
 
             actionButton.interactable = canAfford;
-            if (actionButtonText) actionButtonText.text = $"해금하기 ({data.unlockCost})";
+            string unlockText = LocalizationManager.Instance.GetText("MAIN_UNLOCK");
+            string costFormat = LocalizationManager.Instance.GetText("MAIN_SOULS_COST");
+            if (actionButtonText) actionButtonText.text = $"{unlockText} ({string.Format(costFormat, data.unlockCost)})";
 
             actionButton.onClick.AddListener(() =>
             {
@@ -344,12 +492,12 @@ public class MainMenuManager : MonoBehaviour
         {
             generalStorePanel.SetActive(true);
         }
-        GeneralStoreManager storeManager = generalStorePanel.GetComponent<GeneralStoreManager>();
-        if (storeManager != null)
+        
+        if (generalStoreManager != null)
         {
-            storeManager.RefreshCurrencyDisplay();
+            generalStoreManager.RefreshCurrencyDisplay();
+            generalStoreManager.ShowWelcomeMessage();
         }
-
     }
     private void OnCloseStore()
     {

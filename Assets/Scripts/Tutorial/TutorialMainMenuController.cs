@@ -13,14 +13,6 @@ public class TutorialMainMenuController : MonoBehaviour
     public RectTransform deckSelectionButton;
     public RectTransform startGameButton;
     
-    [Header("Messages")]
-    public string welcomeMessage = "튜토리얼을 완료했습니다!\n이제 메인 메뉴의 기능들을 알아봅시다.";
-    public string currencyMessage = "출정을 통해 마석을 얻을 수 있고,\n얻은 마석은 여기에 표시됩니다.";
-    public string metaShopMessage = "메타샵에서는 영구 업그레이드를 구매할 수 있습니다.\n게임이 끝나도 유지되는 강력한 효과들이에요!";
-    public string generalStoreMessage = "잡화점에서는 일시적인 버프를 구매할 수 있습니다.\n다음 런에만 적용됩니다.";
-    public string deckSelectionMessage = "덱 선택에서 다양한 덱을 해금하고 선택할 수 있습니다.\n각 덱마다 고유한 플레이 스타일이 있어요!";
-    public string startGameMessage = "이제 새로운 런을 시작해보세요!\n행운을 빕니다!";
-    
     private bool isActive = false;
     private bool hasShownTutorial = false;
     
@@ -65,7 +57,7 @@ public class TutorialMainMenuController : MonoBehaviour
         }
         
         tutorialManager.tooltipPanel.SetActive(true);
-        tutorialManager.tooltipText.text = welcomeMessage;
+        tutorialManager.tooltipText.text = LocalizationManager.Instance.GetText("TUTORIAL_MAINMENU_WELCOME");
         tutorialManager.tooltipPanel.GetComponent<RectTransform>().position = 
             new Vector2(Screen.width / 2, Screen.height / 2);
         
@@ -83,7 +75,7 @@ public class TutorialMainMenuController : MonoBehaviour
         }
         
         tutorialManager.ShowStep(currencyPanel, 
-                                currencyMessage, 
+                                LocalizationManager.Instance.GetText("TUTORIAL_MAINMENU_CURRENCY"), 
                                 TooltipPosition.Bottom,
                                 true);
         
@@ -100,7 +92,7 @@ public class TutorialMainMenuController : MonoBehaviour
         }
         
         tutorialManager.ShowStep(metaShopButton, 
-                                metaShopMessage, 
+                                LocalizationManager.Instance.GetText("TUTORIAL_MAINMENU_METASHOP"), 
                                 TooltipPosition.Right,
                                 true);
         
@@ -117,7 +109,7 @@ public class TutorialMainMenuController : MonoBehaviour
         }
         
         tutorialManager.ShowStep(generalStoreButton, 
-                                generalStoreMessage, 
+                                LocalizationManager.Instance.GetText("TUTORIAL_MAINMENU_GENERALSTORE"), 
                                 TooltipPosition.Right,
                                 true);
         
@@ -134,7 +126,7 @@ public class TutorialMainMenuController : MonoBehaviour
         }
         
         tutorialManager.ShowStep(deckSelectionButton, 
-                                deckSelectionMessage, 
+                                LocalizationManager.Instance.GetText("TUTORIAL_MAINMENU_DECKSELECTION"), 
                                 TooltipPosition.Right,
                                 true);
         
@@ -151,7 +143,7 @@ public class TutorialMainMenuController : MonoBehaviour
         }
         
         tutorialManager.ShowStep(startGameButton, 
-                                startGameMessage, 
+                                LocalizationManager.Instance.GetText("TUTORIAL_MAINMENU_STARTGAME"), 
                                 TooltipPosition.Top,
                                 true);
         

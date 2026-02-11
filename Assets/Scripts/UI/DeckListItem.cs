@@ -5,8 +5,6 @@ using DG.Tweening;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
 
-/// 덱 목록의 각 아이템(슬롯)을 제어하는 스크립트
-/// DeckData를 주입받아 UI를 갱신
 public class DeckListItem : MonoBehaviour
 {
     public DeckData Data { get; private set; }
@@ -40,27 +38,49 @@ public class DeckListItem : MonoBehaviour
     public float focusScale = 1.2f;
     public float normalScale = 0.9f;
     public float animDuration = 0.2f;
+    
+    void OnEnable()
+    {
+        LocalizationManager.Instance.OnLanguageChanged += RefreshUI;
+    }
+    
+    void OnDisable()
+    {
+        LocalizationManager.Instance.OnLanguageChanged -= RefreshUI;
+        
+    }
 
     public void Setup(DeckData data, MainMenuManager manager)
     {
         Data = data;
         this.menuManager = manager;
-
-        if (nameText) nameText.text = data.deckName;
-        if (descText) descText.text = data.description;
+        
+        RefreshUI();
+        RefreshVisuals();
+        GenerateAllIcons();
+    }
+    
+    private void RefreshUI()
+    {
+        if (Data == null) return;
+        
+        if (nameText) nameText.text = Data.GetLocalizedName();
+        if (descText) descText.text = Data.GetLocalizedDescription();
 
         // 가격 텍스트 설정
         if (costText)
         {
             // 가격이 0원이면 텍스트를 끄거나 "무료"로 표시
-            if (data.unlockCost > 0)
-                costText.text = $"ㅁ {data.unlockCost}";
+            if (Data.unlockCost > 0)
+            {
+                string costFormat = LocalizationManager.Instance.GetText("MAIN_SOULS_COST");
+                costText.text = $"ㅁ {string.Format(costFormat, Data.unlockCost)}";
+            }
             else
-                costText.text = "Free";
+            {
+                costText.text = LocalizationManager.Instance.GetText("DECK_FREE");
+            }
         }
-
-        RefreshVisuals();
-        GenerateAllIcons();
     }
 
     public void RefreshVisuals()
@@ -85,13 +105,13 @@ public class DeckListItem : MonoBehaviour
 
     private void GenerateAllIcons()
     {
-        // (1) 기존 아이콘들 싹싹이
+        // 기존 아이콘들 싹싹이
         if (diceContainer != null) foreach (Transform child in diceContainer) Destroy(child.gameObject);
         if (relicContainer != null) foreach (Transform child in relicContainer) Destroy(child.gameObject);
 
         if (iconPrefab == null) return;
 
-        // (2) 유물 아이콘 생성
+        //유물 아이콘 생성
         if (!string.IsNullOrEmpty(Data.displayRelicID) && RelicDB.Instance != null)
         {
             Relic relic = RelicDB.Instance.GetRelicByID(Data.displayRelicID);
@@ -102,7 +122,7 @@ public class DeckListItem : MonoBehaviour
             }
         }
 
-        // (3) 주사위 아이콘 생성
+        // 주사위 아이콘 생성
         if (Data.displayDice != null)
         {
             foreach (string diceType in Data.displayDice)
@@ -120,14 +140,14 @@ public class DeckListItem : MonoBehaviour
     {
         if (parentContainer == null || sprite == null) return;
 
-        // 1. 프리팹 생성
+        //프리팹 생성
         GameObject iconObj = Instantiate(iconPrefab, parentContainer);
 
-        // 2. 이미지 교체
+        //이미지 교체
         Image img = iconObj.GetComponent<Image>();
         if (img != null) img.sprite = sprite;
 
-        // 3. 툴팁 이벤트 연결
+        //툴팁 이벤트 연결
         EventTrigger trigger = iconObj.GetComponent<EventTrigger>();
         if (trigger == null) trigger = iconObj.AddComponent<EventTrigger>();
         trigger.triggers.Clear();
@@ -136,17 +156,7 @@ public class DeckListItem : MonoBehaviour
         EventTrigger.Entry entryEnter = new EventTrigger.Entry { eventID = EventTriggerType.PointerEnter };
         entryEnter.callback.AddListener((data) =>
         {
-
-            Debug.Log($"[1] 마우스 감지됨! (제목: {title})");
-            if (menuManager == null)
-            {
-                Debug.LogError("[2] 앗! menuManager가 연결되지 않았습니다 (null 상태).");
-            }
-            else
-            {
-                Debug.Log("[2] 매니저에게 팝업 요청 보냄.");
-                menuManager.ShowInfoPopup(title, description, iconObj.GetComponent<RectTransform>());
-            }
+            menuManager.ShowInfoPopup(title, description, iconObj.GetComponent<RectTransform>());
         });
         trigger.triggers.Add(entryEnter);
 

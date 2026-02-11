@@ -10,12 +10,6 @@ public class TutorialWave1Controller : MonoBehaviour
     public Button rollButton;
     public RectTransform jokboButtonsArea;
     
-    [Header("Messages")]
-    public string rollButtonMessage = "주사위를 굴려보세요!\n매 턴마다 새로운 주사위가 등장합니다.";
-    public string jokboMessage = "족보를 선택해보세요! 적들에게 공격을 할 수 있습니다.";
-    public string remainingDiceMessage = "족보에 주사위가 사용되고\n남은 주사위가 있으면 이어서 공격할 수 있습니다.";
-    public string completeMessage = "좋습니다! 적에게 데미지를 주었습니다!\n이렇게 전투를 진행합니다.";
-        
     private bool isActive = false;
     private bool isCompleted = false;
     
@@ -23,9 +17,11 @@ public class TutorialWave1Controller : MonoBehaviour
     {
         if (tutorialManager == null)
         {
+            Debug.LogError("[TutorialWave1] TutorialManager가 할당되지 않았습니다!");
             return;
         }
         
+        Debug.Log("[TutorialWave1] StartWave1Tutorial() 시작");
         isActive = true;
         ShowStep1_RollButton();
     }
@@ -34,9 +30,17 @@ public class TutorialWave1Controller : MonoBehaviour
     {
         if (!isActive) return;
         
+        Debug.Log("[TutorialWave1] ShowStep1_RollButton() - 주사위 굴리기 튜토리얼 시작");
+        
+        if (rollButton == null)
+        {
+            Debug.LogError("[TutorialWave1] rollButton이 할당되지 않았습니다!");
+            return;
+        }
+        
         tutorialManager.ShowStep(
             rollButton.GetComponent<RectTransform>(), 
-            rollButtonMessage, 
+            LocalizationManager.Instance.GetText("TUTORIAL_WAVE1_ROLL"), 
             TooltipPosition.Top,
             false
         );
@@ -63,7 +67,7 @@ public class TutorialWave1Controller : MonoBehaviour
         
         tutorialManager.ShowStep(
             jokboButtonsArea, 
-            jokboMessage, 
+            LocalizationManager.Instance.GetText("TUTORIAL_WAVE1_JOKBO"), 
             TooltipPosition.Bottom,
             false
         );
@@ -92,7 +96,7 @@ public class TutorialWave1Controller : MonoBehaviour
         if (!isActive) return;
         
         tutorialManager.tooltipPanel.SetActive(true);
-        tutorialManager.tooltipText.text = remainingDiceMessage;
+        tutorialManager.tooltipText.text = LocalizationManager.Instance.GetText("TUTORIAL_WAVE1_REMAINING");
 
         tutorialManager.tooltipPanel.GetComponent<RectTransform>().position = 
             new Vector2(Screen.width / 2, Screen.height / 2);
@@ -119,7 +123,7 @@ public class TutorialWave1Controller : MonoBehaviour
         if (!isActive) return;
         
         tutorialManager.tooltipPanel.SetActive(true);
-        tutorialManager.tooltipText.text = completeMessage;
+        tutorialManager.tooltipText.text = LocalizationManager.Instance.GetText("TUTORIAL_WAVE1_COMPLETE");
         
         tutorialManager.tooltipPanel.GetComponent<RectTransform>().position = 
             new Vector2(Screen.width / 2, Screen.height / 2);

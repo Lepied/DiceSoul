@@ -11,12 +11,6 @@ public class TutorialShopController : MonoBehaviour
     public Button rerollButton;
     public Button exitShopButton;
     
-    [Header("Messages")]
-    public string shopWelcomeMessage = "상점에 오신 것을 환영합니다!";
-    public string shopItemsMessage = "골드로 주사위, 유물, 포션 등을 구매할 수 있습니다.\n각 상품을 클릭해서 확인해보세요!";
-    public string rerollMessage = "마음에 드는 상품이 없다면 리롤할 수 있습니다!\n(골드 필요)";
-    public string exitMessage = "원하는 상품을 구매하셨나요?\n나가기 버튼으로 다음 존으로 이동하세요!";
-    
     private bool isActive = false;
     
     public void StartShopTutorial()
@@ -36,7 +30,7 @@ public class TutorialShopController : MonoBehaviour
         }
         
         tutorialManager.ShowStep(maintenancePanel, 
-                                shopWelcomeMessage, 
+                                LocalizationManager.Instance.GetText("TUTORIAL_SHOP_WELCOME"), 
                                 TooltipPosition.Top,
                                 true);
         
@@ -65,7 +59,7 @@ public class TutorialShopController : MonoBehaviour
         }
         
         tutorialManager.ShowStep(shopItemsContainer, 
-                                shopItemsMessage, 
+                                LocalizationManager.Instance.GetText("TUTORIAL_SHOP_ITEMS"), 
                                 TooltipPosition.Top,
                                 true);
         
@@ -84,7 +78,7 @@ public class TutorialShopController : MonoBehaviour
         }
         
         tutorialManager.ShowStep(rerollButton.GetComponent<RectTransform>(), 
-                                rerollMessage, 
+                                LocalizationManager.Instance.GetText("TUTORIAL_SHOP_REROLL"), 
                                 TooltipPosition.Auto,
                                 true);
         
@@ -103,7 +97,7 @@ public class TutorialShopController : MonoBehaviour
         }
         
         tutorialManager.ShowStep(exitShopButton.GetComponent<RectTransform>(), 
-                                exitMessage, 
+                                LocalizationManager.Instance.GetText("TUTORIAL_SHOP_EXIT"), 
                                 TooltipPosition.Auto,
                                 false);
         
@@ -124,7 +118,24 @@ public class TutorialShopController : MonoBehaviour
 
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.OnTutorialCompleted();
+            // 튜토리얼 완료 처리
+            PlayerPrefs.SetInt("TutorialCompleted", 1);
+            PlayerPrefs.SetInt("JustCompletedTutorial", 1); // 메인 메뉴에서 세이브 파일 로드 방지
+            PlayerPrefs.Save();
+            Debug.Log("[TutorialShop] 튜토리얼 완료 - 메인 메뉴로 이동");
+            
+            // 세이브 파일 삭제
+            if (SaveManager.Instance != null)
+            {
+                SaveManager.Instance.DeleteSaveFile();
+                Debug.Log("[TutorialShop] 튜토리얼 세이브 파일 삭제");
+            }
+            
+            // 메인 메뉴로 이동
+            UIManager.Instance.FadeOut(1.0f, () =>
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+            });
         }
     }
     

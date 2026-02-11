@@ -132,18 +132,18 @@ public class RollCountDisplay : MonoBehaviour
         {
             Sequence seq = DOTween.Sequence();
             
-            // 스프라이트를 먼저 변경
+            // 스프라이트를 먼저
             seq.AppendCallback(() => 
             {
                 pip.sprite = filledPipSprite;
             });
             
-            // 반짝이는 효과
+            // 반짝
             Color originalColor = pip.color;
             seq.Append(pip.DOColor(new Color(1f, 1f, 0.5f, 1f), 0.15f)); // 황금빛
             seq.Append(pip.DOColor(originalColor, 0.2f));
             
-            // 크기 변화
+            // 크기바꾸기
             seq.Join(pipRect.DOScale(1.1f, 0.15f));
             seq.Append(pipRect.DOScale(1.0f, 0.2f).SetEase(Ease.OutBack));
         }

@@ -1,0 +1,25 @@
+Key,Korean,English
+ENEMY_CAVEBAT,동굴 박쥐,Cave Bat
+ENEMY_FROSTWISP,서리 위스프,Frost Wisp
+ENEMY_FROSTWOLF,서리 늑대,Frost Wolf
+ENEMY_GOBLIN,고블린,Goblin
+ENEMY_GOBLINARCHER,고블린 궁수,Goblin Archer
+ENEMY_GOBLINSHAMAN,고블린 주술사,Goblin Shaman
+ENEMY_HELLHOUND,지옥견,Hellhound
+ENEMY_ICEGOLEM,얼음 골렘,Ice Golem
+ENEMY_IMP,임프,Imp
+ENEMY_LICH,리치,Lich
+ENEMY_LIVINGARMOR,리빙 아머,Living Armor
+ENEMY_PITLORD,핏 로드,Pit Lord
+ENEMY_SKELETON,스켈레톤,Skeleton
+ENEMY_SLIME,슬라임,Slime
+ENEMY_TROLL,트롤,Troll
+ENEMY_WRAITH,망령,Wraith
+ENEMY_YETI,예티,Yeti
+ENEMY_TYPE_BIOLOGICAL,생체: 모든 족보에 100% 피해를 받습니다.,Biological: Takes 100% damage from all hands.
+ENEMY_TYPE_SPIRIT,"영혼: '총합'에 면역, '마법' 족보에 150% 피해.","Spirit: Immune to 'Sum', 150% damage from 'Magic' hands."
+ENEMY_TYPE_UNDEAD,"언데드: 고급 족보(트리플+) 150% 피해, 그 외 50% 피해.","Undead: 150% damage from advanced hands (Triple+), 50% otherwise."
+ENEMY_TYPE_ARMORED,"장갑: 단순 족보(총합, 트리플) 50% 피해.","Armored: 50% damage from simple hands (Sum, Triple)."
+ENEMY_TYPE_NONE,특성 없음.,No special trait.
+ENEMY_EFFECT_IMMUNE,면역!,Immune!
+ENEMY_EFFECT_FREEZE,빙결!,Frozen!

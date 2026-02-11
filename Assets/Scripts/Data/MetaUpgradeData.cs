@@ -34,6 +34,39 @@ public class MetaUpgradeData : ScriptableObject
     {
         return currentLevel * effectValuePerLevel;
     }
+    
+    // 현재 언어에 맞는 업그레이드 이름 반환
+    public string GetLocalizedName()
+    {
+        if (LocalizationManager.Instance != null)
+        {
+            string snakeCaseKey = ConvertToSnakeCase(effectType.ToString());
+            string key = $"META_{snakeCaseKey}_NAME";
+            return LocalizationManager.Instance.GetText(key);
+        }
+        return displayName;
+    }
+    
+    // 현재 언어에 맞는 업그레이드 설명 반환
+    public string GetLocalizedDescription()
+    {
+        if (LocalizationManager.Instance != null)
+        {
+            string snakeCaseKey = ConvertToSnakeCase(effectType.ToString());
+            string key = $"META_{snakeCaseKey}_DESC";
+            return LocalizationManager.Instance.GetText(key);
+        }
+        return description;
+    }
+    
+    private string ConvertToSnakeCase(string input)
+    {
+        return System.Text.RegularExpressions.Regex.Replace(
+            input, 
+            "([a-z])([A-Z])", 
+            "$1_$2"
+        ).ToUpper();
+    }
 }
 
 // 효과 종류

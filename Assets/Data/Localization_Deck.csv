@@ -1,0 +1,19 @@
+Key,Korean,English
+DECK_DEFAULT_NAME,기본 덱,Basic Deck
+DECK_DEFAULT_DESC,균형 잡힌 시작 덱입니다.,A balanced starting deck.
+DECK_REGULAR_NAME,단골,Regular
+DECK_REGULAR_DESC,D8 하나와 안정적인 D6들로 구성된 덱,Deck composed of D8s and quality D6s
+DECK_GAMBLER_NAME,도박사,Gambler
+DECK_GAMBLER_DESC,D20 주사위 1개와 D4주사위들로 구성됩니다.,Composed of 1 D20 and D4 dice.
+DECK_WIZARD_NAME,마법사,Wizard
+DECK_WIZARD_DESC,기본 주사위(D6) 5개와 홀수를 다시 굴리는 '자철석' 유물을 가지고 시작,Start with 5 D6 dice and 'Lodestone' relic that rerolls odd numbers
+DECK_INFO_TOTAL_DICE,총 주사위 수,Total Dice
+DECK_INFO_COMPOSITION,구성,Composition
+DECK_INFO_UNLOCK_CONDITION,해금 조건,Unlock Condition
+DECK_INFO_LOCKED_MESSAGE,잠금됨,Locked
+DECK_INFO_SELECTED,선택됨,Selected
+DECK_TYPE_D4,4면체 주사위,4-sided dice
+DECK_TYPE_D6,6면체 주사위,6-sided dice
+DECK_TYPE_D8,8면체 주사위,8-sided dice
+DECK_TYPE_D12,12면체 주사위,12-sided dice
+DECK_TYPE_D20,20면체 주사위,20-sided dice

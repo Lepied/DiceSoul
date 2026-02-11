@@ -60,9 +60,17 @@ public class MarketSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (myItem == null || mainMenuManager == null || myRect == null) return;
-        string fullDescription = $"{myItem.Description}\n\n가격: {myItem.Price} 마석";
         
-        mainMenuManager.ShowInfoPopup(myItem.Name, fullDescription, myRect);
+        string name = myItem.GetLocalizedName();
+        string desc = myItem.GetLocalizedDescription();
+        
+        string priceLabel = LocalizationManager.Instance.GetText("MARKET_PRICE");
+        string priceFormat = LocalizationManager.Instance.GetText("MAIN_SOULS_COST");
+        string priceText = string.Format(priceFormat, myItem.Price);
+        
+        string fullDescription = $"{desc}\n\n{priceLabel}: {priceText}";
+        
+        mainMenuManager.ShowInfoPopup(name, fullDescription, myRect);
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -71,5 +79,4 @@ public class MarketSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         {
             mainMenuManager.HideInfoPopup();
         }
-    }
-}
+    }}

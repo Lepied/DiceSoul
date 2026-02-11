@@ -68,7 +68,10 @@ public class Yeti : Enemy
         // 분노 상태 + 총합 공격 = 면역
         if (isEnraged && jokbo.Description.Contains("총합"))
         {
-            EffectManager.Instance.ShowText(transform, "면역!", Color.grey);
+            string immuneText = LocalizationManager.Instance != null 
+                ? LocalizationManager.Instance.GetText("ENEMY_EFFECT_IMMUNE") 
+                : "면역!";
+            EffectManager.Instance.ShowText(transform, immuneText, Color.grey);
             return 0;
         }
 

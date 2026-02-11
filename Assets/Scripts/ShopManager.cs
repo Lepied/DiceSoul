@@ -62,7 +62,9 @@ public class ShopManager : MonoBehaviour
         if (GameManager.Instance.PlayerHealth < GameManager.Instance.MaxPlayerHealth)
         {
             currentShopItems.Add(new ShopItem(
-                "완전 회복", "체력을 모두 회복합니다.", 300, fullHealIcon,
+                LocalizationManager.Instance.GetText("SHOP_FULL_HEAL_NAME"), 
+                LocalizationManager.Instance.GetText("SHOP_FULL_HEAL_DESC"), 
+                300, fullHealIcon,
                 () =>
                 {
                     int heal = GameManager.Instance.MaxPlayerHealth - GameManager.Instance.PlayerHealth;
@@ -73,12 +75,18 @@ public class ShopManager : MonoBehaviour
         else
         {
             // 체력이 꽉 찼으면 작은 최대 체력 증가로 대체
-            currentShopItems.Add(new ShopItem("활력의 정수", "최대 체력 +10", 300, maxHealthIcon,
+            currentShopItems.Add(new ShopItem(
+                LocalizationManager.Instance.GetText("SHOP_VITALITY_ESSENCE_NAME"), 
+                LocalizationManager.Instance.GetText("SHOP_VITALITY_ESSENCE_DESC"), 
+                300, maxHealthIcon,
                 () => GameManager.Instance.ModifyMaxHealth(10)));
         }
 
         // (B) 최대 체력 증가
-        currentShopItems.Add(new ShopItem("생명의 그릇", "최대 체력 +20", 500, maxHealthIcon,
+        currentShopItems.Add(new ShopItem(
+            LocalizationManager.Instance.GetText("SHOP_LIFE_VESSEL_NAME"), 
+            LocalizationManager.Instance.GetText("SHOP_LIFE_VESSEL_DESC"), 
+            500, maxHealthIcon,
             () => GameManager.Instance.ModifyMaxHealth(20)));
 
 
@@ -118,14 +126,16 @@ public class ShopManager : MonoBehaviour
         Sprite icon = unknownDiceIcon;
         if (DiceController.Instance != null)
         {
-            // 대표 이미지로 '가장 높은 숫자' 혹은 '1'
             Sprite s = DiceController.Instance.GetDiceSprite(selectedType, 1);
             if (s != null) icon = s;
         }
 
+        string diceName = $"{LocalizationManager.Instance.GetText("SHOP_DICE_NAME")} ({selectedType})";
+        string diceDesc = LocalizationManager.Instance.GetText("SHOP_DICE_DESC").Replace("{0}", selectedType);
+        
         currentShopItems.Add(new ShopItem(
-            $"주사위 ({selectedType})",
-            $"덱에 {selectedType} 주사위를 1개 추가합니다.",
+            diceName,
+            diceDesc,
             price,
             icon,
             () => { GameManager.Instance.AddDiceToDeck(selectedType); }
@@ -167,20 +177,20 @@ public class ShopManager : MonoBehaviour
         switch (type)
         {
             case 0: // 신속 (파랑)
-                pName = "신속의 물약";
-                pDesc = "다음 존(Zone) 동안 [최대 굴림 횟수 +1]";
+                pName = LocalizationManager.Instance.GetText("SHOP_POTION_SWIFT_NAME");
+                pDesc = LocalizationManager.Instance.GetText("SHOP_POTION_SWIFT_DESC");
                 buffKey = "ExtraRoll";
                 pColor = new Color(0.2f, 0.6f, 1f); // 밝은 파랑
                 break;
             case 1: // 힘 (빨강)
-                pName = "힘의 물약";
-                pDesc = "다음 존(Zone) 동안 [모든 데미지 +15]";
+                pName = LocalizationManager.Instance.GetText("SHOP_POTION_POWER_NAME");
+                pDesc = LocalizationManager.Instance.GetText("SHOP_POTION_POWER_DESC");
                 buffKey = "DamageBoost";
                 pColor = new Color(1f, 0.3f, 0.3f); // 밝은 빨강
                 break;
             case 2: // 탐욕 (노랑)
-                pName = "탐욕의 물약";
-                pDesc = "다음 존(Zone) 동안 [금화 획득량 1.5배]";
+                pName = LocalizationManager.Instance.GetText("SHOP_POTION_GREED_NAME");
+                pDesc = LocalizationManager.Instance.GetText("SHOP_POTION_GREED_DESC");
                 buffKey = "GoldBoost";
                 pColor = new Color(1f, 0.8f, 0.2f); // 골드
                 break;
@@ -256,12 +266,10 @@ public class ShopManager : MonoBehaviour
             
             GenerateShopItems();
             
-            // 스프링 유물: FreeRefresh가 true면 비용 환불
-            // GenerateShopItems() 내부에서 이벤트가 발생하고 FreeRefresh가 설정됨
-            // 하지만 이벤트는 GenerateShopItems 끝에서 발생하므로, 여기서 다시 체크
             ShopContext checkCtx = new ShopContext { FreeRefresh = false };
             GameEvents.RaiseShopRefresh(checkCtx);
             
+            //유물잇으면 리롤비용 되돌려줌
             if (checkCtx.FreeRefresh)
             {
                 GameManager.Instance.AddGoldDirect(paidCost);

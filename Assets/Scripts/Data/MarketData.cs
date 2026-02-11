@@ -26,4 +26,25 @@ public class MarketItem
         
         this.Icon = Resources.Load<Sprite>($"MarketIcons/{id}");
     }
+    
+    // 현재 언어에 맞는 아이템 이름 반환
+    public string GetLocalizedName()
+    {
+        if (LocalizationManager.Instance != null)
+        {
+            string key = $"MARKET_{ID}_NAME";
+            return LocalizationManager.Instance.GetText(key);
+        }
+        return Name;
+    }
+    // 현재 언어에 맞는 아이템 설명 반환
+    public string GetLocalizedDescription()
+    {
+        if (LocalizationManager.Instance != null)
+        {
+            string key = $"MARKET_{ID}_DESC";
+            return LocalizationManager.Instance.GetText(key);
+        }
+        return Description;
+    }
 }

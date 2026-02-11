@@ -67,6 +67,29 @@ public class MetaShopManager : MonoBehaviour
         {
             upgradePanel.SetActive(false);
         }
+        
+        // 로컬라이제이션 이벤트 구독
+        if (LocalizationManager.Instance != null)
+        {
+            LocalizationManager.Instance.OnLanguageChanged += RefreshCurrentDetail;
+        }
+    }
+    
+    void OnDestroy()
+    {
+        if (LocalizationManager.Instance != null)
+        {
+            LocalizationManager.Instance.OnLanguageChanged -= RefreshCurrentDetail;
+        }
+    }
+    
+    private void RefreshCurrentDetail()
+    {
+        // 언어 변경 시 현재 열린 상세창 갱신
+        if (currentSlot != null && detailPanel != null && detailPanel.activeSelf)
+        {
+            UpdateDetailPanel();
+        }
     }
 
     public void UpdateCurrencyUI()
@@ -90,15 +113,15 @@ public class MetaShopManager : MonoBehaviour
         MetaUpgradeData data = currentSlot.data;
         int currentLevel = PlayerPrefs.GetInt(data.id, 0);
 
-        detailTitle.text = data.displayName;
-        detailDesc.text = data.description;
+        detailTitle.text = data.GetLocalizedName();
+        detailDesc.text = data.GetLocalizedDescription();
         
         // 잠금 상태 체크
         bool isLocked = !IsUpgradeUnlocked(data);
         
         if (isLocked)
         {
-            detailEffect.text = "이전 단계를 완료하세요";
+            detailEffect.text = LocalizationManager.Instance.GetText("META_LOCKED");
             buyCostText.text = "-";
             buyButton.interactable = false;
             return;
@@ -107,7 +130,7 @@ public class MetaShopManager : MonoBehaviour
         // 만렙 체크
         if (currentLevel >= data.maxLevel)
         {
-            detailEffect.text = "최고 레벨 도달";
+            detailEffect.text = LocalizationManager.Instance.GetText("META_MAX_LEVEL");
             buyCostText.text = "-";
             buyButton.interactable = false;
         }
@@ -118,8 +141,12 @@ public class MetaShopManager : MonoBehaviour
             int cost = data.GetCost(currentLevel);
             int mySouls = PlayerPrefs.GetInt(currencySaveKey, 0);
 
-            detailEffect.text = $"현재 효과: {curVal} ▶ <color=green>{nextVal}</color>";
-            buyCostText.text = $"{cost} 마석";
+            string effectLabel = LocalizationManager.Instance.GetText("META_CURRENT_EFFECT");
+            string arrow = LocalizationManager.Instance.GetText("META_NEXT_ARROW");
+            detailEffect.text = $"{effectLabel}: {curVal} {arrow} <color=green>{nextVal}</color>";
+            
+            string costFormat = LocalizationManager.Instance.GetText("MAIN_SOULS_COST");
+            buyCostText.text = string.Format(costFormat, cost);
             buyButton.interactable = (mySouls >= cost);
         }
     }

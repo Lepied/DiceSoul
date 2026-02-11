@@ -1,9 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// 유물 데이터를 담는 ScriptableObject
-/// CSV에서 자동 생성되거나 Inspector에서 수동 편집 가능
-/// </summary>
 [CreateAssetMenu(fileName = "NewRelic", menuName = "DiceSoul/Relic Data")]
 public class RelicData : ScriptableObject
 {
@@ -43,21 +39,39 @@ public class RelicData : ScriptableObject
     [Tooltip("런 당 사용 가능 횟수 (0이면 무제한)")]
     public int usesPerRun = 0;
 
-    /// <summary>
-    /// 유물이 해금되었는지 확인
-    /// </summary>
+    // 유물이 해금되었는지 확인
     public bool IsUnlocked()
     {
         if (isUnlockedByDefault) return true;
         return PlayerPrefs.GetInt($"Unlock_{relicID}", 0) == 1;
     }
 
-    /// <summary>
-    /// 유물 해금
-    /// </summary>
+    // 유물 해금
     public void Unlock()
     {
         PlayerPrefs.SetInt($"Unlock_{relicID}", 1);
         PlayerPrefs.Save();
+    }
+
+    // 현재 언어에 맞는 유물 이름 반환
+    public string GetLocalizedName()
+    {
+        if (LocalizationManager.Instance != null)
+        {
+            string key = $"{relicID}_NAME";
+            return LocalizationManager.Instance.GetText(key);
+        }
+        return relicName;
+    }
+    
+    // 현재 언어에 맞는 유물 설명 반환
+    public string GetLocalizedDescription()
+    {
+        if (LocalizationManager.Instance != null)
+        {
+            string key = $"{relicID}_DESC";
+            return LocalizationManager.Instance.GetText(key);
+        }
+        return description;
     }
 }

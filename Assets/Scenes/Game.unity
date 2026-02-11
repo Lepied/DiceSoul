@@ -2732,10 +2732,10 @@ RectTransform:
   - {fileID: 2099659618}
   m_Father: {fileID: 88552028}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 300, y: -220}
-  m_SizeDelta: {x: 580, y: 40}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &232745164
 MonoBehaviour:
@@ -11567,10 +11567,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 88552028}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 300, y: -100}
-  m_SizeDelta: {x: 580, y: 180}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &782283083
 MonoBehaviour:
@@ -12787,6 +12787,7 @@ GameObject:
   - component: {fileID: 883141608}
   - component: {fileID: 883141610}
   - component: {fileID: 883141609}
+  - component: {fileID: 883141611}
   m_Layer: 5
   m_Name: HpText
   m_TagString: Untagged
@@ -12913,6 +12914,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 883141607}
   m_CullTransparentMesh: 1
+--- !u!114 &883141611
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 883141607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 018c02dc78c741a46805f3b1b29c192b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LocalizedText
+  key: UI_HP
 --- !u!1 &884278259
 GameObject:
   m_ObjectHideFlags: 0
@@ -15784,6 +15798,7 @@ GameObject:
   - component: {fileID: 1206034520}
   - component: {fileID: 1206034522}
   - component: {fileID: 1206034521}
+  - component: {fileID: 1206034523}
   m_Layer: 5
   m_Name: GoldText
   m_TagString: Untagged
@@ -15910,6 +15925,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1206034519}
   m_CullTransparentMesh: 1
+--- !u!114 &1206034523
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1206034519}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 018c02dc78c741a46805f3b1b29c192b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LocalizedText
+  key: UI_GOLD
 --- !u!1 &1215437201
 GameObject:
   m_ObjectHideFlags: 0
@@ -16534,11 +16562,6 @@ MonoBehaviour:
   tutorialManager: {fileID: 1274643020}
   relicSelectPanel: {fileID: 1410100291}
   relicCardsArea: {fileID: 1410100291}
-  relicIntroMessage: "\uC6E8\uC774\uBE0C\uB97C \uD074\uB9AC\uD558\uBA74 \uC720\uBB3C\uC744
-    \uD68D\uB4DD\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4!\n\uC720\uBB3C\uC740 \uC804\uD22C\uC5D0
-    \uB3C4\uC6C0\uC744 \uC8FC\uB294 \uC544\uC774\uD15C\uC785\uB2C8\uB2E4."
-  relicSelectMessage: "\uC720\uBB3C\uC744 \uC120\uD0DD\uD558\uC138\uC694!\n\uAC01
-    \uC720\uBB3C\uC758 \uD6A8\uACFC\uB97C \uD655\uC778\uD574\uBCF4\uC138\uC694."
 --- !u!114 &1274643024
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16555,18 +16578,6 @@ MonoBehaviour:
   enemyInfoButton: {fileID: 675211631}
   rollCountUI: {fileID: 0}
   topInfoPanel: {fileID: 193843629}
-  enemyIntroMessage: "\uD55C \uC6E8\uC774\uBE0C\uC5D0\uC120 \uB2E4\uC591\uD55C \uC801\uB4E4\uC774
-    \uB4F1\uC7A5\uD569\uB2C8\uB2E4\n\uADF8 \uC911\uC5D0\uC120 \uD2B9\uBCC4\uD55C
-    \uB2A5\uB825\uC744 \uAC00\uC9C4 \uC801\uB3C4 \uC788\uC2B5\uB2C8\uB2E4"
-  enemyInfoButtonMessage: "\uC801 \uC815\uBCF4 \uBC84\uD2BC\uC744 \uB20C\uB7EC\n\uC801\uB4E4\uC758
-    \uB2A5\uB825\uC744 \uD655\uC778\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4!"
-  rollCountMessage: "\uB9AC\uB864 \uD69F\uC218\uAC00 \uC815\uD574\uC838 \uC788\uC2B5\uB2C8\uB2E4.\n\uC774
-    \uC548\uC5D0 \uC801\uC744 \uBAA8\uB450 \uCC98\uCE58\uD558\uC9C0 \uBABB\uD558\uBA74
-    \uD53C\uD574\uB97C \uBC1B\uC2B5\uB2C8\uB2E4"
-  topInfoMessage: "\uD604\uC7AC HP, \uD68D\uB4DD\uD55C \uACE8\uB4DC, \uC2A4\uD14C\uC774\uC9C0,
-    \uD68D\uB4DD\uD55C \uC720\uBB3C\uC744\n\uC774\uACF3\uC5D0\uC11C \uD655\uC778\uD560
-    \uC218 \uC788\uC2B5\uB2C8\uB2E4."
-  completeMessage: "\uC88B\uC2B5\uB2C8\uB2E4!\n\uC774\uC81C \uD63C\uC790\uC11C \uD50C\uB808\uC774\uD574\uBCF4\uC138\uC694."
 --- !u!114 &1274643025
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16584,14 +16595,6 @@ MonoBehaviour:
   shopItemsContainer: {fileID: 221786951}
   rerollButton: {fileID: 971118970}
   exitShopButton: {fileID: 1725660448}
-  shopWelcomeMessage: "\uC0C1\uC810\uC5D0 \uC624\uC2E0 \uAC83\uC744 \uD658\uC601\uD569\uB2C8\uB2E4!"
-  shopItemsMessage: "\uACE8\uB4DC\uB85C \uC8FC\uC0AC\uC704, \uC720\uBB3C, \uD3EC\uC158
-    \uB4F1\uC744 \uAD6C\uB9E4\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.\n\uAC01 \uC0C1\uD488\uC744
-    \uD074\uB9AD\uD574\uC11C \uD655\uC778\uD574\uBCF4\uC138\uC694!"
-  rerollMessage: "\uC6D0\uD558\uB294 \uC0C1\uD488\uC774 \uC5C6\uC73C\uBA74 \uACE8\uB4DC\uB97C
-    \uC0AC\uC6A9\uD574 \uB9AC\uB864\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
-  exitMessage: "\uC6D0\uD558\uB294 \uC0C1\uD488\uC744 \uAD6C\uB9E4\uD558\uC168\uB098\uC694?\n\uB098\uAC00\uAE30
-    \uBC84\uD2BC\uC73C\uB85C \uB2E4\uC74C \uC874\uC73C\uB85C \uC774\uB3D9\uD558\uC138\uC694"
 --- !u!114 &1274643026
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16607,16 +16610,6 @@ MonoBehaviour:
   tutorialManager: {fileID: 1274643020}
   rollButton: {fileID: 748899813}
   jokboButtonsArea: {fileID: 327779101}
-  rollButtonMessage: "\uC8FC\uC0AC\uC704\uB97C \uAD74\uB824\uBCF4\uC138\uC694!\n\uB9E4
-    \uD134\uB9C8\uB2E4 \uC0C8\uB85C\uC6B4 \uC8FC\uC0AC\uC704\uAC00 \uB4F1\uC7A5\uD569\uB2C8\uB2E4."
-  jokboMessage: "\uC774\uBC88 \uC8FC\uC0AC\uC704\uB85C \uB9CC\uB4E4 \uC218 \uC788\uB294
-    \uC871\uBCF4\uB4E4\uC785\uB2C8\uB2E4!\n\uC6D0\uD558\uB294 \uC871\uBCF4\uB97C
-    \uC120\uD0DD\uD574\uBCF4\uC138\uC694."
-  remainingDiceMessage: "\uC871\uBCF4\uC5D0 \uC8FC\uC0AC\uC704\uAC00 \uC0AC\uC6A9\uB418\uACE0\n\uB0A8\uC740
-    \uC8FC\uC0AC\uC704\uAC00 \uC788\uC73C\uBA74 \uC774\uC5B4\uC11C \uACF5\uACA9\uD560
-    \uC218 \uC788\uC2B5\uB2C8\uB2E4."
-  completeMessage: "\uC88B\uC2B5\uB2C8\uB2E4! \uC801\uC5D0\uAC8C \uB370\uBBF8\uC9C0\uB97C
-    \uC8FC\uC5C8\uC2B5\uB2C8\uB2E4!\n\uC774\uB807\uAC8C \uC804\uD22C\uB97C \uC9C4\uD589\uD569\uB2C8\uB2E4."
 --- !u!1 &1275232514
 GameObject:
   m_ObjectHideFlags: 0
@@ -18319,7 +18312,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1428051700
 RectTransform:
   m_ObjectHideFlags: 0
@@ -20356,6 +20349,7 @@ GameObject:
   - component: {fileID: 1725734853}
   - component: {fileID: 1725734855}
   - component: {fileID: 1725734854}
+  - component: {fileID: 1725734856}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -20429,8 +20423,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 30
+  m_fontSize: 26
+  m_fontSizeBase: 26
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -20482,6 +20476,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1725734852}
   m_CullTransparentMesh: 1
+--- !u!114 &1725734856
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1725734852}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 018c02dc78c741a46805f3b1b29c192b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LocalizedText
+  key: UI_ENEMY_INFO
 --- !u!1 &1728788068
 GameObject:
   m_ObjectHideFlags: 0

@@ -9,10 +9,7 @@ public class TutorialRelicController : MonoBehaviour
     public RectTransform relicSelectPanel;
     public RectTransform relicCardsArea;
     
-    [Header("Messages")]
-    public string relicIntroMessage = "유물을 획득할 수 있습니다!\n유물은 전투에 도움을 주는 강력한 아이템입니다.";
-    public string relicSelectMessage = "원하는 유물을 클릭하세요!\n각 유물의 효과를 확인해보세요.";
-    
+
     private bool isActive = false;
     
     public void StartRelicTutorial()
@@ -44,7 +41,7 @@ public class TutorialRelicController : MonoBehaviour
         }
         
         tutorialManager.tooltipPanel.SetActive(true);
-        tutorialManager.tooltipText.text = relicIntroMessage;
+        tutorialManager.tooltipText.text = LocalizationManager.Instance.GetText("TUTORIAL_RELIC_INTRO");
         tutorialManager.tooltipPanel.GetComponent<RectTransform>().position = 
             new Vector2(Screen.width / 2, Screen.height / 2);
         
@@ -80,7 +77,7 @@ public class TutorialRelicController : MonoBehaviour
         
         tutorialManager.ShowStep(
             relicCardsArea, 
-            relicSelectMessage, 
+            LocalizationManager.Instance.GetText("TUTORIAL_RELIC_SELECT"), 
             TooltipPosition.Bottom,
             false 
         );
