@@ -20,7 +20,7 @@ public static class GameEvents
     public static event Action<AttackContext> OnAfterAttack;
     
     // 족보 완성 시
-    public static event Action<JokboContext> OnJokboComplete;
+    public static event Action<HandContext> OnHandComplete;
     
     // ===== 플레이어 상태 =====
     // 플레이어 피격 전 (데미지 무효화 등)
@@ -73,7 +73,7 @@ public static class GameEvents
     public static void RaiseDiceRerolled(RollContext ctx) => OnDiceRerolled?.Invoke(ctx);
     public static void RaiseBeforeAttack(AttackContext ctx) => OnBeforeAttack?.Invoke(ctx);
     public static void RaiseAfterAttack(AttackContext ctx) => OnAfterAttack?.Invoke(ctx);
-    public static void RaiseJokboComplete(JokboContext ctx) => OnJokboComplete?.Invoke(ctx);
+    public static void RaiseHandComplete(HandContext ctx) => OnHandComplete?.Invoke(ctx);
     public static void RaiseBeforePlayerDamaged(DamageContext ctx) => OnBeforePlayerDamaged?.Invoke(ctx);
     public static void RaiseAfterPlayerDamaged(DamageContext ctx) => OnAfterPlayerDamaged?.Invoke(ctx);
     public static void RaisePlayerDeath(DeathContext ctx) => OnPlayerDeath?.Invoke(ctx);
@@ -96,7 +96,7 @@ public static class GameEvents
         OnDiceRerolled = null;
         OnBeforeAttack = null;
         OnAfterAttack = null;
-        OnJokboComplete = null;
+        OnHandComplete = null;
         OnBeforePlayerDamaged = null;
         OnAfterPlayerDamaged = null;
         OnPlayerDeath = null;

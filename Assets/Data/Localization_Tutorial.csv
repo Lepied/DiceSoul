@@ -1,18 +1,19 @@
 Key,Korean,English
+TUTORIAL_NEXT_BUTTON,다음,Next
 TUTORIAL_MAINMENU_WELCOME,튜토리얼을 완료했습니다!\n이제 메인 메뉴의 기능들을 알아봅시다.,Tutorial completed!\nLet's explore the main menu features.
-TUTORIAL_MAINMENU_CURRENCY,출정을 통해 마석을 얻을 수 있고,\n얻은 마석은 여기에 표시됩니다.,You can earn Magic Stones through expeditions.\nCollected stones are displayed here.
+TUTORIAL_MAINMENU_CURRENCY,"출정을 통해 마석을 얻을 수 있고,\n얻은 마석은 여기에 표시됩니다.","You can earn Magic Stones through expeditions.\nCollected stones are displayed here."
 TUTORIAL_MAINMENU_METASHOP,메타샵에서는 영구 업그레이드를 구매할 수 있습니다.\n게임이 끝나도 유지되는 강력한 효과들이에요!,In the Meta Shop you can purchase permanent upgrades.\nThese powerful effects persist even after the game ends!
 TUTORIAL_MAINMENU_GENERALSTORE,잡화점에서는 일시적인 버프를 구매할 수 있습니다.\n다음 런에만 적용됩니다.,In the General Store you can purchase temporary buffs.\nThese apply only to the next run.
 TUTORIAL_MAINMENU_DECKSELECTION,덱 선택에서 다양한 덱을 해금하고 선택할 수 있습니다.\n각 덱마다 고유한 플레이 스타일이 있어요!,In Deck Selection you can unlock and choose various decks.\nEach deck has its own unique playstyle!
 TUTORIAL_MAINMENU_STARTGAME,이제 새로운 런을 시작해보세요!\n행운을 빕니다!,Now start a new run!\nGood luck!
 TUTORIAL_WAVE1_ROLL,주사위를 굴려보세요!\n매 턴마다 새로운 주사위가 등장합니다.,Roll the dice!\nNew dice appear every turn.
-TUTORIAL_WAVE1_JOKBO,족보를 선택해보세요! 적들에게 공격을 할 수 있습니다.,Select a hand! You can attack enemies.
-TUTORIAL_WAVE1_REMAINING,족보에 주사위가 사용되고\n남은 주사위가 있으면 이어서 공격할 수 있습니다.,After using dice for a hand,\nif dice remain you can continue attacking.
+TUTORIAL_WAVE1_HAND,패를 선택해보세요! 적들에게 공격을 할 수 있습니다.,Select a hand! You can attack enemies.
+TUTORIAL_WAVE1_REMAINING,패에 주사위가 사용되고\n남은 주사위가 있으면 이어서 공격할 수 있습니다.,"After using dice for a hand,\nif dice remain you can continue attacking."
 TUTORIAL_WAVE1_COMPLETE,좋습니다! 적에게 데미지를 주었습니다!\n이렇게 전투를 진행합니다.,Great! You dealt damage to the enemy!\nThis is how combat works.
 TUTORIAL_WAVE2_INTRO,이번 웨이브부터 다양한 적들이 등장합니다!\n적마다 특별한 능력을 가지고 있습니다.,From this wave onward various enemies appear!\nEach enemy has special abilities.
 TUTORIAL_WAVE2_ENEMYINFO,적 정보 버튼을 눌러\n적들의 능력을 확인할 수 있습니다,Click the enemy info button\nto check enemy abilities
 TUTORIAL_WAVE2_ROLLCOUNT,리롤 횟수가 정해져 있습니다.\n이 안에 적을 모두 처치하지 못하면 피해를 받습니다,You have a limited number of rerolls.\nIf you don't defeat all enemies you will take damage
-TUTORIAL_WAVE2_TOPINFO,현재 HP, 획득한 골드, 스테이지, 획득한 유물을\n이곳에서 확인할 수 있습니다.,You can check your current HP, gold, stage, and relics\nhere.
+TUTORIAL_WAVE2_TOPINFO,"현재 HP, 획득한 골드, 스테이지, 획득한 유물을\n이곳에서 확인할 수 있습니다.","You can check your current HP\ngold, stage, and relics here."
 TUTORIAL_WAVE2_COMPLETE,좋습니다!\n이제 혼자서 플레이해보세요.,Great!\nNow try playing on your own.
 TUTORIAL_SHOP_WELCOME,상점에 오신 것을 환영합니다!,Welcome to the shop!
 TUTORIAL_SHOP_ITEMS,"골드로 주사위, 유물, 포션 등을 구매할 수 있습니다.\n각 상품을 클릭해서 확인해보세요!","You can purchase dice, relics, potions and more with gold.\nClick each item to check it out!"

@@ -12,7 +12,7 @@ public enum AttackTargetType
     Defense     // 수비 (실드얻음)
 }
 
-public class AttackJokbo
+public class AttackHand
 {
     // 기본 정보 (UI 표시용)
     public string Description { get; private set; }
@@ -48,7 +48,7 @@ public class AttackJokbo
 
 
     // 고정 데미지/점수 족보용
-    public AttackJokbo(
+    public AttackHand(
         string description, 
         int baseDamage, 
         int baseGold, 
@@ -79,7 +79,7 @@ public class AttackJokbo
     }
     
     //가변 데미지/점수 족보용 (예: "총합")
-    public AttackJokbo(
+    public AttackHand(
         string description, 
         System.Func<List<int>, int> damageCalc, 
         System.Func<List<int>, int> goldCalc, 
@@ -113,7 +113,7 @@ public class AttackJokbo
 
     // 복사 생성자
     //(AttackDB가 달성된 족보의 '복사본'을 만들 때 사용)
-    public AttackJokbo(AttackJokbo original)
+    public AttackHand(AttackHand original)
     {
         this.Description = original.Description;
         this.BaseDamage = original.BaseDamage;
@@ -183,18 +183,18 @@ public class AttackJokbo
     {
         switch (description)
         {
-            case "야찌": return "JOKBO_YACHT";
-            case "포카드": return "JOKBO_FOUR_OF_KIND";
-            case "풀 하우스": return "JOKBO_FULL_HOUSE";
-            case "스트레이트(5)": return "JOKBO_STRAIGHT_5";
-            case "스트레이트(4)": return "JOKBO_STRAIGHT_4";
-            case "트리플": return "JOKBO_THREE_OF_KIND";
-            case "투 페어": return "JOKBO_TWO_PAIR";
-            case "원 페어": return "JOKBO_ONE_PAIR";
-            case "모두 짝수": return "JOKBO_ALL_EVEN";
-            case "모두 홀수": return "JOKBO_ALL_ODD";
-            case "총합": return "JOKBO_SUM";
-            case "수비": return "JOKBO_DEFENSE";
+            case "야찌": return "HAND_YACHT";
+            case "포카드": return "HAND_FOUR_OF_KIND";
+            case "풀 하우스": return "HAND_FULL_HOUSE";
+            case "스트레이트(5)": return "HAND_STRAIGHT_5";
+            case "스트레이트(4)": return "HAND_STRAIGHT_4";
+            case "트리플": return "HAND_THREE_OF_KIND";
+            case "투 페어": return "HAND_TWO_PAIR";
+            case "원 페어": return "HAND_ONE_PAIR";
+            case "모두 짝수": return "HAND_ALL_EVEN";
+            case "모두 홀수": return "HAND_ALL_ODD";
+            case "총합": return "HAND_SUM";
+            case "수비": return "HAND_DEFENSE";
             default: return "";
         }
     }

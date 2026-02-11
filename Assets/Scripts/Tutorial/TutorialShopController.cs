@@ -96,6 +96,9 @@ public class TutorialShopController : MonoBehaviour
             return;
         }
         
+        // 기존 리스너 모두 제거 (상점 닫기 기능 등)
+        exitShopButton.onClick.RemoveAllListeners();
+        
         tutorialManager.ShowStep(exitShopButton.GetComponent<RectTransform>(), 
                                 LocalizationManager.Instance.GetText("TUTORIAL_SHOP_EXIT"), 
                                 TooltipPosition.Auto,
@@ -131,11 +134,14 @@ public class TutorialShopController : MonoBehaviour
                 Debug.Log("[TutorialShop] 튜토리얼 세이브 파일 삭제");
             }
             
-            // 메인 메뉴로 이동
-            UIManager.Instance.FadeOut(1.0f, () =>
+            // 상점 패널 즉시 닫기 (Zone 2 시작 방지)
+            if (UIManager.Instance != null && UIManager.Instance.maintenancePanel != null)
             {
-                UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
-            });
+                UIManager.Instance.maintenancePanel.SetActive(false);
+            }
+            
+            // 메인 메뉴로 이동 (FadeOut 없이 즉시 이동)
+            UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
         }
     }
     

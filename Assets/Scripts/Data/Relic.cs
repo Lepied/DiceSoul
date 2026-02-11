@@ -28,11 +28,11 @@ public enum RelicEffectType
     BonusOnLowD20,            // D20 낮으면 보너스 (균형추)
     
     // ===== 족보 특화 (OnBeforeAttack) =====
-    JokboDamageAdd,           // 특정 족보 데미지 +
-    JokboGoldAdd,             // 특정 족보 골드 +
-    JokboGoldMultiplier,      // 특정 족보 골드 배율
-    JokboDamageMultiplier,    // 특정 족보 데미지 배율
-    DisableJokbo,             // 특정 족보 비활성화
+    HandDamageAdd,           // 특정 족보 데미지 +
+    HandGoldAdd,             // 특정 족보 골드 +
+    HandGoldMultiplier,      // 특정 족보 골드 배율
+    HandDamageMultiplier,    // 특정 족보 데미지 배율
+    DisableHand,             // 특정 족보 비활성화
     
     // ===== 동적 데미지 (OnBeforeAttack) =====
     DynamicDamage_Gold,       // 보유 골드 비례 데미지
@@ -45,7 +45,7 @@ public enum RelicEffectType
     ChainDamageBonus,         // 연쇄 공격 데미지 증폭 (광택 구슬)
     
     // ===== 생존/회복 =====
-    HealOnJokbo,              // 족보 완성 시 회복 (흡혈귀 이빨)
+    HealOnHand,              // 족보 완성 시 회복 (흡혈귀 이빨)
     HealOnRoll,               // 굴림 시 확률 회복 (재생 팔찌)
     ReviveOnDeath,            // 사망 시 부활 (불사조 깃털)
     DamageImmuneLowHP,        // 저체력 시 피해 무효 (작은 방패)
@@ -104,7 +104,7 @@ public class Relic
         this.MaxCount = maxCount;
     }
 
-    // 문자열 값(StringValue)을 받는 생성자 (Jokbo, AddDice 등)
+    // 문자열 값(StringValue)을 받는 생성자 (Hand, AddDice 등)
     public Relic(string relicID, string name, string description, Sprite icon, 
                  RelicEffectType effectType, string stringValue, int intValue = 0, float floatValue = 0f, int maxCount = 0, bool isUnLocked = true)
     {

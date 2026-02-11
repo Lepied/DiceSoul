@@ -20,6 +20,7 @@ public class TutorialManager : MonoBehaviour
     public TMP_Text tooltipText;
     public RectTransform tooltipArrow; 
     public Button nextButton;
+    private TMP_Text nextButtonText;
 
     [Header("Settings")]
     public float tooltipOffset = 80f;
@@ -55,6 +56,31 @@ public class TutorialManager : MonoBehaviour
         if (nextButton != null)
         {
             nextButton.onClick.AddListener(OnNextButtonClicked);
+            nextButtonText = nextButton.GetComponentInChildren<TMP_Text>();
+            UpdateNextButtonText();
+        }
+        
+        // 언어 변경 이벤트 구독
+        if (LocalizationManager.Instance != null)
+        {
+            LocalizationManager.Instance.OnLanguageChanged += UpdateNextButtonText;
+        }
+    }
+    
+    private void OnDestroy()
+    {
+        // 이벤트 구독 해제
+        if (LocalizationManager.Instance != null)
+        {
+            LocalizationManager.Instance.OnLanguageChanged -= UpdateNextButtonText;
+        }
+    }
+    
+    private void UpdateNextButtonText()
+    {
+        if (nextButtonText != null && LocalizationManager.Instance != null)
+        {
+            nextButtonText.text = LocalizationManager.Instance.GetText("TUTORIAL_NEXT_BUTTON");
         }
     }
 

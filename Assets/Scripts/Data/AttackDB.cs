@@ -8,7 +8,7 @@ public class AttackDB : MonoBehaviour
     public static AttackDB Instance { get; private set; }
 
     // 게임에 존재하는 모든 공격 족보 리스트
-    private List<AttackJokbo> allJokbos = new List<AttackJokbo>();
+    private List<AttackHand> allHands = new List<AttackHand>();
 
     void Awake()
     {
@@ -16,7 +16,7 @@ public class AttackDB : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            InitializeJokbos(); // 게임 시작 시 모든 족보를 미리 정의
+            InitializeHands(); // 게임 시작 시 모든 족보를 미리 정의
         }
         else
         {
@@ -24,7 +24,7 @@ public class AttackDB : MonoBehaviour
         }
     }
 
-    private void InitializeJokbos()
+    private void InitializeHands()
     {
         VFXConfig missileVFX = Resources.Load<VFXConfig>("VFXConfigs/VFXConfig_Missile");
         VFXConfig straightVFX = Resources.Load<VFXConfig>("VFXConfigs/VFXConfig_Straight");
@@ -39,7 +39,7 @@ public class AttackDB : MonoBehaviour
         VFXConfig YachtVFX = Resources.Load<VFXConfig>("VFXConfigs/VFXConfig_Yacht");
         
         // 야찌 (5개)
-        allJokbos.Add(new AttackJokbo(
+        allHands.Add(new AttackHand(
             "야찌", 150, 100,
             (diceValues) => diceValues.GroupBy(v => v).Any(g => g.Count() >= 5),
             (diceValues) => GetSameValueIndices(diceValues, 5),
@@ -48,7 +48,7 @@ public class AttackDB : MonoBehaviour
         ));
 
         // 포카드 (4개) - 1명 선택 + 전체 공격
-        allJokbos.Add(new AttackJokbo(
+        allHands.Add(new AttackHand(
             "포카드", 80, 50,
             (diceValues) => diceValues.GroupBy(v => v).Any(g => g.Count() >= 4),
             (diceValues) => GetSameValueIndices(diceValues, 4),
@@ -62,7 +62,7 @@ public class AttackDB : MonoBehaviour
         ));
 
         // 풀 하우스 (3+2) - 2명 선택 + 랜덤 공격
-        allJokbos.Add(new AttackJokbo(
+        allHands.Add(new AttackHand(
             "풀 하우스", 70, 40,
             (diceValues) => {
                 var groups = diceValues.GroupBy(v => v);
@@ -80,7 +80,7 @@ public class AttackDB : MonoBehaviour
         ));
 
         // 스트레이트 (5연속)
-        allJokbos.Add(new AttackJokbo(
+        allHands.Add(new AttackHand(
             "스트레이트(5)",
             70,
             40, 
@@ -97,7 +97,7 @@ public class AttackDB : MonoBehaviour
         ));
         
         // 스트레이트 (4연속)
-        allJokbos.Add(new AttackJokbo(
+        allHands.Add(new AttackHand(
             "스트레이트(4)",
             50,
             25, 
@@ -114,7 +114,7 @@ public class AttackDB : MonoBehaviour
         ));
         
         // 트리플 (3개) - 3명 선택
-        allJokbos.Add(new AttackJokbo(
+        allHands.Add(new AttackHand(
             "트리플", 40, 20,
             (diceValues) => diceValues.GroupBy(v => v).Any(g => g.Count() >= 3),
             (diceValues) => GetSameValueIndices(diceValues, 3),
@@ -124,7 +124,7 @@ public class AttackDB : MonoBehaviour
         ));
 
         // 투 페어 (2+2) - 2명 선택
-        allJokbos.Add(new AttackJokbo(
+        allHands.Add(new AttackHand(
             "투 페어", 25, 10,
             (diceValues) => diceValues.GroupBy(v => v).Count(g => g.Count() >= 2) >= 2,
             (diceValues) => GetTwoPairIndices(diceValues),
@@ -134,7 +134,7 @@ public class AttackDB : MonoBehaviour
         ));
 
         // 원 페어 (2)
-        allJokbos.Add(new AttackJokbo(
+        allHands.Add(new AttackHand(
             "원 페어", 15, 5,
             (diceValues) => diceValues.GroupBy(v => v).Any(g => g.Count() >= 2),
             (diceValues) => GetSameValueIndices(diceValues, 2),
@@ -145,7 +145,7 @@ public class AttackDB : MonoBehaviour
         ));
 
         // 모두 짝수
-        allJokbos.Add(new AttackJokbo(
+        allHands.Add(new AttackHand(
             "모두 짝수", 30, 15,
             (diceValues) => diceValues.All(v => v % 2 == 0),
             (diceValues) => GetAllIndices(diceValues),
@@ -154,7 +154,7 @@ public class AttackDB : MonoBehaviour
         ));
         
         // 모두 홀수
-        allJokbos.Add(new AttackJokbo(
+        allHands.Add(new AttackHand(
             "모두 홀수", 30, 15,
             (diceValues) => diceValues.All(v => v % 2 != 0),
             (diceValues) => GetAllIndices(diceValues),
@@ -163,7 +163,7 @@ public class AttackDB : MonoBehaviour
         ));
 
         // 총합 (랜덤 타겟은 주사위 수만큼)
-        allJokbos.Add(new AttackJokbo(
+        allHands.Add(new AttackHand(
             "총합", 
             (diceValues) => diceValues.Sum(), 
             (diceValues) => diceValues.Sum(), 
@@ -176,7 +176,7 @@ public class AttackDB : MonoBehaviour
         ));
         
         // 수비 (주사위 합만큼 실드 획득)
-        allJokbos.Add(new AttackJokbo(
+        allHands.Add(new AttackHand(
             "수비", 
             (diceValues) => diceValues.Sum(), //주사위값 다합친거 를 실드량으로하기
             (diceValues) => 0,
@@ -317,27 +317,27 @@ public class AttackDB : MonoBehaviour
     }
 
     //현재 주사위 값들로 만들 수 있는 족보 반환시키기
-    public List<AttackJokbo> GetAchievableJokbos(List<int> diceValues)
+    public List<AttackHand> GetAchievableHands(List<int> diceValues)
     {
-        List<AttackJokbo> achievableJokbos = new List<AttackJokbo>();
+        List<AttackHand> achievableHands = new List<AttackHand>();
 
         // '완벽주의자' 유물 보유 여부 확인
         bool hasPerfectionist = GameManager.Instance.activeRelics.Any(r => r.RelicID == "RLC_PERFECTIONIST");
 
-        foreach (var jokboPrototype in allJokbos)
+        foreach (var handPrototype in allHands)
         {
             // 유물 필터링 로직
-            string desc = jokboPrototype.Description;
+            string desc = handPrototype.Description;
             if (hasPerfectionist && desc.Contains("4연속")) continue; // 4연속 비활성화
             if (!hasPerfectionist && desc.Contains("5연속")) continue; // 5연속 비활성화 (유물 없으면)
 
             // CheckAndCalculate 및 복사 생성자 사용
-            if (jokboPrototype.CheckAndCalculate(diceValues))
+            if (handPrototype.CheckAndCalculate(diceValues))
             {
-                achievableJokbos.Add(new AttackJokbo(jokboPrototype));
+                achievableHands.Add(new AttackHand(handPrototype));
             }
         }
         
-        return achievableJokbos.OrderByDescending(j => j.BaseDamage).ToList();
+        return achievableHands.OrderByDescending(j => j.BaseDamage).ToList();
     }
 }

@@ -64,7 +64,7 @@ public class ShopItem
         this.RelicData = relic;
     }
 
-    public void ExecuteEffect()
+    public void ExecuteEffect ()
     {
         OnPurchaseEffect?.Invoke();
     }

@@ -46,7 +46,7 @@ public class RelicEffectHandler : MonoBehaviour
         GameEvents.OnDiceRerolled += HandleDiceRerolled;
         GameEvents.OnBeforeAttack += HandleBeforeAttack;
         GameEvents.OnAfterAttack += HandleAfterAttack;
-        GameEvents.OnJokboComplete += HandleJokboComplete;
+        GameEvents.OnHandComplete += HandleHandComplete;
         GameEvents.OnBeforePlayerDamaged += HandleBeforePlayerDamaged;
         GameEvents.OnPlayerDeath += HandlePlayerDeath;
         GameEvents.OnWaveStart += HandleWaveStart;
@@ -67,7 +67,7 @@ public class RelicEffectHandler : MonoBehaviour
         GameEvents.OnDiceRerolled -= HandleDiceRerolled;
         GameEvents.OnBeforeAttack -= HandleBeforeAttack;
         GameEvents.OnAfterAttack -= HandleAfterAttack;
-        GameEvents.OnJokboComplete -= HandleJokboComplete;
+        GameEvents.OnHandComplete -= HandleHandComplete;
         GameEvents.OnBeforePlayerDamaged -= HandleBeforePlayerDamaged;
         GameEvents.OnPlayerDeath -= HandlePlayerDeath;
         GameEvents.OnWaveStart -= HandleWaveStart;
@@ -289,17 +289,17 @@ public class RelicEffectHandler : MonoBehaviour
 
                 // === 고정 골드 추가 (녹슨 톱니) ===
                 case RelicEffectType.AddBaseGold:
-                case RelicEffectType.JokboGoldAdd:
+                case RelicEffectType.HandGoldAdd:
                     if (relic.StringValue == "ALL" || 
-                        (ctx.Jokbo != null && ctx.Jokbo.Description.Contains(relic.StringValue)))
+                        (ctx.Hand != null && ctx.Hand.Description.Contains(relic.StringValue)))
                     {
                         ctx.FlatGoldBonus += relic.IntValue;
                     }
                     break;
 
                 // === 족보별 데미지 추가 (검술 교본, 가시 장갑 등) ===
-                case RelicEffectType.JokboDamageAdd:
-                    if (ctx.Jokbo != null && ctx.Jokbo.Description.Contains(relic.StringValue))
+                case RelicEffectType.HandDamageAdd:
+                    if (ctx.Hand != null && ctx.Hand.Description.Contains(relic.StringValue))
                     {
                         ctx.FlatDamageBonus += relic.IntValue;
                     }
@@ -311,16 +311,16 @@ public class RelicEffectHandler : MonoBehaviour
                     break;
 
                 // === 족보별 골드 배율 (백마법서, 흑마법서, 보석왕관 등) ===
-                case RelicEffectType.JokboGoldMultiplier:
-                    if (ctx.Jokbo != null && ctx.Jokbo.Description.Contains(relic.StringValue))
+                case RelicEffectType.HandGoldMultiplier:
+                    if (ctx.Hand != null && ctx.Hand.Description.Contains(relic.StringValue))
                     {
                         ctx.GoldMultiplier *= relic.FloatValue;
                     }
                     break;
 
                 // === 족보별 데미지 배율 (신규) ===
-                case RelicEffectType.JokboDamageMultiplier:
-                    if (ctx.Jokbo != null && ctx.Jokbo.Description.Contains(relic.StringValue))
+                case RelicEffectType.HandDamageMultiplier:
+                    if (ctx.Hand != null && ctx.Hand.Description.Contains(relic.StringValue))
                     {
                         ctx.DamageMultiplier *= relic.FloatValue;
                     }
@@ -362,7 +362,7 @@ public class RelicEffectHandler : MonoBehaviour
                     break;
 
                 // === 족보 완성 시 회복 (흡혈귀의 이빨) ===
-                case RelicEffectType.HealOnJokbo:
+                case RelicEffectType.HealOnHand:
                     // 악마의 계약서가 있으면 회복 불가
                     if (!HasRelic("RLC_DEMON_CONTRACT"))
                     {
@@ -434,7 +434,7 @@ public class RelicEffectHandler : MonoBehaviour
     }
 
     // 족보 완성 시 처리
-    private void HandleJokboComplete(JokboContext ctx)
+    private void HandleHandComplete(HandContext ctx)
     {
         // RLC_VAMPIRE_FANG: 흡혈귀의 이빨 - 족보 완성 시 체력 +10
         if (HasRelic("RLC_VAMPIRE_FANG") && GameManager.Instance != null)
@@ -544,11 +544,11 @@ public class RelicEffectHandler : MonoBehaviour
         }
         
         // RLC_SCHOLAR_BOOK: 학자의 서적 - 미사용 족보당 영구 데미지 +1%
-        if (HasRelic("RLC_SCHOLAR_BOOK") && ctx.UnusedJokboCount > 0)
+        if (HasRelic("RLC_SCHOLAR_BOOK") && ctx.UnusedHandCount > 0)
         {
             int count = GetRelicCount("RLC_SCHOLAR_BOOK");
-            scholarsTomeBonusDamage += ctx.UnusedJokboCount * count;
-            Debug.Log($"[유물] 학자의 서적: 영구 데미지 +{ctx.UnusedJokboCount * count}% (총 +{scholarsTomeBonusDamage}%)");
+            scholarsTomeBonusDamage += ctx.UnusedHandCount * count;
+            Debug.Log($"[유물] 학자의 서적: 영구 데미지 +{ctx.UnusedHandCount * count}% (총 +{scholarsTomeBonusDamage}%)");
         }
     }
 

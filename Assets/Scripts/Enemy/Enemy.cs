@@ -210,14 +210,14 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
         return enemyName;
     }
 
-    public virtual int CalculateDamageTaken(AttackJokbo jokbo)
+    public virtual int CalculateDamageTaken(AttackHand hand)
     {
-        if (jokbo == null) 
+        if (hand == null) 
         {
             return 0; // 족보가 없으면 추가 계산 없이 0 리턴 (외부에서 계산된 고정 데미지 사용)
         }
-        int finalDamage = jokbo.BaseDamage;
-        string desc = jokbo.Description;
+        int finalDamage = hand.BaseDamage;
+        string desc = hand.Description;
 
         // 1. 타입별 공통 데미지 공식 
         switch (enemyType)
@@ -258,7 +258,7 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
         return finalDamage;
     }
 
-    public bool TakeDamage(int finalDamage, AttackJokbo attackerJokbo, bool isSplash = false)
+    public bool TakeDamage(int finalDamage, AttackHand attackerHand, bool isSplash = false)
     {
         if (isDead) return true;
         if (finalDamage > 0)
@@ -283,10 +283,10 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
             GameManager.Instance.RecordDamage(finalDamage);
         }
 
-        OnDamageTaken(finalDamage, attackerJokbo);
+        OnDamageTaken(finalDamage, attackerHand);
         
         // 스플래시 데미지/  Single 타겟 공격만발동하게
-        if (!isSplash && attackerJokbo != null && attackerJokbo.TargetType == AttackTargetType.Single && GameManager.Instance != null)
+        if (!isSplash && attackerHand != null && attackerHand.TargetType == AttackTargetType.Single && GameManager.Instance != null)
         {
             float splashPercent = GameManager.Instance.GetTotalMetaBonus(MetaEffectType.SplashDamage);
             if (splashPercent > 0)
@@ -413,9 +413,9 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
 
     public virtual void OnWaveStart(List<Enemy> allies) { }
     public virtual void OnPlayerRoll(List<int> diceValues) { }
-    public virtual void OnDamageTaken(int damageTaken, AttackJokbo jokbo) { }
+    public virtual void OnDamageTaken(int damageTaken, AttackHand hand) { }
 
-    public virtual void ShowDamagePreview(AttackJokbo jokbo)
+    public virtual void ShowDamagePreview(AttackHand hand)
     {
         if (isDead || hpSlider == null || damagePreviewSlider == null) return;
 
@@ -424,7 +424,7 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
         float hpPercent = (maxHP > 0) ? (float)currentHP / maxHP : 0;
         damagePreviewSlider.value = hpPercent;
 
-        int damageToTake = CalculateDamageTaken(jokbo);
+        int damageToTake = CalculateDamageTaken(hand);
         int previewHP = Mathf.Max(0, currentHP - damageToTake);
         float previewPercent = (maxHP > 0) ? (float)previewHP / maxHP : 0;
 

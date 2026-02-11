@@ -10,14 +10,14 @@ public class Hellhound : Enemy
     [Header("지옥견 기믹")]
     public int burnDamage = 2;
 
-    public override void OnDamageTaken(int damageTaken, AttackJokbo jokbo)
+    public override void OnDamageTaken(int damageTaken, AttackHand hand)
     {
-        base.OnDamageTaken(damageTaken, jokbo);
-        if( jokbo == null) return;
+        base.OnDamageTaken(damageTaken, hand);
+        if( hand == null) return;
         if (isDead) return;
 
         // '홀수' 족보로 공격받았을 때 반격
-        if (jokbo.Description.Contains("홀수"))
+        if (hand.Description.Contains("홀수"))
         {
             if (GameManager.Instance != null)
             {

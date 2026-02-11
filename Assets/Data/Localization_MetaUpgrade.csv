@@ -21,7 +21,7 @@ META_FIRST_HIT_IMMUNE_DESC,웨이브당 첫 피해를 무효화합니다.,Nullif
 META_REVIVE_NAME,부활석,Revive
 META_REVIVE_DESC,사망 시 1회 일정 체력으로 부활합니다.,Revive with partial HP when defeated.
 META_BASE_DAMAGE_NAME,발리스타,Balista
-META_BASE_DAMAGE_DESC,성벽에 발리스타를 배치해 모든 족보의 기본 데미지가 증가합니다.,Increases base damage of all Jokbo.
+META_BASE_DAMAGE_DESC,성벽에 발리스타를 배치해 모든 패의 기본 데미지가 증가합니다.,Increases base damage of all Hands.
 META_START_DAMAGE_NAME,일제사격,Suppressive Fire
 META_START_DAMAGE_DESC,웨이브 시작 시 적에게 피해를 줍니다.,Deal damage to enemies at wave start.
 META_CRIT_CHANCE_NAME,약점 포착, Crit Chance
@@ -31,7 +31,7 @@ META_REROLL_DAMAGE_BONUS_DESC,주사위를 굴릴 때마다 데미지가 증가�
 META_FOUR_DICE_DAMAGE_BONUS_NAME,완성된 공격, Completed Attacks
 META_FOUR_DICE_DAMAGE_BONUS_DESC,한번의 공격에 주사위 4개 이상 사용 시 데미지 보너스., Damage bonus when using 4 or more dice in a single attack.
 META_SPLASH_DAMAGE_NAME,후폭풍, Reverse Blast
-META_SPLASH_DAMAGE_DESC,단일 적을 공격하는 족보의 일부 데미지를 모든 적에게 입힙니다., Deals portion of damage from single-target Jokbo to all enemies.
+META_SPLASH_DAMAGE_DESC,단일 적을 공격하는 패의 일부 데미지를 모든 적에게 입힙니다., Deals portion of damage from single-target Hands to all enemies.
 META_COMBO_BONUS_NAME,연쇄 공격, Chain Attack
 META_COMBO_BONUS_DESC,연쇄 공격 시 데미지가 증가합니다.,Increased damage on Chain attacks.
 META_START_DICE_BONUS_NAME,추가 주사위,Extra Dice
@@ -41,7 +41,7 @@ META_CRIT_MULTIPLIER_DESC,치명타 데미지 배율이 증가합니다.,Increas
 META_START_GOLD_NAME,보급품 준비, Supply Prep
 META_START_GOLD_DESC,보급품을 준비해 출격 시 골드를 얻습니다.,Start runs with bonus gold.
 META_GOLD_BONUS_NAME,전리품 수거,Loot Collection
-META_GOLD_BONUS_DESC,족보 완성 시 골드 획득량이 증가합니다.,Increases gold gained from Jokbo.
+META_GOLD_BONUS_DESC,패 완성 시 골드 획득량이 증가합니다.,Increases gold gained from Hands.
 META_SHOP_DISCOUNT_NAME,상점 할인,Shop Discount
 META_SHOP_DISCOUNT_DESC,상점 가격이 할인됩니다.,Reduces shop prices.
 META_GOLD_MULTIPLIER_NAME,황금손, Gold Touch

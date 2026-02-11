@@ -25,7 +25,7 @@ public class RollContext
 
 public class AttackContext
 {
-    public AttackJokbo Jokbo;             // 사용된 족보
+    public AttackHand hand;             // 사용된 족보
     public int BaseDamage;                // 기본 데미지
     public int FlatDamageBonus;           // 고정 데미지 추가
     public float DamageMultiplier = 1f;   // 데미지 배율
@@ -48,7 +48,7 @@ public class AttackContext
     
     public void Reset()
     {
-        Jokbo = null;
+        Hand = null;
         BaseDamage = 0;
         FlatDamageBonus = 0;
         DamageMultiplier = 1f;
@@ -98,10 +98,10 @@ public class AttackContext
 }
 
 // 족보 컨텍스트
-public class JokboContext
+public class HandContext
 {
-    public AttackJokbo Jokbo;             // 선택된 족보
-    public List<AttackJokbo> AchievedJokbos; // 달성한 족보 목록
+    public AttackHand Hand;             // 선택된 족보
+    public List<AttackHand> AchievedHands; // 달성한 족보 목록
     public int[] DiceValues;              // 주사위 값들 (int[])
     public List<int> DiceValuesList;      // 주사위 값들 (List<int>)
     public bool ConsumeRoll = true;       // 굴림 횟수 소모 여부
@@ -110,8 +110,8 @@ public class JokboContext
     
     public void Reset()
     {
-        Jokbo = null;
-        AchievedJokbos = null;
+        Hand = null;
+        AchievedHands = null;
         DiceValues = null;
         DiceValuesList = null;
         ConsumeRoll = true;
@@ -178,14 +178,14 @@ public class WaveContext
     public int ZoneNumber;
     public int WaveNumber;
     public bool IsBossWave;
-    public int UnusedJokboCount;          // 미사용 족보 수 (학자의 서적용)
+    public int UnusedHandCount;          // 미사용 족보 수 (학자의 서적용)
     
     public void Reset()
     {
         ZoneNumber = 0;
         WaveNumber = 0;
         IsBossWave = false;
-        UnusedJokboCount = 0;
+        UnusedHandCount = 0;
     }
 }
 
@@ -209,7 +209,7 @@ public class GoldContext
     public int BaseAmount;                // 기본 골드량 (OriginalAmount와 동일)
     public float Multiplier = 1f;         // 골드 배율
     public int FinalAmount;               // 최종 골드량
-    public string Source;                 // 골드 출처 (Jokbo, Bonus 등)
+    public string Source;                 // 골드 출처 (Hand, Bonus 등)
     
     public void Reset()
     {

@@ -1,0 +1,15 @@
+Key,Korean,English
+HAND_STRAIGHT,스트레이트,Straight
+HAND_STRAIGHT_4,스트레이트(4),Straight (4)
+HAND_STRAIGHT_5,스트레이트(5),Straight (5)
+HAND_FULL_HOUSE,풀 하우스,Full House
+HAND_FOUR_OF_KIND,포카드,Four of a Kind
+HAND_THREE_OF_KIND,트리플,Three of a Kind
+HAND_TWO_PAIR,투 페어,Two Pair
+HAND_ONE_PAIR,원 페어,One Pair
+HAND_SUM,총합,Sum
+HAND_YACHT,야찌,Yacht
+HAND_ALL_EVEN,모두 짝수,All Even
+HAND_ALL_ODD,모두 홀수,All Odd
+HAND_DEFENSE,수비,Defense
+HAND_NONE,없음,None

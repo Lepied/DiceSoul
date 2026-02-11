@@ -16576,7 +16576,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TutorialWave2Controller
   tutorialManager: {fileID: 1274643020}
   enemyInfoButton: {fileID: 675211631}
-  rollCountUI: {fileID: 0}
+  rollCountUI: {fileID: 740623721}
   topInfoPanel: {fileID: 193843629}
 --- !u!114 &1274643025
 MonoBehaviour:

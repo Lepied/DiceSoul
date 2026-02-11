@@ -8,7 +8,7 @@ public class TutorialWave1Controller : MonoBehaviour
     [Header("References")]
     public TutorialManager tutorialManager;
     public Button rollButton;
-    public RectTransform jokboButtonsArea;
+    public RectTransform handButtonsArea;
     
     private bool isActive = false;
     private bool isCompleted = false;
@@ -52,38 +52,51 @@ public class TutorialWave1Controller : MonoBehaviour
         rollButton.onClick.RemoveListener(OnRollButtonClicked);
         
 
-        ShowStep2_Jokbo();
+        ShowStep2_Hand();
     }
     
-    private void ShowStep2_Jokbo()
+    private void ShowStep2_Hand()
     {
         if (!isActive) return;
         
-        if (jokboButtonsArea == null)
+        if (handButtonsArea == null)
         {
             ShowStep3_RemainingDice();
             return;
         }
         
         tutorialManager.ShowStep(
-            jokboButtonsArea, 
-            LocalizationManager.Instance.GetText("TUTORIAL_WAVE1_JOKBO"), 
+            handButtonsArea, 
+            LocalizationManager.Instance.GetText("TUTORIAL_WAVE1_Hand"), 
             TooltipPosition.Bottom,
-            false
+            true
         );
+        
+        // 확인 버튼 리스너 설정 (사용자가 족보 선택 없이 넘어갈 경우 대비)
+        tutorialManager.nextButton.onClick.RemoveAllListeners();
+        tutorialManager.nextButton.onClick.AddListener(() =>
+        {
+            // 콜백 정리
+            if (StageManager.Instance != null)
+            {
+                StageManager.Instance.onHandSelectedCallback = null;
+            }
+            tutorialManager.HideTutorial();
+            ShowStep3_RemainingDice();
+        });
         
         if (StageManager.Instance != null)
         {
-            StageManager.Instance.onJokboSelectedCallback = OnJokboSelected;
+            StageManager.Instance.onHandSelectedCallback = OnHandSelected;
         }
     }
     
-    private void OnJokboSelected()
+    private void OnHandSelected()
     {
 
         if (StageManager.Instance != null)
         {
-            StageManager.Instance.onJokboSelectedCallback = null;
+            StageManager.Instance.onHandSelectedCallback = null;
         }
         
         tutorialManager.HideTutorial();
@@ -162,7 +175,7 @@ public class TutorialWave1Controller : MonoBehaviour
         if (rollButton != null)
             rollButton.onClick.RemoveListener(OnRollButtonClicked);
         if (StageManager.Instance != null)
-            StageManager.Instance.onJokboSelectedCallback = null;
+            StageManager.Instance.onHandSelectedCallback = null;
         
         tutorialManager.HideTutorial();
     }

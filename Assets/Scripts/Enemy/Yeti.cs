@@ -45,13 +45,13 @@ public class Yeti : Enemy
     //[기믹 2: 분노 발동]
     // '스트레이트'로 맞으면 분노하여 방어력을 올립니다.
 
-    public override void OnDamageTaken(int damageTaken, AttackJokbo jokbo)
+    public override void OnDamageTaken(int damageTaken, AttackHand hand)
     {
-        base.OnDamageTaken(damageTaken, jokbo);
-        if(jokbo == null) return;
+        base.OnDamageTaken(damageTaken, hand);
+        if(hand == null) return;
         if (isDead) return;
 
-        if (jokbo.Description.Contains("스트레이트"))
+        if (hand.Description.Contains("스트레이트"))
         {
             isEnraged = true;
             EffectManager.Instance.ShowText(transform, "분노!", Color.red);
@@ -63,10 +63,10 @@ public class Yeti : Enemy
     /// [기믹 2: 분노 방어]
     /// 분노 상태일 때 '총합' 족보를 무시합니다.
     /// </summary>
-    public override int CalculateDamageTaken(AttackJokbo jokbo)
+    public override int CalculateDamageTaken(AttackHand hand)
     {
         // 분노 상태 + 총합 공격 = 면역
-        if (isEnraged && jokbo.Description.Contains("총합"))
+        if (isEnraged && hand.Description.Contains("총합"))
         {
             string immuneText = LocalizationManager.Instance != null 
                 ? LocalizationManager.Instance.GetText("ENEMY_EFFECT_IMMUNE") 
@@ -75,7 +75,7 @@ public class Yeti : Enemy
             return 0;
         }
 
-        return base.CalculateDamageTaken(jokbo);
+        return base.CalculateDamageTaken(hand);
     }
 
     protected override void OnDeath()

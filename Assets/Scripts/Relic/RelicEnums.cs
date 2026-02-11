@@ -19,7 +19,7 @@ public enum RelicCategory
 {
     Utility,            // 유틸리티 (굴림 횟수, 리롤 등)
     CharacterStat,      // 캐릭터 스탯 (데미지, 체력 등)
-    JokboSpecific,      // 족보 특화
+    HandSpecific,      // 족보 특화
     DiceRelated,        // 주사위 관련 (변환, 재굴림 등)
     Economy,            // 경제 관련 (골드, 상점 등)
     Survival            // 생존 유틸리티 (회복, 부활 등)
@@ -35,7 +35,7 @@ public enum RelicTriggerTiming
     OnReroll,           // 재굴림 시
     OnBeforeAttack,     // 공격 계산 전
     OnAfterAttack,      // 공격 후
-    OnJokboComplete,    // 족보 완성 시
+    OnHandComplete,    // 족보 완성 시
     OnTakeDamage,       // 피격 시
     OnPlayerDeath,      // 사망 시
     OnShopRefresh,      // 상점 새로고침 시

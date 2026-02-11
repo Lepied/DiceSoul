@@ -3,10 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Linq;
 
-/// <summary>
-/// 언어 선택 UI 컴포넌트
-/// Settings 메뉴나 Options 화면에 배치
-/// </summary>
+// 언어 선택 UI 컴포넌트
 public class LanguageSelector : MonoBehaviour
 {
     [Header("UI References")]

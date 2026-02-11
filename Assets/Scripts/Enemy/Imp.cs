@@ -15,22 +15,22 @@ public class Imp : Enemy
     /// [기믹: 마력 흡수]
     /// 생체 타입이지만, '총합' 족보 공격은 체력으로 흡수합니다.
     /// </summary>
-    public override int CalculateDamageTaken(AttackJokbo jokbo)
+    public override int CalculateDamageTaken(AttackHand hand)
     {
-        string desc = jokbo.Description;
+        string desc = hand.Description;
 
         // "총합" 족보로 공격받았을 때
         if (desc.Contains("총합"))
         {
 
             EffectManager.Instance.ShowText(transform, "ABSORB", Color.green);
-            EffectManager.Instance.ShowHeal(transform, jokbo.BaseDamage);
-            HealSelf(jokbo.BaseDamage);
+            EffectManager.Instance.ShowHeal(transform, hand.BaseDamage);
+            HealSelf(hand.BaseDamage);
             return 0;
         }
 
         // 그 외에는 부모(Biological)의 기본 로직 (100% 피해)
-        return base.CalculateDamageTaken(jokbo);
+        return base.CalculateDamageTaken(hand);
     }
 
     private void HealSelf(int amount)

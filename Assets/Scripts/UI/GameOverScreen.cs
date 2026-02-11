@@ -22,7 +22,7 @@ public class GameOverScreen : MonoBehaviour
     public TextMeshProUGUI metaCurrencyText;
     public TextMeshProUGUI maxDamageText;
     public TextMeshProUGUI maxChainText;
-    public TextMeshProUGUI mostUsedJokboText;
+    public TextMeshProUGUI mostUsedHandText;
 
     [Header("유물 표시")]
     public Transform relicContainer;
@@ -143,25 +143,25 @@ public class GameOverScreen : MonoBehaviour
             maxChainText.text = $"{chainLabel}: {GameManager.Instance.maxChainCount}";
         }
 
-        if (mostUsedJokboText != null)
+        if (mostUsedHandText != null)
         {
-            string mostUsed = GameManager.Instance.GetMostUsedJokbo();
+            string mostUsed = GameManager.Instance.GetMostUsedHand();
             int count = 0;
-            if (GameManager.Instance.jokboUsageCount.ContainsKey(mostUsed))
+            if (GameManager.Instance.handUsageCount.ContainsKey(mostUsed))
             {
-                count = GameManager.Instance.jokboUsageCount[mostUsed];
+                count = GameManager.Instance.handUsageCount[mostUsed];
             }
             string mostUsedLabel = LocalizationManager.Instance.GetText("RESULT_MOST_USED");
             
             // 족보 이름 로컬라이제이션
-            string localizedJokbo = mostUsed;
-            string jokboKey = AttackJokbo.DescriptionToKey(mostUsed);
-            if (!string.IsNullOrEmpty(jokboKey) && LocalizationManager.Instance != null)
+            string localizedHand = mostUsed;
+            string handKey = AttackHand.DescriptionToKey(mostUsed);
+            if (!string.IsNullOrEmpty(handKey) && LocalizationManager.Instance != null)
             {
-                localizedJokbo = LocalizationManager.Instance.GetText(jokboKey);
+                localizedHand = LocalizationManager.Instance.GetText(handKey);
             }
             
-            mostUsedJokboText.text = $"{mostUsedLabel}: {localizedJokbo} x {count}";
+            mostUsedHandText.text = $"{mostUsedLabel}: {localizedHand} x {count}";
         }
 
         // 유물 표시

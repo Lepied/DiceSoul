@@ -30,11 +30,11 @@ public class FrostWolf : Enemy
     /// [기믹 1 적용: 데미지 감소]
     /// '총합' 족보 공격 시, 중첩된 냉기만큼 데미지를 감소시킵니다.
     /// </summary>
-    public override int CalculateDamageTaken(AttackJokbo jokbo)
+    public override int CalculateDamageTaken(AttackHand hand)
     {
-        int baseDamage = jokbo.BaseDamage;
+        int baseDamage = hand.BaseDamage;
 
-        if (jokbo.Description.Contains("총합"))
+        if (hand.Description.Contains("총합"))
         {
             int reduction = chillStacks * damageReductionPerStack;
             int finalDamage = Mathf.Max(0, baseDamage - reduction);
@@ -45,6 +45,6 @@ public class FrostWolf : Enemy
         }
 
         // 그 외에는 기본 로직 (Biological 100%)
-        return base.CalculateDamageTaken(jokbo);
+        return base.CalculateDamageTaken(hand);
     }
 }

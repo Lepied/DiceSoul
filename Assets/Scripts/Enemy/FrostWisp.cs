@@ -17,10 +17,10 @@ public class FrostWisp : Enemy
     /// [기믹: 빙결]
     /// 피격 시, 50% 확률로 플레이어의 주사위 1개를 얼려서(잠금)
     /// </summary>
-    public override void OnDamageTaken(int damageTaken, AttackJokbo jokbo)
+    public override void OnDamageTaken(int damageTaken, AttackHand hand)
     {
-        base.OnDamageTaken(damageTaken, jokbo);
-        if(jokbo == null) return;
+        base.OnDamageTaken(damageTaken, hand);
+        if(hand == null) return;
         if (isDead) return;
 
         if (Random.value < freezeChance) 

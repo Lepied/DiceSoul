@@ -57,7 +57,7 @@ public class GameManager : MonoBehaviour
     public int totalGoldEarned = 0; // 획득한 총 골드
     public int maxDamageDealt = 0; // 최고 데미지
     public int maxChainCount = 0; // 최장 연쇄
-    public Dictionary<string, int> jokboUsageCount = new Dictionary<string, int>(); // 족보 사용 횟수
+    public Dictionary<string, int> handUsageCount = new Dictionary<string, int>(); // 족보 사용 횟수
     public int bossesDefeated = 0; // 처치한 보스 수
     public int perfectWaves = 0; // 무피해 웨이브 수
     private bool wasDamagedThisWave = false; // 이번 웨이브에 피해 받았는지
@@ -79,8 +79,6 @@ public class GameManager : MonoBehaviour
     {
         // 튜토리얼 완료 여부 확인
         tutorialCompleted = PlayerPrefs.GetInt("TutorialCompleted", 0) == 1;
-        Debug.Log($"[GameManager] Start - TutorialCompleted: {tutorialCompleted}");
-
         if (SaveManager.shouldLoadSave)
         {
             LoadRun();
@@ -90,9 +88,7 @@ public class GameManager : MonoBehaviour
         {
             // 튜토리얼 미완료 시 튜토리얼 모드로 시작
             if (!tutorialCompleted)
-            {
-                Debug.Log("[GameManager] 튜토리얼 모드 시작");
-                StartTutorialMode();
+            {                StartTutorialMode();
             }
             else
             {
@@ -536,7 +532,9 @@ public class GameManager : MonoBehaviour
                 // 튜토리얼 모드일 때는 상점 튜토리얼로 이동
                 if (isTutorialMode)
                 {
-                    Debug.Log("[GameManager] 튜토리얼 Zone 1 완료 - 상점으로 이동");
+                    PlayerPrefs.SetInt("TutorialCompleted", 1);
+                    PlayerPrefs.Save();
+                    
                     UIManager.Instance.FadeOut(1.0f, () =>
                     {
                         CurrentZone++;
@@ -607,10 +605,18 @@ public class GameManager : MonoBehaviour
             {
                 Debug.Log("웨이브 클리어! 유물 보상.");
                 
-                // 튜토리얼 모드이고 Wave 1이면 튜토리얼 완료 대기
+                // 튜토리얼 모드이고 Wave 1이면 튜토리얼 완료 체크
                 if (isTutorialMode && CurrentWave == 2)
                 {
-                    isWaitingForWave1Tutorial = true;
+                    // Wave1 튜토리얼이 이미 완료되었으면 바로 보상 화면
+                    if (wave1TutorialCompleted)
+                    {
+                        ShowRewardScreen();
+                    }
+                    else
+                    {
+                        isWaitingForWave1Tutorial = true;
+                    }
                 }
                 else
                 {
@@ -1226,7 +1232,7 @@ public class GameManager : MonoBehaviour
         totalGoldEarned = 0;
         maxDamageDealt = 0;
         maxChainCount = 0;
-        jokboUsageCount.Clear();
+        handUsageCount.Clear();
         bossesDefeated = 0;
         perfectWaves = 0;
         wasDamagedThisWave = false;
@@ -1258,13 +1264,13 @@ public class GameManager : MonoBehaviour
     }
     
     // 족보 사용 기록
-    public void RecordJokboUsage(string jokboName)
+    public void RecordHandUsage(string handName)
     {
-        if (!jokboUsageCount.ContainsKey(jokboName))
+        if (!handUsageCount.ContainsKey(handName))
         {
-            jokboUsageCount[jokboName] = 0;
+            handUsageCount[handName] = 0;
         }
-        jokboUsageCount[jokboName]++;
+        handUsageCount[handName]++;
     }
     
     // 웨이브 시작 시
@@ -1318,17 +1324,19 @@ public class GameManager : MonoBehaviour
     
     //튜토리얼 관련
     private bool isWaitingForWave1Tutorial = false;
+    private bool wave1TutorialCompleted = false;
     
     public void OnWave1TutorialComplete()
     {
+        wave1TutorialCompleted = true;
 
         // 튜토리얼 완료 시점에 적이 남아잇나?
         bool allEnemiesDead = StageManager.Instance != null && 
                               StageManager.Instance.activeEnemies.All(e => e == null || e.isDead);
         
-        if (allEnemiesDead && CurrentWave == 2)
+        if (allEnemiesDead)
         {
-            // 이미 적을 다 잡은 상태면
+            // 이미 적을 다 잡은 상태면 바로 보상 화면 표시
             ShowRewardScreen();
         }
         else if (isWaitingForWave1Tutorial)
@@ -1341,8 +1349,9 @@ public class GameManager : MonoBehaviour
     
     public void StartTutorialMode()
     {
-        Debug.Log("[GameManager] StartTutorialMode() 호출됨");
         isTutorialMode = true;
+        wave1TutorialCompleted = false;
+        isWaitingForWave1Tutorial = false;
         
         // 기본 게임 시작
         CurrentGold = 0;
@@ -1366,7 +1375,7 @@ public class GameManager : MonoBehaviour
         totalGoldEarned = 0;
         maxDamageDealt = 0;
         maxChainCount = 0;
-        jokboUsageCount.Clear();
+        handUsageCount.Clear();
         bossesDefeated = 0;
         perfectWaves = 0;
         wasDamagedThisWave = false;
@@ -1396,12 +1405,7 @@ public class GameManager : MonoBehaviour
         TutorialWave1Controller wave1Tutorial = FindFirstObjectByType<TutorialWave1Controller>();
         if (wave1Tutorial != null)
         {
-            Debug.Log("[GameManager] TutorialWave1Controller 찾음 - 0.2초 후 시작");
             Invoke(nameof(StartWave1Tutorial), 0.2f);
-        }
-        else
-        {
-            Debug.LogWarning("[GameManager] TutorialWave1Controller를 찾을 수 없습니다!");
         }
     }
     
@@ -1410,12 +1414,7 @@ public class GameManager : MonoBehaviour
         TutorialWave1Controller wave1Tutorial = FindFirstObjectByType<TutorialWave1Controller>();
         if (wave1Tutorial != null)
         {
-            Debug.Log("[GameManager] StartWave1Tutorial() - TutorialWave1Controller.StartWave1Tutorial() 호출");
             wave1Tutorial.StartWave1Tutorial();
-        }
-        else
-        {
-            Debug.LogError("[GameManager] StartWave1Tutorial() - TutorialWave1Controller를 찾을 수 없습니다!");
         }
     }
     
@@ -1446,10 +1445,10 @@ public class GameManager : MonoBehaviour
     }
     
     // 가장 많이 사용한 족보
-    public string GetMostUsedJokbo()
+    public string GetMostUsedHand()
     {
-        if (jokboUsageCount.Count == 0) return "없음";
-        return jokboUsageCount.OrderByDescending(x => x.Value).First().Key;
+        if (handUsageCount.Count == 0) return "없음";
+        return handUsageCount.OrderByDescending(x => x.Value).First().Key;
     }
 
 }

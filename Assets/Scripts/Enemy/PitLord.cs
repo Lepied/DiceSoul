@@ -24,12 +24,12 @@ public class PitLord : Enemy
         }
     }
 
-    public override int CalculateDamageTaken(AttackJokbo jokbo)
+    public override int CalculateDamageTaken(AttackHand hand)
     {
-        int baseDmg = jokbo.BaseDamage;
+        int baseDmg = hand.BaseDamage;
 
         // '총합' 족보일 경우, 추가 저항력 적용
-        if (jokbo.Description.Contains("총합"))
+        if (hand.Description.Contains("총합"))
         {
             // 원래 Armored는 50% 데미지만 받음. 여기에 추가 저항 적용
             
@@ -40,7 +40,7 @@ public class PitLord : Enemy
         }
 
         
-        return base.CalculateDamageTaken(jokbo);
+        return base.CalculateDamageTaken(hand);
     }
 
     protected override void OnDeath()

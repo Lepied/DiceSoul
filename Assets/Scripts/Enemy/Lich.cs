@@ -61,16 +61,16 @@ public class Lich : Enemy
     /// [기믹 3: 언데드 타입]
     /// (Skeleton.cs의 내성/약점 로직과 동일)
     /// </summary>
-    public override int CalculateDamageTaken(AttackJokbo jokbo)
+    public override int CalculateDamageTaken(AttackHand hand)
     {
-        int baseDamage = jokbo.BaseDamage;
-        string jokboDesc = jokbo.Description; 
+        int baseDamage = hand.BaseDamage;
+        string handDesc = hand.Description; 
 
         // 고급 족보 150%
-        if (jokboDesc.Contains("트리플") || 
-            jokboDesc.Contains("포카드") || 
-            jokboDesc.Contains("풀 하우스") || 
-            jokboDesc.Contains("야찌"))
+        if (handDesc.Contains("트리플") || 
+            handDesc.Contains("포카드") || 
+            handDesc.Contains("풀 하우스") || 
+            handDesc.Contains("야찌"))
         {
             Debug.Log("언데드: [고급 족보]에 치명타! (150% 데미지)");
             return (int)(baseDamage * 1.5f);

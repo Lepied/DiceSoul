@@ -2,9 +2,9 @@ Key,Korean,English
 RLC_CLOVER_NAME,네잎클로버,Four-Leaf Clover
 RLC_CLOVER_DESC,최대 굴림 횟수 +1,Max Rolls +1
 RLC_WHETSTONE_NAME,숫돌,Whetstone
-RLC_WHETSTONE_DESC,모든 족보 데미지 +5,All Jokbo Damage +5
+RLC_WHETSTONE_DESC,모든 패 데미지 +5,All Hand Damage +5
 RLC_RUSTY_GEAR_NAME,녹슨 톱니,Rusty Gear
-RLC_RUSTY_GEAR_DESC,모든 족보 골드 +3,All Jokbo Gold +3
+RLC_RUSTY_GEAR_DESC,모든 패 골드 +3,All Hand Gold +3
 RLC_EXTRA_DICE_NAME,여분의 주사위,Extra Dice
 RLC_EXTRA_DICE_DESC,덱에 D6 추가,Add D6 to deck
 RLC_TINY_DICE_NAME,작은 주사위,Tiny Dice
@@ -12,39 +12,39 @@ RLC_TINY_DICE_DESC,덱에 D4 추가,Add D4 to deck
 RLC_QUICK_RELOAD_NAME,빠른 장전,Quick Reload
 RLC_QUICK_RELOAD_DESC,첫 굴림 시 주사위 2개 즉시 재굴림,Reroll 2 dice on first roll
 RLC_FOUNDATION_NAME,기틀,Foundation
-RLC_FOUNDATION_DESC,총합 족보 데미지 +10,Sum Jokbo Damage +10
+RLC_FOUNDATION_DESC,총합 패 데미지 +10,Sum Hand Damage +10
 RLC_SHARP_BLADE_NAME,날카로운 칼날,Sharp Blade
-RLC_SHARP_BLADE_DESC,스트레이트 족보 데미지 +20,Straight Jokbo Damage +20
+RLC_SHARP_BLADE_DESC,스트레이트 패 데미지 +20,Straight Hand Damage +20
 RLC_POLISHED_ORB_NAME,광택 구슬,Polished Orb
 RLC_POLISHED_ORB_DESC,연쇄 공격 시 공격마다 데미지 +30%,Chain attacks: +30% damage per attack
 RLC_SPIKE_GLOVE_NAME,가시 돋친 장갑,Spiked Glove
-RLC_SPIKE_GLOVE_DESC,투 페어 족보 데미지 +15,Two Pair Jokbo Damage +15
+RLC_SPIKE_GLOVE_DESC,투 페어 패 데미지 +15,Two Pair Hand Damage +15
 RLC_TRIPOD_NAME,삼각대,Tripod
-RLC_TRIPOD_DESC,트리플 족보 골드 2배,Triple Jokbo Gold x2
+RLC_TRIPOD_DESC,트리플 패 골드 2배,Triple Hand Gold x2
 RLC_HOUSE_NAME,집 모형,House Model
-RLC_HOUSE_DESC,풀 하우스 족보 데미지 +25,Full House Jokbo Damage +25
+RLC_HOUSE_DESC,풀 하우스 패 데미지 +25,Full House Hand Damage +25
 RLC_SMALL_SHIELD_NAME,작은 방패,Small Shield
 RLC_SMALL_SHIELD_DESC,최대 체력 20% 이하일 때 피해 무효화 (존 당 1회),Nullify damage when HP ≤20% (once per zone)
 RLC_SWIFT_HANDS_NAME,날쌘 손놀림,Swift Hands
 RLC_SWIFT_HANDS_DESC,굴림 가능 횟수가 0일 때 1회 무료 충전,Grant 1 free roll when out of rolls
 RLC_WHITEBOOK_NAME,백마법서,White Grimoire
-RLC_WHITEBOOK_DESC,모두 짝수 족보 골드 2배,All Even Jokbo Gold x2
+RLC_WHITEBOOK_DESC,모두 짝수 패 골드 2배,All Even Hand Gold x2
 RLC_DARKBOOK_NAME,흑마법서,Dark Grimoire
-RLC_DARKBOOK_DESC,모두 홀수 족보 골드 2배,All Odd Jokbo Gold x2
+RLC_DARKBOOK_DESC,모두 홀수 패 골드 2배,All Odd Hand Gold x2
 RLC_SWORD_BOOK_NAME,검술 교본,Swordsmanship Manual
-RLC_SWORD_BOOK_DESC,모든 스트레이트 족보 데미지 +30,All Straight Jokbo Damage +30
+RLC_SWORD_BOOK_DESC,모든 스트레이트 패 데미지 +30,All Straight Hand Damage +30
 RLC_SPIKED_HAMMER_NAME,가시 망치,Spiked Hammer
-RLC_SPIKED_HAMMER_DESC,포카드 족보 데미지 +20,Four of a Kind Jokbo Damage +20
+RLC_SPIKED_HAMMER_DESC,포카드 패 데미지 +20,Four of a Kind Hand Damage +20
 RLC_EVEN_BOOK_NAME,짝수의 서,Book of Evens
 RLC_EVEN_BOOK_DESC,모두 짝수일 때 데미지 1.5배,All Even: Damage x1.5
 RLC_ODD_BOOK_NAME,홀수의 서,Book of Odds
 RLC_ODD_BOOK_DESC,모두 홀수일 때 데미지 1.5배,All Odd: Damage x1.5
 RLC_LUCKY_RING_NAME,행운의 반지,Lucky Ring
-RLC_LUCKY_RING_DESC,트리플 족보 데미지 +20,Triple Jokbo Damage +20
+RLC_LUCKY_RING_DESC,트리플 패 데미지 +20,Triple Hand Damage +20
 RLC_IRON_FIST_NAME,철제 주먹,Iron Fist
-RLC_IRON_FIST_DESC,투 페어 족보 데미지 +10,Two Pair Jokbo Damage +10
+RLC_IRON_FIST_DESC,투 페어 패 데미지 +10,Two Pair Hand Damage +10
 RLC_GAMBLER_RING_NAME,도박사의 반지,Gambler's Ring
-RLC_GAMBLER_RING_DESC,모든 족보 데미지+20%; 최대 체력 -9,All Jokbo Damage +20%; Max HP -9
+RLC_GAMBLER_RING_DESC,모든 패 데미지+20%; 최대 체력 -9,All Hand Damage +20%; Max HP -9
 RLC_LUCKY_CLOVER_NAME,행운의 네잎클로버,Lucky Four-Leaf Clover
 RLC_LUCKY_CLOVER_DESC,재굴림 시 반드시 이전보다 높은 숫자가 나옴,Rerolls always yield higher values
 RLC_TOUGH_ARMOR_NAME,튼튼한 갑옷,Tough Armor
@@ -52,11 +52,11 @@ RLC_TOUGH_ARMOR_DESC,방어력 +3,Armor +3
 RLC_LIGHTWEIGHT_BAG_NAME,가벼운 가방,Lightweight Bag
 RLC_LIGHTWEIGHT_BAG_DESC,고유 유물을 제외한 유물 보유 한도+1,Relic slot +1 (except unique relics)
 RLC_FOCUS_NAME,집중,Focus
-RLC_FOCUS_DESC,모든 족보 데미지 +20; D6 1개 제거,All Jokbo Damage +20; Remove 1 D6
+RLC_FOCUS_DESC,모든 패 데미지 +20; D6 1개 제거,All Hand Damage +20; Remove 1 D6
 RLC_REGENERATION_NAME,재생의 팔찌,Regeneration Bracelet
 RLC_REGENERATION_DESC,매 굴림 시 5% 확률로 체력 1 회복,5% chance to heal 1 HP per roll
 RLC_VAMPIRE_FANG_NAME,흡혈귀의 이빨,Vampire Fang
-RLC_VAMPIRE_FANG_DESC,족보 완성 시마다 체력 +1,Heal 1 HP per Jokbo completed
+RLC_VAMPIRE_FANG_DESC,패 완성 시마다 체력 +1,Heal 1 HP per Hand completed
 RLC_MERCHANT_CARD_NAME,상인의 인장,Merchant's Seal
 RLC_MERCHANT_CARD_DESC,상점 새로고침 비용 동결,Freeze shop refresh cost
 RLC_LUCKY_CHARM_NAME,행운의 동전,Lucky Coin
@@ -64,17 +64,17 @@ RLC_LUCKY_CHARM_DESC,상점 판매가 25% 할인,Shop prices -25%
 RLC_GOLD_DICE_NAME,황금 주사위,Golden Dice
 RLC_GOLD_DICE_DESC,골드 획득 1.5배,Gold gain x1.5
 RLC_GLASS_CANNON_NAME,유리 대포,Glass Cannon
-RLC_GLASS_CANNON_DESC,모든 족보 데미지 +50; 최대 체력 -5,All Jokbo Damage +50; Max HP -5
+RLC_GLASS_CANNON_DESC,모든 패 데미지 +50; 최대 체력 -5,All Hand Damage +50; Max HP -5
 RLC_PLUTOCRACY_NAME,금권 정치,Plutocracy
 RLC_PLUTOCRACY_DESC,보유 골드 100당 데미지 +1 (최대 +50),+1 damage per 100 gold (max +50)
 RLC_BLOODLUST_NAME,피의 갈증,Bloodlust
 RLC_BLOODLUST_DESC,잃은 체력 1당 데미지 +1%(최대 20%),+1% damage per missing HP (max 20%)
 RLC_GEM_CROWN_NAME,보석 박힌 왕관,Gem-Studded Crown
-RLC_GEM_CROWN_DESC,야찌 족보 골드 3배,Yatzy Jokbo Gold x3
+RLC_GEM_CROWN_DESC,야찌 패 골드 3배,Yatzy Hand Gold x3
 RLC_PHOENIX_FEATHER_NAME,불사조의 깃털,Phoenix Feather
 RLC_PHOENIX_FEATHER_DESC,게임오버 시 체력 50%로 1회 부활,Revive once at 50% HP on death
 RLC_DEMON_CONTRACT_NAME,악마의 계약서,Demon Contract
-RLC_DEMON_CONTRACT_DESC,모든 족보 데미지 +15%; 체력 회복 불가,All Jokbo Damage +15%; Cannot heal
+RLC_DEMON_CONTRACT_DESC,모든 패 데미지 +15%; 체력 회복 불가,All Hand Damage +15%; Cannot heal
 RLC_DIAMOND_DICE_NAME,다이아몬드 주사위,Diamond Dice
 RLC_DIAMOND_DICE_DESC,모든 주사위의 최소 눈 결정값이 2로 고정,All dice minimum value is 2
 RLC_MAGNET_NAME,자석,Magnet
@@ -86,7 +86,7 @@ RLC_FEATHER_DESC,6이 나온 주사위 재굴림,Reroll dice showing 6
 RLC_DOUBLE_DICE_NAME,이중 주사위,Double Dice
 RLC_DOUBLE_DICE_DESC,선택한 주사위의 눈을 2배로 계산 (1회),Double selected dice value (once)
 RLC_SCHOLAR_BOOK_NAME,학자의 서적,Scholar's Book
-RLC_SCHOLAR_BOOK_DESC,미사용 족보로 공격 시 영구 데미지 +1%,+1% permanent damage per unused Jokbo attack
+RLC_SCHOLAR_BOOK_DESC,미사용 패로 공격 시 영구 데미지 +1%,+1% permanent damage per unused Hand attack
 RLC_DICE_CUP_NAME,주사위 컵,Dice Cup
 RLC_DICE_CUP_DESC,주사위 보존 횟수 +1,Dice lock charges +1
 RLC_COUNTERWEIGHT_NAME,균형추,Counterweight
@@ -103,3 +103,5 @@ RLC_LODESTONE_NAME,자철석,Lodestone
 RLC_LODESTONE_DESC,홀수가 나온 주사위 재굴림,Reroll dice showing odd numbers
 RLC_FATE_DICE_NAME,운명의 주사위,Fate Dice
 RLC_FATE_DICE_DESC,모든 주사위를 최대값으로 설정 (존 당 1회),Set all dice to max value (once per zone)
+RLC_ROYAL_SEAL_NAME,왕실의 인장,Royal Seal
+RLC_ROYAL_SEAL_DESC,풀 하우스 패 골드 3배,Full House Hand Gold x3

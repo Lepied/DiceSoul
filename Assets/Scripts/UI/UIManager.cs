@@ -26,11 +26,11 @@ public class UIManager : MonoBehaviour
     public GameObject[] attackOptionButtons;
     public TextMeshProUGUI[] attackNameTexts;
     public TextMeshProUGUI[] attackValueTexts;
-    public Button prevJokboPageButton;
-    public Button nextJokboPageButton;
-    private List<AttackJokbo> currentJokboList = new List<AttackJokbo>();
-    private int currentJokboPage = 0;
-    private const int jokbosPerPage = 4;
+    public Button prevHandPageButton;
+    public Button nextHandPageButton;
+    private List<AttackHand> currentHandList = new List<AttackHand>();
+    private int currentHandPage = 0;
+    private const int handsPerPage = 4;
 
     [Header("탄겟 선택 UI")]
     public GameObject targetSelectionPanel;
@@ -129,13 +129,13 @@ public class UIManager : MonoBehaviour
             toggleAttackOptionsButton.onClick.AddListener(ToggleAttackOptionsPanel);
         }
         
-        if (prevJokboPageButton != null)
+        if (prevHandPageButton != null)
         {
-            prevJokboPageButton.onClick.AddListener(ShowPrevJokboPage);
+            prevHandPageButton.onClick.AddListener(ShowPrevHandPage);
         }
-        if (nextJokboPageButton != null)
+        if (nextHandPageButton != null)
         {
-            nextJokboPageButton.onClick.AddListener(ShowNextJokboPage);
+            nextHandPageButton.onClick.AddListener(ShowNextHandPage);
         }
         
         // CanvasGroup 넣기
@@ -667,14 +667,14 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void ShowAttackOptions(List<AttackJokbo> jokbos)
+    public void ShowAttackOptions(List<AttackHand> hands)
     {
         if (attackOptionsPanel == null) return;
         attackOptionsPanel.SetActive(true);
         
         // 족보 리스트 정렬 수비는 맨뒤로 보내기
-        currentJokboList = jokbos.OrderBy(j => j.TargetType == AttackTargetType.Defense ? 1 : 0).ToList();
-        currentJokboPage = 0;
+        currentHandList = hands.OrderBy(j => j.TargetType == AttackTargetType.Defense ? 1 : 0).ToList();
+        currentHandPage = 0;
         
         RectTransform panelRect = attackOptionsPanel.GetComponent<RectTransform>();
         
@@ -703,41 +703,41 @@ public class UIManager : MonoBehaviour
         if (StageManager.Instance != null) StageManager.Instance.HideAllAttackPreviews();
         
         // 첫 페이지 표시
-        ShowJokboPage(currentJokboPage);
+        ShowHandPage(currentHandPage);
     }
     
-    private void ShowJokboPage(int pageIndex)
+    private void ShowHandPage(int pageIndex)
     {
-        int totalPages = Mathf.CeilToInt((float)currentJokboList.Count / jokbosPerPage);
-        int startIndex = pageIndex * jokbosPerPage;
-        int endIndex = Mathf.Min(startIndex + jokbosPerPage, currentJokboList.Count);
+        int totalPages = Mathf.CeilToInt((float)currentHandList.Count / handsPerPage);
+        int startIndex = pageIndex * handsPerPage;
+        int endIndex = Mathf.Min(startIndex + handsPerPage, currentHandList.Count);
         
         // 페이지 버튼 표시/숨김 (이동 가능할 때만 표시)
-        if (prevJokboPageButton != null)
+        if (prevHandPageButton != null)
         {
-            prevJokboPageButton.gameObject.SetActive(pageIndex > 0);
+            prevHandPageButton.gameObject.SetActive(pageIndex > 0);
         }
-        if (nextJokboPageButton != null)
+        if (nextHandPageButton != null)
         {
-            nextJokboPageButton.gameObject.SetActive(pageIndex < totalPages - 1);
+            nextHandPageButton.gameObject.SetActive(pageIndex < totalPages - 1);
         }
         
         // 현재 페이지의 족보들 표시
         for (int i = 0; i < attackOptionButtons.Length; i++)
         {
-            int jokboIndex = startIndex + i;
+            int handIndex = startIndex + i;
             
-            if (jokboIndex < endIndex)
+            if (handIndex < endIndex)
             {
-                AttackJokbo jokbo = currentJokboList[jokboIndex];
+                AttackHand hand = currentHandList[handIndex];
 
                 // 1. 텍스트 설정을 위해 '최종' 데미지/금화를 '미리' 계산
                 (int finalBaseDamage, int finalBaseGold) =
-                    StageManager.Instance.GetPreviewValues(jokbo);
+                    StageManager.Instance.GetPreviewValues(hand);
 
                 // 2. 최종 계산된 값으로 텍스트 설정
-                attackNameTexts[i].text = jokbo.GetLocalizedDescription();
-                if (jokbo.TargetType == AttackTargetType.Defense)
+                attackNameTexts[i].text = hand.GetLocalizedDescription();
+                if (hand.TargetType == AttackTargetType.Defense)
                 {
                     string shieldLabel = LocalizationManager.Instance.GetText("INGAME_SHIELD");
                     attackValueTexts[i].text = $"{shieldLabel}: {finalBaseDamage}";
@@ -759,7 +759,7 @@ public class UIManager : MonoBehaviour
                 entryEnter.eventID = EventTriggerType.PointerEnter;
                 entryEnter.callback.AddListener((data) =>
                 {
-                    if (StageManager.Instance != null) StageManager.Instance.ShowAttackPreview(jokbo);
+                    if (StageManager.Instance != null) StageManager.Instance.ShowAttackPreview(hand);
                 });
                 trigger.triggers.Add(entryEnter);
 
@@ -777,7 +777,7 @@ public class UIManager : MonoBehaviour
                 entryClick.eventID = EventTriggerType.PointerClick;
                 entryClick.callback.AddListener((data) =>
                 {
-                    SelectAttack(jokbo);
+                    SelectAttack(hand);
                 });
                 trigger.triggers.Add(entryClick);
 
@@ -789,26 +789,26 @@ public class UIManager : MonoBehaviour
             }
         }
     }
-    private void ShowPrevJokboPage()
+    private void ShowPrevHandPage()
     {
-        if (currentJokboPage > 0)
+        if (currentHandPage > 0)
         {
-            currentJokboPage--;
-            ShowJokboPage(currentJokboPage);
+            currentHandPage--;
+            ShowHandPage(currentHandPage);
         }
     }
     
-    private void ShowNextJokboPage()
+    private void ShowNextHandPage()
     {
-        int totalPages = Mathf.CeilToInt((float)currentJokboList.Count / jokbosPerPage);
-        if (currentJokboPage < totalPages - 1)
+        int totalPages = Mathf.CeilToInt((float)currentHandList.Count / handsPerPage);
+        if (currentHandPage < totalPages - 1)
         {
-            currentJokboPage++;
-            ShowJokboPage(currentJokboPage);
+            currentHandPage++;
+            ShowHandPage(currentHandPage);
         }
     }
 
-    private void SelectAttack(AttackJokbo jokbo) // (원본 족보가 전달됨)
+    private void SelectAttack(AttackHand hand) // (원본 족보가 전달됨)
     {
         attackOptionsPanel.SetActive(false);
         
@@ -821,7 +821,7 @@ public class UIManager : MonoBehaviour
         if (StageManager.Instance != null)
         {
             StageManager.Instance.HideAllAttackPreviews();
-            StageManager.Instance.ProcessAttack(jokbo); // 원본 족보로 공격 실행
+            StageManager.Instance.ProcessAttack(hand); // 원본 족보로 공격 실행
         }
     }
     

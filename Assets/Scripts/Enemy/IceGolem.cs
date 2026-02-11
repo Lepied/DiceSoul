@@ -7,9 +7,9 @@ using UnityEngine;
 /// </summary>
 public class IceGolem : Enemy
 {
-    public override int CalculateDamageTaken(AttackJokbo jokbo)
+    public override int CalculateDamageTaken(AttackHand hand)
     {
-        string desc = jokbo.Description;
+        string desc = hand.Description;
 
         // 마법 족보(짝수/홀수)에 면역
         if (desc.Contains("짝수") || desc.Contains("홀수"))
@@ -22,6 +22,6 @@ public class IceGolem : Enemy
         }
 
         // 그 외에는 부모(Armored) 로직 (총합/트리플 50%, 나머지 100%)
-        return base.CalculateDamageTaken(jokbo);
+        return base.CalculateDamageTaken(hand);
     }
 }
