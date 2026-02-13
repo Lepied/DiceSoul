@@ -53,6 +53,7 @@ public class UIManager : MonoBehaviour
 
     public Button rerollButton;
     public TextMeshProUGUI rerollCostText;
+    public TextMeshProUGUI shopGoldText;
 
     [Header("통합 툴팁")]
     public GameObject genericTooltipPopup;
@@ -1041,7 +1042,14 @@ public class UIManager : MonoBehaviour
             }
         }
 
-        // 3. 리롤 버튼 업데이트
+        // 3. 현재 골드 표시
+        if (shopGoldText != null)
+        {
+            string goldLabel = LocalizationManager.Instance.GetText("INGAME_GOLD_LABEL");
+            shopGoldText.text = $"{goldLabel}: {GameManager.Instance.CurrentGold}";
+        }
+
+        // 4. 리롤 버튼 업데이트
         if (rerollCostText != null)
         {
             string goldSuffix = LocalizationManager.Instance.GetText("INGAME_REROLL_COST_SUFFIX");

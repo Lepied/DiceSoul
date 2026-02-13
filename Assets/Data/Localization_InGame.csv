@@ -12,3 +12,4 @@ INGAME_DMG,Dmg,Dmg
 INGAME_SHIELD,Shield,Shield
 INGAME_REROLL_COST_SUFFIX,Gold,Gold
 INGAME_TARGET_SELECT,적을 선택하세요,Select Targets
+INGAME_GOLD_LABEL,보유 골드,Current Gold

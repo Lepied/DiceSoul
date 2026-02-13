@@ -82,6 +82,10 @@ public class StageManager : MonoBehaviour
         {
             Debug.LogError("Main Camera가 없습니다! 스폰 위치가 제한되지 않습니다.");
         }
+        
+        // 현재 Zone에 맞는 배경 설정 (이어하기 대응)
+        SetBackgroundForCurrentZone();
+        
         PrepareNextWave();
     }
 
@@ -1009,12 +1013,13 @@ public class StageManager : MonoBehaviour
 
         ZoneData currentZoneData = WaveGenerator.Instance.GetCurrentZoneData(currentZone);
 
+        // 존의 첫 웨이브일 때만 배경 변경 (존 전환 시)
         if (currentWave == 1 && currentZoneData != null && backgroundRenderer != null)
         {
             if (currentZoneData.zoneBackground != null)
             {
                 backgroundRenderer.sprite = currentZoneData.zoneBackground;
-                Debug.Log($"[StageManager] 배경 변경: {currentZoneData.zoneName}");
+                Debug.Log($"[StageManager] 존 전환 - 배경 변경: {currentZoneData.zoneName}");
             }
             else
             {
@@ -1354,6 +1359,33 @@ public class StageManager : MonoBehaviour
             sum += pos;
         }
         return sum / positions.Length;
+    }
+    
+    /// <summary>
+    /// 현재 Zone에 맞는 배경 설정 (이어하기 대응)
+    /// </summary>
+    private void SetBackgroundForCurrentZone()
+    {
+        if (WaveGenerator.Instance == null || GameManager.Instance == null || backgroundRenderer == null)
+        {
+            return;
+        }
+
+        int currentZone = GameManager.Instance.CurrentZone;
+        ZoneData currentZoneData = WaveGenerator.Instance.GetCurrentZoneData(currentZone);
+
+        if (currentZoneData != null)
+        {
+            if (currentZoneData.zoneBackground != null)
+            {
+                backgroundRenderer.sprite = currentZoneData.zoneBackground;
+                Debug.Log($"[StageManager] 배경 설정: {currentZoneData.zoneName} (Zone {currentZone})");
+            }
+            else
+            {
+                Debug.LogWarning($"[StageManager] {currentZoneData.name}에 'zoneBackground' 스프라이트가 없습니다.");
+            }
+        }
     }
     
     private void StartWave2Tutorial()
