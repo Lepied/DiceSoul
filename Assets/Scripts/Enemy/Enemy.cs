@@ -250,7 +250,8 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
                 if (desc.Contains("총합") || desc.Contains("트리플"))
                 {
                     finalDamage = (int)(finalDamage * 0.5f);
-                    EffectManager.Instance.ShowText(transform, "저항", Color.grey);
+                    string text = LocalizationManager.Instance?.GetText("COMBAT_RESIST") ?? "저항";
+                    EffectManager.Instance.ShowText(transform, text, Color.grey);
                 }
                 break;
         }
@@ -271,7 +272,8 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
         else
         {
             // 일단 0 이면 면역 띄우기. 아마 몹별로 따로따로 해야할거같은데? ex) 면역이면 면역, 방어면 방어 등등
-            EffectManager.Instance.ShowText(transform, "면역", Color.gray);
+            string text = LocalizationManager.Instance?.GetText("COMBAT_IMMUNE") ?? "면역";
+            EffectManager.Instance.ShowText(transform, text, Color.gray);
         }
 
         currentHP -= finalDamage;

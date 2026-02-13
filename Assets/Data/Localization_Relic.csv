@@ -9,6 +9,8 @@ RLC_EXTRA_DICE_NAME,여분의 주사위,Extra Dice
 RLC_EXTRA_DICE_DESC,덱에 D6 추가,Add D6 to deck
 RLC_TINY_DICE_NAME,작은 주사위,Tiny Dice
 RLC_TINY_DICE_DESC,덱에 D4 추가,Add D4 to deck
+RLC_HEAVY_DICE_NAME,무거운 주사위,Heavy Dice
+RLC_HEAVY_DICE_DESC,"총합 족보 데미지 +30, 굴림 횟수 -1","Sum Hand Damage +30, Rolls -1"
 RLC_QUICK_RELOAD_NAME,빠른 장전,Quick Reload
 RLC_QUICK_RELOAD_DESC,첫 굴림 시 주사위 2개 즉시 재굴림,Reroll 2 dice on first roll
 RLC_FOUNDATION_NAME,기틀,Foundation
@@ -105,3 +107,18 @@ RLC_FATE_DICE_NAME,운명의 주사위,Fate Dice
 RLC_FATE_DICE_DESC,모든 주사위를 최대값으로 설정 (존 당 1회),Set all dice to max value (once per zone)
 RLC_ROYAL_SEAL_NAME,왕실의 인장,Royal Seal
 RLC_ROYAL_SEAL_DESC,풀 하우스 패 골드 3배,Full House Hand Gold x3
+RLC_BUSINESS_CARD_NAME,명함,Business Card
+RLC_BUSINESS_CARD_DESC,첫 굴림 데미지/골드 2배,First roll damage/gold x2
+RLC_TIME_RIFT_NAME,시공의 틈,Time Rift
+RLC_TIME_RIFT_DESC,족보 완성 시 20% 확률로 굴림 횟수 미소모,20% chance to not consume roll on hand completion
+RLC_FATE_DICE_TRIGGER,운명의 주사위!,Fate Dice!
+RLC_SMALL_SHIELD_TRIGGER,피해 무효화!,Damage Nullified!
+RLC_SWIFT_HANDS_TRIGGER,무료 굴림!,Free Roll!
+RLC_REGENERATION_TRIGGER,재생,Regen
+RLC_VAMPIRE_FANG_TRIGGER,흡혈,Lifesteal
+RLC_SPRING_TRIGGER,반환됨,Refunded
+RLC_PHOENIX_FEATHER_TRIGGER,부활!,Revived!
+RLC_DOUBLE_DICE_TRIGGER,이중 주사위!,Double Dice!
+RLC_DICE_CUP_TRIGGER,보존!,Preserved!
+RLC_TIME_RIFT_TRIGGER,시간 절약!,Time Saved!
+RLC_SCHOLAR_BOOK_TRIGGER,성장,Growth

@@ -34,11 +34,8 @@ public class MainMenuManager : MonoBehaviour
 
     [Header("캐러셀 & 액션 버튼")]
     public DeckSnapScroller snapScroller;
-
-    [Tooltip("패널 하단 기능 수행 버튼")]
     public Button actionButton;
     public TextMeshProUGUI actionButtonText;
-    public GameObject lockIcon;
 
     [Header("업그레이드 UI")]
     public GameObject upgradeShopPanel;
@@ -349,8 +346,6 @@ public class MainMenuManager : MonoBehaviour
         if (isUnlocked)
         {
             // [상태 1: 이미 해금됨]
-            if (lockIcon != null) lockIcon.SetActive(false);
-
             if (isSelected)
             {
                 // [상태 1-A: 이미 장착 중]
@@ -368,7 +363,6 @@ public class MainMenuManager : MonoBehaviour
         else
         {
             // [상태 2: 잠김 (해금 필요)]
-            if (lockIcon != null) lockIcon.SetActive(true);
 
             int currentMoney = PlayerPrefs.GetInt(metaCurrencyKey, 0);
             bool canAfford = currentMoney >= data.unlockCost;

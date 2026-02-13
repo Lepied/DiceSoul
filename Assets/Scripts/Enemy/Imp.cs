@@ -23,7 +23,8 @@ public class Imp : Enemy
         if (desc.Contains("총합"))
         {
 
-            EffectManager.Instance.ShowText(transform, "ABSORB", Color.green);
+            string text = LocalizationManager.Instance?.GetText("COMBAT_ABSORB") ?? "흡수";
+            EffectManager.Instance.ShowText(transform, text, Color.green);
             EffectManager.Instance.ShowHeal(transform, hand.BaseDamage);
             HealSelf(hand.BaseDamage);
             return 0;

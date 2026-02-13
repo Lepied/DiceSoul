@@ -1450,5 +1450,18 @@ public class GameManager : MonoBehaviour
         if (handUsageCount.Count == 0) return "없음";
         return handUsageCount.OrderByDescending(x => x.Value).First().Key;
     }
+    
+    // 유물 ID로 슬롯 인덱스 찾기
+    public int FindRelicSlotIndex(string relicId)
+    {
+        for (int i = 0; i < activeRelics.Count; i++)
+        {
+            if (activeRelics[i] != null && activeRelics[i].RelicID == relicId)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
 
 }

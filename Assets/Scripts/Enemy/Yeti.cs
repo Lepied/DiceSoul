@@ -54,7 +54,8 @@ public class Yeti : Enemy
         if (hand.Description.Contains("스트레이트"))
         {
             isEnraged = true;
-            EffectManager.Instance.ShowText(transform, "분노!", Color.red);
+            string text = LocalizationManager.Instance?.GetText("COMBAT_RAGE") ?? "분노!";
+            EffectManager.Instance.ShowText(transform, text, Color.red);
             Debug.Log($"[{enemyName}]이(가) 강력한 공격에 [분노]합니다! (다음 턴 '총합' 면역)");
         }
     }

@@ -26,7 +26,8 @@ public class Slime : Enemy
                 {
                     int randomIdx = activeDice.IndexOf(availableDice[Random.Range(0, availableDice.Count)]);
                     DiceController.Instance.LockDice(randomIdx, 1); // 1턴 동안 잠금
-                    EffectManager.Instance.ShowText(transform, "끈끈이!", Color.green);
+                    string text = LocalizationManager.Instance?.GetText("COMBAT_STICKY") ?? "끈끈이!";
+                    EffectManager.Instance.ShowText(transform, text, Color.green);
                     Debug.Log($"[{enemyName}] 주사위 1개를 끈끈하게 만들었습니다!");
                 }
             }

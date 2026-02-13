@@ -21,7 +21,8 @@ public class GoblinArcher : Enemy
         {
             if (GameManager.Instance != null)
             {
-                EffectManager.Instance.ShowText(transform, "저격!", Color.red);
+                string text = LocalizationManager.Instance?.GetText("COMBAT_SNIPE") ?? "저격!";
+                EffectManager.Instance.ShowText(transform, text, Color.red);
                 GameManager.Instance.DamagePlayer(this.attackDamage, "고블린 궁수");
             }
         }

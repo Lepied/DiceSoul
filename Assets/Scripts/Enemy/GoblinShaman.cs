@@ -29,7 +29,8 @@ public class GoblinShaman : Enemy
                 // 2. 타입 강제 변경
                 ally.enemyType = EnemyType.Spirit;
                 
-                EffectManager.Instance.ShowText(ally.transform, "영혼 보호막!", Color.magenta);
+                string text = LocalizationManager.Instance?.GetText("COMBAT_SOUL_SHIELD") ?? "영혼 보호막!";
+                EffectManager.Instance.ShowText(ally.transform, text, Color.magenta);
                 // (TODO: 1턴 버프 이펙트/UI 표시)
             }
         }

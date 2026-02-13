@@ -20,7 +20,8 @@ public class PitLord : Enemy
         {
             currentResistance += 0.1f;
             Debug.Log($"{enemyName}의 피부가 단단해집니다! (총합 저항: {currentResistance * 100:F0}%)");
-            EffectManager.Instance.ShowText(transform, "강화", Color.grey);
+            string text = LocalizationManager.Instance?.GetText("COMBAT_STRENGTHEN") ?? "강화";
+            EffectManager.Instance.ShowText(transform, text, Color.grey);
         }
     }
 

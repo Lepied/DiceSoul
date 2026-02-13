@@ -23,7 +23,8 @@ public class FrostWolf : Enemy
 
         chillStacks++;
         Debug.Log($"[{enemyName}] 주변의 공기가 차가워집니다... (냉기 중첩: {chillStacks})");
-        EffectManager.Instance.ShowText(transform, "냉기", Color.cyan);
+        string text = LocalizationManager.Instance?.GetText("COMBAT_FROST") ?? "냉기";
+        EffectManager.Instance.ShowText(transform, text, Color.cyan);
     }
 
     /// <summary>
@@ -39,7 +40,8 @@ public class FrostWolf : Enemy
             int reduction = chillStacks * damageReductionPerStack;
             int finalDamage = Mathf.Max(0, baseDamage - reduction);
             
-            EffectManager.Instance.ShowText(transform, "감소", Color.cyan);
+            string text = LocalizationManager.Instance?.GetText("COMBAT_DECREASE") ?? "감소";
+            EffectManager.Instance.ShowText(transform, text, Color.cyan);
             Debug.Log($"[{enemyName}] 냉기로 인해 [총합] 데미지가 {reduction} 감소했습니다. ({baseDamage} -> {finalDamage})");
             return finalDamage;
         }

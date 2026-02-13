@@ -596,12 +596,12 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -3
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 762959327234368917, guid: e480c919a25ad4f409205f0c91d7c4d8, type: 3}
+  m_Sprite: {fileID: -3883995995683145218, guid: e7a2107c95eec004fa8698d8026405f0, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 18.31, y: 5.22}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -4528,7 +4528,7 @@ MonoBehaviour:
   metaCurrencyText: {fileID: 1004513857}
   maxDamageText: {fileID: 1207553}
   maxChainText: {fileID: 948892103}
-  mostUsedJokboText: {fileID: 1034932731}
+  mostUsedHandText: {fileID: 1034932731}
   relicContainer: {fileID: 1127793563}
   relicIconPrefab: {fileID: 1439682114480170193, guid: 7f1ef25729bf149418836c236ebf0ae9, type: 3}
   relicCountText: {fileID: 0}
@@ -4683,6 +4683,7 @@ GameObject:
   m_Component:
   - component: {fileID: 454666200}
   - component: {fileID: 454666201}
+  - component: {fileID: 454666202}
   m_Layer: 0
   m_Name: UIManager
   m_TagString: Untagged
@@ -4740,8 +4741,8 @@ MonoBehaviour:
   - {fileID: 310580849}
   - {fileID: 1406934228}
   - {fileID: 156786512}
-  prevJokboPageButton: {fileID: 830438978}
-  nextJokboPageButton: {fileID: 366565026}
+  prevHandPageButton: {fileID: 830438978}
+  nextHandPageButton: {fileID: 366565026}
   targetSelectionPanel: {fileID: 1823727394}
   targetSelectionText: {fileID: 840257053}
   confirmTargetButton: {fileID: 2080657302}
@@ -4794,6 +4795,20 @@ MonoBehaviour:
   zoneTitleGroup: {fileID: 771418440}
   zoneTitleText: {fileID: 2093860806}
   settingsPanelController: {fileID: 285129069}
+--- !u!114 &454666202
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 454666199}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e161ba6fcbd8e04b91e07d07ce05b5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RelicEffectNotifier
+  notificationAnchor: {fileID: 654724846}
+  notificationInterval: 0.2
 --- !u!1 &468377336
 GameObject:
   m_ObjectHideFlags: 0
@@ -4903,6 +4918,7 @@ RectTransform:
   - {fileID: 771418437}
   - {fileID: 285129068}
   - {fileID: 1428051700}
+  - {fileID: 654724846}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -5821,6 +5837,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 652414991}
   m_CullTransparentMesh: 1
+--- !u!1 &654724845
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 654724846}
+  m_Layer: 0
+  m_Name: NotificationAnchor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &654724846
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 654724845}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -954.33, y: -538.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 468377340}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &675211629
 GameObject:
   m_ObjectHideFlags: 0
@@ -6567,7 +6614,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!199 &766273544
 ParticleSystemRenderer:
   serializedVersion: 7
@@ -15466,23 +15513,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 1127793562}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
+  m_Script: {fileID: 11500000, guid: 8a8695521f0d02e499659fee002a26c2, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.HorizontalLayoutGroup
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GridLayoutGroup
   m_Padding:
     m_Left: 0
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 0
-  m_Spacing: 0
-  m_ChildForceExpandWidth: 1
-  m_ChildForceExpandHeight: 1
-  m_ChildControlWidth: 0
-  m_ChildControlHeight: 0
-  m_ChildScaleWidth: 0
-  m_ChildScaleHeight: 0
-  m_ReverseArrangement: 0
+  m_StartCorner: 0
+  m_StartAxis: 0
+  m_CellSize: {x: 80, y: 80}
+  m_Spacing: {x: 10, y: 10}
+  m_Constraint: 1
+  m_ConstraintCount: 8
 --- !u!1 &1142313205
 GameObject:
   m_ObjectHideFlags: 0
@@ -15509,8 +15554,8 @@ Transform:
   m_GameObject: {fileID: 1142313205}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.03, y: -2.4, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -0.026, y: -2.21, z: 0}
+  m_LocalScale: {x: 1.0194918, y: 1.1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 12815198}
@@ -16383,8 +16428,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 230, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 30, y: 100}
+  m_SizeDelta: {x: 300, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1268650367
 MonoBehaviour:
@@ -16440,8 +16485,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 1
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -16609,7 +16654,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TutorialWave1Controller
   tutorialManager: {fileID: 1274643020}
   rollButton: {fileID: 748899813}
-  jokboButtonsArea: {fileID: 327779101}
+  handButtonsArea: {fileID: 327779101}
 --- !u!1 &1275232514
 GameObject:
   m_ObjectHideFlags: 0
@@ -19990,7 +20035,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1711266531
 RectTransform:
   m_ObjectHideFlags: 0

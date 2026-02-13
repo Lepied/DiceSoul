@@ -95,6 +95,9 @@ public class UIManager : MonoBehaviour
 
     // Zone 연출중인지
     private bool isZoneTitlePlaying = false;
+    
+    // 유물 효과 피드백 시스템
+    private RelicSlotAnimator relicAnimator;
 
 
     void Awake()
@@ -166,6 +169,13 @@ public class UIManager : MonoBehaviour
         if (cancelTargetButton != null)
         {
             cancelTargetButton.onClick.AddListener(OnCancelTargetButton);
+        }
+        
+        // 유물 슬롯 애니메이터 가져오기
+        relicAnimator = GetComponent<RelicSlotAnimator>();
+        if (relicAnimator == null)
+        {
+            relicAnimator = gameObject.AddComponent<RelicSlotAnimator>();
         }
     }
 
@@ -1172,6 +1182,36 @@ public class UIManager : MonoBehaviour
         if (StageManager.Instance != null)
         {
             StageManager.Instance.CancelTargetSelection();
+        }
+    }
+    
+    /// <summary>
+    /// 유물 발동 알림 (외부에서 호출)
+    /// </summary>
+    public void NotifyRelicActivation(string relicId, int slotIndex, int value = 0)
+    {
+        var feedbackData = RelicEffectConfig.GetFeedbackData(relicId);
+        if (feedbackData == null) return;
+        
+        // 유물 슬롯 펄스 애니메이션
+        if (relicAnimator != null && slotIndex >= 0)
+        {
+            relicAnimator.PlayActivationPulse(slotIndex);
+        }
+        
+        // 텍스트 알림
+        if (feedbackData.showText && RelicEffectNotifier.Instance != null)
+        {
+            if (feedbackData.showValue && value != 0)
+            {
+                // 유물 이름 + 숫자 값 함께 표시
+                RelicEffectNotifier.Instance.ShowRelicEffectWithNameAndValue(feedbackData.textKey, value, feedbackData.color);
+            }
+            else
+            {
+                // 일반 텍스트 알림 (유물 이름만)
+                RelicEffectNotifier.Instance.ShowRelicEffect(feedbackData.textKey, feedbackData.color);
+            }
         }
     }
 }

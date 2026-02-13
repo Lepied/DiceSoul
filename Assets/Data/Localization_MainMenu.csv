@@ -6,24 +6,6 @@ MAIN_COMMAND_CENTER,지휘소,Command Center
 MAIN_SETTINGS,설정,Settings
 MAIN_QUIT_GAME,게임 종료,Quit Game
 MAIN_META_CURRENCY,마석,ManaStone
-MAIN_SELECT_DECK,덱 선택,Select Deck
-MAIN_DECK_INFO,덱 정보,Deck Info
-MAIN_UNLOCK_DECK,덱 해금,Unlock Deck
-MAIN_DECK_LOCKED,잠긴 덱,Locked Deck
-MAIN_CURRENT_DECK,현재 덱,Current Deck
-MAIN_TOTAL_RUNS,총 플레이 횟수,Total Runs
-MAIN_BEST_ZONE,최고 존,Best Zone
-MAIN_UPGRADES,업그레이드,Upgrades
-MAIN_PURCHASE_UPGRADE,업그레이드 구매,Purchase Upgrade
-MAIN_CATEGORY_DEFENSE,방어,Defense
-MAIN_CATEGORY_OFFENSE,공격,Offense
-MAIN_CATEGORY_UTILITY,유틸리티,Utility
-MAIN_TIER,단계,Tier
-MAIN_PREREQUISITE,선행 조건,Prerequisite
-MAIN_BASIC_SUPPLIES,기초 보급품,Basic Supplies
-MAIN_COMBAT_SUPPORT,전투 보조,Combat Support
-MAIN_WELCOME_STORE,어서오세요!,Welcome!
-MAIN_RESTOCK_INFO,런마다 재입고,Restocks every run
 MAIN_EQUIPPED,장착 중,Equipped
 MAIN_SELECT,선택하기,Select
 MAIN_UNLOCK,해금하기,Unlock

@@ -67,7 +67,7 @@ public class TutorialWave1Controller : MonoBehaviour
         
         tutorialManager.ShowStep(
             handButtonsArea, 
-            LocalizationManager.Instance.GetText("TUTORIAL_WAVE1_Hand"), 
+            LocalizationManager.Instance.GetText("TUTORIAL_WAVE1_HAND"), 
             TooltipPosition.Bottom,
             true
         );

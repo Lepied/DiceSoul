@@ -13,7 +13,8 @@ public class CaveBat : Enemy
         // "총합" 족보이고, 50% 확률에 당첨되면
         if (hand.Description.Contains("총합") && Random.value < dodgeChance)
         {
-            EffectManager.Instance.ShowText(transform, "회피!", Color.cyan);
+            string text = LocalizationManager.Instance?.GetText("COMBAT_DODGE") ?? "회피!";
+            EffectManager.Instance.ShowText(transform, text, Color.cyan);
             return 0; // 데미지 무시
         }
 

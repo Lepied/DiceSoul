@@ -196,7 +196,12 @@ public class GeneralStoreManager : MonoBehaviour
 
         npcDialogueText.text = dialogue;
         npcDialogueBubble.SetActive(true);
-        StopCoroutine(hideDialogueCoroutine);
+        
+        // 이전 코루틴이 실행 중이면 중지
+        if (hideDialogueCoroutine != null)
+        {
+            StopCoroutine(hideDialogueCoroutine);
+        }
 
         hideDialogueCoroutine = StartCoroutine(HideDialogueAfterDelay());
     }

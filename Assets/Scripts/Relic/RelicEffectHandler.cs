@@ -222,6 +222,13 @@ public class RelicEffectHandler : MonoBehaviour
                 {
                     GameManager.Instance?.HealPlayer(healAmount);
                     Debug.Log($"[유물] 재생의 팔찌: 체력 +{healAmount}");
+                    
+                    // 피드백 표시
+                    int slotIndex = GameManager.Instance.FindRelicSlotIndex("RLC_REGENERATION");
+                    if (UIManager.Instance != null && slotIndex >= 0)
+                    {
+                        UIManager.Instance.NotifyRelicActivation("Regeneration", slotIndex, healAmount);
+                    }
                 }
                 else
                 {
@@ -445,6 +452,13 @@ public class RelicEffectHandler : MonoBehaviour
                 int count = GetRelicCount("RLC_VAMPIRE_FANG");
                 GameManager.Instance.HealPlayer(count);
                 Debug.Log($"[유물] 흡혈귀의 이빨: 체력 +{count}");
+                
+                // 피드백 표시
+                int slotIndex = GameManager.Instance.FindRelicSlotIndex("RLC_VAMPIRE_FANG");
+                if (UIManager.Instance != null && slotIndex >= 0)
+                {
+                    UIManager.Instance.NotifyRelicActivation("VampireFang", slotIndex, count);
+                }
             }
             else
             {
@@ -457,6 +471,13 @@ public class RelicEffectHandler : MonoBehaviour
         {
             ctx.ConsumeRoll = false;
             Debug.Log("[유물] 시공의 틈: 굴림 횟수 미소모!");
+            
+            // 피드백 표시
+            int slotIndex = GameManager.Instance.FindRelicSlotIndex("RLC_TIME_RIFT");
+            if (UIManager.Instance != null && slotIndex >= 0)
+            {
+                UIManager.Instance.NotifyRelicActivation("TimeRift", slotIndex);
+            }
         }
     }
 
@@ -494,6 +515,13 @@ public class RelicEffectHandler : MonoBehaviour
                     ctx.Cancelled = true;
                     smallShieldUsedThisZone = true;
                     Debug.Log("[유물] 작은 방패: 피해 무효화!");
+                    
+                    // 피드백 표시
+                    int slotIndex = GameManager.Instance.FindRelicSlotIndex("RLC_SMALL_SHIELD");
+                    if (UIManager.Instance != null && slotIndex >= 0)
+                    {
+                        UIManager.Instance.NotifyRelicActivation("SmallShield", slotIndex);
+                    }
                 }
             }
         }
@@ -510,6 +538,13 @@ public class RelicEffectHandler : MonoBehaviour
             ctx.ReviveHP = GameManager.Instance != null ? GameManager.Instance.MaxPlayerHealth / 2 : 10;
             ctx.ReviveSource = "RLC_PHOENIX_FEATHER";
             Debug.Log($"[유물] 불사조의 깃털: 체력 {ctx.ReviveHP}로 부활!");
+            
+            // 피드백 표시
+            int slotIndex = GameManager.Instance.FindRelicSlotIndex("RLC_PHOENIX_FEATHER");
+            if (UIManager.Instance != null && slotIndex >= 0)
+            {
+                UIManager.Instance.NotifyRelicActivation("PhoenixFeather", slotIndex);
+            }
         }
     }
 
@@ -547,8 +582,16 @@ public class RelicEffectHandler : MonoBehaviour
         if (HasRelic("RLC_SCHOLAR_BOOK") && ctx.UnusedHandCount > 0)
         {
             int count = GetRelicCount("RLC_SCHOLAR_BOOK");
-            scholarsTomeBonusDamage += ctx.UnusedHandCount * count;
-            Debug.Log($"[유물] 학자의 서적: 영구 데미지 +{ctx.UnusedHandCount * count}% (총 +{scholarsTomeBonusDamage}%)");
+            int bonusGain = ctx.UnusedHandCount * count;
+            scholarsTomeBonusDamage += bonusGain;
+            Debug.Log($"[유물] 학자의 서적: 영구 데미지 +{bonusGain}% (총 +{scholarsTomeBonusDamage}%)");
+            
+            // 피드백 표시
+            int slotIndex = GameManager.Instance.FindRelicSlotIndex("RLC_SCHOLAR_BOOK");
+            if (UIManager.Instance != null && slotIndex >= 0)
+            {
+                UIManager.Instance.NotifyRelicActivation("ScholarBook", slotIndex, bonusGain);
+            }
         }
     }
 
@@ -599,6 +642,14 @@ public class RelicEffectHandler : MonoBehaviour
         {
             swiftHandsUsedThisWave[waveNumber]++;
             Debug.Log($"[유물] 날쌘 손놀림: 무료 굴림 1회 충전! (사용 {usedCount + 1}/{relicCount})");
+            
+            // 피드백 표시
+            int slotIndex = GameManager.Instance.FindRelicSlotIndex("RLC_SWIFT_HANDS");
+            if (UIManager.Instance != null && slotIndex >= 0)
+            {
+                UIManager.Instance.NotifyRelicActivation("SwiftHands", slotIndex);
+            }
+            
             return true;
         }
         
@@ -651,7 +702,7 @@ public class RelicEffectHandler : MonoBehaviour
             // 리롤 비용 증가 방지 로직은 상점에서 처리
         }
 
-        // RLC_SPRING: 스프링 - 50% 확률로 리롤 비용 반환
+        // RLC_SPRING: 스프링 - 50% 확률로 리롤 비용 반환 (상점 발동이므로 피드백 제외)
         if (HasRelic("RLC_SPRING") && Random.value < 0.5f)
         {
             ctx.FreeRefresh = true;
@@ -810,8 +861,16 @@ public class RelicEffectHandler : MonoBehaviour
             int maxValue = GetDiceMaxValue(diceTypes[i]);
             diceValues[i] = maxValue;
         }
-
-        Debug.Log("[유물] 운명의 주사위: 모든 주사위가 최대값이 되었습니다!");
+        
+        Debug.Log("[유물] 운명의 주사위: 모든 주사위를 최대값으로 설정!");
+        
+        // 피드백 표시
+        int slotIndex = GameManager.Instance.FindRelicSlotIndex("RLC_FATE_DICE");
+        if (UIManager.Instance != null && slotIndex >= 0)
+        {
+            UIManager.Instance.NotifyRelicActivation("FateDice", slotIndex);
+        }
+        
         return true;
     }
 

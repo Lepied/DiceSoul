@@ -12,8 +12,8 @@ DECK_INFO_COMPOSITION,구성,Composition
 DECK_INFO_UNLOCK_CONDITION,해금 조건,Unlock Condition
 DECK_INFO_LOCKED_MESSAGE,잠금됨,Locked
 DECK_INFO_SELECTED,선택됨,Selected
-DECK_TYPE_D4,4면체 주사위,4-sided dice
-DECK_TYPE_D6,6면체 주사위,6-sided dice
-DECK_TYPE_D8,8면체 주사위,8-sided dice
-DECK_TYPE_D12,12면체 주사위,12-sided dice
-DECK_TYPE_D20,20면체 주사위,20-sided dice
+DECK_TYPE_D4,D4 주사위,D4 dice
+DECK_TYPE_D6,D6 주사위,D6 dice
+DECK_TYPE_D8,D8 주사위,D8 dice
+DECK_TYPE_D12,D12 주사위,D12 dice
+DECK_TYPE_D20,D20 주사위,D20 dice
