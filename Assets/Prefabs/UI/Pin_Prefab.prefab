@@ -48,6 +48,7 @@ GameObject:
   - component: {fileID: 2183905890207052255}
   - component: {fileID: 6366465761647396104}
   - component: {fileID: 9033769028388196652}
+  - component: {fileID: 2475339244062151643}
   m_Layer: 5
   m_Name: Pin_Prefab
   m_TagString: Untagged
@@ -176,3 +177,29 @@ MonoBehaviour:
   pipPrefab: {fileID: 2585951854588671356, guid: fc1b60beb04517e4d9d9fbaac4dfc7eb, type: 3}
   pipRadius: 90
   startAngle: 90
+--- !u!114 &2475339244062151643
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1481312044186844973}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa7e4b6a19d4bac45870f08a8f8f6ce8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonSound
+  clickSound:
+    primarySound: {fileID: 8300000, guid: c230389cdba1a4d47bda71c4d0e2b6f9, type: 3}
+    layeredSounds: []
+    volume: 1
+    useRandomPitch: 0
+    pitchVariation: 0.1
+  hoverSound:
+    primarySound: {fileID: 8300000, guid: 6c96f17621974ab469d71b6645c210ae, type: 3}
+    layeredSounds: []
+    volume: 0.5
+    useRandomPitch: 0
+    pitchVariation: 0.1
+  playClickSound: 1
+  playHoverSound: 1

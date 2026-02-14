@@ -54,6 +54,11 @@ public class MainMenuManager : MonoBehaviour
     [Header("설정 패널")]
     public SettingsPanelController settingsPanelController;
     
+    [Header("배경음악")]
+    public AudioClip mainMenuBGM;
+    [Range(0f, 1f)]
+    public float bgmVolume = 0.5f;
+    
     [Header("언어 선택 UI")]
     public GameObject languageSelectionPanel;
     public Button koreanButton;
@@ -67,6 +72,9 @@ public class MainMenuManager : MonoBehaviour
 
     void Start()
     {
+        // BGM 재생
+        SoundManager.Instance.PlayBGM(mainMenuBGM, bgmVolume);
+
         // ===== 1. 최초 언어 선택 체크 =====
         bool hasSelectedLanguage = PlayerPrefs.GetInt("LanguageSelected", 0) == 1;
         if (!hasSelectedLanguage)

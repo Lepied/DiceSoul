@@ -269,7 +269,7 @@ public class StageManager : MonoBehaviour
                     {
                         Enemy enemy = targets[targetIndex];
                         int damageToTake = enemy.CalculateDamageTaken(hand) + bonusDamage;
-                        enemy.TakeDamage(damageToTake, hand);
+                        enemy.TakeDamage(damageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
                         Debug.Log($"  → {enemy.name} - 데미지: {damageToTake}");
                     }
                 },
@@ -288,7 +288,7 @@ public class StageManager : MonoBehaviour
             foreach (Enemy enemy in targets)
             {
                 int damageToTake = enemy.CalculateDamageTaken(hand) + bonusDamage;
-                enemy.TakeDamage(damageToTake, hand);
+                enemy.TakeDamage(damageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
                 Debug.Log($"  → {enemy.name} - 데미지: {damageToTake}");
             }
 
@@ -316,6 +316,9 @@ public class StageManager : MonoBehaviour
 
         // 최종 데미지 계산 (유물 효과 포함)
         (int finalDamage, int finalGold) = GetPreviewValues(hand);
+        
+        // 실제 공격용 AttackContext 생성
+        AttackContext attackCtx = CreateAttackContext(hand, finalDamage, finalGold);
         
         // RandomTargetCount 계산 (총합의 경우 최종 데미지/10)
         int randomTargetCount = hand.RandomTargetCount;
@@ -372,7 +375,7 @@ public class StageManager : MonoBehaviour
                     {
                         Enemy target = randomTargets[targetIndex];
                         int damageToTake = target.CalculateDamageTaken(hand) + bonusDamage;
-                        target.TakeDamage(damageToTake, hand);
+                        target.TakeDamage(damageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
                         Debug.Log($"  → {target.name} - 데미지: {damageToTake}");
                     }
                 },
@@ -389,7 +392,7 @@ public class StageManager : MonoBehaviour
             foreach (Enemy target in randomTargets)
             {
                 int damageToTake = target.CalculateDamageTaken(hand) + bonusDamage;
-                target.TakeDamage(damageToTake, hand);
+                target.TakeDamage(damageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
                 Debug.Log($"  → {target.name} - 데미지: {damageToTake}");
             }
 
@@ -591,7 +594,7 @@ public class StageManager : MonoBehaviour
                     {
                         Enemy enemy = aliveTargets[targetIndex];
                         int damageToTake = enemy.CalculateDamageTaken(hand) + bonusDamage;
-                        enemy.TakeDamage(damageToTake, hand);
+                        enemy.TakeDamage(damageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
                         Debug.Log($"  → {enemy.name} - 데미지: {damageToTake}");
                     }
                 },
@@ -612,7 +615,7 @@ public class StageManager : MonoBehaviour
                 if (target != null && !target.isDead)
                 {
                     int damageToTake = target.CalculateDamageTaken(hand) + bonusDamage;
-                    target.TakeDamage(damageToTake, hand);
+                    target.TakeDamage(damageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
                     Debug.Log($"  → {target.name} - 데미지: {damageToTake}");
                 }
             }
@@ -657,7 +660,7 @@ public class StageManager : MonoBehaviour
                     {
                         Enemy mainTarget = aliveMainTargets[targetIndex];
                         int mainDamageToTake = mainTarget.CalculateDamageTaken(hand) + bonusDamage;
-                        mainTarget.TakeDamage(mainDamageToTake, hand);
+                        mainTarget.TakeDamage(mainDamageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
                         Debug.Log($"  → {mainTarget.name} - 주공격 데미지: {mainDamageToTake}");
                     }
                 },
@@ -681,7 +684,7 @@ public class StageManager : MonoBehaviour
                 if (mainTarget != null && !mainTarget.isDead)
                 {
                     int mainDamageToTake = mainTarget.CalculateDamageTaken(hand) + bonusDamage;
-                    mainTarget.TakeDamage(mainDamageToTake, hand);
+                    mainTarget.TakeDamage(mainDamageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
                     Debug.Log($"  → {mainTarget.name} - 데미지: {mainDamageToTake}");
                 }
             }
@@ -732,7 +735,7 @@ public class StageManager : MonoBehaviour
                             {
                                 Enemy enemy = allTargets[targetIndex];
                                 int damageToTake = enemy.CalculateDamageTaken(subHand);
-                                enemy.TakeDamage(damageToTake, subHand);
+                                enemy.TakeDamage(damageToTake, subHand, isSplash: false, isCritical: false);
                                 Debug.Log($"  → {enemy.name} - 부가공격 데미지: {damageToTake}");
                             }
                         },
@@ -745,7 +748,7 @@ public class StageManager : MonoBehaviour
                     foreach (Enemy enemy in allTargets)
                     {
                         int damageToTake = enemy.CalculateDamageTaken(subHand);
-                        enemy.TakeDamage(damageToTake, subHand);
+                        enemy.TakeDamage(damageToTake, subHand, isSplash: false, isCritical: false);
                     }
                     onSubComplete?.Invoke();
                 }
@@ -790,7 +793,7 @@ public class StageManager : MonoBehaviour
                             {
                                 Enemy randomTarget = randomTargets[targetIndex];
                                 int damageToTake = randomTarget.CalculateDamageTaken(subHand);
-                                randomTarget.TakeDamage(damageToTake, subHand);
+                                randomTarget.TakeDamage(damageToTake, subHand, isSplash: false, isCritical: false);
                                 Debug.Log($"  → 랜덤 타겟: {randomTarget.name} - 부가공격 데미지: {damageToTake}");
                             }
                         },
@@ -803,7 +806,7 @@ public class StageManager : MonoBehaviour
                     foreach (Enemy randomTarget in randomTargets)
                     {
                         int damageToTake = randomTarget.CalculateDamageTaken(subHand);
-                        randomTarget.TakeDamage(damageToTake, subHand);
+                        randomTarget.TakeDamage(damageToTake, subHand, isSplash: false, isCritical: false);
                         Debug.Log($"  → 랜덤 타겟: {randomTarget.name} - 데미지: {damageToTake}");
                     }
                     onSubComplete?.Invoke();
@@ -1110,7 +1113,7 @@ public class StageManager : MonoBehaviour
                         // 족보 정보 없이 고정 데미지 주는 방식 (null 전달)
                         // Enemy.TakeDamage 함수가 null Hand를 처리할 수 있어야 함.
                         // 만약 처리 못한다면 더미 Hand를 만들어서 보내야 함.
-                        enemy.TakeDamage(startDamage, null);
+                        enemy.TakeDamage(startDamage, null, isSplash: false, isCritical: false);
                     }
                 }
 

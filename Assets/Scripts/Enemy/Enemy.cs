@@ -259,15 +259,15 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
         return finalDamage;
     }
 
-    public bool TakeDamage(int finalDamage, AttackHand attackerHand, bool isSplash = false)
+    public bool TakeDamage(int finalDamage, AttackHand attackerHand, bool isSplash = false, bool isCritical = false)
     {
         if (isDead) return true;
         if (finalDamage > 0)
 
         
         {
-            // 크리티컬 판정 만약 나중에 생기면 여기에 넣어야
-            EffectManager.Instance.ShowDamage(transform, finalDamage);
+            // 크리티컬 데미지 표시
+            EffectManager.Instance.ShowDamage(transform, finalDamage, isCritical);
         }
         else
         {
@@ -300,7 +300,7 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
                     {
                         if (nearby != this && nearby != null && !nearby.isDead)
                         {
-                            nearby.TakeDamage(splashDamage, null, isSplash: true);
+                            nearby.TakeDamage(splashDamage, null, isSplash: true, isCritical: false);
                         }
                     }
                 }
