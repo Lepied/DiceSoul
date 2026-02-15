@@ -355,13 +355,15 @@ public class SettingsPanelController : MonoBehaviour
     // 메인으로 돌아가 (포기)
     private void OnReturnToMainMenu()
     {
-        ShowConfirmPopup("출정을 포기하고\n영지로 돌아가시겠습니까?", ConfirmAction.ReturnToMain);
+        string message = LocalizationManager.Instance.GetText("SETTINGS_CONFIRM_ABANDON");
+        ShowConfirmPopup(message, ConfirmAction.ReturnToMain);
     }
 
     // 게임 종료
     private void OnQuitGame()
     {
-        ShowConfirmPopup("게임을\n종료하시겠습니까?", ConfirmAction.QuitGame);
+        string message = LocalizationManager.Instance.GetText("SETTINGS_CONFIRM_QUIT");
+        ShowConfirmPopup(message, ConfirmAction.QuitGame);
     }
 
     private enum ConfirmAction

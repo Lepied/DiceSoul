@@ -47,3 +47,5 @@ META_MAX_LEVEL,최고 레벨 도달,Max Level Reached
 META_CURRENT_EFFECT,현재 효과,Current Effect
 META_NEXT_ARROW,▶,▶
 DECK_FREE,무료,Free
+SETTINGS_CONFIRM_ABANDON,이번 출정을 포기하시겠습니까?,Do you want to abandon this expedition?
+SETTINGS_CONFIRM_QUIT,게임을 종료하시겠습니까?,Do you want to quit the game?

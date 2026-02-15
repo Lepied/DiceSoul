@@ -16,6 +16,16 @@ public class GameManager : MonoBehaviour
     //메타강화
     private bool firstHitThisWave = false; //한대 막기
     private bool hasRevived = false; //수호천사
+    
+    [Header("사운드")]
+    [Tooltip("40 미만 피해 시 재생되는 사운드")]
+    public SoundConfig playerHitLightSound;
+    
+    [Tooltip("40 이상 피해 시 재생되는 사운드")]
+    public SoundConfig playerHitHeavySound;
+    
+    [Tooltip("실드로 피해를 막았을 때 재생되는 사운드")]
+    public SoundConfig playerShieldHitSound;
 
     [Header("덱 정보")]
     public List<string> playerDiceDeck = new List<string>();
@@ -650,11 +660,45 @@ public class GameManager : MonoBehaviour
             else if (CurrentShield > 0)
             {
                 CurrentShield--;
+                
+                // 실드 피격 사운드
+                if (SoundManager.Instance != null && playerShieldHitSound != null)
+                {
+                    SoundManager.Instance.PlaySoundConfig(playerShieldHitSound);
+                }
+                
                 Debug.Log($"쉴드 방어! 남은 쉴드: {CurrentShield}");
             }
             else
             {
                 PlayerHealth -= damageCtx.FinalDamage;
+                
+                // 피해량 체크 (40 기준)
+                bool isHeavyHit = damageCtx.FinalDamage >= 40;
+                
+                // 플레이어 피격 사운드 (피해량에 따라 다름)
+                if (SoundManager.Instance != null)
+                {
+                    SoundConfig soundToPlay = isHeavyHit ? playerHitHeavySound : playerHitLightSound;
+                    if (soundToPlay != null)
+                    {
+                        SoundManager.Instance.PlaySoundConfig(soundToPlay);
+                    }
+                }
+                
+                // 카메라 흔들림 (피해량에 비례)
+                if (CameraShake.Instance != null)
+                {
+                    float shakeIntensity = isHeavyHit ? 0.4f : 0.2f;
+                    float shakeDuration = isHeavyHit ? 0.3f : 0.15f;
+                    CameraShake.Instance.Shake(shakeIntensity, shakeDuration);
+                }
+                
+                // 비네팅 효과
+                if (PlayerHitVignette.Instance != null)
+                {
+                    PlayerHitVignette.Instance.PlayHitEffect(isHeavyHit);
+                }
                 
                 // 런 통계: 피격 기록
                 OnPlayerDamaged();

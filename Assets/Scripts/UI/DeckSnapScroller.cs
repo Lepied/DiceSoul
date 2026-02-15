@@ -9,7 +9,7 @@ public class DeckSnapScroller : MonoBehaviour, IEndDragHandler
     public ScrollRect scrollRect;
     public HorizontalLayoutGroup layoutGroup;
     public float snapSpeed = 10f;
-    
+
     [Header("연결")]
     public MainMenuManager mainManager; // 포커스 변경 시 알림용
 
@@ -18,6 +18,9 @@ public class DeckSnapScroller : MonoBehaviour, IEndDragHandler
     private bool isSnapping;
     private Vector2 targetPosition;
     private int currentFocusedIndex = -1;
+
+    [Header("사운드")]
+    public SoundConfig deckChangeSound;
 
     void Awake()
     {
@@ -31,10 +34,10 @@ public class DeckSnapScroller : MonoBehaviour, IEndDragHandler
         {
             contentPanel = scrollRect.content;
         }
-        
+
         items = spawnedItems;
         // 초기 위치 잡기 (첫 번째 아이템)
-        if(items.Count > 0)
+        if (items.Count > 0)
         {
             SnapToItem(0);
         }
@@ -46,8 +49,8 @@ public class DeckSnapScroller : MonoBehaviour, IEndDragHandler
         if (isSnapping && contentPanel != null)
         {
             contentPanel.anchoredPosition = Vector2.Lerp(
-                contentPanel.anchoredPosition, 
-                targetPosition, 
+                contentPanel.anchoredPosition,
+                targetPosition,
                 Time.deltaTime * snapSpeed
             );
 
@@ -92,21 +95,21 @@ public class DeckSnapScroller : MonoBehaviour, IEndDragHandler
     {
         if (index < 0 || index >= items.Count) return;
 
-        // 목표 위치 계산: -(아이템인덱스 * (너비 + 간격))
         float itemWidth = items[index].GetComponent<RectTransform>().rect.width;
         float spacing = layoutGroup.spacing;
-        
+
         float newX = -(index * (itemWidth + spacing));
         targetPosition = new Vector2(newX, contentPanel.anchoredPosition.y);
-        
+
         isSnapping = true;
-        scrollRect.velocity = Vector2.zero; // 관성 스크롤 제거
+        scrollRect.velocity = Vector2.zero;
 
         // 포커스 변경 알림
         if (currentFocusedIndex != index)
         {
             currentFocusedIndex = index;
-            mainManager.OnDeckFocused(items[index]); // 매니저에게 "이 녀석이 중앙이야"라고 알림
+            SoundManager.Instance.PlaySoundConfig(deckChangeSound);
+            mainManager.OnDeckFocused(items[index]);
         }
     }
 }

@@ -14,6 +14,10 @@ public class DiceController : MonoBehaviour
     public GameObject dicePrefab;
     public Transform diceContainer;
     public Button rollButtonUI;
+
+    
+    [Header("사운드")]
+    public SoundConfig dicePreserveSound;
     public AudioClip rollSound;
     
     [Header("Roll Count Display")]
@@ -611,7 +615,7 @@ public class DiceController : MonoBehaviour
             Dice dice = activeDice[index];
             dice.SetState(DiceState.Preserved);
             dice.PlayPreserveAnimation();
-            Debug.Log($"[보존] 주사위 {dice.Type}:{dice.Value}가 보존되었습니다!");
+            SoundManager.Instance.PlaySoundConfig(dicePreserveSound);
         }
     }
     

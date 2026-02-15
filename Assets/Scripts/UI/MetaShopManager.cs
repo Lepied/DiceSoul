@@ -26,8 +26,10 @@ public class MetaShopManager : MonoBehaviour
     [Header("연결선 설정")]
     public Transform mapContentTransform;
     public GameObject upgradePanel;
-
     private MetaShopSlot currentSlot;
+
+    [Header("사운드")]
+    public SoundConfig upgradeCheckSound;
 
     void Start()
     {
@@ -201,6 +203,8 @@ public class MetaShopManager : MonoBehaviour
             PlayerPrefs.SetInt(currencySaveKey, mySouls - cost);
             PlayerPrefs.SetInt(data.id, currentLevel + 1);
             PlayerPrefs.Save();
+
+            SoundManager.Instance.PlaySoundConfig(upgradeCheckSound);
 
             // UI 갱신
             UpdateCurrencyUI();

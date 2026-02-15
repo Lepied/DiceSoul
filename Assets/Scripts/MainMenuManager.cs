@@ -148,9 +148,7 @@ public class MainMenuManager : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// 언어 선택 완료 처리
-    /// </summary>
+    // 언어 선택 완료 처리
     private void OnLanguageSelected(Language selectedLanguage)
     {
         // LocalizationManager에 언어 설정
@@ -158,46 +156,29 @@ public class MainMenuManager : MonoBehaviour
         {
             LocalizationManager.Instance.ChangeLanguage(selectedLanguage);
         }
-        
-        // PlayerPrefs에 선택 완료 기록
         PlayerPrefs.SetInt("LanguageSelected", 1);
         
         // 튜토리얼 체크
         bool tutorialCompleted = PlayerPrefs.GetInt("TutorialCompleted", 0) == 1;
         
-        // 최초 실행 (언어 선택 직후)이고 튜토리얼 미완료면 명시적으로 0 설정
+        // 최초 실행 (언어 선택 직후)이고 튜토리얼 미완료면
         if (!tutorialCompleted)
         {
             PlayerPrefs.SetInt("TutorialCompleted", 0);
-            Debug.Log("[MainMenu] 튜토리얼 시작 준비 - TutorialCompleted = 0");
         }
         
         PlayerPrefs.Save();
-        
-        Debug.Log($"[MainMenu] 언어 선택: {selectedLanguage}, 튜토리얼 완료 여부: {tutorialCompleted}");
-        
-        // 언어 선택 패널 숨기기
-        if (languageSelectionPanel != null)
-        {
-            languageSelectionPanel.SetActive(false);
-        }
-        
-        // 튜토리얼 체크 및 게임 진행
+        languageSelectionPanel.SetActive(false);
+
         if (!tutorialCompleted)
         {
-            // 튜토리얼 시작
-            Debug.Log("[MainMenu] 튜토리얼 시작을 위해 Game 씬으로 이동");
             SceneManager.LoadScene(gameSceneName);
             return;
         }
-        
-        // 메인 메뉴 표시
         InitializeMainMenu();
     }
     
-    /// <summary>
-    /// 메인 메뉴 초기화
-    /// </summary>
+    // 메인 메뉴 초기화
     private void InitializeMainMenu()
     {
         // UI 표시

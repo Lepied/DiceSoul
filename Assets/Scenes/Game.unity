@@ -3632,6 +3632,60 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 254470864}
   m_CullTransparentMesh: 1
+--- !u!1 &266851141
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 266851142}
+  - component: {fileID: 266851143}
+  m_Layer: 5
+  m_Name: HitVignette
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &266851142
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 266851141}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 468377340}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &266851143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 266851141}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99b6a2feb6ad9d54cb61e798810c4635, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHitVignette
+  vignetteImage: {fileID: 1562680454}
+  lightHitMaxAlpha: 0.3
+  heavyHitMaxAlpha: 0.6
+  fadeInDuration: 0.1
+  fadeOutDuration: 0.4
+  vignetteColor: {r: 0.735849, g: 0, b: 0, a: 1}
 --- !u!1 &285129067
 GameObject:
   m_ObjectHideFlags: 0
@@ -5057,6 +5111,8 @@ RectTransform:
   - {fileID: 285129068}
   - {fileID: 1428051700}
   - {fileID: 654724846}
+  - {fileID: 266851142}
+  - {fileID: 1562680453}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -18032,7 +18088,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1385612773
 RectTransform:
   m_ObjectHideFlags: 0
@@ -19261,6 +19317,81 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1557822190}
+  m_CullTransparentMesh: 1
+--- !u!1 &1562680452
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1562680453}
+  - component: {fileID: 1562680455}
+  - component: {fileID: 1562680454}
+  m_Layer: 5
+  m_Name: VignetteImage
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1562680453
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1562680452}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 468377340}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1562680454
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1562680452}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 0, b: 0, a: 0}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1562680455
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1562680452}
   m_CullTransparentMesh: 1
 --- !u!1 &1586772671
 GameObject:
@@ -21189,6 +21320,12 @@ MonoBehaviour:
   dicePrefab: {fileID: 4575350410747785122, guid: aead35b1917cc1f45b15893cc0f3a7eb, type: 3}
   diceContainer: {fileID: 531286627}
   rollButtonUI: {fileID: 748899813}
+  dicePreserveSound:
+    primarySound: {fileID: 8300000, guid: 5aa948679296f2649802b2f562804537, type: 3}
+    layeredSounds: []
+    volume: 0.7
+    useRandomPitch: 1
+    pitchVariation: 0.1
   rollSound: {fileID: 8300000, guid: 7f605d0e9cb039f4ab9d90cfe9c31aa7, type: 3}
   rollCountDisplay: {fileID: 129778529}
   baseMaxRolls: 3
@@ -21307,6 +21444,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   PlayerHealth: 0
   MaxPlayerHealth: 100
+  playerHitLightSound:
+    primarySound: {fileID: 8300000, guid: e5ba31bf11bdca04daa2c8d7dcbac03e, type: 3}
+    layeredSounds:
+    - {fileID: 8300000, guid: 9c9b7f989c87175498cb99aacdaf2bbd, type: 3}
+    volume: 0.5
+    useRandomPitch: 1
+    pitchVariation: 0.2
+  playerHitHeavySound:
+    primarySound: {fileID: 8300000, guid: 71389b4b6c7de5e4aa0c4c5b3317aa2b, type: 3}
+    layeredSounds:
+    - {fileID: 8300000, guid: a47c02d157cc4ce45a5d38a32115996a, type: 3}
+    volume: 0.5
+    useRandomPitch: 1
+    pitchVariation: 0.2
+  playerShieldHitSound:
+    primarySound: {fileID: 8300000, guid: 062baa69e7b6dec48bca227b108b4b4b, type: 3}
+    layeredSounds:
+    - {fileID: 8300000, guid: e3d4b0633d44166468aaa2c0e00e5af1, type: 3}
+    volume: 0.5
+    useRandomPitch: 1
+    pitchVariation: 0.2
   playerDiceDeck:
   - D6
   - D6

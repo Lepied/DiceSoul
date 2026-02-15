@@ -16,8 +16,10 @@ public class GeneralStoreManager : MonoBehaviour
     public TextMeshProUGUI npcDialogueText;
     public GameObject npcDialogueBubble;
     public float dialogueDuration = 3f; // 대사 표시 시간
+    private Coroutine hideDialogueCoroutine; // 대화 숨김 코루틴 추적용
 
-    private Coroutine hideDialogueCoroutine; // 대화 숨김 코루틴 추적
+    [Header("사운드")]
+    public SoundConfig purchaseSuccessSound;
 
     // 저장 키
     private const string KEY_LAST_RUN = "Store_LastRunCount";
@@ -162,6 +164,8 @@ public class GeneralStoreManager : MonoBehaviour
             currency -= item.Price;
             PlayerPrefs.SetInt("MetaCurrency", currency);
 
+            SoundManager.Instance.PlaySoundConfig(purchaseSuccessSound);
+
             // 효과 저장
             string buffs = PlayerPrefs.GetString("NextRunBuffs", "");
             PlayerPrefs.SetString("NextRunBuffs", buffs + item.EffectKey + ",");
@@ -196,7 +200,7 @@ public class GeneralStoreManager : MonoBehaviour
 
         npcDialogueText.text = dialogue;
         npcDialogueBubble.SetActive(true);
-        
+
         // 이전 코루틴이 실행 중이면 중지
         if (hideDialogueCoroutine != null)
         {
