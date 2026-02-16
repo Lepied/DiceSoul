@@ -2,9 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 
-/// <summary>
-/// 플레이어 피격 시 화면 가장자리 붉은 비네팅 효과
-/// </summary>
+//플레이어 피격 시 화면 가장자리 붉은 비네팅 효과
 public class PlayerHitVignette : MonoBehaviour
 {
     public static PlayerHitVignette Instance { get; private set; }

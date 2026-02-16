@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: d0a333e7697d17541932d9abb2695baf
+guid: 8ba4e7a8409098540808e2871782c2df
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -671583076500848588
-    second: cave_bat_0
+      213: 5851714710906688496
+    second: cave_bat 1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -109,17 +109,30 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: cave_bat_0
+      name: cave_bat 1_0
       rect:
         serializedVersion: 2
-        x: 13
+        x: 15
         y: 145
-        width: 474
-        height: 242
+        width: 472
+        height: 241
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 430c00800ce0ea6f0800000000000000
-      internalID: -671583076500848588
+      spriteID: 0f3558e9687753150800000000000000
+      internalID: 5851714710906688496
       vertices: []
       indices: 
       edges: []
@@ -148,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      cave_bat_0: -671583076500848588
+      cave_bat 1_0: 5851714710906688496
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -53,12 +53,12 @@ public class MainMenuManager : MonoBehaviour
 
     [Header("설정 패널")]
     public SettingsPanelController settingsPanelController;
-    
+
     [Header("배경음악")]
     public AudioClip mainMenuBGM;
     [Range(0f, 1f)]
     public float bgmVolume = 0.5f;
-    
+
     [Header("언어 선택 UI")]
     public GameObject languageSelectionPanel;
     public Button koreanButton;
@@ -82,7 +82,7 @@ public class MainMenuManager : MonoBehaviour
             ShowLanguageSelection();
             return;
         }
-        
+
         //튜토리얼 미완료 시 바로 Game 씬으로 이동
         bool tutorialCompleted = PlayerPrefs.GetInt("TutorialCompleted", 0) == 1;
         if (!tutorialCompleted)
@@ -90,7 +90,7 @@ public class MainMenuManager : MonoBehaviour
             SceneManager.LoadScene(gameSceneName);
             return;
         }
-        
+
         // 세이브 파일 있으면 바로 이어하기로 (단, 방금 튜토리얼 완료한 경우 제외)
         bool justCompletedTutorial = PlayerPrefs.GetInt("JustCompletedTutorial", 0) == 1;
         if (justCompletedTutorial)
@@ -106,10 +106,10 @@ public class MainMenuManager : MonoBehaviour
             SceneManager.LoadScene(gameSceneName);
             return;
         }
-        
+
         InitializeMainMenu();
     }
-    
+
     /// <summary>
     /// 언어 선택 UI 표시
     /// </summary>
@@ -122,12 +122,12 @@ public class MainMenuManager : MonoBehaviour
         if (openDeckButton != null) openDeckButton.gameObject.SetActive(false);
         if (openStoreButton != null) openStoreButton.gameObject.SetActive(false);
         if (settingsButton != null) settingsButton.gameObject.SetActive(false);
-        
+
         // 언어 선택 패널 표시
         if (languageSelectionPanel != null)
         {
             languageSelectionPanel.SetActive(true);
-            
+
             // 한국어 버튼
             if (koreanButton != null)
             {
@@ -136,7 +136,7 @@ public class MainMenuManager : MonoBehaviour
                 koreanButton.onClick.RemoveAllListeners();
                 koreanButton.onClick.AddListener(() => OnLanguageSelected(Language.Korean));
             }
-            
+
             // English 버튼
             if (englishButton != null)
             {
@@ -147,7 +147,7 @@ public class MainMenuManager : MonoBehaviour
             }
         }
     }
-    
+
     // 언어 선택 완료 처리
     private void OnLanguageSelected(Language selectedLanguage)
     {
@@ -157,16 +157,16 @@ public class MainMenuManager : MonoBehaviour
             LocalizationManager.Instance.ChangeLanguage(selectedLanguage);
         }
         PlayerPrefs.SetInt("LanguageSelected", 1);
-        
+
         // 튜토리얼 체크
         bool tutorialCompleted = PlayerPrefs.GetInt("TutorialCompleted", 0) == 1;
-        
+
         // 최초 실행 (언어 선택 직후)이고 튜토리얼 미완료면
         if (!tutorialCompleted)
         {
             PlayerPrefs.SetInt("TutorialCompleted", 0);
         }
-        
+
         PlayerPrefs.Save();
         languageSelectionPanel.SetActive(false);
 
@@ -177,7 +177,7 @@ public class MainMenuManager : MonoBehaviour
         }
         InitializeMainMenu();
     }
-    
+
     // 메인 메뉴 초기화
     private void InitializeMainMenu()
     {
@@ -188,7 +188,7 @@ public class MainMenuManager : MonoBehaviour
         if (openDeckButton != null) openDeckButton.gameObject.SetActive(true);
         if (openStoreButton != null) openStoreButton.gameObject.SetActive(true);
         if (settingsButton != null) settingsButton.gameObject.SetActive(true);
-        
+
         LoadMetaCurrency();
 
         // 패널 초기화
@@ -218,14 +218,14 @@ public class MainMenuManager : MonoBehaviour
 
         // 덱 목록 생성
         GenerateDeckList();
-        
+
         // 로컬라이제이션 이벤트 구독
         if (LocalizationManager.Instance != null)
         {
             LocalizationManager.Instance.OnLanguageChanged += OnLanguageChanged;
         }
     }
-    
+
     void OnDestroy()
     {
         if (LocalizationManager.Instance != null)
@@ -233,7 +233,7 @@ public class MainMenuManager : MonoBehaviour
             LocalizationManager.Instance.OnLanguageChanged -= OnLanguageChanged;
         }
     }
-    
+
     private void OnLanguageChanged()
     {
         // 덱 선택 패널이 열려있으면 버튼 텍스트 갱신
@@ -420,7 +420,7 @@ public class MainMenuManager : MonoBehaviour
             Vector3 iconPos = targetIcon.position;
 
             // 아이콘의 위쪽 + 팝업의 반절 높이 + 여유공간
-            float yOffsetUp = (targetIcon.rect.height * targetIcon.lossyScale.y / 2f) + 
+            float yOffsetUp = (targetIcon.rect.height * targetIcon.lossyScale.y / 2f) +
                               (popupRect.rect.height * popupRect.lossyScale.y / 2f) + 10f;
             Vector3 topPosition = iconPos + new Vector3(0, yOffsetUp, 0);
 
@@ -450,13 +450,33 @@ public class MainMenuManager : MonoBehaviour
         {
             deckSelectionPanel.SetActive(true);
             // 패널이 열릴 때, 현재 선택된 덱이나 첫 번째 덱으로 스크롤 이동하면 좋음
-            // snapScroller.SnapToItem(0); 
+            // snapScroller.SnapToItem(0);
+
+            // 튜토리얼 체크
+            bool tutorialCompleted = PlayerPrefs.GetInt("DeckSelectionTutorialCompleted", 0) == 1;
+            if (!tutorialCompleted)
+            {
+                TutorialDeckSelectionController tutorial = FindFirstObjectByType<TutorialDeckSelectionController>();
+                if (tutorial != null)
+                {
+                    Invoke(nameof(StartDeckSelectionTutorial), 0.1f);
+                }
+            }
         }
     }
 
     public void OnCloseDeckPanel()
     {
         if (deckSelectionPanel != null) deckSelectionPanel.SetActive(false);
+    }
+    
+    private void StartDeckSelectionTutorial()
+    {
+        TutorialDeckSelectionController tutorial = FindFirstObjectByType<TutorialDeckSelectionController>();
+        if (tutorial != null)
+        {
+            tutorial.StartDeckSelectionTutorial();
+        }
     }
 
     // --- 상점 패널 제어 ---
@@ -475,7 +495,7 @@ public class MainMenuManager : MonoBehaviour
         {
             generalStorePanel.SetActive(true);
         }
-        
+
         if (generalStoreManager != null)
         {
             generalStoreManager.RefreshCurrencyDisplay();

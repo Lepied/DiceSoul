@@ -19,7 +19,7 @@ public class BuildingHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointer
     
     private Vector3 originalScale;
     private Vector3 targetScale;
-    private bool isHovering = false;
+
     
     void Start()
     {
@@ -48,7 +48,6 @@ public class BuildingHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointer
     
     public void OnPointerEnter(PointerEventData eventData)
     {
-        isHovering = true;
         outline.enabled = true;
         buildingImage.color = hoverColor;
         
@@ -58,7 +57,6 @@ public class BuildingHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointer
     
     public void OnPointerExit(PointerEventData eventData)
     {
-        isHovering = false;
         outline.enabled = false;
         buildingImage.color = normalColor;
         if (useScaleEffect)
@@ -67,9 +65,7 @@ public class BuildingHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointer
     
     //버튼 비활성화하거나해야할때 쓰기
     public void ForceReset()
-    {
-        isHovering = false;
-        
+    { 
         outline.enabled = false;
         buildingImage.color = normalColor;
         

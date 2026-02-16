@@ -7169,6 +7169,9 @@ GameObject:
   - component: {fileID: 752557500}
   - component: {fileID: 752557499}
   - component: {fileID: 752557498}
+  - component: {fileID: 752557502}
+  - component: {fileID: 752557501}
+  - component: {fileID: 752557503}
   m_Layer: 0
   m_Name: TutorialSystem
   m_TagString: Untagged
@@ -7234,6 +7237,56 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &752557501
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 752557497}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3127ff58dfe22184cb565c56f0ab0088, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TutorialMetaShopController
+  tutorialManager: {fileID: 752557499}
+  mapContentTransform: {fileID: 91814427}
+  detailPanel: {fileID: 227553349}
+  buyButton: {fileID: 2104204275}
+  resetAllButton: {fileID: 1407124749}
+  waitingForSlotClick: 0
+  targetSlotForTutorial: {fileID: 0}
+--- !u!114 &752557502
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 752557497}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d65b2c3b01ce47458e879b530b0b6c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TutorialGeneralStoreController
+  tutorialManager: {fileID: 752557499}
+  currencyText: {fileID: 1972751630}
+  basicShelf: {fileID: 1355984450}
+  combatShelf: {fileID: 1356179889}
+--- !u!114 &752557503
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 752557497}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9de7290a5c467a428276c6394d80546, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TutorialDeckSelectionController
+  tutorialManager: {fileID: 752557499}
+  snapScrollerArea: {fileID: 60255576}
+  actionButton: {fileID: 1598685503}
 --- !u!1 &770247810
 GameObject:
   m_ObjectHideFlags: 0
@@ -8112,7 +8165,7 @@ MonoBehaviour:
   infoNameText: {fileID: 1287837984}
   infoDescText: {fileID: 608313242}
   settingsPanelController: {fileID: 1566902935}
-  mainMenuBGM: {fileID: 8300000, guid: a0639411e2d36714ea7bccd4014ffa85, type: 3}
+  mainMenuBGM: {fileID: 8300000, guid: c1c4e958bb0074d4a81071860951a0ac, type: 3}
   bgmVolume: 0.5
   languageSelectionPanel: {fileID: 711371813}
   koreanButton: {fileID: 2016002173}
@@ -8166,6 +8219,7 @@ MonoBehaviour:
   detailEffect: {fileID: 740331849}
   buyButton: {fileID: 2104204276}
   buyCostText: {fileID: 943664767}
+  resetAllButton: {fileID: 0}
   mapContentTransform: {fileID: 91814427}
   upgradePanel: {fileID: 1549500345}
   upgradeCheckSound:

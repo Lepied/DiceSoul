@@ -100,6 +100,22 @@ public class SoundManager : MonoBehaviour
         bgmSource.loop = true;
         bgmSource.Play();
     }
+    
+    // BGM SoundConfig 재생
+    public void PlayBGMConfig(SoundConfig config)
+    {
+        if (config == null || !config.HasSound()) return;
+        
+        AudioClip clip = config.primarySound;
+        if (clip == null) return;
+        
+        if (bgmSource.clip == clip && bgmSource.isPlaying) return;
+        
+        bgmSource.clip = clip;
+        bgmSource.volume = config.volume * bgmVolume;
+        bgmSource.loop = true;
+        bgmSource.Play();
+    }
 
     public void StopBGM()
     {

@@ -619,6 +619,20 @@ public class DiceController : MonoBehaviour
         }
     }
     
+    // 보존 해제
+    public void UnpreserveDice(int index)
+    {
+        if (index >= 0 && index < activeDice.Count)
+        {
+            Dice dice = activeDice[index];
+            if (dice.State == DiceState.Preserved)
+            {
+                dice.SetState(DiceState.Normal);
+                dice.PlayUnlockAnimation();
+            }
+        }
+    }
+    
     // 턴 종료 시 잠금지속줄이기
     public void DecreaseLockDurations()
     {

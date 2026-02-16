@@ -45,12 +45,32 @@ public class GeneralStoreManager : MonoBehaviour
             isInitialized = true;
         }
     }
-
+    
     void OnEnable()
     {
         if (LocalizationManager.Instance != null)
         {
             LocalizationManager.Instance.OnLanguageChanged += RefreshCurrencyDisplay;
+        }
+        
+        // 튜토리얼 체크
+        bool tutorialCompleted = PlayerPrefs.GetInt("GeneralStoreTutorialCompleted", 0) == 1;
+        if (!tutorialCompleted)
+        {
+            TutorialGeneralStoreController tutorial = FindFirstObjectByType<TutorialGeneralStoreController>();
+            if (tutorial != null)
+            {
+                Invoke(nameof(StartGeneralStoreTutorial), 0.1f);
+            }
+        }
+    }
+    
+    private void StartGeneralStoreTutorial()
+    {
+        TutorialGeneralStoreController tutorial = FindFirstObjectByType<TutorialGeneralStoreController>();
+        if (tutorial != null)
+        {
+            tutorial.StartGeneralStoreTutorial();
         }
     }
 

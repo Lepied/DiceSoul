@@ -15,6 +15,12 @@ MonoBehaviour:
   zoneName: "\uBB18\uC9C0"
   zoneTier: 2
   zoneBackground: {fileID: 5535881783676608107, guid: 13c73bd39a860e54fba9396d081dc348, type: 3}
+  zoneBGM:
+    primarySound: {fileID: 8300000, guid: 068bcad1e8a98264ba5855c1987bceef, type: 3}
+    layeredSounds: []
+    volume: 1
+    useRandomPitch: 0
+    pitchVariation: 0.1
   waves:
   - {fileID: 11400000, guid: 722f9507aa8428248985ba40aea643ae, type: 2}
   - {fileID: 11400000, guid: 4cdc5b661a1785343911bd9f43e6a089, type: 2}

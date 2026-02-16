@@ -39,6 +39,13 @@ public class MetaShopSlot : MonoBehaviour
                 manager.OnSlotClicked(this);
                 if (SKillTreeController.Instance != null)
                     SKillTreeController.Instance.FocusOnSlot(GetComponent<RectTransform>());
+                
+                // 튜토리얼 체크
+                TutorialMetaShopController tutorial = FindFirstObjectByType<TutorialMetaShopController>();
+                if (tutorial != null && tutorial.waitingForSlotClick)
+                {
+                    tutorial.OnSlotClicked();
+                }
             });
         }
 
@@ -116,7 +123,7 @@ public class MetaShopSlot : MonoBehaviour
     }
     
     // 해금 여부 체크
-    private bool IsUnlocked()
+    public bool IsUnlocked()
     {
         if (data == null) return false;
         

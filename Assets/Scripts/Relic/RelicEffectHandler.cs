@@ -832,6 +832,25 @@ public class RelicEffectHandler : MonoBehaviour
         Debug.Log($"[유물] 주사위 컵: 주사위[{diceIndex}] 보존 완료! (남은 기회: {preserveChargesRemaining})");
         return true;
     }
+    
+    // 보존 해제 시 보존 횟수 복구
+    public void RestorePreserveCharge(int diceIndex)
+    {
+        if (!HasRelic("RLC_DICE_CUP"))
+        {
+            return;
+        }
+        
+        preserveChargesRemaining++;
+        DiceController.Instance.UnpreserveDice(diceIndex);
+        Debug.Log($"[유물] 주사위 컵: 주사위[{diceIndex}] 보존 해제! (남은 기회: {preserveChargesRemaining})");
+        
+        // 유물 패널 업데이트
+        if (UIManager.Instance != null && GameManager.Instance != null)
+        {
+            UIManager.Instance.UpdateRelicPanel(GameManager.Instance.activeRelics);
+        }
+    }
 
     //운명의 주사위 - 모든 주사위 최대값 (존당 1회)
     public bool UseFateDice(int[] diceValues, string[] diceTypes)

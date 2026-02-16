@@ -75,8 +75,17 @@ public class Dice : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         // 이중 주사위 선택 모드 확인
         bool handled = DiceController.Instance.TryUseDoubleDiceOn(myIndex);
         if (handled) return;
+        if (State == DiceState.Preserved && RelicEffectHandler.Instance != null)
+        {
+            // 족보 선택이 시작되지 않았으면 보존 해제 가능하게
+            if (StageManager.Instance != null && !StageManager.Instance.IsAttackChoice)
+            {
+                RelicEffectHandler.Instance.RestorePreserveCharge(myIndex);
+                return;
+            }
+        }
         
-        // 보존 기회가 있고 Normal 상태면 바로 보존
+        // 보존 기회가 있고 Normal 상태면? 보존
         if (State == DiceState.Normal && RelicEffectHandler.Instance != null)
         {
             if (RelicEffectHandler.Instance.CanUsePreserve())

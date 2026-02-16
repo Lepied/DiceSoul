@@ -71,6 +71,11 @@ public class GameManager : MonoBehaviour
     public int bossesDefeated = 0; // 처치한 보스 수
     public int perfectWaves = 0; // 무피해 웨이브 수
     private bool wasDamagedThisWave = false; // 이번 웨이브에 피해 받았는지
+    
+    // 적 기믹 피해 누적
+    private int accumulatedMechanicDamage = 0;
+    private int accumulatedShieldDamage = 0;
+    private bool hasPendingFeedback = false;
 
     void Awake()
     {
@@ -124,6 +129,58 @@ public class GameManager : MonoBehaviour
             playTime += Time.deltaTime;
         }
     }
+    
+    void LateUpdate()
+    {
+        // 이번 프레임에 누적된 적 기믹 피해에 대한 피드백 재생
+        if (hasPendingFeedback)
+        {
+            // 쉴드 피해가 있었으면 쉴드 사운드
+            if (accumulatedShieldDamage > 0)
+            {
+                if (SoundManager.Instance != null && playerShieldHitSound != null)
+                {
+                    SoundManager.Instance.PlaySoundConfig(playerShieldHitSound);
+                }
+            }
+            
+            // 체력 피해가 있었으면 피해량에 따른 사운드 + 시각적 피드백
+            if (accumulatedMechanicDamage > 0)
+            {
+                bool isHeavyHit = accumulatedMechanicDamage >= 40;
+                
+                // 사운드
+                if (SoundManager.Instance != null)
+                {
+                    SoundConfig soundToPlay = isHeavyHit ? playerHitHeavySound : playerHitLightSound;
+                    if (soundToPlay != null)
+                    {
+                        SoundManager.Instance.PlaySoundConfig(soundToPlay);
+                    }
+                }
+                
+                // 카메라 흔들림
+                if (CameraShake.Instance != null)
+                {
+                    float shakeIntensity = isHeavyHit ? 0.4f : 0.2f;
+                    float shakeDuration = isHeavyHit ? 0.3f : 0.15f;
+                    CameraShake.Instance.Shake(shakeIntensity, shakeDuration);
+                }
+                
+                // 비네팅 효과
+                if (PlayerHitVignette.Instance != null)
+                {
+                    PlayerHitVignette.Instance.PlayHitEffect(isHeavyHit);
+                }
+            }
+            
+            // 누적 변수 리셋
+            accumulatedMechanicDamage = 0;
+            accumulatedShieldDamage = 0;
+            hasPendingFeedback = false;
+        }
+    }
+    
     public void SaveCurrentRun()
     {
         GameData data = new GameData();
@@ -686,7 +743,7 @@ public class GameManager : MonoBehaviour
                     }
                 }
                 
-                // 카메라 흔들림 (피해량에 비례)
+                // 카메라 흔들림 (피해량에 비례해서?)
                 if (CameraShake.Instance != null)
                 {
                     float shakeIntensity = isHeavyHit ? 0.4f : 0.2f;
@@ -694,11 +751,9 @@ public class GameManager : MonoBehaviour
                     CameraShake.Instance.Shake(shakeIntensity, shakeDuration);
                 }
                 
-                // 비네팅 효과
-                if (PlayerHitVignette.Instance != null)
-                {
-                    PlayerHitVignette.Instance.PlayHitEffect(isHeavyHit);
-                }
+                // 비네팅
+
+                PlayerHitVignette.Instance.PlayHitEffect(isHeavyHit);
                 
                 // 런 통계: 피격 기록
                 OnPlayerDamaged();
@@ -1013,12 +1068,22 @@ public class GameManager : MonoBehaviour
             int shieldAbsorb = Mathf.Min(CurrentShield, damageCtx.FinalDamage);
             CurrentShield -= shieldAbsorb;
             damageCtx.FinalDamage -= shieldAbsorb;
+            
+            // 쉴드 피해 누적
+            accumulatedShieldDamage += shieldAbsorb;
+            hasPendingFeedback = true;
+            
             Debug.Log($"쉴드 방어! -{shieldAbsorb} (남은 쉴드: {CurrentShield})");
         }
         
         if (damageCtx.FinalDamage > 0)
         {
             PlayerHealth -= damageCtx.FinalDamage;
+            
+            // 체력 피해 누적
+            accumulatedMechanicDamage += damageCtx.FinalDamage;
+            hasPendingFeedback = true;
+            
             Debug.Log($"[{damageCtx.Source}] 플레이어 피해: -{damageCtx.FinalDamage} (남은 체력: {PlayerHealth})");
             
             // 이벤트 시스템: 피격 후 이벤트

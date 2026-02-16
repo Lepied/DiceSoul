@@ -9,8 +9,8 @@ public class ZoneData : ScriptableObject
     public string zoneName = "평원";
     public int zoneTier = 1; // 난이도 티어
     
-    [Tooltip("이 존에 진입할 때 표시할 배경 이미지")]
-    public Sprite zoneBackground; 
+    public Sprite zoneBackground;
+    public SoundConfig zoneBGM; 
     
     [Header("웨이브 구성 (순서대로)")]
     [Tooltip("이 존을 구성하는 웨이브 리스트 (WaveData.asset 5개)")]

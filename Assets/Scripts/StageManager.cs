@@ -13,8 +13,6 @@ public class StageManager : MonoBehaviour
     public DiceController diceController;
 
     [Header("UI 연결")]
-
-    [Tooltip("존(Zone)이 바뀔 때 교체될 배경 SpriteRenderer (GameObject)")]
     public SpriteRenderer backgroundRenderer;
 
     [Header("웨이브/적 설정")]
@@ -26,7 +24,10 @@ public class StageManager : MonoBehaviour
     public int maxSpawnAttempts = 10;     // 스폰 위치 재시도 횟수
 
     public List<Enemy> activeEnemies = new List<Enemy>();
-    private bool isWaitingForAttackChoice = false;
+    private bool isAttackChoice = false;
+    
+    // 족보 선택 진행 중인지 확인
+    public bool IsAttackChoice => isAttackChoice;
 
     // 튜토리얼 콜백
     public System.Action onHandSelectedCallback;
@@ -148,7 +149,7 @@ public class StageManager : MonoBehaviour
             GameEvents.RaiseHandComplete(handCtx);
             
             diceController.SetRollButtonInteractable(false);
-            isWaitingForAttackChoice = true;
+            isAttackChoice = true;
             if (UIManager.Instance != null)
             {
                 List<AttackHand> previewHands = new List<AttackHand>();
@@ -178,7 +179,7 @@ public class StageManager : MonoBehaviour
     }
     public void ProcessAttack(AttackHand chosenHand)
     {
-        if (!isWaitingForAttackChoice) return;
+        if (!isAttackChoice) return;
 
         currentSelectedHand = chosenHand;
         
@@ -541,7 +542,7 @@ public class StageManager : MonoBehaviour
         }
         
         // 족보 선택 메뉴로 돌아가기
-        isWaitingForAttackChoice = true;
+        isAttackChoice = true;
         
         // 현재 주사위로 가능한 족보 다시 표시 (Locked 제외)
         List<int> availableValues = diceController.GetAvailableValues();
@@ -550,7 +551,6 @@ public class StageManager : MonoBehaviour
         if (achievableHands.Count > 0 && UIManager.Instance != null)
         {
             UIManager.Instance.ShowAttackOptions(achievableHands);
-            Debug.Log($"[족보 재표시] {achievableHands.Count}개의 족보를 다시 표시합니다");
         }
     }
 
@@ -563,8 +563,6 @@ public class StageManager : MonoBehaviour
         
         // 실제 공격용 AttackContext 생성
         AttackContext attackCtx = CreateAttackContext(hand, finalDamage, finalGold);
-
-        Debug.Log($"[복수 타겟 공격] {hand.Description} → {targets.Count}명의 적 - 데미지: {finalDamage}");
 
         // VFX 통합 버전
         if (VFXManager.Instance != null && hand.VfxConfig != null)
@@ -595,7 +593,6 @@ public class StageManager : MonoBehaviour
                         Enemy enemy = aliveTargets[targetIndex];
                         int damageToTake = enemy.CalculateDamageTaken(hand) + bonusDamage;
                         enemy.TakeDamage(damageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
-                        Debug.Log($"  → {enemy.name} - 데미지: {damageToTake}");
                     }
                 },
                 onComplete: () =>
@@ -616,7 +613,6 @@ public class StageManager : MonoBehaviour
                 {
                     int damageToTake = target.CalculateDamageTaken(hand) + bonusDamage;
                     target.TakeDamage(damageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
-                    Debug.Log($"  → {target.name} - 데미지: {damageToTake}");
                 }
             }
 
@@ -839,7 +835,7 @@ public class StageManager : MonoBehaviour
     {
         // 주사위는 이미 Execute 메서드에서 제거되었음 (이중 제거 방지)
         
-        isWaitingForAttackChoice = false;
+        isAttackChoice = false;
         currentSelectedHand = null;
         currentSelectedTargets.Clear();
         
@@ -931,7 +927,7 @@ public class StageManager : MonoBehaviour
         if (chainHands.Count > 0)
         {
             // 족보 선택 UI 표시 (원본 그대로 사용)
-            isWaitingForAttackChoice = true;
+            isAttackChoice = true;
             if (UIManager.Instance != null)
             {
                 UIManager.Instance.ShowAttackOptions(chainHands);
@@ -969,18 +965,14 @@ public class StageManager : MonoBehaviour
         {
             if (diceController.currentRollCount >= diceController.maxRolls)
             {
-                Debug.Log("굴림 횟수 소진. 웨이브 실패.");
                 diceController.SetRollButtonInteractable(false);
                 GameManager.Instance.ProcessWaveClear(false, 0);
             }
             else
             {
-                Debug.Log("적이 남았습니다. 다시 굴리세요.");
-                
                 // 주사위 전부 소진되었으면 다시 생성
                 if (diceController.GetRemainingDiceCount() <= 0)
                 {
-                    Debug.Log("[주사위 재생성] 모든 주사위가 소진되어 덱을 다시 생성합니다.");
                     diceController.SetDiceDeck(GameManager.Instance.playerDiceDeck);
                 }
                 
@@ -991,8 +983,7 @@ public class StageManager : MonoBehaviour
 
     public void PrepareNextWave()
     {
-        Debug.Log("StageManager: 다음 웨이브 준비 중...");
-        isWaitingForAttackChoice = false;
+        isAttackChoice = false;
         
         // 연쇄 공격 카운터 초기화
         currentChainCount = 0;
@@ -1016,17 +1007,18 @@ public class StageManager : MonoBehaviour
 
         ZoneData currentZoneData = WaveGenerator.Instance.GetCurrentZoneData(currentZone);
 
-        // 존의 첫 웨이브일 때만 배경 변경 (존 전환 시)
+        // 존의 배경 및 BGM 변경 (존 전환 시)
         if (currentWave == 1 && currentZoneData != null && backgroundRenderer != null)
         {
             if (currentZoneData.zoneBackground != null)
             {
                 backgroundRenderer.sprite = currentZoneData.zoneBackground;
-                Debug.Log($"[StageManager] 존 전환 - 배경 변경: {currentZoneData.zoneName}");
             }
-            else
+            
+            // BGM 변경
+            if (currentZoneData.zoneBGM != null && SoundManager.Instance != null)
             {
-                Debug.LogWarning($"[StageManager] {currentZoneData.name}에 'zoneBackground' 스프라이트가 없습니다.");
+                SoundManager.Instance.PlayBGMConfig(currentZoneData.zoneBGM);
             }
         }
 
@@ -1387,6 +1379,13 @@ public class StageManager : MonoBehaviour
             else
             {
                 Debug.LogWarning($"[StageManager] {currentZoneData.name}에 'zoneBackground' 스프라이트가 없습니다.");
+            }
+            
+            // BGM 설정 (이어하기 대응)
+            if (currentZoneData.zoneBGM != null && SoundManager.Instance != null)
+            {
+                SoundManager.Instance.PlayBGMConfig(currentZoneData.zoneBGM);
+                Debug.Log($"[StageManager] BGM 설정: {currentZoneData.zoneName} (Zone {currentZone})");
             }
         }
     }

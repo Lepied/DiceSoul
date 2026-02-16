@@ -8,7 +8,7 @@ public class MetaShopManager : MonoBehaviour
     [Header("설정")]
     public string currencySaveKey = "MetaCurrency";
     public List<MetaShopSlot> allSlots;
-    
+
     [Header("메타 업그레이드 데이터")]
     public List<MetaUpgradeData> allMetaUpgrades;
 
@@ -16,13 +16,13 @@ public class MetaShopManager : MonoBehaviour
     public TextMeshProUGUI currencyText;
 
     [Header("UI - 하단 상세 정보창")]
-    public GameObject detailPanel; 
+    public GameObject detailPanel;
     public TextMeshProUGUI detailTitle;
     public TextMeshProUGUI detailDesc;
     public TextMeshProUGUI detailEffect;
     public Button buyButton;
     public TextMeshProUGUI buyCostText;
-    
+    public Button resetAllButton;
     [Header("연결선 설정")]
     public Transform mapContentTransform;
     public GameObject upgradePanel;
@@ -38,14 +38,14 @@ public class MetaShopManager : MonoBehaviour
             MetaUpgradeData[] loadedData = Resources.LoadAll<MetaUpgradeData>("MetaUpgrades");
             allMetaUpgrades = new List<MetaUpgradeData>(loadedData);
         }
-        
+
         if (allSlots == null || allSlots.Count == 0)
         {
             // 씬에 있는 모든 MetaShopSlot을 찾아서 리스트에 담음
             allSlots = new List<MetaShopSlot>(GetComponentsInChildren<MetaShopSlot>(true));
         }
         UpdateCurrencyUI();
-        
+
         // 모든 슬롯 초기화
         foreach (var slot in allSlots)
         {
@@ -54,29 +54,51 @@ public class MetaShopManager : MonoBehaviour
 
         if (detailPanel != null) detailPanel.SetActive(false);
         if (buyButton != null) buyButton.onClick.AddListener(TryBuyUpgrade);
-        
+        if (resetAllButton != null) resetAllButton.onClick.AddListener(OnResetAllUpgrades);
+
         // 노드 연결선 생성 (패널을 임시로 활성화)
         bool wasActive = upgradePanel != null && upgradePanel.activeSelf;
-        
+
         if (upgradePanel != null && !wasActive)
         {
             upgradePanel.SetActive(true);
         }
-        
+
         CreateConnectionLines();
-        
+
         if (upgradePanel != null && !wasActive)
         {
             upgradePanel.SetActive(false);
         }
-        
+
         // 로컬라이제이션 이벤트 구독
         if (LocalizationManager.Instance != null)
         {
             LocalizationManager.Instance.OnLanguageChanged += RefreshCurrentDetail;
         }
+
+        // 튜토리얼 체크
+        bool tutorialCompleted = PlayerPrefs.GetInt("MetaShopTutorialCompleted", 0) == 1;
+        if (!tutorialCompleted)
+        {
+            TutorialMetaShopController tutorial = FindFirstObjectByType<TutorialMetaShopController>();
+            if (tutorial != null)
+            {
+                Invoke(nameof(StartMetaShopTutorial), 0.1f);
+            }
+        }
     }
     
+    private void StartMetaShopTutorial()
+    {
+        TutorialMetaShopController tutorial = FindFirstObjectByType<TutorialMetaShopController>();
+        if (tutorial != null)
+        {
+            tutorial.StartMetaShopTutorial();
+        }
+    }
+
+
     void OnDestroy()
     {
         if (LocalizationManager.Instance != null)
@@ -84,7 +106,7 @@ public class MetaShopManager : MonoBehaviour
             LocalizationManager.Instance.OnLanguageChanged -= RefreshCurrentDetail;
         }
     }
-    
+
     private void RefreshCurrentDetail()
     {
         // 언어 변경 시 현재 열린 상세창 갱신
@@ -117,10 +139,10 @@ public class MetaShopManager : MonoBehaviour
 
         detailTitle.text = data.GetLocalizedName();
         detailDesc.text = data.GetLocalizedDescription();
-        
+
         // 잠금 상태 체크
         bool isLocked = !IsUpgradeUnlocked(data);
-        
+
         if (isLocked)
         {
             detailEffect.text = LocalizationManager.Instance.GetText("META_LOCKED");
@@ -146,28 +168,28 @@ public class MetaShopManager : MonoBehaviour
             string effectLabel = LocalizationManager.Instance.GetText("META_CURRENT_EFFECT");
             string arrow = LocalizationManager.Instance.GetText("META_NEXT_ARROW");
             detailEffect.text = $"{effectLabel}: {curVal} {arrow} <color=green>{nextVal}</color>";
-            
+
             string costFormat = LocalizationManager.Instance.GetText("MAIN_SOULS_COST");
             buyCostText.text = string.Format(costFormat, cost);
             buyButton.interactable = (mySouls >= cost);
         }
     }
-    
+
     // 업그레이드 잠김 여부 체크
     private bool IsUpgradeUnlocked(MetaUpgradeData data)
     {
         if (data == null) return false;
-        
+
         // 1단계는 항상 잠김 해제
         if (data.tier == 1)
             return true;
-        
+
         // 같은 카테고리의 이전 단계가 하나라도 완료되었는지 체크
         int previousTier = data.tier - 1;
-        
+
         if (allMetaUpgrades == null || allMetaUpgrades.Count == 0)
             return false;
-        
+
         foreach (var other in allMetaUpgrades)
         {
             if (other.category == data.category && other.tier == previousTier)
@@ -177,7 +199,7 @@ public class MetaShopManager : MonoBehaviour
                     return true;
             }
         }
-        
+
         return false;
     }
 
@@ -186,13 +208,13 @@ public class MetaShopManager : MonoBehaviour
         if (currentSlot == null) return;
 
         MetaUpgradeData data = currentSlot.data;
-        
+
         // 잠금 체크
         if (!IsUpgradeUnlocked(data))
         {
             return;
         }
-        
+
         int currentLevel = PlayerPrefs.GetInt(data.id, 0);
         int cost = data.GetCost(currentLevel);
         int mySouls = PlayerPrefs.GetInt(currencySaveKey, 0);
@@ -210,16 +232,16 @@ public class MetaShopManager : MonoBehaviour
             UpdateCurrencyUI();
             currentSlot.RefreshUI();
             UpdateDetailPanel();
-            
+
             // 다른 슬롯들도 갱신
             foreach (var slot in allSlots)
             {
                 if (slot != null) slot.RefreshUI();
             }
-            
+
         }
     }
-    
+
     // 노드 간 연결선 생성
     private void CreateConnectionLines()
     {
@@ -234,19 +256,19 @@ public class MetaShopManager : MonoBehaviour
                 slotMap[slot.data.id] = slot;
             }
         }
-        
+
         // 각 업그레이드마다 연결선
         foreach (var upgrade in allMetaUpgrades)
         {
             if (upgrade.tier == 1) continue;
-            
+
             // 같은 카테고리의 이전 단계 노드들 찾기
-            List<MetaUpgradeData> parentUpgrades = allMetaUpgrades.FindAll(u => 
+            List<MetaUpgradeData> parentUpgrades = allMetaUpgrades.FindAll(u =>
                 u != null &&
-                u.category == upgrade.category && 
+                u.category == upgrade.category &&
                 u.tier == upgrade.tier - 1
             );
-            
+
             // 각 노드마다 선 그리기
             foreach (var parent in parentUpgrades)
             {
@@ -262,12 +284,12 @@ public class MetaShopManager : MonoBehaviour
             }
         }
     }
-    
+
     // 두 위치 사이에 선 생성
     private void CreateLine(Transform container, MetaShopSlot fromSlot, MetaShopSlot toSlot, MetaCategory category)
     {
         if (fromSlot == null || toSlot == null) return;
-        
+
         // 선 오브젝트 생성
         GameObject lineObj = new GameObject($"Line_{fromSlot.data.id}_to_{toSlot.data.id}");
         lineObj.transform.SetParent(container, false);
@@ -276,26 +298,68 @@ public class MetaShopManager : MonoBehaviour
         Image lineImage = lineObj.AddComponent<Image>();
         lineImage.sprite = null; // 기본 흰색 사각형
         lineImage.raycastTarget = false;
-        
+
         //색
         lineImage.color = new Color(0.5f, 0.5f, 0.5f, 0.35f);
-        
+
         // 위치/크기/회전
         RectTransform fromRect = fromSlot.GetComponent<RectTransform>();
         RectTransform toRect = toSlot.GetComponent<RectTransform>();
-        
+
         if (fromRect == null || toRect == null) return;
-        
+
         Vector2 startPos = fromRect.anchoredPosition;
         Vector2 endPos = toRect.anchoredPosition;
         Vector2 midPoint = (startPos + endPos) / 2f;
-        
+
         float distance = Vector2.Distance(startPos, endPos);
         float angle = Mathf.Atan2(endPos.y - startPos.y, endPos.x - startPos.x) * Mathf.Rad2Deg;
-        
+
         // 선 설정
         lineRect.anchoredPosition = midPoint;
         lineRect.sizeDelta = new Vector2(distance, 3f); // 높이=3px
         lineRect.localRotation = Quaternion.Euler(0, 0, angle);
+    }
+    public void OnResetAllUpgrades()
+    {
+        // 소모한 총 재화 계산
+        int totalRefund = 0;
+
+        foreach (var upgrade in allMetaUpgrades)
+        {
+            if (upgrade == null) continue;
+
+            int currentLevel = PlayerPrefs.GetInt(upgrade.id, 0);
+
+            for (int level = 0; level < currentLevel; level++)
+            {
+                totalRefund += upgrade.GetCost(level);
+            }
+        }
+
+        // 재화 반환
+        int currentSouls = PlayerPrefs.GetInt(currencySaveKey, 0);
+        PlayerPrefs.SetInt(currencySaveKey, currentSouls + totalRefund);
+
+        // 모든 업그레이드 레벨 초기화
+        foreach (var upgrade in allMetaUpgrades)
+        {
+            if (upgrade == null) continue;
+            PlayerPrefs.SetInt(upgrade.id, 0);
+        }
+
+        PlayerPrefs.Save();
+
+        //UI 갱신
+        UpdateCurrencyUI();
+        foreach (var slot in allSlots)
+        {
+            if (slot != null) slot.RefreshUI();
+        }
+        if (currentSlot != null && detailPanel.activeSelf)
+        {
+            UpdateDetailPanel();
+        }
+
     }
 }
