@@ -23,6 +23,9 @@ public class ShopManager : MonoBehaviour
     public Sprite unknownDiceIcon;// 랜덤 주사위
 
     public Sprite relicBagIcon;   // 랜덤 유물 (이미지 로딩 실패 시 대비)
+
+    [Header("사운드")]
+    public SoundConfig purchaseSound;
     void Awake()
     {
         if (Instance == null)
@@ -62,8 +65,8 @@ public class ShopManager : MonoBehaviour
         if (GameManager.Instance.PlayerHealth < GameManager.Instance.MaxPlayerHealth)
         {
             currentShopItems.Add(new ShopItem(
-                LocalizationManager.Instance.GetText("SHOP_FULL_HEAL_NAME"), 
-                LocalizationManager.Instance.GetText("SHOP_FULL_HEAL_DESC"), 
+                LocalizationManager.Instance.GetText("SHOP_FULL_HEAL_NAME"),
+                LocalizationManager.Instance.GetText("SHOP_FULL_HEAL_DESC"),
                 300, fullHealIcon,
                 () =>
                 {
@@ -76,16 +79,16 @@ public class ShopManager : MonoBehaviour
         {
             // 체력이 꽉 찼으면 작은 최대 체력 증가로 대체
             currentShopItems.Add(new ShopItem(
-                LocalizationManager.Instance.GetText("SHOP_VITALITY_ESSENCE_NAME"), 
-                LocalizationManager.Instance.GetText("SHOP_VITALITY_ESSENCE_DESC"), 
+                LocalizationManager.Instance.GetText("SHOP_VITALITY_ESSENCE_NAME"),
+                LocalizationManager.Instance.GetText("SHOP_VITALITY_ESSENCE_DESC"),
                 300, maxHealthIcon,
                 () => GameManager.Instance.ModifyMaxHealth(10)));
         }
 
         // (B) 최대 체력 증가
         currentShopItems.Add(new ShopItem(
-            LocalizationManager.Instance.GetText("SHOP_LIFE_VESSEL_NAME"), 
-            LocalizationManager.Instance.GetText("SHOP_LIFE_VESSEL_DESC"), 
+            LocalizationManager.Instance.GetText("SHOP_LIFE_VESSEL_NAME"),
+            LocalizationManager.Instance.GetText("SHOP_LIFE_VESSEL_DESC"),
             500, maxHealthIcon,
             () => GameManager.Instance.ModifyMaxHealth(20)));
 
@@ -95,7 +98,7 @@ public class ShopManager : MonoBehaviour
         {
             AddRandomPotion();
         }
-        
+
         //이벤트 시스템: 상점 새로고침 이벤트
         ShopContext shopCtx = new ShopContext
         {
@@ -119,7 +122,7 @@ public class ShopManager : MonoBehaviour
             case "D12": price = 900; break;
             case "D20": price = 1500; break;
         }
-        
+
         // 3단계: 단골 손님 - 상점 할인
         price = ApplyShopDiscount(price);
 
@@ -132,7 +135,7 @@ public class ShopManager : MonoBehaviour
 
         string diceName = $"{LocalizationManager.Instance.GetText("SHOP_DICE_NAME")} ({selectedType})";
         string diceDesc = LocalizationManager.Instance.GetText("SHOP_DICE_DESC").Replace("{0}", selectedType);
-        
+
         currentShopItems.Add(new ShopItem(
             diceName,
             diceDesc,
@@ -146,14 +149,14 @@ public class ShopManager : MonoBehaviour
     {
         // 획득 가능한 유물만 선택
         List<Relic> randomRelics = RelicDB.Instance.GetAcquirableRelics(1, RelicDropPool.ShopOnly);
-        
+
         if (randomRelics.Count > 0)
         {
             Relic relic = randomRelics[0];
             int price = ApplyShopDiscount(600); // 메타강화 적용시키기( 이거 가격 600말고 변동있게?)
             currentShopItems.Add(new ShopItem(
                 relic,
-                price, 
+                price,
                 () => { GameManager.Instance.AddRelic(relic); }
             ));
         }
@@ -195,7 +198,7 @@ public class ShopManager : MonoBehaviour
                 pColor = new Color(1f, 0.8f, 0.2f); // 골드
                 break;
         }
-        
+
         // 메타강화 적용
         price = ApplyShopDiscount(price);
 
@@ -208,15 +211,15 @@ public class ShopManager : MonoBehaviour
             () => GameManager.Instance.AddNextZoneBuff(buffKey)
         ));
     }
-    
+
     // 상점할인 메타강화 적용
     private int ApplyShopDiscount(int basePrice)
     {
         if (GameManager.Instance == null) return basePrice;
-        
+
         float discountPercent = GameManager.Instance.GetTotalMetaBonus(MetaEffectType.ShopDiscount);
         if (discountPercent <= 0) return basePrice;
-        
+
         int discountedPrice = Mathf.RoundToInt(basePrice * (1f - discountPercent / 100f));
         return Mathf.Max(0, discountedPrice);
     }
@@ -226,8 +229,9 @@ public class ShopManager : MonoBehaviour
         if (GameManager.Instance.SubtractGold(item.Price))
         {
             item.ExecuteEffect();
+            SoundManager.Instance.PlaySoundConfig(purchaseSound);
             currentShopItems.Remove(item);
-            
+
             //이벤트 시스템: 상점 구매 이벤트
             ShopContext shopCtx = new ShopContext
             {
@@ -236,7 +240,7 @@ public class ShopManager : MonoBehaviour
                 PurchasedItemPrice = item.Price
             };
             GameEvents.RaiseShopPurchase(shopCtx);
-            
+
             UIManager.Instance.UpdateShopUI(currentShopItems, currentRerollCost);
         }
     }
@@ -246,36 +250,35 @@ public class ShopManager : MonoBehaviour
         if (GameManager.Instance.SubtractGold(currentRerollCost))
         {
             int paidCost = currentRerollCost; // 지불한 비용 저장
-            
+
             //메타강화 새로고침 비용 강화
             float vipLevel = 0;
             if (GameManager.Instance != null)
             {
                 vipLevel = GameManager.Instance.GetTotalMetaBonus(MetaEffectType.ShopRefreshCostFixed);
             }
-            
+
             if (vipLevel > 0)
             {
-
                 Debug.Log($"메타강화 새로고침 비용 증가 없음 (고정 {baseRerollCost})");
             }
             else
             {
                 currentRerollCost += 100;
             }
-            
+
             GenerateShopItems();
-            
+
             ShopContext checkCtx = new ShopContext { FreeRefresh = false };
             GameEvents.RaiseShopRefresh(checkCtx);
-            
+
             //유물잇으면 리롤비용 되돌려줌
             if (checkCtx.FreeRefresh)
             {
                 GameManager.Instance.AddGoldDirect(paidCost);
                 Debug.Log($"[유물] 스프링: 리롤 비용 {paidCost} 환불!");
             }
-            
+
             UIManager.Instance.UpdateShopUI(currentShopItems, currentRerollCost);
         }
     }

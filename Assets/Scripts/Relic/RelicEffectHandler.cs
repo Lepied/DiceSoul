@@ -843,7 +843,6 @@ public class RelicEffectHandler : MonoBehaviour
         
         preserveChargesRemaining++;
         DiceController.Instance.UnpreserveDice(diceIndex);
-        Debug.Log($"[유물] 주사위 컵: 주사위[{diceIndex}] 보존 해제! (남은 기회: {preserveChargesRemaining})");
         
         // 유물 패널 업데이트
         if (UIManager.Instance != null && GameManager.Instance != null)

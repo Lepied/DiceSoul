@@ -482,7 +482,30 @@ public class MainMenuManager : MonoBehaviour
     // --- 상점 패널 제어 ---
     public void OnOpenUpgrade()
     {
-        if (upgradeShopPanel != null) upgradeShopPanel.SetActive(true);
+        if (upgradeShopPanel != null)
+        {
+            upgradeShopPanel.SetActive(true);
+            
+            // 튜토리얼 체크
+            bool tutorialCompleted = PlayerPrefs.GetInt("MetaShopTutorialCompleted", 0) == 1;
+            if (!tutorialCompleted)
+            {
+                TutorialMetaShopController tutorial = FindFirstObjectByType<TutorialMetaShopController>();
+                if (tutorial != null)
+                {
+                    Invoke(nameof(StartMetaShopTutorial), 0.1f);
+                }
+            }
+        }
+    }
+    
+    private void StartMetaShopTutorial()
+    {
+        TutorialMetaShopController tutorial = FindFirstObjectByType<TutorialMetaShopController>();
+        if (tutorial != null)
+        {
+            tutorial.StartMetaShopTutorial();
+        }
     }
     public void OnCloseUpgrade()
     {
@@ -500,6 +523,26 @@ public class MainMenuManager : MonoBehaviour
         {
             generalStoreManager.RefreshCurrencyDisplay();
             generalStoreManager.ShowWelcomeMessage();
+        }
+        
+        // 튜토리얼 체크
+        bool tutorialCompleted = PlayerPrefs.GetInt("GeneralStoreTutorialCompleted", 0) == 1;
+        if (!tutorialCompleted)
+        {
+            TutorialGeneralStoreController tutorial = FindFirstObjectByType<TutorialGeneralStoreController>();
+            if (tutorial != null)
+            {
+                Invoke(nameof(StartGeneralStoreTutorial), 0.1f);
+            }
+        }
+    }
+    
+    private void StartGeneralStoreTutorial()
+    {
+        TutorialGeneralStoreController tutorial = FindFirstObjectByType<TutorialGeneralStoreController>();
+        if (tutorial != null)
+        {
+            tutorial.StartGeneralStoreTutorial();
         }
     }
     private void OnCloseStore()

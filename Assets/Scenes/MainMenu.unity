@@ -7887,10 +7887,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1768625465}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 300, y: -100}
-  m_SizeDelta: {x: 580, y: 180}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &848324367
 MonoBehaviour:
@@ -8219,7 +8219,7 @@ MonoBehaviour:
   detailEffect: {fileID: 740331849}
   buyButton: {fileID: 2104204276}
   buyCostText: {fileID: 943664767}
-  resetAllButton: {fileID: 0}
+  resetAllButton: {fileID: 1407124750}
   mapContentTransform: {fileID: 91814427}
   upgradePanel: {fileID: 1549500345}
   upgradeCheckSound:
@@ -15464,10 +15464,10 @@ RectTransform:
   - {fileID: 1079965453}
   m_Father: {fileID: 1768625465}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 300, y: -220}
-  m_SizeDelta: {x: 580, y: 40}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1860586250
 MonoBehaviour:
@@ -16298,7 +16298,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1939266166
 RectTransform:
   m_ObjectHideFlags: 0

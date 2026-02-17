@@ -4955,13 +4955,19 @@ MonoBehaviour:
   - {fileID: 1589293082}
   - {fileID: 1011867713}
   - {fileID: 1369667249}
+  relicAcquireSound:
+    primarySound: {fileID: 8300000, guid: a8e1628290c7ae04fae846edfd2f4252, type: 3}
+    layeredSounds: []
+    volume: 0.4
+    useRandomPitch: 1
+    pitchVariation: 0.1
   maintenancePanel: {fileID: 1385612772}
   shopItemsContainer: {fileID: 221786951}
   shopItemSlotPrefab: {fileID: 3592209133288653043, guid: 7fb863dcff92b954fbba8a125b77bd43, type: 3}
   exitShopButton: {fileID: 1725660448}
   rerollButton: {fileID: 971118970}
   rerollCostText: {fileID: 1268650367}
-  shopGoldText: {fileID: 0}
+  shopGoldText: {fileID: 119963396}
   genericTooltipPopup: {fileID: 6125078354844680817}
   tooltipTitle: {fileID: 3636127356976939253}
   tooltipDesc: {fileID: 8026155119100926090}
@@ -18071,6 +18077,12 @@ MonoBehaviour:
   liquidIcon: {fileID: -3729823558428885109, guid: 2664ba10d924dc34faa1b3070e3e9e93, type: 3}
   unknownDiceIcon: {fileID: -1960991164949311925, guid: 3ca11f0b9ec3bc9478a7e71c216151c1, type: 3}
   relicBagIcon: {fileID: 4827251267500832607, guid: 48362e4d170b8ea4fa3dfdf621bbe4f1, type: 3}
+  purchaseSound:
+    primarySound: {fileID: 8300000, guid: 516838a37f85a4d4d8884b9464ecd939, type: 3}
+    layeredSounds: []
+    volume: 0.5
+    useRandomPitch: 1
+    pitchVariation: 0.1
 --- !u!1 &1385612772
 GameObject:
   m_ObjectHideFlags: 0

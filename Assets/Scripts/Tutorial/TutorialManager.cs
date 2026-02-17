@@ -14,11 +14,11 @@ public class TutorialManager : MonoBehaviour
     public RectTransform bottomMask;
     public RectTransform leftMask;
     public RectTransform rightMask;
-    public RectTransform highlightRect; 
+    public RectTransform highlightRect;
     public Image highlightImage;
     public GameObject tooltipPanel;
     public TMP_Text tooltipText;
-    public RectTransform tooltipArrow; 
+    public RectTransform tooltipArrow;
     public Button nextButton;
     private TMP_Text nextButtonText;
 
@@ -28,7 +28,7 @@ public class TutorialManager : MonoBehaviour
     public float pulseDuration = 0.6f;
 
     private Sequence pulseSequence;
-    
+
     // 캐싱용 변수
     private Vector3[] targetCornersCache = new Vector3[4];
     private float cachedTargetWidth;
@@ -52,21 +52,21 @@ public class TutorialManager : MonoBehaviour
     private void Start()
     {
         HideTutorial();
-        
+
         if (nextButton != null)
         {
             nextButton.onClick.AddListener(OnNextButtonClicked);
             nextButtonText = nextButton.GetComponentInChildren<TMP_Text>();
             UpdateNextButtonText();
         }
-        
+
         // 언어 변경 이벤트 구독
         if (LocalizationManager.Instance != null)
         {
             LocalizationManager.Instance.OnLanguageChanged += UpdateNextButtonText;
         }
     }
-    
+
     private void OnDestroy()
     {
         // 이벤트 구독 해제
@@ -75,7 +75,7 @@ public class TutorialManager : MonoBehaviour
             LocalizationManager.Instance.OnLanguageChanged -= UpdateNextButtonText;
         }
     }
-    
+
     private void UpdateNextButtonText()
     {
         if (nextButtonText != null && LocalizationManager.Instance != null)
@@ -97,16 +97,16 @@ public class TutorialManager : MonoBehaviour
             nextButton.gameObject.SetActive(showNextBtn);
         }
     }
-    
+
     // 타겟 정보 캐싱
     private void CacheTargetInfo(RectTransform target)
     {
         target.GetWorldCorners(targetCornersCache);
-        
+
         cachedTargetWidth = Vector3.Distance(targetCornersCache[0], targetCornersCache[3]);
         cachedTargetHeight = Vector3.Distance(targetCornersCache[0], targetCornersCache[1]);
         cachedTargetCenter = (targetCornersCache[0] + targetCornersCache[2]) / 2f;
-        
+
         cachedHalfWidth = (cachedTargetWidth + highlightPadding * 2f) / 2f;
         cachedHalfHeight = (cachedTargetHeight + highlightPadding * 2f) / 2f;
     }
@@ -127,14 +127,14 @@ public class TutorialManager : MonoBehaviour
         float targetRight = cachedTargetCenter.x + cachedHalfWidth;
         float targetBottom = cachedTargetCenter.y - cachedHalfHeight;
         float targetTop = cachedTargetCenter.y + cachedHalfHeight;
-        
+
         // Canvas 좌표계ㄹ로
         Canvas canvas = topMask.GetComponentInParent<Canvas>();
         RectTransform canvasRect = canvas.GetComponent<RectTransform>();
-        
+
         float canvasWidth = Screen.width;
         float canvasHeight = Screen.height;
-        
+
 
         if (topMask != null)
         {
@@ -177,7 +177,7 @@ public class TutorialManager : MonoBehaviour
 
         highlightRect.position = cachedTargetCenter;
         highlightRect.sizeDelta = new Vector2(cachedTargetWidth + highlightPadding * 2f, cachedTargetHeight + highlightPadding * 2f);
-        
+
         pulseSequence?.Kill();
         highlightRect.localScale = Vector3.one;
         pulseSequence = DOTween.Sequence();
@@ -195,7 +195,7 @@ public class TutorialManager : MonoBehaviour
         // 말풍선 위치
         Vector2 tooltipPos = CalculateTooltipPosition(position);
         RectTransform tooltipRect = tooltipPanel.GetComponent<RectTransform>();
-        tooltipPos = ClampToScreen(tooltipPos, tooltipRect);  
+        tooltipPos = ClampToScreen(tooltipPos, tooltipRect);
         tooltipRect.position = tooltipPos;
         SetArrowDirection(position);
     }
@@ -210,7 +210,7 @@ public class TutorialManager : MonoBehaviour
         float highlightRight = cachedTargetCenter.x + cachedHalfWidth;
         float highlightBottom = cachedTargetCenter.y - cachedHalfHeight;
         float highlightTop = cachedTargetCenter.y + cachedHalfHeight;
-        
+
         // 화면 경계
         float screenWidth = Screen.width;
         float screenHeight = Screen.height;
@@ -220,20 +220,20 @@ public class TutorialManager : MonoBehaviour
         float tooltipRight = position.x + tooltipWidth / 2f;
         float tooltipBottom = position.y - tooltipHeight / 2f;
         float tooltipTop = position.y + tooltipHeight / 2f;
-        
+
         // 겹침 확인
         bool overlapsX = tooltipRight > highlightLeft && tooltipLeft < highlightRight;
         bool overlapsY = tooltipTop > highlightBottom && tooltipBottom < highlightTop;
-        
+
         if (overlapsX && overlapsY)
         {
             float moveUp = highlightTop - tooltipBottom + padding;
             float moveDown = tooltipTop - highlightBottom + padding;
             float moveLeft = tooltipRight - highlightLeft + padding;
             float moveRight = highlightRight - tooltipLeft + padding;
-            
+
             float minMove = Mathf.Min(moveUp, moveDown, moveLeft, moveRight);
-            
+
             if (minMove == moveUp && position.y + moveUp + tooltipHeight / 2f <= screenHeight - padding)
             {
                 position.y += moveUp;
@@ -251,16 +251,16 @@ public class TutorialManager : MonoBehaviour
                 position.x += moveRight;
             }
         }
-        
+
         // 화면 경계 내로
         float minX = tooltipWidth / 2 + padding;
         float maxX = screenWidth - tooltipWidth / 2 - padding;
         position.x = Mathf.Clamp(position.x, minX, maxX);
-        
+
         float minY = tooltipHeight / 2 + padding;
         float maxY = screenHeight - tooltipHeight / 2 - padding;
         position.y = Mathf.Clamp(position.y, minY, maxY);
-        
+
         return position;
     }
 
@@ -273,7 +273,7 @@ public class TutorialManager : MonoBehaviour
         }
 
         Vector2 tooltipPos = cachedTargetCenter;
-        
+
         switch (position)
         {
             case TooltipPosition.Top:
@@ -348,17 +348,19 @@ public class TutorialManager : MonoBehaviour
     public void HideTutorial()
     {
         // 마스크 패널 비활성화
-        if (topMask != null) topMask.gameObject.SetActive(false);
-        if (bottomMask != null) bottomMask.gameObject.SetActive(false);
-        if (leftMask != null) leftMask.gameObject.SetActive(false);
-        if (rightMask != null) rightMask.gameObject.SetActive(false);
-        
-        if (highlightRect != null)
-            highlightRect.gameObject.SetActive(false);
-        
+        topMask.gameObject.SetActive(false);
+        bottomMask.gameObject.SetActive(false);
+        leftMask.gameObject.SetActive(false);
+        rightMask.gameObject.SetActive(false);
+
+        highlightRect.localScale = Vector3.one;
+        highlightRect.sizeDelta = Vector2.zero;
+        highlightRect.position = Vector2.zero;
+        highlightRect.gameObject.SetActive(false);
+
         if (tooltipPanel != null)
             tooltipPanel.SetActive(false);
-        
+
         pulseSequence?.Kill();
     }
 }

@@ -10,5 +10,4 @@
   <Project Path="Unity.PlayerPrefsEditor.EditorResources.csproj" />
   <Project Path="KinoBloom.Runtime.csproj" />
   <Project Path="Unity.PlayerPrefsEditor.Samples.SampleScene.csproj" />
-  <Project Path="CFXR.WelcomeScreen.csproj" />
 </Solution>

@@ -44,6 +44,7 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI[] relicNameTexts;
     public TextMeshProUGUI[] relicDescriptionTexts;
     public Image[] relicIconImages;
+    public SoundConfig relicAcquireSound;
 
     [Header("상점/정비 UI")]
     public GameObject maintenancePanel;
@@ -964,6 +965,7 @@ public class UIManager : MonoBehaviour
                     relicChoiceButtons[i].onClick.AddListener(() =>
                     {
                         GameManager.Instance.AddRelic(relic);
+                        SoundManager.Instance.PlaySoundConfig(relicAcquireSound);
                         rewardScreenPanel.SetActive(false);
                         onRelicSelected?.Invoke();
                         

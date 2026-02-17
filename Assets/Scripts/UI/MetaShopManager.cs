@@ -76,26 +76,6 @@ public class MetaShopManager : MonoBehaviour
         {
             LocalizationManager.Instance.OnLanguageChanged += RefreshCurrentDetail;
         }
-
-        // 튜토리얼 체크
-        bool tutorialCompleted = PlayerPrefs.GetInt("MetaShopTutorialCompleted", 0) == 1;
-        if (!tutorialCompleted)
-        {
-            TutorialMetaShopController tutorial = FindFirstObjectByType<TutorialMetaShopController>();
-            if (tutorial != null)
-            {
-                Invoke(nameof(StartMetaShopTutorial), 0.1f);
-            }
-        }
-    }
-    
-    private void StartMetaShopTutorial()
-    {
-        TutorialMetaShopController tutorial = FindFirstObjectByType<TutorialMetaShopController>();
-        if (tutorial != null)
-        {
-            tutorial.StartMetaShopTutorial();
-        }
     }
 
 

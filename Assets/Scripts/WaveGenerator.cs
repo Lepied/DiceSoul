@@ -269,4 +269,38 @@ public class WaveGenerator : MonoBehaviour
         objectToReturn.SetActive(false); 
         poolDictionary[key].Enqueue(objectToReturn);
     }
+    
+    //저장/로드
+    // 현재 런의 존 순서를 문자열 리스트로 반환
+    public List<string> GetRunZoneOrderAsStrings()
+    {
+        List<string> result = new List<string>();
+        foreach (var zone in currentRunZoneOrder)
+        {
+            if (zone != null)
+            {
+                result.Add(zone.name); 
+            }
+        }
+        return result;
+    }
+    //저장된 존 순서 복원
+    public void RestoreRunZoneOrder(List<string> zoneNames)
+    {
+        currentRunZoneOrder.Clear();
+        
+        if (zoneNames == null || zoneNames.Count == 0)
+        {
+            return;
+        }
+
+        foreach (string zoneName in zoneNames)
+        {
+            ZoneData zone = allGameZones.Find(z => z != null && z.name == zoneName);
+            if (zone != null)
+            {
+                currentRunZoneOrder.Add(zone);
+            }
+        }
+    }
 }
