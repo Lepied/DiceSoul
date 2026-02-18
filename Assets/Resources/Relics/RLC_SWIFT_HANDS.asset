@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RelicData
   relicID: RLC_SWIFT_HANDS
   relicName: "\uB0A0\uC318 \uC190\uB180\uB9BC"
-  description: "\uAD74\uB9BC \uAC00\uB2A5 \uD69F\uC218\uAC00 0\uC77C \uB54C 1\uD68C
-    \uBB34\uB8CC \uCDA9\uC804"
+  description: "\uAD74\uB9BC \uAC00\uB2A5 \uD69F\uC218\uAC00 0\uC77C \uB54C \uC6E8\uC774\uBE0C\uB2F9
+    1\uD68C \uCDA9\uC804"
   icon: {fileID: 6132596336708024190, guid: 0e9974ac76812e44db1ccf7354f0ba85, type: 3}
   rarity: 1
   dropPool: 0

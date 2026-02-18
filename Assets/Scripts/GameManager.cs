@@ -56,7 +56,7 @@ public class GameManager : MonoBehaviour
     [Header("튜토리얼")]
     public bool isTutorialMode = false;
     private bool tutorialCompleted = false;
-
+    public bool hasInitializedRun = false; 
     public List<MetaUpgradeData> allMetaUpgrades; //메타 업그레이드데이터 리스트
 
     public List<string> nextZoneBuffs = new List<string>();
@@ -301,6 +301,8 @@ public class GameManager : MonoBehaviour
 
     public void StartNewRun()
     {
+        hasInitializedRun = true; 
+        
         CurrentGold = 0;
         CurrentZone = 1;
         CurrentWave = 1;
@@ -325,10 +327,6 @@ public class GameManager : MonoBehaviour
         ApplyMetaUpgrades();
         ApplyMarketItems();
 
-        if (WaveGenerator.Instance != null)
-        {
-            WaveGenerator.Instance.BuildRunZoneOrder();
-        }
 
         string selectedDeck = PlayerPrefs.GetString(selectedDeckKey, "Default");
         Debug.Log($"[GameManager] '{selectedDeck}' 덱으로 새 런을 시작합니다.");
@@ -377,10 +375,9 @@ public class GameManager : MonoBehaviour
             PlayerPrefs.SetInt("Consumable_Revive", 0);
         }
 
-        if (WaveGenerator.Instance != null)
-        {
-            WaveGenerator.Instance.BuildRunZoneOrder();
-        }
+
+
+        WaveGenerator.Instance.BuildRunZoneOrder();
         ZoneData startingZone = WaveGenerator.Instance.GetCurrentZoneData(1);
         string zoneName = startingZone != null ? startingZone.zoneName : "평원";
 
@@ -392,21 +389,17 @@ public class GameManager : MonoBehaviour
         };
         GameEvents.RaiseZoneStart(zoneCtx);
 
-        if (RelicEffectHandler.Instance != null)
-        {
-            RelicEffectHandler.Instance.ResetForNewRun();
-        }
 
-        if (UIManager.Instance != null)
-        {
-            UIManager.Instance.FadeIn();
-            UIManager.Instance.ShowZoneTitle("Zone 1: " + zoneName);
-            UIManager.Instance.UpdateHealth(PlayerHealth, MaxPlayerHealth);
-            //TODO
-            //실드있으면 별도로 텍스트 색이라도 변경?해야할거같은데  일단 보류
-            UIManager.Instance.UpdateGold(CurrentGold);
-            UIManager.Instance.UpdateRelicPanel(activeRelics);
-        }
+        RelicEffectHandler.Instance.ResetForNewRun();
+
+        UIManager.Instance.FadeIn();
+        UIManager.Instance.ShowZoneTitle("Zone 1: " + zoneName);
+        UIManager.Instance.UpdateHealth(PlayerHealth, MaxPlayerHealth);
+        //TODO
+        //실드있으면 별도로 텍스트 색이라도 변경?해야할거같은데  일단 보류
+        UIManager.Instance.UpdateGold(CurrentGold);
+        UIManager.Instance.UpdateRelicPanel(activeRelics);
+
     }
 
     //메타 업그레이드 효과 총합 계산

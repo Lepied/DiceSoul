@@ -19,8 +19,8 @@ MonoBehaviour:
   rarity: 2
   dropPool: 1
   category: 2
-  effectType: 20
-  triggerTiming: 5
+  effectType: 0
+  triggerTiming: 0
   intValue: 0
   floatValue: 3
   stringValue: "\uC57C\uCC0C"

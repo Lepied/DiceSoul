@@ -26,7 +26,7 @@ public class GameOverDirector : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            
+
             if (myCanvas != null)
             {
                 myCanvas.sortingOrder = 1000;
@@ -59,6 +59,13 @@ public class GameOverDirector : MonoBehaviour
         {
             PlayArrivalSequence();
         }
+        else if (scene.name == "Game")
+        {
+            // 재시작 시 정리
+            speedLineEffect.Stop();
+            speedLineEffect.gameObject.SetActive(false);
+            transitionImage.gameObject.SetActive(false);
+        }
     }
     //게임오버 시퀀스 시작
     public void PlayGameOverSequence(int earnedCurrency)
@@ -69,7 +76,7 @@ public class GameOverDirector : MonoBehaviour
         {
             UIManager.Instance.HideAllInGameUI();
         }
-        
+
         if (DiceController.Instance != null)
         {
             DiceController.Instance.HideAllDice();
@@ -120,7 +127,7 @@ public class GameOverDirector : MonoBehaviour
             Color c = transitionImage.color;
             c.a = 0; // 투명
             transitionImage.color = c;
-            
+
             // 성벽 파괴 후 게임오버 스크린 표시하고 멈춤
             seq.AppendCallback(() =>
             {
@@ -140,7 +147,7 @@ public class GameOverDirector : MonoBehaviour
         if (myCanvas != null && Camera.main != null)
         {
             myCanvas.worldCamera = Camera.main;
-            myCanvas.planeDistance = 30; 
+            myCanvas.planeDistance = 30;
         }
         Sequence seq = DOTween.Sequence();
 
@@ -178,7 +185,7 @@ public class GameOverDirector : MonoBehaviour
             if (mainMenu.upgradeShopPanel != null) mainMenu.upgradeShopPanel.SetActive(false);
             if (mainMenu.generalStorePanel != null) mainMenu.generalStorePanel.SetActive(false);
             if (mainMenu.currencyPanel != null) mainMenu.currencyPanel.SetActive(false);
-            
+
             if (mainMenu.startGameButton != null) mainMenu.startGameButton.gameObject.SetActive(false);
             if (mainMenu.openUpgradeButton != null) mainMenu.openUpgradeButton.gameObject.SetActive(false);
             if (mainMenu.openDeckButton != null) mainMenu.openDeckButton.gameObject.SetActive(false);
@@ -192,7 +199,7 @@ public class GameOverDirector : MonoBehaviour
         MainMenuManager mainMenu = FindFirstObjectByType<MainMenuManager>();
         if (mainMenu != null)
         {
-            if(mainMenu.currencyPanel != null) mainMenu.currencyPanel.SetActive(true);
+            if (mainMenu.currencyPanel != null) mainMenu.currencyPanel.SetActive(true);
             if (mainMenu.startGameButton != null) mainMenu.startGameButton.gameObject.SetActive(true);
             if (mainMenu.openUpgradeButton != null) mainMenu.openUpgradeButton.gameObject.SetActive(true);
             if (mainMenu.openDeckButton != null) mainMenu.openDeckButton.gameObject.SetActive(true);
@@ -200,14 +207,14 @@ public class GameOverDirector : MonoBehaviour
             if (mainMenu.settingsButton != null) mainMenu.settingsButton.gameObject.SetActive(true);
         }
     }
-    
+
     // 메인 메뉴로 전환
     public void PlayTransitionToMainMenu()
     {
         if (transitionImage == null) return;
-        
+
         Sequence seq = DOTween.Sequence();
-        
+
         if (speedLineEffect != null)
         {
             seq.AppendCallback(() =>
@@ -216,7 +223,7 @@ public class GameOverDirector : MonoBehaviour
                 speedLineEffect.Play();
             });
         }
-        
+
         seq.AppendInterval(0.4f);
         seq.AppendCallback(() =>
         {
@@ -225,7 +232,7 @@ public class GameOverDirector : MonoBehaviour
             c.a = 0;
             transitionImage.color = c;
         });
-        
+
         seq.Append(transitionImage.DOFade(1f, fadeDuration).SetEase(Ease.Linear));
         seq.AppendInterval(0.5f);
         seq.AppendCallback(() =>
@@ -240,14 +247,14 @@ public class GameOverDirector : MonoBehaviour
             }
         });
     }
-    
+
     // 게임 재시작
     public void PlayTransitionToRestart()
     {
         if (transitionImage == null) return;
-        
+
         Sequence seq = DOTween.Sequence();
-        
+
         // 슈슈슥 파티클 시작
         if (speedLineEffect != null)
         {
@@ -257,9 +264,8 @@ public class GameOverDirector : MonoBehaviour
                 speedLineEffect.Play();
             });
         }
-        
-
-        seq.AppendInterval(0.4f); 
+        SoundManager.Instance.FadeBGMOut(fadeDuration);
+        seq.AppendInterval(0.4f);
         seq.AppendCallback(() =>
         {
             transitionImage.gameObject.SetActive(true);
@@ -267,19 +273,12 @@ public class GameOverDirector : MonoBehaviour
             c.a = 0;
             transitionImage.color = c;
         });
-        
+
         seq.Append(transitionImage.DOFade(1f, fadeDuration).SetEase(Ease.Linear));
         seq.AppendInterval(0.5f);
         seq.AppendCallback(() =>
         {
-            // 새 런 시작
-            if (GameManager.Instance != null)
-            {
-                GameManager.Instance.StartNewRun();
-            }
-            
-            // 씬 재로드
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            SceneController.Instance.LoadScene("Game");
         });
     }
 

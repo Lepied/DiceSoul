@@ -15,13 +15,11 @@ public class DiceController : MonoBehaviour
     public Transform diceContainer;
     public Button rollButtonUI;
 
-    
+
     [Header("사운드")]
     public SoundConfig dicePreserveSound;
     public AudioClip rollSound;
-    
-    [Header("Roll Count Display")]
-    public RollCountDisplay rollCountDisplay;
+
 
     [Header("게임 로직 설정")]
     public int baseMaxRolls = 3;
@@ -33,6 +31,7 @@ public class DiceController : MonoBehaviour
     public float maxTotalWidth = 14f;
     public float yPosition = 0f;
     public float diceScale = 0.4f;
+    public RollCountDisplay rollCountDisplay;
 
     [Header("데이터")]
 
@@ -61,9 +60,9 @@ public class DiceController : MonoBehaviour
     public int maxRolls { get; private set; }
     public int currentRollCount { get; private set; }
     public bool isRolling { get; private set; } = false;
-    public List<int> currentValues 
+    public List<int> currentValues
     {
-        get 
+        get
         {
             if (activeDice == null) return new List<int>();
             return activeDice.Select(d => d.Value).ToList();
@@ -82,30 +81,28 @@ public class DiceController : MonoBehaviour
         }
         InitializeDiceSpriteDict();
     }
+    void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
+    }
 
     void Start()
     {
-        if (rollButtonUI != null)
-        {
-            rollButtonUI.onClick.AddListener(OnRollButton);
-            maxRolls = baseMaxRolls;
-        }
-        else
-        {
-            Debug.LogError("Roll Button UI가 DiceController에 연결되지 않았습니다!");
-        }
-        
-        if (rollCountDisplay != null)
-        {
-            rollCountDisplay.Initialize(baseMaxRolls);
-        }
+
+        rollButtonUI.onClick.AddListener(OnRollButton);
+        maxRolls = baseMaxRolls;
+        rollCountDisplay.Initialize(baseMaxRolls);
+
     }
 
 #if UNITY_EDITOR
     void Update()
     {
         if (Keyboard.current == null) return;
-        
+
         // F5: 야찌
         if (Keyboard.current.f5Key.wasPressedThisFrame)
         {
@@ -115,7 +112,7 @@ public class DiceController : MonoBehaviour
             }
             StageManager.Instance?.OnRollFinished(currentValues, false);
         }
-        
+
         // F6: 포카드
         if (Keyboard.current.f6Key.wasPressedThisFrame)
         {
@@ -126,7 +123,7 @@ public class DiceController : MonoBehaviour
             if (activeDice.Count >= 5) activeDice[4].UpdateVisual(2);
             StageManager.Instance?.OnRollFinished(currentValues, false);
         }
-        
+
         // F7: 풀하우스
         if (Keyboard.current.f7Key.wasPressedThisFrame)
         {
@@ -140,7 +137,7 @@ public class DiceController : MonoBehaviour
             }
             StageManager.Instance?.OnRollFinished(currentValues, false);
         }
-        
+
         // F8: 스트레이트
         if (Keyboard.current.f8Key.wasPressedThisFrame)
         {
@@ -248,21 +245,21 @@ public class DiceController : MonoBehaviour
 
             dice.Initialize(deck[i]); //주사위 타입 설정
             activeDice.Add(dice);
-            
+
             // Sorting Order 설정
             SpriteRenderer sr = go.GetComponent<SpriteRenderer>();
             if (sr != null)
             {
                 sr.sortingOrder = i;
             }
-            
+
             // 원래 위치와 순서 저장
             dice.SetOriginalTransform(go.transform.localPosition, go.transform.localScale, i);
         }
-        
+
         // 주사위 굴리기 전까지 숨김
         if (diceContainer != null) diceContainer.gameObject.SetActive(false);
-        
+
         if (rollCountDisplay != null)
         {
             rollCountDisplay.UpdateDisplay(currentRollCount, maxRolls);
@@ -272,7 +269,7 @@ public class DiceController : MonoBehaviour
     private void OnRollButton()
     {
         if (isRolling) return;
-        
+
         // 굴림 횟수가 maxRolls에 도달했을 때 날쌘 손놀림 체크
         if (currentRollCount >= maxRolls)
         {
@@ -301,7 +298,7 @@ public class DiceController : MonoBehaviour
         if (GameManager.Instance != null)
         {
             GameManager.Instance.ClearShield();
-            
+
             // 메타강화 구르기 - 리롤 1회당 실드 획득
             float shieldPerReroll = GameManager.Instance.GetTotalMetaBonus(MetaEffectType.ShieldPerReroll);
             if (shieldPerReroll > 0)
@@ -329,7 +326,7 @@ public class DiceController : MonoBehaviour
     {
         isRolling = true;
         SetRollButtonInteractable(false);
-        
+
         // 첫 굴림 시 주사위 표시
         if (diceContainer != null && !diceContainer.gameObject.activeSelf)
         {
@@ -386,7 +383,7 @@ public class DiceController : MonoBehaviour
         if (rollCtx.RerollIndices != null && rollCtx.RerollIndices.Count > 0)
         {
             yield return new WaitForSeconds(0.3f); // 연출 대기
-            
+
             foreach (int idx in rollCtx.RerollIndices.Distinct())
             {
                 if (idx >= 0 && idx < activeDice.Count && activeDice[idx].State == DiceState.Normal)
@@ -396,9 +393,9 @@ public class DiceController : MonoBehaviour
                     activeDice[idx].PlayRerollAnimation(newValue);
                 }
             }
-            
+
             yield return new WaitForSeconds(0.4f); // 재굴림 연출 대기
-            
+
             // 재굴림 후 이벤트 (값 변환 유물이 다시 적용될 수 있음)
             rollCtx.DiceValues = activeDice.Select(d => d.Value).ToArray();
             GameEvents.RaiseDiceRerolled(rollCtx);
@@ -417,14 +414,14 @@ public class DiceController : MonoBehaviour
     {
         currentRollCount = 0;
         maxRolls = baseMaxRolls;
-        
+
         // 4C: 리롤 숙련 - 메타 업그레이드 보너스
         if (GameManager.Instance != null)
         {
             int bonusRerolls = (int)GameManager.Instance.GetTotalMetaBonus(MetaEffectType.MaxRerolls);
             maxRolls += bonusRerolls;
         }
-        
+
         // RollCountDisplay 리셋
         if (rollCountDisplay != null)
         {
@@ -434,26 +431,26 @@ public class DiceController : MonoBehaviour
             }
             rollCountDisplay.ResetRollCount();
         }
-        
+
         // 유물 효과로 굴림 횟수 보너스 재적용
         if (GameManager.Instance != null)
         {
             foreach (var relic in GameManager.Instance.activeRelics)
             {
-                if (relic.EffectType == RelicEffectType.AddMaxRolls || 
+                if (relic.EffectType == RelicEffectType.AddMaxRolls ||
                     relic.EffectType == RelicEffectType.ModifyMaxRolls)
                 {
                     maxRolls += relic.IntValue;
                 }
             }
         }
-        
+
         isRolling = false;
         SetRollButtonInteractable(true);
-        
+
         //이벤트 시스템: 턴 시작 이벤트
         GameEvents.RaiseTurnStart();
-        
+
         // 주사위들은 다음 SetDiceDeck때 파괴되고 재생성됨
     }
 
@@ -504,7 +501,7 @@ public class DiceController : MonoBehaviour
         {
             diceContainer.gameObject.SetActive(false);
         }
-        
+
     }
 
     // <summary>
@@ -522,24 +519,24 @@ public class DiceController : MonoBehaviour
             if (index >= 0 && index < activeDice.Count)
             {
                 Dice diceToRemove = activeDice[index];
-                
+
                 //Preserved 주사위는 제거하지 않고 Normal로
                 if (diceToRemove.State == DiceState.Preserved)
                 {
                     diceToRemove.SetState(DiceState.Normal);
-                    diceToRemove.PlayPreserveAnimation(); 
+                    diceToRemove.PlayPreserveAnimation();
                     Debug.Log($"[보존] 주사위 {diceToRemove.Type}:{diceToRemove.Value}가 보존되었습니다!");
                     continue; // 제거 스킵!
                 }
-                
+
                 activeDice.RemoveAt(index);
-                
+
                 // 페이드 아웃 애니메이션
                 if (diceToRemove != null && diceToRemove.gameObject != null)
                 {
                     // 기존 DOTween 중단 (중요!)
                     diceToRemove.transform.DOKill();
-                    
+
                     diceToRemove.transform.DOScale(0f, 0.3f).OnComplete(() =>
                     {
                         if (diceToRemove != null && diceToRemove.gameObject != null)
@@ -583,7 +580,7 @@ public class DiceController : MonoBehaviour
     {
         return activeDice.Count;
     }
-    
+
     //사용 가능한 주사위 값 가져오기
     public List<int> GetAvailableValues()
     {
@@ -593,7 +590,7 @@ public class DiceController : MonoBehaviour
             .Select(d => d.Value)
             .ToList();
     }
-    
+
     // 주사위 잠금
     public void LockDice(int index, int duration = 1)
     {
@@ -606,7 +603,7 @@ public class DiceController : MonoBehaviour
             Debug.Log($"[잠금] 주사위 {dice.Type}:{dice.Value}가 {duration}턴 동안 잠겼습니다!");
         }
     }
-    
+
     // 주사위 보존
     public void PreserveDice(int index)
     {
@@ -618,7 +615,7 @@ public class DiceController : MonoBehaviour
             SoundManager.Instance.PlaySoundConfig(dicePreserveSound);
         }
     }
-    
+
     // 보존 해제
     public void UnpreserveDice(int index)
     {
@@ -632,7 +629,7 @@ public class DiceController : MonoBehaviour
             }
         }
     }
-    
+
     // 턴 종료 시 잠금지속줄이기
     public void DecreaseLockDurations()
     {
@@ -650,7 +647,7 @@ public class DiceController : MonoBehaviour
             }
         }
     }
-    
+
     // 남은 주사위 개수 반환
     public List<string> GetDiceTypes()
     {
@@ -689,54 +686,54 @@ public class DiceController : MonoBehaviour
     {
         return activeDice.Select(d => d.transform.position).ToArray();
     }
-    
+
     //이중 주사위 유물 관련
     private bool isDoubleDiceSelectionMode = false;
-    
+
     public void StartDoubleDiceSelectionMode()
     {
         isDoubleDiceSelectionMode = true;
         Debug.Log("[DiceController] 이중 주사위 모드 활성화 - 주사위를 클릭하세요");
     }
-    
+
     public bool TryUseDoubleDiceOn(int diceIndex)
     {
         if (!isDoubleDiceSelectionMode) return false;
-        
+
         OnDiceClickedForDoubleDice(diceIndex);
         return true;
     }
-    
+
     private void OnDiceClickedForDoubleDice(int diceIndex)
     {
         if (!isDoubleDiceSelectionMode) return;
-        
+
         if (diceIndex < 0 || diceIndex >= activeDice.Count)
         {
             Debug.LogWarning($"[DiceController] 잘못된 주사위 인덱스: {diceIndex}");
             return;
         }
-        
+
         Dice selectedDice = activeDice[diceIndex];
         int currentValue = selectedDice.Value;
-        
+
         // RelicEffectHandler를 통해 이중 주사위 사용
         if (RelicEffectHandler.Instance != null)
         {
             int newValue = RelicEffectHandler.Instance.UseDoubleDice(diceIndex, currentValue);
-            
+
             if (newValue > 0)
             {
                 // 주사위 값 업데이트
                 selectedDice.UpdateVisual(newValue);
                 Debug.Log($"[DiceController] 주사위[{diceIndex}] {currentValue} → {newValue}");
-                
+
                 // 족보 프리뷰 업데이트
                 if (StageManager.Instance != null)
                 {
                     StageManager.Instance.OnRollFinished(currentValues, false);
                 }
-                
+
                 // 유물 패널 업데이트 (회색 처리)
                 if (UIManager.Instance != null && GameManager.Instance != null)
                 {
@@ -744,10 +741,10 @@ public class DiceController : MonoBehaviour
                 }
             }
         }
-        
+
         isDoubleDiceSelectionMode = false;
     }
-    
+
     // 운명의 주사위 유물 관련
     public void ApplyFateDiceValues(int[] newValues)
     {
@@ -756,15 +753,15 @@ public class DiceController : MonoBehaviour
             Debug.LogWarning($"[DiceController] 주사위 개수 불일치: {newValues.Length} vs {activeDice.Count}");
             return;
         }
-        
+
         // 모든 주사위 값 업데이트
         for (int i = 0; i < activeDice.Count; i++)
         {
             activeDice[i].UpdateVisual(newValues[i]);
         }
-        
+
         Debug.Log("[DiceController] 운명의 주사위 적용 완료!");
-        
+
         // 족보 프리뷰 업데이트
         if (StageManager.Instance != null)
         {

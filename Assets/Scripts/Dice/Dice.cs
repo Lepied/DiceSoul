@@ -172,8 +172,8 @@ public class Dice : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     public void PlayMagicAnimation(int newValue)
     {
         Sequence seq = DOTween.Sequence();
-        seq.Append(transform.DOScale(1.5f, 0.25f).SetEase(Ease.OutBack)); // 커짐
-        seq.Join(spriteRenderer.DOColor(new Color(0.5f, 1f, 1f), 0.25f).SetLoops(2, LoopType.Yoyo)); // 반짝
+        seq.Append(transform.DOScale(1.1f, 0.25f).SetEase(Ease.OutBack)); // 커짐
+        seq.Join(spriteRenderer.DOColor(new Color(0.5f, 1f, 1f), 0.15f).SetLoops(2, LoopType.Yoyo)); // 반짝
 
         seq.OnComplete(() =>
         {

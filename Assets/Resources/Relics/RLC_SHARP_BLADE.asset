@@ -19,9 +19,9 @@ MonoBehaviour:
   rarity: 0
   dropPool: 0
   category: 2
-  effectType: 18
-  triggerTiming: 5
-  intValue: 5
+  effectType: 0
+  triggerTiming: 0
+  intValue: 20
   floatValue: 0
   stringValue: "\uC2A4\uD2B8\uB808\uC774\uD2B8"
   maxCount: 0

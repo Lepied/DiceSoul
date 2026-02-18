@@ -147,17 +147,46 @@ public class ShopManager : MonoBehaviour
 
     private void AddRandomRelic()
     {
-        // 획득 가능한 유물만 선택
-        List<Relic> randomRelics = RelicDB.Instance.GetAcquirableRelics(1, RelicDropPool.ShopOnly);
-
-        if (randomRelics.Count > 0)
+        // 현재 상점에 이미 있는 유물 ID 수집
+        HashSet<string> existingRelicIDs = new HashSet<string>();
+        foreach (var item in currentShopItems)
         {
-            Relic relic = randomRelics[0];
+            if (item.RelicData != null)
+            {
+                existingRelicIDs.Add(item.RelicData.RelicID);
+            }
+        }
+        
+        // 중복되지 않는 유물 찾기
+        int maxRetries = 10;
+        Relic selectedRelic = null;
+        
+        for (int retry = 0; retry < maxRetries; retry++)
+        {
+            List<Relic> randomRelics = RelicDB.Instance.GetAcquirableRelics(1, RelicDropPool.ShopOnly);
+            
+            if (randomRelics.Count > 0)
+            {
+                Relic relic = randomRelics[0];
+                if (!existingRelicIDs.Contains(relic.RelicID))
+                {
+                    selectedRelic = relic;
+                    break;
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+        
+        if (selectedRelic != null)
+        {
             int price = ApplyShopDiscount(600); // 메타강화 적용시키기( 이거 가격 600말고 변동있게?)
             currentShopItems.Add(new ShopItem(
-                relic,
+                selectedRelic,
                 price,
-                () => { GameManager.Instance.AddRelic(relic); }
+                () => { GameManager.Instance.AddRelic(selectedRelic); }
             ));
         }
         else

@@ -20059,6 +20059,140 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1642596435}
   m_CullTransparentMesh: 1
+--- !u!1 &1652072570
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1652072572}
+  - component: {fileID: 1652072571}
+  m_Layer: 0
+  m_Name: DiceController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1652072571
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1652072570}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f64cb3d43c6436c4982ac497b48fd84f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DiceController
+  dicePrefab: {fileID: 4575350410747785122, guid: aead35b1917cc1f45b15893cc0f3a7eb, type: 3}
+  diceContainer: {fileID: 531286627}
+  rollButtonUI: {fileID: 748899813}
+  dicePreserveSound:
+    primarySound: {fileID: 8300000, guid: 5aa948679296f2649802b2f562804537, type: 3}
+    layeredSounds: []
+    volume: 0.7
+    useRandomPitch: 1
+    pitchVariation: 0.1
+  rollSound: {fileID: 8300000, guid: 7f605d0e9cb039f4ab9d90cfe9c31aa7, type: 3}
+  rollCountDisplay: {fileID: 129778529}
+  baseMaxRolls: 3
+  maxHorizontalSpacing: 2
+  minHorizontalSpacing: 0.8
+  overlapThreshold: 8
+  maxTotalWidth: 14
+  yPosition: 0
+  diceScale: 0.4
+  diceSpriteSettings:
+  - diceType: D4
+    faces:
+    - value: 1
+      sprite: {fileID: 5067110398190723068, guid: 6e4a93cf60e728244a398c33262a2b5e, type: 3}
+    - value: 2
+      sprite: {fileID: -4425188097481535011, guid: ba1dcc252c3d93b41bf0f97e1415bb6f, type: 3}
+    - value: 3
+      sprite: {fileID: -6216925375520127733, guid: c3731624a34965c40a6992f4ca78ca18, type: 3}
+    - value: 4
+      sprite: {fileID: 4100169725658395356, guid: 3314ca16ebbfdc446827222bf27442e1, type: 3}
+    - value: 7
+      sprite: {fileID: -1560732715857687093, guid: a73423545022d114c99c550bfffbe6c1, type: 3}
+  - diceType: D6
+    faces:
+    - value: 1
+      sprite: {fileID: 5434830876748949346, guid: 69e387810baa25749bca6ef4c1419068, type: 3}
+    - value: 2
+      sprite: {fileID: -2666605650445167477, guid: 290f6c49b1cbed345917ec85ccb82dcd, type: 3}
+    - value: 3
+      sprite: {fileID: 5014751948883790133, guid: 1ca506c8c7aee424aabf19d82d614940, type: 3}
+    - value: 4
+      sprite: {fileID: -573441712502597224, guid: 4a6861f26f0abfb46abc4b0ec542e4c7, type: 3}
+    - value: 5
+      sprite: {fileID: 7161740088646490646, guid: bdd751254d10d25428297ecae25bda60, type: 3}
+    - value: 6
+      sprite: {fileID: -4931478591210665043, guid: 87b53cb05ce7f0648ac4b0ffb598820f, type: 3}
+    - value: 7
+      sprite: {fileID: 396448781736374199, guid: b0519aabbe8d2364dbceab7e58a5734f, type: 3}
+  - diceType: D20
+    faces:
+    - value: 1
+      sprite: {fileID: 4792985993693564213, guid: 9f66b7eed1a83a645961cd4e98a109bf, type: 3}
+    - value: 2
+      sprite: {fileID: 7929369659701981275, guid: 7b0b797a37962524891baad4262fa32c, type: 3}
+    - value: 3
+      sprite: {fileID: 6511849183109605886, guid: a279cf5a62fe04145adbdcd0715de334, type: 3}
+    - value: 4
+      sprite: {fileID: 1025062784083298399, guid: 55affb427b762e24c8f2f46a702c2028, type: 3}
+    - value: 5
+      sprite: {fileID: 4359219529090414850, guid: 196edefe25e9dd34eb3cc8a1af207366, type: 3}
+    - value: 6
+      sprite: {fileID: 5238728443076121126, guid: 758875728c91bd545bdb230b8dd708c6, type: 3}
+    - value: 7
+      sprite: {fileID: 8433732310180174815, guid: 8140fd77fcba2b542b4d8d7d03fa5342, type: 3}
+    - value: 8
+      sprite: {fileID: 3748135439049822169, guid: 9c90a4801f5cd7047b6b9d60c54a8003, type: 3}
+    - value: 9
+      sprite: {fileID: 180585743847952887, guid: 23a5a6c7cbb800d4d95888ff7e44c8b1, type: 3}
+    - value: 10
+      sprite: {fileID: 342873658822851434, guid: 35f82e173cb2f7a468ac85f5fa890768, type: 3}
+    - value: 11
+      sprite: {fileID: 1389197641920939966, guid: 6ccf1a016e7bfee42ad1d7f2af441ada, type: 3}
+    - value: 12
+      sprite: {fileID: -1869919993413680894, guid: 4df0c29b7a9d841499708b420cb44cfa, type: 3}
+    - value: 13
+      sprite: {fileID: -2957104198390575940, guid: 2057de9a116143242beca7a90639a836, type: 3}
+    - value: 14
+      sprite: {fileID: -3532772500967864063, guid: e2084ade4d6308e4cbadedc894cb2ffd, type: 3}
+    - value: 15
+      sprite: {fileID: 4031604863460427855, guid: b302f11f95d4d3c47bc9f85658d9a64f, type: 3}
+    - value: 16
+      sprite: {fileID: 2173971048321781412, guid: 918670139786cef419bced4239dd0d90, type: 3}
+    - value: 17
+      sprite: {fileID: 8257447817555375357, guid: b3fd0f4e49729c14086f00f77e534594, type: 3}
+    - value: 18
+      sprite: {fileID: -2825721810767320946, guid: c4933586b0a9a6e40a8d57f481051126, type: 3}
+    - value: 19
+      sprite: {fileID: 5540304016478899024, guid: 5c4b3e6a9b2469a4cb501de205400e7c, type: 3}
+    - value: 20
+      sprite: {fileID: 3036485935861729580, guid: 16530628615ae3f48b322ac6cbf45749, type: 3}
+  activeDice: []
+--- !u!4 &1652072572
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1652072570}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 3.39845, y: -2.49879, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1653081884
 GameObject:
   m_ObjectHideFlags: 0
@@ -20937,6 +21071,61 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1728788068}
   m_CullTransparentMesh: 1
+--- !u!1 &1735040680
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1735040682}
+  - component: {fileID: 1735040681}
+  m_Layer: 0
+  m_Name: StageManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1735040681
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1735040680}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f32f4f711d775e34ba8fc8be145d1e32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StageManager
+  diceController: {fileID: 1652072571}
+  backgroundRenderer: {fileID: 224727201}
+  enemySpawnPoints:
+  - {fileID: 943137311}
+  - {fileID: 322077621}
+  - {fileID: 1586772672}
+  spawnSpreadRadius: 2
+  screenEdgePadding: 0.5
+  minEnemySpacing: 1.5
+  maxSpawnAttempts: 10
+  activeEnemies: []
+--- !u!4 &1735040682
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1735040680}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 3.39845, y: -2.49879, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1749721820
 GameObject:
   m_ObjectHideFlags: 0
@@ -21293,8 +21482,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1777158235}
   - component: {fileID: 1777158238}
-  - component: {fileID: 1777158237}
-  - component: {fileID: 1777158236}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -21317,131 +21504,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1777158236
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1777158234}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f64cb3d43c6436c4982ac497b48fd84f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DiceController
-  dicePrefab: {fileID: 4575350410747785122, guid: aead35b1917cc1f45b15893cc0f3a7eb, type: 3}
-  diceContainer: {fileID: 531286627}
-  rollButtonUI: {fileID: 748899813}
-  dicePreserveSound:
-    primarySound: {fileID: 8300000, guid: 5aa948679296f2649802b2f562804537, type: 3}
-    layeredSounds: []
-    volume: 0.7
-    useRandomPitch: 1
-    pitchVariation: 0.1
-  rollSound: {fileID: 8300000, guid: 7f605d0e9cb039f4ab9d90cfe9c31aa7, type: 3}
-  rollCountDisplay: {fileID: 129778529}
-  baseMaxRolls: 3
-  maxHorizontalSpacing: 2
-  minHorizontalSpacing: 0.8
-  overlapThreshold: 8
-  maxTotalWidth: 14
-  yPosition: 0
-  diceScale: 0.4
-  diceSpriteSettings:
-  - diceType: D4
-    faces:
-    - value: 1
-      sprite: {fileID: 5067110398190723068, guid: 6e4a93cf60e728244a398c33262a2b5e, type: 3}
-    - value: 2
-      sprite: {fileID: -4425188097481535011, guid: ba1dcc252c3d93b41bf0f97e1415bb6f, type: 3}
-    - value: 3
-      sprite: {fileID: -6216925375520127733, guid: c3731624a34965c40a6992f4ca78ca18, type: 3}
-    - value: 4
-      sprite: {fileID: 4100169725658395356, guid: 3314ca16ebbfdc446827222bf27442e1, type: 3}
-    - value: 7
-      sprite: {fileID: -1560732715857687093, guid: a73423545022d114c99c550bfffbe6c1, type: 3}
-  - diceType: D6
-    faces:
-    - value: 1
-      sprite: {fileID: 5434830876748949346, guid: 69e387810baa25749bca6ef4c1419068, type: 3}
-    - value: 2
-      sprite: {fileID: -2666605650445167477, guid: 290f6c49b1cbed345917ec85ccb82dcd, type: 3}
-    - value: 3
-      sprite: {fileID: 5014751948883790133, guid: 1ca506c8c7aee424aabf19d82d614940, type: 3}
-    - value: 4
-      sprite: {fileID: -573441712502597224, guid: 4a6861f26f0abfb46abc4b0ec542e4c7, type: 3}
-    - value: 5
-      sprite: {fileID: 7161740088646490646, guid: bdd751254d10d25428297ecae25bda60, type: 3}
-    - value: 6
-      sprite: {fileID: -4931478591210665043, guid: 87b53cb05ce7f0648ac4b0ffb598820f, type: 3}
-    - value: 7
-      sprite: {fileID: 396448781736374199, guid: b0519aabbe8d2364dbceab7e58a5734f, type: 3}
-  - diceType: D20
-    faces:
-    - value: 1
-      sprite: {fileID: 4792985993693564213, guid: 9f66b7eed1a83a645961cd4e98a109bf, type: 3}
-    - value: 2
-      sprite: {fileID: 7929369659701981275, guid: 7b0b797a37962524891baad4262fa32c, type: 3}
-    - value: 3
-      sprite: {fileID: 6511849183109605886, guid: a279cf5a62fe04145adbdcd0715de334, type: 3}
-    - value: 4
-      sprite: {fileID: 1025062784083298399, guid: 55affb427b762e24c8f2f46a702c2028, type: 3}
-    - value: 5
-      sprite: {fileID: 4359219529090414850, guid: 196edefe25e9dd34eb3cc8a1af207366, type: 3}
-    - value: 6
-      sprite: {fileID: 5238728443076121126, guid: 758875728c91bd545bdb230b8dd708c6, type: 3}
-    - value: 7
-      sprite: {fileID: 8433732310180174815, guid: 8140fd77fcba2b542b4d8d7d03fa5342, type: 3}
-    - value: 8
-      sprite: {fileID: 3748135439049822169, guid: 9c90a4801f5cd7047b6b9d60c54a8003, type: 3}
-    - value: 9
-      sprite: {fileID: 180585743847952887, guid: 23a5a6c7cbb800d4d95888ff7e44c8b1, type: 3}
-    - value: 10
-      sprite: {fileID: 342873658822851434, guid: 35f82e173cb2f7a468ac85f5fa890768, type: 3}
-    - value: 11
-      sprite: {fileID: 1389197641920939966, guid: 6ccf1a016e7bfee42ad1d7f2af441ada, type: 3}
-    - value: 12
-      sprite: {fileID: -1869919993413680894, guid: 4df0c29b7a9d841499708b420cb44cfa, type: 3}
-    - value: 13
-      sprite: {fileID: -2957104198390575940, guid: 2057de9a116143242beca7a90639a836, type: 3}
-    - value: 14
-      sprite: {fileID: -3532772500967864063, guid: e2084ade4d6308e4cbadedc894cb2ffd, type: 3}
-    - value: 15
-      sprite: {fileID: 4031604863460427855, guid: b302f11f95d4d3c47bc9f85658d9a64f, type: 3}
-    - value: 16
-      sprite: {fileID: 2173971048321781412, guid: 918670139786cef419bced4239dd0d90, type: 3}
-    - value: 17
-      sprite: {fileID: 8257447817555375357, guid: b3fd0f4e49729c14086f00f77e534594, type: 3}
-    - value: 18
-      sprite: {fileID: -2825721810767320946, guid: c4933586b0a9a6e40a8d57f481051126, type: 3}
-    - value: 19
-      sprite: {fileID: 5540304016478899024, guid: 5c4b3e6a9b2469a4cb501de205400e7c, type: 3}
-    - value: 20
-      sprite: {fileID: 3036485935861729580, guid: 16530628615ae3f48b322ac6cbf45749, type: 3}
-  activeDice: []
---- !u!114 &1777158237
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1777158234}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f32f4f711d775e34ba8fc8be145d1e32, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StageManager
-  diceController: {fileID: 1777158236}
-  backgroundRenderer: {fileID: 224727201}
-  enemySpawnPoints:
-  - {fileID: 943137311}
-  - {fileID: 322077621}
-  - {fileID: 1586772672}
-  spawnSpreadRadius: 2
-  screenEdgePadding: 0.5
-  minEnemySpacing: 1.5
-  maxSpawnAttempts: 10
-  activeEnemies: []
 --- !u!114 &1777158238
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21496,6 +21558,7 @@ MonoBehaviour:
   hasInsurance: 0
   metaCurrencySaveKey: MetaCurrency
   isTutorialMode: 0
+  hasInitializedRun: 0
   allMetaUpgrades:
   - {fileID: 11400000, guid: 1e49253f097f4454a8403a4996d62dd4, type: 2}
   - {fileID: 11400000, guid: 0b3b98607c9172b438784956c334b76c, type: 2}
@@ -24081,18 +24144,20 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 519420032}
+  - {fileID: 2050944584}
+  - {fileID: 1735040682}
   - {fileID: 1777158235}
   - {fileID: 1372042375}
   - {fileID: 61386018}
   - {fileID: 454666200}
+  - {fileID: 985795678}
+  - {fileID: 1652072572}
+  - {fileID: 1274643021}
+  - {fileID: 759640285}
+  - {fileID: 1811609695}
   - {fileID: 468377340}
   - {fileID: 531286627}
-  - {fileID: 985795678}
   - {fileID: 1679257540}
   - {fileID: 1486710535}
   - {fileID: 224727202}
   - {fileID: 1304416432}
-  - {fileID: 1811609695}
-  - {fileID: 759640285}
-  - {fileID: 2050944584}
-  - {fileID: 1274643021}

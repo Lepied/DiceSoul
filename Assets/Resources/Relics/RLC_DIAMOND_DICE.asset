@@ -25,7 +25,7 @@ MonoBehaviour:
   intValue: 2
   floatValue: 0
   stringValue: 
-  maxCount: 3
+  maxCount: 1
   isUnlockedByDefault: 1
   unlockCondition: 
   requiresManualActivation: 0

@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
+using DG.Tweening;
+using System;
 
 public class SoundManager : MonoBehaviour
 {
@@ -169,7 +171,7 @@ public class SoundManager : MonoBehaviour
             
             source.clip = clip;
             source.volume = volume * sfxVolume;
-            source.pitch = Random.Range(0.9f, 1.1f);
+            source.pitch = UnityEngine.Random.Range(0.9f, 1.1f);
             source.loop = false;
             source.Play();
         }
@@ -188,7 +190,7 @@ public class SoundManager : MonoBehaviour
                 AudioSource source = GetPooledAudioSource();
                 source.clip = config.primarySound;
                 source.volume = config.volume * sfxVolume;
-                source.pitch = 1.0f + Random.Range(-config.pitchVariation, config.pitchVariation);
+                source.pitch = 1.0f + UnityEngine.Random.Range(-config.pitchVariation, config.pitchVariation);
                 source.loop = false;
                 source.Play();
             }
@@ -210,7 +212,7 @@ public class SoundManager : MonoBehaviour
                         AudioSource source = GetPooledAudioSource();
                         source.clip = sound;
                         source.volume = config.volume * sfxVolume;
-                        source.pitch = 1.0f + Random.Range(-config.pitchVariation, config.pitchVariation);
+                        source.pitch = 1.0f + UnityEngine.Random.Range(-config.pitchVariation, config.pitchVariation);
                         source.loop = false;
                         source.Play();
                     }
@@ -220,6 +222,64 @@ public class SoundManager : MonoBehaviour
                     }
                 }
             }
+        }
+    }
+
+    // BGM 페이드 아웃
+    public void FadeBGMOut(float duration, Action onComplete = null)
+    {
+        if (bgmSource == null) return;
+
+        bgmSource.DOKill();
+        bgmSource.DOFade(0f, duration).SetEase(Ease.InOutQuad).OnComplete(() =>
+        {
+            bgmSource.Stop();
+            onComplete?.Invoke();
+        });
+    }
+
+    // BGM 페이드 인
+    public void FadeBGMIn(float duration, float targetVolume)
+    {
+        if (bgmSource == null) return;
+
+        bgmSource.DOKill();
+        if (!bgmSource.isPlaying && bgmSource.clip != null)
+        {
+            bgmSource.volume = 0f;
+            bgmSource.Play();
+        }
+        
+        bgmSource.DOFade(targetVolume * bgmVolume, duration).SetEase(Ease.InOutQuad);
+    }
+
+    // 크로스페이드 
+    public void CrossfadeBGM(AudioClip newClip, float duration, float targetVolume)
+    {
+        if (bgmSource == null) return;
+        if (bgmSource.clip == newClip && bgmSource.isPlaying) return;
+
+        bgmSource.DOKill(); 
+
+        // 현재 BGM이 있으면 페이드 아웃
+        if (bgmSource.isPlaying)
+        {
+            bgmSource.DOFade(0f, duration * 0.5f).SetEase(Ease.InOutQuad).OnComplete(() =>
+            {
+                bgmSource.Stop();
+                bgmSource.clip = newClip;
+                bgmSource.volume = 0f;
+                bgmSource.Play();
+                bgmSource.DOFade(targetVolume * bgmVolume, duration * 0.5f).SetEase(Ease.InOutQuad);
+            });
+        }
+        else
+        {
+            // 현재 BGM이 없으면 바로 페이드 인
+            bgmSource.clip = newClip;
+            bgmSource.volume = 0f;
+            bgmSource.Play();
+            bgmSource.DOFade(targetVolume * bgmVolume, duration).SetEase(Ease.InOutQuad);
         }
     }
 }

@@ -19,7 +19,7 @@ MonoBehaviour:
   rarity: 1
   dropPool: 0
   category: 2
-  effectType: 21
+  effectType: 0
   triggerTiming: 0
   intValue: 0
   floatValue: 1.5

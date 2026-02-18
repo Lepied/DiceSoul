@@ -87,7 +87,7 @@ public class MainMenuManager : MonoBehaviour
         bool tutorialCompleted = PlayerPrefs.GetInt("TutorialCompleted", 0) == 1;
         if (!tutorialCompleted)
         {
-            SceneManager.LoadScene(gameSceneName);
+            SceneController.Instance.LoadGameWithFade();
             return;
         }
 
@@ -103,7 +103,7 @@ public class MainMenuManager : MonoBehaviour
         else if (SaveManager.Instance != null && SaveManager.Instance.HasSaveFile())
         {
             SaveManager.shouldLoadSave = true;
-            SceneManager.LoadScene(gameSceneName);
+            SceneController.Instance.LoadGameWithFade();
             return;
         }
 
@@ -172,7 +172,7 @@ public class MainMenuManager : MonoBehaviour
 
         if (!tutorialCompleted)
         {
-            SceneManager.LoadScene(gameSceneName);
+            SceneController.Instance.LoadGameWithFade();
             return;
         }
         InitializeMainMenu();
@@ -469,7 +469,7 @@ public class MainMenuManager : MonoBehaviour
     {
         if (deckSelectionPanel != null) deckSelectionPanel.SetActive(false);
     }
-    
+
     private void StartDeckSelectionTutorial()
     {
         TutorialDeckSelectionController tutorial = FindFirstObjectByType<TutorialDeckSelectionController>();
@@ -485,7 +485,7 @@ public class MainMenuManager : MonoBehaviour
         if (upgradeShopPanel != null)
         {
             upgradeShopPanel.SetActive(true);
-            
+
             // 튜토리얼 체크
             bool tutorialCompleted = PlayerPrefs.GetInt("MetaShopTutorialCompleted", 0) == 1;
             if (!tutorialCompleted)
@@ -498,7 +498,7 @@ public class MainMenuManager : MonoBehaviour
             }
         }
     }
-    
+
     private void StartMetaShopTutorial()
     {
         TutorialMetaShopController tutorial = FindFirstObjectByType<TutorialMetaShopController>();
@@ -524,7 +524,7 @@ public class MainMenuManager : MonoBehaviour
             generalStoreManager.RefreshCurrencyDisplay();
             generalStoreManager.ShowWelcomeMessage();
         }
-        
+
         // 튜토리얼 체크
         bool tutorialCompleted = PlayerPrefs.GetInt("GeneralStoreTutorialCompleted", 0) == 1;
         if (!tutorialCompleted)
@@ -536,7 +536,7 @@ public class MainMenuManager : MonoBehaviour
             }
         }
     }
-    
+
     private void StartGeneralStoreTutorial()
     {
         TutorialGeneralStoreController tutorial = FindFirstObjectByType<TutorialGeneralStoreController>();

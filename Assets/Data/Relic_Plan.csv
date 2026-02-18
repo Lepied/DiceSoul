@@ -37,7 +37,7 @@ RLC_BLOODLUST,피의 갈증,Rare,ShopOnly,잃은 체력 1당 데미지 +1%(최�
 RLC_GEM_CROWN,보석 박힌 왕관,Rare,ShopOnly,야찌 족보 골드 3배,1,족보 특화,O,JokboGoldMultiplier,0,3.0,야찌
 RLC_PHOENIX_FEATHER,불사조의 깃털,Rare,ShopOnly,게임오버 시 체력 50%로 1회 부활,1,생존 유틸리티,O,Revive,0,0.5,
 RLC_DEMON_CONTRACT,악마의 계약서,Rare,ShopOnly,모든 족보 데미지 +15%; 체력 회복 불가,1,캐릭터 스탯,O,DamageMultiplierNoHeal,0,1.15,
-RLC_DIAMOND_DICE,다이아몬드 주사위,Common,MaintenanceReward,모든 주사위의 최소 눈 결정값이 2로 고정,3,주사위 관련,O,MinDiceValue,2,0,
+RLC_DIAMOND_DICE,다이아몬드 주사위,Common,MaintenanceReward,모든 주사위의 최소 눈 결정값이 2로 고정,1,주사위 관련,O,MinDiceValue,2,0,
 RLC_MAGNET,자석,Common,MaintenanceReward,재굴림 시 선택하지 않은 주사위들이 같은 숫자가 나올 확률 증가,3,주사위 관련,O,RerollSameChance,0,0.3,
 RLC_SPRING,스프링,Common,MaintenanceReward,상품 리롤 시 소모되는 비용 50% 확률로 반환,3,경제 관련,O,RefundRerollCost,0,0.5,
 RLC_FEATHER,가벼운 깃털,Uncommon,MaintenanceReward,6이 나온 주사위 재굴림,1,주사위 관련,O,RerollSixes,0,0,
