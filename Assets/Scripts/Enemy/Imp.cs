@@ -48,4 +48,9 @@ public class Imp : Enemy
             UpdateUI();
         }
     }
+
+    public override string GetGimmickDescription()
+    {
+        return LocalizationManager.Instance.GetText("ENEMY_GIMMICK_IMP");
+    }
 }

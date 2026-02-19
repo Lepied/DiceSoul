@@ -18,7 +18,7 @@ public class FrostWolf : Enemy
     public override void OnPlayerRoll(List<int> diceValues)
     {
         base.OnPlayerRoll(diceValues);
-        
+
         if (isDead) return;
 
         chillStacks++;
@@ -39,7 +39,7 @@ public class FrostWolf : Enemy
         {
             int reduction = chillStacks * damageReductionPerStack;
             int finalDamage = Mathf.Max(0, baseDamage - reduction);
-            
+
             string text = LocalizationManager.Instance?.GetText("COMBAT_DECREASE") ?? "감소";
             EffectManager.Instance.ShowText(transform, text, Color.cyan);
             Debug.Log($"[{enemyName}] 냉기로 인해 [총합] 데미지가 {reduction} 감소했습니다. ({baseDamage} -> {finalDamage})");
@@ -48,5 +48,10 @@ public class FrostWolf : Enemy
 
         // 그 외에는 기본 로직 (Biological 100%)
         return base.CalculateDamageTaken(hand);
+    }
+
+    public override string GetGimmickDescription()
+    {
+        return LocalizationManager.Instance.GetText("ENEMY_GIMMICK_FROSTWOLF");
     }
 }

@@ -7,21 +7,21 @@ using System.Linq;
 /// </summary>
 public class Slime : Enemy
 {
- 
+
     public override void OnDamageTaken(int damageTaken, AttackHand hand)
     {
         base.OnDamageTaken(damageTaken, hand);
-        if(hand == null) return;
+        if (hand == null) return;
         if (isDead) return;
 
         // 50% 확률 (Random.value는 0.0f ~ 1.0f 사이의 값)
-        if (Random.value < 0.5f) 
+        if (Random.value < 0.5f)
         {
             if (DiceController.Instance != null)
             {
                 var activeDice = DiceController.Instance.activeDice;
                 var availableDice = activeDice.Where(d => d.State == DiceState.Normal).ToList();
-                
+
                 if (availableDice.Count > 0)
                 {
                     int randomIdx = activeDice.IndexOf(availableDice[Random.Range(0, availableDice.Count)]);
@@ -34,4 +34,8 @@ public class Slime : Enemy
         }
     }
 
+    public override string GetGimmickDescription()
+    {
+        return LocalizationManager.Instance.GetText("ENEMY_GIMMICK_SLIME");
+    }
 }

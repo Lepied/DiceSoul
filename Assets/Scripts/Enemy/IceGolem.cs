@@ -14,8 +14,8 @@ public class IceGolem : Enemy
         // 마법 족보(짝수/홀수)에 면역
         if (desc.Contains("짝수") || desc.Contains("홀수"))
         {
-            string immuneText = LocalizationManager.Instance != null 
-                ? LocalizationManager.Instance.GetText("ENEMY_EFFECT_IMMUNE") 
+            string immuneText = LocalizationManager.Instance != null
+                ? LocalizationManager.Instance.GetText("ENEMY_EFFECT_IMMUNE")
                 : "면역!";
             EffectManager.Instance.ShowText(transform, immuneText, Color.grey);
             return 0;
@@ -23,5 +23,10 @@ public class IceGolem : Enemy
 
         // 그 외에는 부모(Armored) 로직 (총합/트리플 50%, 나머지 100%)
         return base.CalculateDamageTaken(hand);
+    }
+
+    public override string GetGimmickDescription()
+    {
+        return LocalizationManager.Instance.GetText("ENEMY_GIMMICK_ICEGOLEM");
     }
 }

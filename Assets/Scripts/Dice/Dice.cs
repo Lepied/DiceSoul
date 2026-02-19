@@ -172,7 +172,7 @@ public class Dice : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     public void PlayMagicAnimation(int newValue)
     {
         Sequence seq = DOTween.Sequence();
-        seq.Append(transform.DOScale(1.1f, 0.25f).SetEase(Ease.OutBack)); // 커짐
+        seq.Append(transform.DOScale(1.02f, 0.25f).SetEase(Ease.OutBack)); // 커짐
         seq.Join(spriteRenderer.DOColor(new Color(0.5f, 1f, 1f), 0.15f).SetLoops(2, LoopType.Yoyo)); // 반짝
 
         seq.OnComplete(() =>
@@ -187,7 +187,6 @@ public class Dice : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     public void PlayRerollAnimation(int newValue)
     {
         transform.DORotate(new Vector3(0, 0, 360), 0.4f, RotateMode.FastBeyond360).SetRelative(true);
-        // (회전 중 랜덤 이미지는 코루틴 등 추가 구현 가능, 여기선 간단히 회전 후 값 변경)
         
         DOVirtual.DelayedCall(0.4f, () => {
             UpdateVisual(newValue);

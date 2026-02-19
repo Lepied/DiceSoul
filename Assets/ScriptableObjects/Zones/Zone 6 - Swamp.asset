@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b503c177ece661e428431017ed9cf007, type: 3}
+  m_Name: Zone 6 - Swamp
+  m_EditorClassIdentifier: Assembly-CSharp::ZoneData
+  zoneName: "\uB2AA\uC9C0\uB300"
+  zoneTier: 2
+  zoneBackground: {fileID: 1307102781619078554, guid: 50bb29fabeaa2c24c9cb6038c4f8375c, type: 3}
+  zoneBGM:
+    primarySound: {fileID: 8300000, guid: 517dbd5357d36724c9ff71219172b9f6, type: 3}
+    layeredSounds: []
+    volume: 1
+    useRandomPitch: 0
+    pitchVariation: 0.1
+  waves:
+  - {fileID: 11400000, guid: a1a51c98e807d1f4a8e0f1d1900aef4d, type: 2}
+  - {fileID: 11400000, guid: 26ae732ddaedd47409c40ceb5fcd90b4, type: 2}
+  - {fileID: 11400000, guid: 9e08275e1966a0c4980d86cd0a4ee729, type: 2}
+  - {fileID: 11400000, guid: 638f9ad6459532e4090b6279fe2cd78a, type: 2}
+  - {fileID: 11400000, guid: 4c3eb79cde9f68542b014e8f6de670e6, type: 2}
+  generalEnemies:
+  - {fileID: 354087232363995093, guid: 6e43e6e0d82d0674686dfa89bb43b517, type: 3}
+  - {fileID: 354087232363995093, guid: a5b51104a85fc0f4f9f5d519969b9a8b, type: 3}
+  - {fileID: 354087232363995093, guid: 86ec1a53d9ac1cc4885439c8c5262cea, type: 3}
+  - {fileID: 354087232363995093, guid: 243e38736de1a1c439ca871718bf6fb6, type: 3}

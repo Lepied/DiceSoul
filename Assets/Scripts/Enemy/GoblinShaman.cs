@@ -25,10 +25,10 @@ public class GoblinShaman : Enemy
             if (ally != this && ally.enemyName.Contains("고블린")) // (Goblin, GoblinArcher)
             {
                 // 1. 원래 타입 저장
-                buffedAllies.Add(ally, ally.enemyType); 
+                buffedAllies.Add(ally, ally.enemyType);
                 // 2. 타입 강제 변경
                 ally.enemyType = EnemyType.Spirit;
-                
+
                 string text = LocalizationManager.Instance?.GetText("COMBAT_SOUL_SHIELD") ?? "영혼 보호막!";
                 EffectManager.Instance.ShowText(ally.transform, text, Color.magenta);
                 // (TODO: 1턴 버프 이펙트/UI 표시)
@@ -43,28 +43,33 @@ public class GoblinShaman : Enemy
     public override void OnPlayerRoll(List<int> diceValues)
     {
         base.OnPlayerRoll(diceValues);
-        
+
         // (1턴 버프였으므로, 굴림 횟수 1 -> 2로 넘어갈 때 버프 해제)
         if (DiceController.Instance != null && DiceController.Instance.currentRollCount == 2)
         {
             if (buffedAllies.Count > 0)
             {
-                 Debug.Log($"{enemyName}의 [영혼 보호막] 효과가 사라집니다.");
+                Debug.Log($"{enemyName}의 [영혼 보호막] 효과가 사라집니다.");
                 foreach (var pair in buffedAllies)
                 {
                     Enemy ally = pair.Key;
                     EnemyType originalType = pair.Value;
-                    
-                    if(ally != null && !ally.isDead)
+
+                    if (ally != null && !ally.isDead)
                     {
                         // 원래 타입으로 복구
                         ally.enemyType = originalType;
-                         Debug.Log($"... {ally.enemyName}이(가) {originalType} 타입으로 돌아왔습니다.");
+                        Debug.Log($"... {ally.enemyName}이(가) {originalType} 타입으로 돌아왔습니다.");
                     }
                 }
                 buffedAllies.Clear(); // 버프 목록 비우기
             }
         }
+    }
+
+    public override string GetGimmickDescription()
+    {
+        return LocalizationManager.Instance.GetText("ENEMY_GIMMICK_GOBLINSHAMAN");
     }
 
     // (스탯은 인스펙터에서 설정: maxHP: 150, enemyType: Spirit, isBoss: true, cost: 55, minZone: 2)

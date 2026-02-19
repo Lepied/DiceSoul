@@ -72,26 +72,47 @@ public class WaveGenerator : MonoBehaviour
         // --- Zone 1 (Tier 1) ---
         if (zonesByTier.ContainsKey(1) && zonesByTier[1].Count > 0)
         {
-            List<ZoneData> tier1 = zonesByTier[1].OrderBy(z => Random.value).ToList();
+            List<ZoneData> tier1 = new List<ZoneData>(zonesByTier[1]);
+            ShuffleList(tier1);
             currentRunZoneOrder.Add(tier1[0]);
         }
 
         // --- Zone 2 & 3 (Tier 2) ---
         if (zonesByTier.ContainsKey(2) && zonesByTier[2].Count >= 2)
         {
-            List<ZoneData> tier2 = zonesByTier[2].OrderBy(z => Random.value).ToList();
-            currentRunZoneOrder.Add(tier2[0]);
-            currentRunZoneOrder.Add(tier2[1]);
+            List<ZoneData> tier2 = new List<ZoneData>(zonesByTier[2]);
+            ShuffleList(tier2);
+            
+            // 선택된 2개도 순서 랜덤으로
+            List<ZoneData> selectedTier2 = new List<ZoneData> { tier2[0], tier2[1] };
+            ShuffleList(selectedTier2);
+            currentRunZoneOrder.AddRange(selectedTier2);
         }
 
         // --- Zone 4 & 5 (Tier 3) ---
         if (zonesByTier.ContainsKey(3) && zonesByTier[3].Count >= 2)
         {
-            List<ZoneData> tier3 = zonesByTier[3].OrderBy(z => Random.value).ToList();
-            currentRunZoneOrder.Add(tier3[0]);
-            currentRunZoneOrder.Add(tier3[1]);
+            List<ZoneData> tier3 = new List<ZoneData>(zonesByTier[3]);
+            ShuffleList(tier3);
+            
+            // 선택된 2개도 순서 랜덤으로
+            List<ZoneData> selectedTier3 = new List<ZoneData> { tier3[0], tier3[1] };
+            ShuffleList(selectedTier3);
+            currentRunZoneOrder.AddRange(selectedTier3);
         }
 
+    }
+
+    // Fisher-Yates 셔플 알고리즘
+    private void ShuffleList<T>(List<T> list)
+    {
+        for (int i = list.Count - 1; i > 0; i--)
+        {
+            int randomIndex = Random.Range(0, i + 1);
+            T temp = list[i];
+            list[i] = list[randomIndex];
+            list[randomIndex] = temp;
+        }
     }
 
 

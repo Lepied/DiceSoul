@@ -13,3 +13,10 @@ INGAME_SHIELD,Shield,Shield
 INGAME_REROLL_COST_SUFFIX,Gold,Gold
 INGAME_TARGET_SELECT,적을 선택하세요,Select Targets
 INGAME_GOLD_LABEL,보유 골드,Current Gold
+INGAME_ENEMY_TYPE_INFO_TITLE,적 타입 정보,Enemy Type Info
+INGAME_ZONE,Zone,Zone
+ZONE_PLAINS,평원,Plains
+ZONE_GRAVEYARD,묘지,Graveyard
+ZONE_GLACIER,빙하,Glacier
+ZONE_HELL,지옥,Hell
+ZONE_SWAMP,늪지대,Swamp

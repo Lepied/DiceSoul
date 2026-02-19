@@ -24,18 +24,18 @@ public class Lich : Enemy
 
     public override void OnPlayerRoll(List<int> diceValues)
     {
-        base.OnPlayerRoll(diceValues); 
-        
+        base.OnPlayerRoll(diceValues);
+
         if (isDead || diceValues == null || diceValues.Count == 0) return;
 
         // 굴린 주사위 중 가장 높은 값만큼 회복
-        int healAmount = diceValues.Max(); 
+        int healAmount = diceValues.Max();
         currentHP = Mathf.Min(currentHP + healAmount, maxHP);
 
         EffectManager.Instance.ShowHeal(transform, healAmount);
 
         Debug.Log($"{enemyName}이(가) [영혼 흡수]로 체력을 {healAmount} 회복합니다! (현재: {currentHP})");
-        UpdateUI(); 
+        UpdateUI();
     }
 
     /// <summary>
@@ -44,14 +44,14 @@ public class Lich : Enemy
     /// </summary>
     public override void OnWaveStart(List<Enemy> allies)
     {
-        base.OnWaveStart(allies); 
+        base.OnWaveStart(allies);
 
         if (isDead) return;
 
         if (StageManager.Instance != null && minionPrefab != null)
         {
             Debug.Log($"{enemyName}이(가) [부하 소환]을 시전!");
-            
+
             // StageManager의 새 헬퍼 함수를 호출하여 부하를 스폰
             StageManager.Instance.SpawnEnemiesForBoss(minionPrefab, minionsToSpawn);
         }
@@ -64,12 +64,12 @@ public class Lich : Enemy
     public override int CalculateDamageTaken(AttackHand hand)
     {
         int baseDamage = hand.BaseDamage;
-        string handDesc = hand.Description; 
+        string handDesc = hand.Description;
 
         // 고급 족보 150%
-        if (handDesc.Contains("트리플") || 
-            handDesc.Contains("포카드") || 
-            handDesc.Contains("풀 하우스") || 
+        if (handDesc.Contains("트리플") ||
+            handDesc.Contains("포카드") ||
+            handDesc.Contains("풀 하우스") ||
             handDesc.Contains("야찌"))
         {
             Debug.Log("언데드: [고급 족보]에 치명타! (150% 데미지)");
@@ -79,19 +79,24 @@ public class Lich : Enemy
         {
             // 그 외 50%
             Debug.Log("언데드: [기본 족보] 피해를 50% 감소시킵니다.");
-            return baseDamage / 2; 
+            return baseDamage / 2;
         }
     }
-    
+
     protected override void OnDeath()
     {
         Debug.Log($"{enemyName}이(가) 처치되었습니다! 보스 클리어 보너스!");
-        
+
         if (GameManager.Instance != null)
         {
             GameManager.Instance.AddGold(1000); // 보스 보너스 1000점
         }
-        
-        base.OnDeath(); 
+
+        base.OnDeath();
+    }
+
+    public override string GetGimmickDescription()
+    {
+        return LocalizationManager.Instance.GetText("ENEMY_GIMMICK_LICH");
     }
 }

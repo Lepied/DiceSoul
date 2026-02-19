@@ -46,4 +46,9 @@ public class FrostWisp : Enemy
     
     // CalculateDamageTaken은 부모(Spirit 타입) 로직을 따름
     // (물리 면역, 마법 약점)
+
+    public override string GetGimmickDescription()
+    {
+        return LocalizationManager.Instance.GetText("ENEMY_GIMMICK_FROSTWISP");
+    }
 }

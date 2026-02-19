@@ -1,5 +1,6 @@
 Key,Korean,English
 ENEMY_CAVEBAT,동굴 박쥐,Cave Bat
+ENEMY_CORRUPTEDENT,부패한 엔트,Corrupted Ent
 ENEMY_FROSTWISP,서리 위스프,Frost Wisp
 ENEMY_FROSTWOLF,서리 늑대,Frost Wolf
 ENEMY_GOBLIN,고블린,Goblin
@@ -10,16 +11,42 @@ ENEMY_ICEGOLEM,얼음 골렘,Ice Golem
 ENEMY_IMP,임프,Imp
 ENEMY_LICH,리치,Lich
 ENEMY_LIVINGARMOR,리빙 아머,Living Armor
+ENEMY_LIZARD,리자드맨,Lizardman
 ENEMY_PITLORD,핏 로드,Pit Lord
+ENEMY_POISONMUSH,독버섯,Poison Mushroom
 ENEMY_SKELETON,스켈레톤,Skeleton
 ENEMY_SLIME,슬라임,Slime
+ENEMY_SLUDGE,슬러지,Sludge
+ENEMY_SWAMPGIANT,늪지 거인,Swamp Giant
 ENEMY_TROLL,트롤,Troll
 ENEMY_WRAITH,망령,Wraith
 ENEMY_YETI,예티,Yeti
 ENEMY_TYPE_BIOLOGICAL,생체: 모든 패에 100% 피해를 받습니다.,Biological: Takes 100% damage from all hands.
-ENEMY_TYPE_SPIRIT,"영혼: '총합'에 면역, '마법' 패에 150% 피해.","Spirit: Immune to 'Sum', 150% damage from 'Magic' hands."
+ENEMY_TYPE_SPIRIT,"영혼: '총합'에 면역, '모두' 패들에 150% 피해.","Spirit: Immune to 'Sum', 150% damage from 'All' hands."
 ENEMY_TYPE_UNDEAD,"언데드: 고급 패(트리플+) 150% 피해, 그 외 50% 피해.","Undead: 150% damage from advanced hands (Triple+), 50% otherwise."
 ENEMY_TYPE_ARMORED,"장갑: 단순 패(총합, 트리플) 50% 피해.","Armored: 50% damage from simple hands (Sum, Triple)."
 ENEMY_TYPE_NONE,특성 없음.,No special trait.
+ENEMY_TYPE_NAME_BIOLOGICAL,생체,Biological
+ENEMY_TYPE_NAME_SPIRIT,영혼,Spirit
+ENEMY_TYPE_NAME_UNDEAD,언데드,Undead
+ENEMY_TYPE_NAME_ARMORED,장갑,Armored
 ENEMY_EFFECT_IMMUNE,면역!,Immune!
 ENEMY_EFFECT_FREEZE,빙결!,Frozen!
+ENEMY_GIMMICK_SLIME,끈끈이: 피격 시 50% 확률로 주사위 1개를 1턴간 잠금,Sticky: 50% chance to lock 1 die for 1 turn when hit
+ENEMY_GIMMICK_SWAMPGIANT,짓누르기: 매 턴 최고 주사위 -2. HP 50% 이하 시 2개 감소 + 5% 재생,Crush: -2 to highest die per turn. Below 50% HP: -2 to 2 dice + 5% regen
+ENEMY_GIMMICK_LIZARD,재빠른 반격: 한 턴에 2번째 공격부터 3 데미지 반격,Swift Counter: 3 damage counter from 2nd attack per turn
+ENEMY_GIMMICK_CORRUPTEDENT,뿌리 재생: 첫 사망 시 최대 HP의 30%로 1회 부활,Root Regeneration: Revive once at 30% max HP on first death
+ENEMY_GIMMICK_POISONMUSH,맹독 포자: 매 턴 주사위 개수만큼 독 누적. 2턴 후 발동. 수비로 해독,Toxic Spores: Accumulate poison equal to dice count. Activate after 3 turns. Detox with defense
+ENEMY_GIMMICK_SLUDGE,분열: 사망 시 Slime 2마리로 분열.,Split: Splits into 2 Slimes on death. Immune to even/odd hands
+ENEMY_GIMMICK_GOBLINARCHER,저격: 매 턴 30% 확률로 공격력만큼 피해,Snipe: 30% chance to deal attack damage per turn
+ENEMY_GIMMICK_GOBLINSHAMAN,영혼 보호막: 웨이브 시작 시 모든 고블린 아군에게 1턴간 영혼 타입 부여,Soul Shield: Grant Spirit type to all Goblin allies for 1 turn at wave start
+ENEMY_GIMMICK_TROLL,재생: 매 턴 체력 10 회복,Regeneration: Heal 10 HP per turn
+ENEMY_GIMMICK_YETI,동면: HP 50% 이하 시 50 회복(1회). 분노: 스트레이트 피격 시 다음 턴 총합 면역,Hibernation: Heal 50 at 50% HP (once). Rage: Immune to Sum next turn when hit by Straight
+ENEMY_GIMMICK_FROSTWOLF,냉기: 매 턴 중첩. 총합 족보 데미지 20씩 감소,Chill: Stacks per turn. Reduces Sum damage by 20 per stack
+ENEMY_GIMMICK_FROSTWISP,빙결: 피격 시 50% 확률로 주사위 1개를 1턴간 잠금,Freeze: 50% chance to lock 1 die for 1 turn when hit
+ENEMY_GIMMICK_CAVEBAT,회피: 총합 족보 데미지를 50% 확률로 무시,Evasion: 50% chance to ignore Sum hand damage
+ENEMY_GIMMICK_ICEGOLEM,빙결 장갑: 짝수/홀수 족보에 면역,Frozen Armor: Immune to even/odd hands
+ENEMY_GIMMICK_IMP,마력 흡수: 총합 족보 공격 시 데미지 대신 체력 회복,Mana Drain: Heal instead of taking damage from Sum hands
+ENEMY_GIMMICK_HELLHOUND,지옥불: 홀수 족보 피격 시 플레이어에게 2 데미지 반사,Hellfire: Reflect 2 damage to player when hit by odd hands
+ENEMY_GIMMICK_LICH,영혼 흡수: 매 턴 굴린 주사위 최대값만큼 회복. 부하 소환: 스켈레톤 2마리,Soul Drain: Heal equal to max die value per turn. Summon Minions: 2 Skeletons
+ENEMY_GIMMICK_PITLORD,강화: 매 턴 총합 족보 저항력 10% 증가(최대 50%),Fortify: Increase Sum resistance by 10% per turn (max 50%)

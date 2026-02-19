@@ -13,7 +13,7 @@ public class GoblinArcher : Enemy
     /// 플레이어가 주사위를 굴릴 때마다 30% 확률로 공격력만큼 피해를 줍니다.
     public override void OnPlayerRoll(List<int> diceValues)
     {
-        base.OnPlayerRoll(diceValues); 
+        base.OnPlayerRoll(diceValues);
 
         if (isDead) return;
 
@@ -26,6 +26,11 @@ public class GoblinArcher : Enemy
                 GameManager.Instance.DamagePlayer(this.attackDamage, "고블린 궁수");
             }
         }
+    }
+
+    public override string GetGimmickDescription()
+    {
+        return LocalizationManager.Instance.GetText("ENEMY_GIMMICK_GOBLINARCHER");
     }
 
 }

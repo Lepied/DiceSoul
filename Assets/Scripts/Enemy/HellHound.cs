@@ -13,7 +13,7 @@ public class Hellhound : Enemy
     public override void OnDamageTaken(int damageTaken, AttackHand hand)
     {
         base.OnDamageTaken(damageTaken, hand);
-        if( hand == null) return;
+        if (hand == null) return;
         if (isDead) return;
 
         // '홀수' 족보로 공격받았을 때 반격
@@ -28,5 +28,10 @@ public class Hellhound : Enemy
             }
         }
         //다른것도?
+    }
+
+    public override string GetGimmickDescription()
+    {
+        return LocalizationManager.Instance.GetText("ENEMY_GIMMICK_HELLHOUND");
     }
 }

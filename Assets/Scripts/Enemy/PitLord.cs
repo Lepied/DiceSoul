@@ -33,14 +33,14 @@ public class PitLord : Enemy
         if (hand.Description.Contains("총합"))
         {
             // 원래 Armored는 50% 데미지만 받음. 여기에 추가 저항 적용
-            
-            float multiplier = 0.5f - currentResistance; 
+
+            float multiplier = 0.5f - currentResistance;
             if (multiplier < 0) multiplier = 0;
 
             return (int)(baseDmg * multiplier);
         }
 
-        
+
         return base.CalculateDamageTaken(hand);
     }
 
@@ -51,5 +51,10 @@ public class PitLord : Enemy
             GameManager.Instance.AddGold(2000); // 보스 클리어 보너스
         }
         base.OnDeath();
+    }
+
+    public override string GetGimmickDescription()
+    {
+        return LocalizationManager.Instance.GetText("ENEMY_GIMMICK_PITLORD");
     }
 }

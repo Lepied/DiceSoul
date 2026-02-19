@@ -154,45 +154,9 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
 
     public virtual string GetGimmickDescription()
     {
-        string key = "";
-        switch (enemyType)
-        {
-            case EnemyType.Biological:
-                key = "ENEMY_TYPE_BIOLOGICAL";
-                break;
-            case EnemyType.Spirit:
-                key = "ENEMY_TYPE_SPIRIT";
-                break;
-            case EnemyType.Undead:
-                key = "ENEMY_TYPE_UNDEAD";
-                break;
-            case EnemyType.Armored:
-                key = "ENEMY_TYPE_ARMORED";
-                break;
-            default:
-                key = "ENEMY_TYPE_NONE";
-                break;
-        }
-        
-        if (LocalizationManager.Instance != null)
-        {
-            return LocalizationManager.Instance.GetText(key);
-        }
-        
-        // Fallback
-        switch (enemyType)
-        {
-            case EnemyType.Biological:
-                return "생체: 모든 족보에 100% 피해를 받습니다.";
-            case EnemyType.Spirit:
-                return "영혼: '총합'에 면역, '마법' 족보에 150% 피해.";
-            case EnemyType.Undead:
-                return "언데드: 고급 족보(트리플+) 150% 피해, 그 외 50% 피해.";
-            case EnemyType.Armored:
-                return "장갑: 단순 족보(총합, 트리플) 50% 피해.";
-            default:
-                return "특성 없음.";
-        }
+        // 서브클래스에서 override하여 고유 기믹을 표시
+        // 기본적으로는 빈 문자열 반환
+        return "";
     }
     
     public virtual string GetLocalizedName()

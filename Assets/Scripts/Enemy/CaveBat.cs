@@ -20,4 +20,9 @@ public class CaveBat : Enemy
 
         return base.CalculateDamageTaken(hand);
     }
+
+    public override string GetGimmickDescription()
+    {
+        return LocalizationManager.Instance.GetText("ENEMY_GIMMICK_CAVEBAT");
+    }
 }
