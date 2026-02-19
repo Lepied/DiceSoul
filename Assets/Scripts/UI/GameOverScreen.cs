@@ -153,25 +153,12 @@ public class GameOverScreen : MonoBehaviour
             }
             string mostUsedLabel = LocalizationManager.Instance.GetText("RESULT_MOST_USED");
             
-            // 디버그 로그 추가
-            Debug.Log($"[GameOverScreen] GetMostUsedHand() 반환값: '{mostUsed}'");
-            
             // 족보 이름 로컬라이제이션
             string localizedHand = mostUsed;
             string handKey = AttackHand.DescriptionToKey(mostUsed);
-            
-            Debug.Log($"[GameOverScreen] DescriptionToKey 변환: '{mostUsed}' → '{handKey}'");
-            
             if (!string.IsNullOrEmpty(handKey) && LocalizationManager.Instance != null)
             {
                 localizedHand = LocalizationManager.Instance.GetText(handKey);
-                Debug.Log($"[GameOverScreen] 로컬라이징 결과: '{localizedHand}'");
-            }
-            else if (string.IsNullOrEmpty(handKey))
-            {
-                // handKey가 빈 문자열이면 원본 그대로 사용 (또는 "없음" 처리)
-                Debug.LogWarning($"[GameOverScreen] '{mostUsed}'에 대한 handKey를 찾을 수 없습니다.");
-                localizedHand = mostUsed; // 원본 그대로 표시
             }
             
             mostUsedHandText.text = $"{mostUsedLabel}: {localizedHand} x {count}";

@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq; // Linq 사용
 
+[DefaultExecutionOrder(-60)] // GameManager보다 먼저해야함
 public class ShopManager : MonoBehaviour
 {
     public static ShopManager Instance { get; private set; }

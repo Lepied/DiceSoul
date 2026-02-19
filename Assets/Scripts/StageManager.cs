@@ -96,6 +96,25 @@ public class StageManager : MonoBehaviour
         // 현재 Zone에 맞는 배경 설정 (이어하기 대응)
         SetBackgroundForCurrentZone();
 
+        if (GameManager.Instance.hasInitializedRun)
+        {
+            PrepareNextWave();
+        }
+        else
+        {
+            StartCoroutine(WaitForGameInitialization());
+        }
+    }
+
+    private IEnumerator WaitForGameInitialization()
+    {
+        //초기화끝날때까지 대기시키기
+        while (GameManager.Instance == null || !GameManager.Instance.hasInitializedRun)
+        {
+            yield return null;
+        }
+        
+        Debug.Log("[StageManager] GameManager 초기화 완료 - PrepareNextWave 실행");
         PrepareNextWave();
     }
 

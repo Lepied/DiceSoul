@@ -82,7 +82,7 @@ public class WaveGenerator : MonoBehaviour
         {
             List<ZoneData> tier2 = new List<ZoneData>(zonesByTier[2]);
             ShuffleList(tier2);
-            
+
             // 선택된 2개도 순서 랜덤으로
             List<ZoneData> selectedTier2 = new List<ZoneData> { tier2[0], tier2[1] };
             ShuffleList(selectedTier2);
@@ -94,7 +94,7 @@ public class WaveGenerator : MonoBehaviour
         {
             List<ZoneData> tier3 = new List<ZoneData>(zonesByTier[3]);
             ShuffleList(tier3);
-            
+
             // 선택된 2개도 순서 랜덤으로
             List<ZoneData> selectedTier3 = new List<ZoneData> { tier3[0], tier3[1] };
             ShuffleList(selectedTier3);
@@ -259,9 +259,15 @@ public class WaveGenerator : MonoBehaviour
         return enemiesToSpawn;
     }
 
-    // --- 오브젝트 풀링 함수들 (변경 없음) ---
+    // --- 오브젝트 풀링 함수들 ---
     public GameObject SpawnFromPool(GameObject prefab, Vector3 position, Quaternion rotation)
     {
+        if (enemyContainer == null)
+        {
+            GameObject containerObj = GameObject.Find("EnemyContainer");
+            enemyContainer = containerObj.transform;
+        }
+
         string key = prefab.name;
         if (!poolDictionary.ContainsKey(key))
         {

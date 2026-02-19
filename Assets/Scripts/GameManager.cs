@@ -210,6 +210,10 @@ public class GameManager : MonoBehaviour
             data.handUsageValues.Add(kvp.Value);
         }
 
+        // 상점 페이즈 여부
+        bool shopOpen = (UIManager.Instance != null && UIManager.Instance.IsShopOpen());
+        data.isInMaintenancePhase = shopOpen;
+       
         SaveManager.Instance.SaveGame(data);
     }
 
@@ -223,6 +227,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        hasInitializedRun = true;
 
         // 기본 스탯 복구
         PlayerHealth = data.currentHealth;
@@ -293,9 +298,33 @@ public class GameManager : MonoBehaviour
             UIManager.Instance.UpdateWaveText(CurrentZone, CurrentWave);
         }
 
-        //스테이지 준비
-
-        StageManager.Instance.PrepareNextWave();
+        // 상점 페이즈 복원 여부 확인
+        if (data.isInMaintenancePhase)
+        {
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.StartMaintenancePhase();
+                Debug.Log("[LoadRun] 상점 페이즈 복원 완료");
+            }
+        }
+        else
+        {
+            if (data.currentWave > wavesPerZone)
+            {
+                if (UIManager.Instance != null)
+                {
+                    UIManager.Instance.StartMaintenancePhase();
+                    Debug.Log("[LoadRun] 이전 버전 세이브 - 상점 페이즈 복원");
+                }
+            }
+            else
+            {
+                if (StageManager.Instance != null)
+                {
+                    StageManager.Instance.PrepareNextWave();
+                }
+            }
+        }
 
     }
 
@@ -659,38 +688,13 @@ public class GameManager : MonoBehaviour
                     }
                 }
 
-                //이벤트 시스템: 존 종료 이벤트
-                ZoneContext zoneEndCtx = new ZoneContext
-                {
-                    ZoneNumber = CurrentZone,
-                    ZoneName = WaveGenerator.Instance?.GetCurrentZoneData(CurrentZone)?.zoneName ?? "Unknown"
-                };
-                GameEvents.RaiseZoneEnd(zoneEndCtx);
-
+                
                 UIManager.Instance.FadeOut(1.0f, () =>
                 {
-                    CurrentZone++;
-                    CurrentWave = 1;
-
-                    //이벤트 시스템: 존 시작 이벤트
-                    ZoneContext zoneCtx = new ZoneContext
-                    {
-                        ZoneNumber = CurrentZone,
-                        ZoneName = WaveGenerator.Instance?.GetCurrentZoneData(CurrentZone)?.zoneName ?? "Unknown"
-                    };
-                    GameEvents.RaiseZoneStart(zoneCtx);
-
-                    //성벽 수리 - 존 시작 시 회복
-                    int zoneHeal = (int)GetTotalMetaBonus(MetaEffectType.ZoneStartHeal);
-                    if (zoneHeal > 0)
-                    {
-                        HealPlayer(zoneHeal);
-                        Debug.Log($"[성벽 수리] 존 {CurrentZone} 시작 - 체력 +{zoneHeal} 회복");
-                    }
-
                     UIManager.Instance.StartMaintenancePhase();
                     UIManager.Instance.FadeIn();
-
+                    
+                    // 상점 열린 상태로 저장
                     SaveCurrentRun();
                 });
 
@@ -982,6 +986,8 @@ public class GameManager : MonoBehaviour
             RelicName = chosenRelic.Name
         };
         GameEvents.RaiseRelicAcquire(relicCtx);
+
+        SaveCurrentRun();
 
         if (UIManager.Instance != null && !UIManager.Instance.IsShopOpen())
         {
@@ -1374,6 +1380,35 @@ public class GameManager : MonoBehaviour
         bossesDefeated = 0;
         perfectWaves = 0;
         wasDamagedThisWave = false;
+    }
+
+    // 씬 전환 시 게임 상태 리셋
+    public void ResetGameState()
+    {
+        CurrentGold = 0;
+        CurrentZone = 1;
+        CurrentWave = 1;
+        MaxPlayerHealth = 100;
+        PlayerHealth = MaxPlayerHealth;
+        CurrentShield = 0;
+        isTutorialMode = false;
+
+        playerDiceDeck.Clear();
+        activeRelics.Clear();
+        nextZoneBuffs.Clear();
+
+        buffDuration = 0;
+        buffDamageValue = 0;
+        buffShieldValue = 0;
+        buffRerollValue = 0;
+        hasInsurance = false;
+        hasRevived = false;
+        firstHitThisWave = false;
+
+        ResetRunStatistics();
+
+        hasInitializedRun = false;
+
     }
 
     // 적 처치 기록

@@ -171,10 +171,11 @@ public class SceneController : MonoBehaviour
     {
         if (currentScene == gameSceneName)
         {
-            // Game 씬을 떠날 때 플래그 리셋
 
-            GameManager.Instance.hasInitializedRun = false;
-
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.ResetGameState();
+            }
         }
     }
 
@@ -192,7 +193,8 @@ public class SceneController : MonoBehaviour
     {
 
         yield return null;
-        if (GameManager.Instance != null && !GameManager.Instance.hasInitializedRun)
+        
+        if (GameManager.Instance != null && !GameManager.Instance.hasInitializedRun && !SaveManager.shouldLoadSave)
         {
             GameManager.Instance.StartNewRun();
         }

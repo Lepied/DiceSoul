@@ -226,6 +226,11 @@ public class DiceController : MonoBehaviour
 
     public void SetDiceDeck(List<string> deck)
     {
+        if (diceContainer == null)
+        {
+            diceContainer = transform.Find("DiceContainer");
+        }
+
         // 기존 삭제
         foreach (Transform child in diceContainer) Destroy(child.gameObject);
         activeDice.Clear();

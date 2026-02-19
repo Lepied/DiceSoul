@@ -30,4 +30,7 @@ public class GameData
     // 족보 사용 횟수 직접저장 -> 왜? 딕셔너리로 관리하고있는 족보별 사용횟수를 저장할 때 직렬화할 수 없어서.
     public List<string> handUsageKeys = new List<string>();
     public List<int> handUsageValues = new List<int>();
+    
+    // 상점 페이즈 복원용
+    public bool isInMaintenancePhase = false;
 }

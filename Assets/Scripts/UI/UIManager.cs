@@ -8,6 +8,7 @@ using UnityEngine.SceneManagement;
 using DG.Tweening;
 using UnityEngine.InputSystem;
 
+[DefaultExecutionOrder(-60)]
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
@@ -1111,12 +1112,47 @@ public class UIManager : MonoBehaviour
         maintenancePanel.SetActive(false);
         HideGenericTooltip();
 
-        if (GameManager.Instance.CurrentWave == 1 && WaveGenerator.Instance != null)
+        if (GameManager.Instance.CurrentWave > GameManager.Instance.wavesPerZone)
         {
+            //존 종료 이벤트
+            ZoneContext zoneEndCtx = new ZoneContext
+            {
+                ZoneNumber = GameManager.Instance.CurrentZone,
+                ZoneName = WaveGenerator.Instance?.GetCurrentZoneData(GameManager.Instance.CurrentZone)?.zoneName ?? "Unknown"
+            };
+            GameEvents.RaiseZoneEnd(zoneEndCtx);
+
+            GameManager.Instance.CurrentZone++;
+            GameManager.Instance.CurrentWave = 1;
+
+            //존 시작 이벤트
+            ZoneContext zoneCtx = new ZoneContext
+            {
+                ZoneNumber = GameManager.Instance.CurrentZone,
+                ZoneName = WaveGenerator.Instance?.GetCurrentZoneData(GameManager.Instance.CurrentZone)?.zoneName ?? "Unknown"
+            };
+            GameEvents.RaiseZoneStart(zoneCtx);
+
+            //성벽 수리 - 존 시작 시 회복
+            int zoneHeal = (int)GameManager.Instance.GetTotalMetaBonus(MetaEffectType.ZoneStartHeal);
+            if (zoneHeal > 0)
+            {
+                GameManager.Instance.HealPlayer(zoneHeal);
+            }
+
+            // Zone 전환 후 저장
+            GameManager.Instance.SaveCurrentRun();
+
+            // Zone 타이틀 표시
             int currentZone = GameManager.Instance.CurrentZone;
             ZoneData zone = WaveGenerator.Instance.GetCurrentZoneData(currentZone);
             string zoneName = zone != null ? zone.zoneName : "알 수 없음";
             ShowZoneTitle($"Zone {currentZone}: {zoneName}");
+        }
+        else
+        {
+            // 일반 웨이브 클리어 후 상점 종료
+            GameManager.Instance.SaveCurrentRun();
         }
 
         if (StageManager.Instance != null)
