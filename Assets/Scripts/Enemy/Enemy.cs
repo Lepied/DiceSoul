@@ -34,6 +34,9 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
     [Tooltip("예상 데미지")]
     public Slider damagePreviewSlider;
 
+    [Tooltip("보스 표시")]
+    public Image bossIcon;
+
     private bool isInitialized = false;
 
     // 공통 상태 변수
@@ -94,6 +97,7 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
 
         if (hpSlider == null) hpSlider = GetComponentInChildren<Slider>();
         if (hpText == null) hpText = GetComponentInChildren<TextMeshProUGUI>();
+        if (bossIcon != null) bossIcon.gameObject.SetActive(isBoss);
 
         blinkTween?.Kill();
         flashTween?.Kill();
@@ -292,6 +296,12 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
     protected void UpdateUI()
     {
         blinkTween?.Kill();
+
+        // 보스 아이콘 표시
+        if (bossIcon != null)
+        {
+            bossIcon.gameObject.SetActive(isBoss);
+        }
 
         if (hpText != null)
         {

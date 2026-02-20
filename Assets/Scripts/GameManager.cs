@@ -1187,7 +1187,11 @@ public class GameManager : MonoBehaviour
 
         if (GameOverDirector.Instance != null)
         {
-            if (UIManager.Instance != null) UIManager.Instance.gameObject.SetActive(false);
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.CloseAllUIPanels(); 
+                UIManager.Instance.gameObject.SetActive(false);
+            }
             GameOverDirector.Instance.PlayGameOverSequence(earnedCurrency);
         }
     }

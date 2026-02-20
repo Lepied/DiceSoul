@@ -37,6 +37,8 @@ RLC_SWORD_BOOK_NAME,검술 교본,Swordsmanship Manual
 RLC_SWORD_BOOK_DESC,모든 스트레이트 데미지 +30,All Straight Damage +30
 RLC_SPIKED_HAMMER_NAME,가시 망치,Spiked Hammer
 RLC_SPIKED_HAMMER_DESC,포카드 데미지 +20,Four of a Kind Damage +20
+RLC_SQUARE_PEG_NAME,네모난 못,Square Peg
+RLC_SQUARE_PEG_DESC,포카드 데미지 +40,Four of a Kind Damage +40
 RLC_EVEN_BOOK_NAME,짝수의 서,Book of Evens
 RLC_EVEN_BOOK_DESC,모두 짝수일 때 데미지 1.5배,All Even: Damage x1.5
 RLC_ODD_BOOK_NAME,홀수의 서,Book of Odds

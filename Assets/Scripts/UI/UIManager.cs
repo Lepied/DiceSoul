@@ -329,8 +329,9 @@ public class UIManager : MonoBehaviour
     {
         if (SoundManager.Instance != null && SoundManager.Instance.bgmSource != null)
         {
-            // 원래 볼륨으로 복구
-            SoundManager.Instance.bgmSource.DOFade(0.5f, duration);
+            // 원래 설정된 BGM 볼륨으로 복구
+            float targetVolume = SoundManager.Instance.GetCurrentBGMVolume();
+            SoundManager.Instance.bgmSource.DOFade(targetVolume * SoundManager.Instance.bgmVolume, duration);
         }
         fadeCanvasGroup.alpha = 1f; // 검은색 상태에서 시작
         fadeCanvasGroup.blocksRaycasts = true; // 터치 막기
@@ -1230,6 +1231,22 @@ public class UIManager : MonoBehaviour
         {
             waveText.transform.parent.gameObject.SetActive(false);
         }
+    }
+
+    // 사망 시 모든 UI 패널 닫기
+    public void CloseAllUIPanels()
+    {
+        if (attackOptionsPanel != null) attackOptionsPanel.SetActive(false);
+        if (rewardScreenPanel != null) rewardScreenPanel.SetActive(false);
+        if (maintenancePanel != null) maintenancePanel.SetActive(false);
+        if (waveInfoPanel != null) waveInfoPanel.SetActive(false);
+        if (relicPanel != null) relicPanel.SetActive(false);
+        if (enemyDetailPopup != null) enemyDetailPopup.SetActive(false);
+        if (relicDetailPopup != null) relicDetailPopup.SetActive(false);
+        if (genericTooltipPopup != null) genericTooltipPopup.SetActive(false);
+        if (targetSelectionPanel != null) targetSelectionPanel.SetActive(false);
+        if (rollPanel != null) rollPanel.SetActive(false);
+        if (infoButton != null) infoButton.SetActive(false);
     }
 
     // === 타겟 선택 UI 메서드 ===

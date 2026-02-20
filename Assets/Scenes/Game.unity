@@ -20316,6 +20316,50 @@ MonoBehaviour:
       sprite: {fileID: -4931478591210665043, guid: 87b53cb05ce7f0648ac4b0ffb598820f, type: 3}
     - value: 7
       sprite: {fileID: 396448781736374199, guid: b0519aabbe8d2364dbceab7e58a5734f, type: 3}
+  - diceType: D8
+    faces:
+    - value: 1
+      sprite: {fileID: 8286546693934382645, guid: e8e4cd741b4e0a949bf83cb4a27dea8c, type: 3}
+    - value: 2
+      sprite: {fileID: -7336476052755054798, guid: 95e35940744543241b03b205f97e7830, type: 3}
+    - value: 3
+      sprite: {fileID: -8831804975709734714, guid: aae2bd5111a5a7a41a0eaf94c6903316, type: 3}
+    - value: 4
+      sprite: {fileID: 7352824007473188558, guid: 650d2cf127c270741a9a193de7c80d96, type: 3}
+    - value: 5
+      sprite: {fileID: -2307246757418169361, guid: 3c2b0c01024f8da4b9625455d5db4481, type: 3}
+    - value: 6
+      sprite: {fileID: 2982564342490617662, guid: c871ab5f3f814434ebb0476f7fbc3bc6, type: 3}
+    - value: 7
+      sprite: {fileID: 6155158223269826377, guid: a66a797eae1281440bd645b3e9a5c3cc, type: 3}
+    - value: 8
+      sprite: {fileID: 8126015029366402336, guid: a0252863bf133404f8110c72cfdcc838, type: 3}
+  - diceType: D12
+    faces:
+    - value: 1
+      sprite: {fileID: 7705833305851176168, guid: 859214779eb12a640a9ed1e85f360856, type: 3}
+    - value: 2
+      sprite: {fileID: -1684445419733800467, guid: 38b3142efe4308f4ba1e03f9670878ac, type: 3}
+    - value: 3
+      sprite: {fileID: 1721734554835947309, guid: e2ec25d8f90125347b433342883cbbff, type: 3}
+    - value: 4
+      sprite: {fileID: -7517185024479617555, guid: 1c58eaedf6c1dbd4785f49ebfc0c9ed6, type: 3}
+    - value: 5
+      sprite: {fileID: -8251508149686097500, guid: d99ae97b22422044d84dc56c68d5be16, type: 3}
+    - value: 6
+      sprite: {fileID: 6519116556142281629, guid: 215d00758d26c314b82b23254fa0211a, type: 3}
+    - value: 7
+      sprite: {fileID: 7793340891689966993, guid: 7e2b8a08809736341bf942ff4ec8c6c1, type: 3}
+    - value: 8
+      sprite: {fileID: -3102766045919033961, guid: 23a59d9b3da9ab742b7dd0013216be05, type: 3}
+    - value: 9
+      sprite: {fileID: -8501702644389271125, guid: 77a0cfa7b4a92664b83cb9076966644a, type: 3}
+    - value: 10
+      sprite: {fileID: 8631998781260294262, guid: 91196c776f12d3b44b6898ffbf30f302, type: 3}
+    - value: 11
+      sprite: {fileID: 5396708071328701320, guid: 0e249006fbc715f4aa9759c8b3393aea, type: 3}
+    - value: 12
+      sprite: {fileID: -1150680824111477380, guid: 7602f623cf2499846b57333a84ed5858, type: 3}
   - diceType: D20
     faces:
     - value: 1
@@ -23447,7 +23491,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_SizeDelta: {x: 700, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2093860806
 MonoBehaviour:

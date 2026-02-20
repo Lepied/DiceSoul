@@ -14,6 +14,9 @@ public class SoundManager : MonoBehaviour
     [Header("볼륨 설정")]
     [Range(0f, 1f)] public float bgmVolume = 0.5f; 
     [Range(0f, 1f)] public float sfxVolume = 1.0f; 
+    
+    // 현재 재생 중인 BGM의 설정된 타겟 볼륨 
+    private float currentBGMVolume = 0.5f;
 
     [Header("AudioSource 풀링")]
     [SerializeField] private int poolSize = 20; // 풀 크기 (여러 레이어 사운드 동시 재생 대비)
@@ -99,6 +102,7 @@ public class SoundManager : MonoBehaviour
 
         bgmSource.clip = clip;
         bgmSource.volume = volume * bgmVolume;
+        currentBGMVolume = volume; // 현재 볼륨 저장
         bgmSource.loop = true;
         bgmSource.Play();
     }
@@ -115,6 +119,7 @@ public class SoundManager : MonoBehaviour
         
         bgmSource.clip = clip;
         bgmSource.volume = config.volume * bgmVolume;
+        currentBGMVolume = config.volume; // 현재 볼륨 저장
         bgmSource.loop = true;
         bgmSource.Play();
     }
@@ -243,6 +248,7 @@ public class SoundManager : MonoBehaviour
     {
         if (bgmSource == null) return;
 
+        currentBGMVolume = targetVolume;
         bgmSource.DOKill();
         if (!bgmSource.isPlaying && bgmSource.clip != null)
         {
@@ -251,6 +257,11 @@ public class SoundManager : MonoBehaviour
         }
         
         bgmSource.DOFade(targetVolume * bgmVolume, duration).SetEase(Ease.InOutQuad);
+    }
+    
+    public float GetCurrentBGMVolume()
+    {
+        return currentBGMVolume;
     }
 
     // 크로스페이드 

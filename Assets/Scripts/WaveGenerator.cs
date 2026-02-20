@@ -27,7 +27,7 @@ public class WaveGenerator : MonoBehaviour
     // 오브젝트 풀링용 딕셔너리
     private Dictionary<string, Queue<GameObject>> poolDictionary = new Dictionary<string, Queue<GameObject>>();
 
-    //이번 런에서 플레이할 존 순서
+    //이번 런에서 플레이할 존 순서 (티어별로 모든 존을 셔플해서 구성)
     private List<ZoneData> currentRunZoneOrder = new List<ZoneData>();
 
     void Start()
@@ -66,41 +66,19 @@ public class WaveGenerator : MonoBehaviour
         // Linq를 사용하여 티어(Tier)별로 분류
         var zonesByTier = allGameZones.Where(z => z != null)
                                       .GroupBy(z => z.zoneTier)
+                                      .OrderBy(g => g.Key)
                                       .ToDictionary(g => g.Key, g => g.ToList());
 
-
-        // --- Zone 1 (Tier 1) ---
-        if (zonesByTier.ContainsKey(1) && zonesByTier[1].Count > 0)
+        // 각 티어의 랜덤으로 배치
+        foreach (var tierPair in zonesByTier.OrderBy(kv => kv.Key))
         {
-            List<ZoneData> tier1 = new List<ZoneData>(zonesByTier[1]);
-            ShuffleList(tier1);
-            currentRunZoneOrder.Add(tier1[0]);
+            int tier = tierPair.Key;
+            List<ZoneData> zones = new List<ZoneData>(tierPair.Value);
+            
+            ShuffleList(zones);
+        
+            currentRunZoneOrder.AddRange(zones);
         }
-
-        // --- Zone 2 & 3 (Tier 2) ---
-        if (zonesByTier.ContainsKey(2) && zonesByTier[2].Count >= 2)
-        {
-            List<ZoneData> tier2 = new List<ZoneData>(zonesByTier[2]);
-            ShuffleList(tier2);
-
-            // 선택된 2개도 순서 랜덤으로
-            List<ZoneData> selectedTier2 = new List<ZoneData> { tier2[0], tier2[1] };
-            ShuffleList(selectedTier2);
-            currentRunZoneOrder.AddRange(selectedTier2);
-        }
-
-        // --- Zone 4 & 5 (Tier 3) ---
-        if (zonesByTier.ContainsKey(3) && zonesByTier[3].Count >= 2)
-        {
-            List<ZoneData> tier3 = new List<ZoneData>(zonesByTier[3]);
-            ShuffleList(tier3);
-
-            // 선택된 2개도 순서 랜덤으로
-            List<ZoneData> selectedTier3 = new List<ZoneData> { tier3[0], tier3[1] };
-            ShuffleList(selectedTier3);
-            currentRunZoneOrder.AddRange(selectedTier3);
-        }
-
     }
 
     // Fisher-Yates 셔플 알고리즘

@@ -114,7 +114,6 @@ public class StageManager : MonoBehaviour
             yield return null;
         }
         
-        Debug.Log("[StageManager] GameManager 초기화 완료 - PrepareNextWave 실행");
         PrepareNextWave();
     }
 
@@ -741,8 +740,8 @@ public class StageManager : MonoBehaviour
         switch (hand.SubTargetType)
         {
             case AttackTargetType.AoE:
-                // 전체 공격
-                List<Enemy> allTargets = activeEnemies.Where(e => e != null && !e.isDead).ToList();
+                // 전체 공격 (주공격 대상 제외)
+                List<Enemy> allTargets = activeEnemies.Where(e => e != null && !e.isDead && !mainTargets.Contains(e)).ToList();
 
                 if (VFXManager.Instance != null && hand.SubVfxConfig != null && allTargets.Count > 0)
                 {

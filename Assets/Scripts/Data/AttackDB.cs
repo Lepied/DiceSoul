@@ -61,7 +61,7 @@ public class AttackDB : MonoBehaviour
             vfxConfig : fourCardVFX
         ));
 
-        // 풀 하우스 (3+2) - 2명 선택 + 랜덤 공격
+        // 풀 하우스 (3+2) - 2명 선택 + 나머지 전체 공격
         allHands.Add(new AttackHand(
             "풀 하우스", 70, 40,
             (diceValues) => {
@@ -72,9 +72,9 @@ public class AttackDB : MonoBehaviour
             AttackTargetType.Hybrid,
             2,
             1,
-            AttackTargetType.Random,
+            AttackTargetType.AoE,
             35,
-            3,
+            1,
             vfxConfig : fullHouseMainVFX,
             subVfxConfig : fullHouseSubVFX
         ));
