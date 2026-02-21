@@ -1562,6 +1562,7 @@ public class GameManager : MonoBehaviour
 
     public void StartTutorialMode()
     {
+        hasInitializedRun = true; 
         isTutorialMode = true;
         wave1TutorialCompleted = false;
         isWaitingForWave1Tutorial = false;

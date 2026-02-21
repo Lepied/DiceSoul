@@ -8,17 +8,17 @@ public class EffectManager : MonoBehaviour
 
     [Header("설정")]
     public GameObject popupPrefab;
-    public Transform popupContainer; // 텍스트들을 모아둘 부모 오브젝트 (Hierarchy 정리용)
+    public Transform popupContainer;
     public float textSpawnDelay = 0.2f; // 같은 몬스터에게서 텍스트가 뜨는 간격
 
-    //  오브젝트 풀 (재사용 대기소)
+    //  오브젝트 풀 
     private Queue<DamagePopup> pool = new Queue<DamagePopup>();
 
-    //  몬스터별 요청 대기열 (Key: 몬스터 Transform)
-    private Dictionary<Transform, Queue<PopupRequest>> popupQueues = new Dictionary<Transform, Queue<PopupRequest>>();
+    // 위치 기반 요청 대기열 
+    private Dictionary<Vector3, Queue<PopupRequest>> popupQueues = new Dictionary<Vector3, Queue<PopupRequest>>();
     
-    //몬스터별 실행 중인 코루틴 
-    private Dictionary<Transform, Coroutine> activeCoroutines = new Dictionary<Transform, Coroutine>();
+    // 위치별 실행 중인 코루틴
+    private Dictionary<Vector3, Coroutine> activeCoroutines = new Dictionary<Vector3, Coroutine>();
 
     struct PopupRequest
     {
@@ -39,42 +39,41 @@ public class EffectManager : MonoBehaviour
         }
     }
 
-    // (Target: 텍스트를 띄울 대상 몬스터)
-    public void ShowPopup(Transform target, string text, Color color, bool isCritical = false)
+    // Vector3 위치 기반 팝업 
+    public void ShowText(Vector3 position, string message, Color color, bool isCritical = false)
     {
-        if (target == null) return; // 대상이 없으면 무시
-
-        if (!popupQueues.ContainsKey(target))
+        if (!popupQueues.ContainsKey(position))
         {
-            popupQueues.Add(target, new Queue<PopupRequest>());
+            popupQueues.Add(position, new Queue<PopupRequest>());
         }
 
-        popupQueues[target].Enqueue(new PopupRequest { 
-            Position = target.position, // 현재 위치 저장
-            Text = text, 
+        popupQueues[position].Enqueue(new PopupRequest { 
+            Position = position,
+            Text = message, 
             Color = color, 
-            IsCritical = isCritical 
+            IsCritical = isCritical
         });
 
-        if (!activeCoroutines.ContainsKey(target))
+        if (!activeCoroutines.ContainsKey(position))
         {
-            Coroutine co = StartCoroutine(ProcessQueueRoutine(target));
-            activeCoroutines.Add(target, co);
+            Coroutine co = StartCoroutine(ProcessQueueRoutine(position));
+            activeCoroutines.Add(position, co);
         }
     }
 
-    // 각 몬스터별로 따로 돌아가는 처리기
-    IEnumerator ProcessQueueRoutine(Transform target)
+    // 위치별 큐 처리 코루틴
+    IEnumerator ProcessQueueRoutine(Vector3 position)
     {
-        while (target != null && popupQueues.ContainsKey(target) && popupQueues[target].Count > 0)
+        while (popupQueues.ContainsKey(position) && popupQueues[position].Count > 0)
         {
-            PopupRequest req = popupQueues[target].Dequeue();
+            PopupRequest req = popupQueues[position].Dequeue();
             SpawnPopup(req);
             yield return new WaitForSeconds(textSpawnDelay); 
         }
 
-        // 할 일이 끝나면 코루틴 목록에서 제거 (퇴근)
-        if(target != null) activeCoroutines.Remove(target);
+        // 할 일이 끝나면 코루틴 목록에서 제거
+        activeCoroutines.Remove(position);
+        popupQueues.Remove(position);
     }
 
     private void SpawnPopup(PopupRequest req)
@@ -111,20 +110,21 @@ public class EffectManager : MonoBehaviour
         pool.Enqueue(popup);
     }
 
-    // 메모리정리
-    public void RemoveQueue(Transform target)
+    public void ShowDamage(Transform target, int damage, bool isCritical = false)
     {
-        if (activeCoroutines.ContainsKey(target))
-        {
-            StopCoroutine(activeCoroutines[target]);
-            activeCoroutines.Remove(target);
-        }
-        if (popupQueues.ContainsKey(target))
-        {
-            popupQueues.Remove(target);
-        }
+        if (target != null)
+            ShowText(target.position, damage.ToString(), isCritical ? Color.red : Color.white, isCritical);
     }
-    public void ShowDamage(Transform target, int damage, bool isCritical = false) => ShowPopup(target, damage.ToString(), isCritical ? Color.red : Color.white, isCritical);
-    public void ShowHeal(Transform target, int amount) => ShowPopup(target, $"+{amount}", Color.green);
-    public void ShowText(Transform target, string message, Color color) => ShowPopup(target, message, color);
+
+    public void ShowHeal(Transform target, int amount)
+    {
+        if (target != null)
+            ShowText(target.position, $"+{amount}", Color.green);
+    }
+
+    public void ShowText(Transform target, string message, Color color)
+    {
+        if (target != null)
+            ShowText(target.position, message, color);
+    }
 }

@@ -106,7 +106,8 @@ public class RelicEffectNotifier : MonoBehaviour
             // EffectManager 사용하여 텍스트 표시
             if (EffectManager.Instance != null && notificationAnchor != null)
             {
-                EffectManager.Instance.ShowText(notificationAnchor, notification.text, notification.color);
+                Vector3 textPosition = notificationAnchor.position + new Vector3(0, -0.5f, 0);
+                EffectManager.Instance.ShowText(textPosition, notification.text, notification.color);
             }
 
             // 다음 알림까지 대기

@@ -124,8 +124,7 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
         
         // 튜토리얼 모드일 때 적 약해지게
         if (GameManager.Instance != null && GameManager.Instance.isTutorialMode)
-        {
-            scaledHP = Mathf.Max(1, Mathf.RoundToInt(scaledHP * 0.3f));
+        {            scaledHP = Mathf.Max(1, Mathf.RoundToInt(scaledHP * 0.3f));
             attackDamage = Mathf.Max(1, Mathf.RoundToInt(attackDamage * 0.5f));
         }
         
@@ -137,10 +136,7 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
         UpdateUI();
         
     }
-    void OnDisable()
-    {
-        EffectManager.Instance.RemoveQueue(this.transform);
-    }
+
 
     void OnDestroy()
     {

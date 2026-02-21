@@ -4727,6 +4727,8 @@ MonoBehaviour:
   restartButton: {fileID: 2130713332}
   fadeInDuration: 0.5
   countUpDuration: 1.5
+  victoryTitleColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  defeatTitleColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &444516199
 GameObject:
   m_ObjectHideFlags: 0
@@ -23547,8 +23549,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 1
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
