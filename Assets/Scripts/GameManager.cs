@@ -56,7 +56,7 @@ public class GameManager : MonoBehaviour
     [Header("튜토리얼")]
     public bool isTutorialMode = false;
     private bool tutorialCompleted = false;
-    public bool hasInitializedRun = false; 
+    public bool hasInitializedRun = false;
     public List<MetaUpgradeData> allMetaUpgrades; //메타 업그레이드데이터 리스트
 
     public List<string> nextZoneBuffs = new List<string>();
@@ -213,7 +213,7 @@ public class GameManager : MonoBehaviour
         // 상점 페이즈 여부
         bool shopOpen = (UIManager.Instance != null && UIManager.Instance.IsShopOpen());
         data.isInMaintenancePhase = shopOpen;
-       
+
         SaveManager.Instance.SaveGame(data);
     }
 
@@ -330,8 +330,8 @@ public class GameManager : MonoBehaviour
 
     public void StartNewRun()
     {
-        hasInitializedRun = true; 
-        
+        hasInitializedRun = true;
+
         CurrentGold = 0;
         CurrentZone = 1;
         CurrentWave = 1;
@@ -688,12 +688,12 @@ public class GameManager : MonoBehaviour
                     }
                 }
 
-                
+
                 UIManager.Instance.FadeOut(1.0f, () =>
                 {
                     UIManager.Instance.StartMaintenancePhase();
                     UIManager.Instance.FadeIn();
-                    
+
                     // 상점 열린 상태로 저장
                     SaveCurrentRun();
                 });
@@ -1189,7 +1189,7 @@ public class GameManager : MonoBehaviour
         {
             if (UIManager.Instance != null)
             {
-                UIManager.Instance.CloseAllUIPanels(); 
+                UIManager.Instance.CloseAllUIPanels();
                 UIManager.Instance.gameObject.SetActive(false);
             }
             GameOverDirector.Instance.PlayGameOverSequence(earnedCurrency);
@@ -1221,6 +1221,42 @@ public class GameManager : MonoBehaviour
             if (UIManager.Instance != null) UIManager.Instance.gameObject.SetActive(false);
             GameOverDirector.Instance.PlayGameOverSequence(earnedCurrency);
         }
+    }
+
+    ///모든 존 클리어 시 승리
+    public void ProcessVictory()
+    {
+
+        SaveManager.Instance.DeleteSaveFile();
+        int earnedCurrency = CalculateAndSaveMetaCurrency();
+        RecordVictoryStats(); // 승리한 판 기록
+
+        UIManager.Instance.CloseAllUIPanels();
+        GameOverScreen.Instance.ShowVictory(earnedCurrency);
+
+    }
+    //승리기록
+    private void RecordVictoryStats()
+    {
+        // 총 승리 횟수
+        int totalVictories = PlayerPrefs.GetInt("TotalVictories", 0);
+        PlayerPrefs.SetInt("TotalVictories", totalVictories + 1);
+
+        // 가장 빠른 클리어 타임 (playTime 사용)
+        float bestTime = PlayerPrefs.GetFloat("BestClearTime", float.MaxValue);
+        if (playTime < bestTime)
+        {
+            PlayerPrefs.SetFloat("BestClearTime", playTime);
+        }
+
+        // 최고 점수 = 이번판 골드 총 획득한거
+        int bestGold = PlayerPrefs.GetInt("BestGoldEarned", 0);
+        if (totalGoldEarned > bestGold)
+        {
+            PlayerPrefs.SetInt("BestGoldEarned", totalGoldEarned);
+        }
+
+        PlayerPrefs.Save();
     }
 
     public void HealPlayer(int amount)

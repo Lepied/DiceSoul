@@ -10,3 +10,6 @@ RESULT_MAX_CHAIN,최장 연쇄,Max Chain
 RESULT_MOST_USED,최다 사용,Most Used
 RESULT_RELIC_COUNT,획득한 유물,Relics Obtained
 RESULT_RELIC_COUNT_UNIT,개,
+RESULT_VICTORY,승리!,Victory!
+RESULT_GAME_OVER,게임 오버,Game Over
+RESULT_ALL_ZONES_CLEARED,모든 존 클리어!,All Zones Cleared!

@@ -311,4 +311,16 @@ public class WaveGenerator : MonoBehaviour
             }
         }
     }
+
+    // 이번 런에서 플레이할 총 존 개수
+    public int GetTotalZoneCount()
+    {
+        return currentRunZoneOrder.Count;
+    }
+
+    // 현재 존이 마지막 존인지
+    public bool IsLastZone(int currentZone)
+    {
+        return currentZone >= currentRunZoneOrder.Count;
+    }
 }

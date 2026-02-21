@@ -37,6 +37,12 @@ public class GameOverScreen : MonoBehaviour
     public float fadeInDuration = 0.5f;
     public float countUpDuration = 1.5f;
 
+    [Header("승리 설정")]
+    public Color victoryTitleColor = Color.yellow;
+    public Color defeatTitleColor = Color.white;
+
+    private bool isVictory = false;
+
     void Awake()
     {
         if (Instance == null)
@@ -90,17 +96,49 @@ public class GameOverScreen : MonoBehaviour
         });
     }
 
+    // 승리 화면 표시 
+    public void ShowVictory(int metaCurrency)
+    {
+        isVictory = true;
+        ShowGameOver(0.5f);
+    }
+
     // 통계 업데이트
     private void UpdateStatistics()
     {
         if (GameManager.Instance == null) return;
 
+        // 타이틀 텍스트
+        if (titleText != null)
+        {
+            if (isVictory)
+            {
+                string victoryKey = "RESULT_VICTORY";
+                titleText.text = LocalizationManager.Instance.GetText(victoryKey);
+                titleText.color = victoryTitleColor;
+            }
+            else
+            {
+                string defeatKey = "RESULT_GAME_OVER";
+                titleText.text = LocalizationManager.Instance.GetText(defeatKey);
+                titleText.color = defeatTitleColor;
+            }
+        }
+
         // 기본 정보
         if (waveReachedText != null)
         {
-            string zoneText = LocalizationManager.Instance.GetText("RESULT_ZONE");
-            string waveText = LocalizationManager.Instance.GetText("RESULT_WAVE");
-            waveReachedText.text = $"{zoneText} {GameManager.Instance.CurrentZone} - {waveText} {GameManager.Instance.CurrentWave}";
+            if (isVictory)
+            {
+                string clearText = LocalizationManager.Instance.GetText("RESULT_ALL_ZONES_CLEARED");
+                waveReachedText.text = clearText;
+            }
+            else
+            {
+                string zoneText = LocalizationManager.Instance.GetText("RESULT_ZONE");
+                string waveText = LocalizationManager.Instance.GetText("RESULT_WAVE");
+                waveReachedText.text = $"{zoneText} {GameManager.Instance.CurrentZone} - {waveText} {GameManager.Instance.CurrentWave}";
+            }
         }
 
         if (playTimeText != null)
@@ -190,6 +228,12 @@ public class GameOverScreen : MonoBehaviour
 
         // 완벽한 웨이브(안맞고 깬 웨이브)
         total += GameManager.Instance.perfectWaves * 5;
+
+        // 승리 보너스
+        if (isVictory)
+        {
+            total += 1000;
+        }
 
         return total;
     }

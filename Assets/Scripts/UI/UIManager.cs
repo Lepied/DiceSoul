@@ -1115,6 +1115,14 @@ public class UIManager : MonoBehaviour
 
         if (GameManager.Instance.CurrentWave > GameManager.Instance.wavesPerZone)
         {
+            // 승리 체크
+            if (WaveGenerator.Instance != null && 
+                WaveGenerator.Instance.IsLastZone(GameManager.Instance.CurrentZone))
+            {
+                ProcessGameVictory();
+                return;
+            }
+
             //존 종료 이벤트
             ZoneContext zoneEndCtx = new ZoneContext
             {
@@ -1162,6 +1170,22 @@ public class UIManager : MonoBehaviour
         }
     }
     public bool IsShopOpen() { return maintenancePanel != null && maintenancePanel.activeSelf; }
+
+    private void ProcessGameVictory()
+    {    
+        // 존 종료 이벤트
+        ZoneContext finalZoneCtx = new ZoneContext
+        {
+            ZoneNumber = GameManager.Instance.CurrentZone,
+            ZoneName = WaveGenerator.Instance?.GetCurrentZoneData(GameManager.Instance.CurrentZone)?.zoneName ?? "Unknown"
+        };
+        GameEvents.RaiseZoneEnd(finalZoneCtx);
+        
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ProcessVictory();
+        }
+    }
 
     public void ShowGenericTooltip(string title, string description, RectTransform targetRect)
     {

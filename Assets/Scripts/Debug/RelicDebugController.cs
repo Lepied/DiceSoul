@@ -46,13 +46,13 @@ public class RelicDebugController : MonoBehaviour
         }
 
         // 빌드에서 비활성화
-        #if !UNITY_EDITOR
+#if !UNITY_EDITOR
         if (!enableInBuild)
         {
             enabled = false;
             return;
         }
-        #endif
+#endif
 
         Log("<color=cyan>=== 유물 디버그 콘솔 ===</color>");
         Log("<color=yellow>~ 키로 콘솔 열기 | help 입력하여 명령어 확인</color>");
@@ -74,53 +74,29 @@ public class RelicDebugController : MonoBehaviour
         if (showConsole) return;
 
         // ===== 단축키 =====
-        
+
         // F1: 상태 출력
         if (keyboard.f1Key.wasPressedThisFrame)
         {
             ExecuteCommand("status");
         }
-        
+
         // F2: 생존 프리셋
         if (keyboard.f2Key.wasPressedThisFrame)
         {
             ExecuteCommand("preset survival");
         }
-        
+
         // F3: 공격 프리셋
         if (keyboard.f3Key.wasPressedThisFrame)
         {
             ExecuteCommand("preset damage");
         }
-        
+
         // F4: 주사위 프리셋
         if (keyboard.f4Key.wasPressedThisFrame)
         {
             ExecuteCommand("preset dice");
-        }
-        
-        // F9: 유물 전부 제거
-        if (keyboard.f9Key.wasPressedThisFrame)
-        {
-            ExecuteCommand("clear");
-        }
-        
-        // F10: 체력 풀 회복
-        if (keyboard.f10Key.wasPressedThisFrame)
-        {
-            ExecuteCommand("heal 999");
-        }
-        
-        // F11: 골드 추가
-        if (keyboard.f11Key.wasPressedThisFrame)
-        {
-            ExecuteCommand("gold 500");
-        }
-        
-        // F12: 현재 적 처치
-        if (keyboard.f12Key.wasPressedThisFrame)
-        {
-            ExecuteCommand("kill");
         }
     }
 
@@ -134,19 +110,19 @@ public class RelicDebugController : MonoBehaviour
         // 로그 영역
         GUILayout.BeginArea(new Rect(20, 20, 580, 300));
         scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(570), GUILayout.Height(290));
-        
+
         foreach (string log in logHistory)
         {
             GUILayout.Label(log);
         }
-        
+
         GUILayout.EndScrollView();
         GUILayout.EndArea();
 
         // 입력 영역
         GUI.SetNextControlName("ConsoleInput");
         inputText = GUI.TextField(new Rect(20, 330, 500, 25), inputText);
-        
+
         // 자동 포커스
         if (showConsole)
         {
@@ -154,7 +130,7 @@ public class RelicDebugController : MonoBehaviour
         }
 
         // 버튼
-        if (GUI.Button(new Rect(530, 330, 60, 25), "실행") || 
+        if (GUI.Button(new Rect(530, 330, 60, 25), "실행") ||
             (Event.current.isKey && Event.current.keyCode == KeyCode.Return))
         {
             if (!string.IsNullOrEmpty(inputText))
@@ -185,8 +161,8 @@ public class RelicDebugController : MonoBehaviour
         }
 
         // 단축키 안내
-        GUI.Label(new Rect(20, 360, 580, 40), 
-            "<color=gray>F1:상태 | F2~F4:프리셋 | F9:유물제거 | F10:힐 | F11:골드 | F12:킬</color>",
+        GUI.Label(new Rect(20, 360, 580, 40),
+            "<color=gray>F1:상태 | F2~F4:프리셋",
             new GUIStyle(GUI.skin.label) { richText = true });
     }
 
@@ -285,6 +261,12 @@ public class RelicDebugController : MonoBehaviour
                 KillEnemy();
                 break;
 
+            case "clearwave":
+            case "nextwave":
+            case "skipwave":
+                ClearWave();
+                break;
+
             case "status":
             case "stat":
                 ShowStatus();
@@ -293,6 +275,19 @@ public class RelicDebugController : MonoBehaviour
             case "cls":
             case "clear_log":
                 logHistory.Clear();
+                break;
+
+            case "victory":
+            case "win":
+                if (GameManager.Instance != null)
+                {
+                    GameManager.Instance.ProcessVictory();
+                    Log("<color=yellow>🎉 승리 처리!</color>");
+                }
+                else
+                {
+                    Log("<color=red>GameManager를 찾을 수 없습니다.</color>");
+                }
                 break;
 
             default:
@@ -335,6 +330,8 @@ public class RelicDebugController : MonoBehaviour
         Log("  gold [양]    - 골드 추가 (기본 500)");
         Log("  roll [양]    - 굴림 횟수 추가");
         Log("  kill         - 현재 적 처치");
+        Log("  clearwave    - 웨이브 클리어 (다음 웨이브로)");
+        Log("  victory      - 즉시 승리");
         Log("  status       - 게임 상태 출력");
     }
 
@@ -461,8 +458,8 @@ public class RelicDebugController : MonoBehaviour
         if (allRelics == null) return;
 
         query = query.ToLower();
-        var matches = allRelics.Where(kvp => 
-            kvp.Key.ToLower().Contains(query) || 
+        var matches = allRelics.Where(kvp =>
+            kvp.Key.ToLower().Contains(query) ||
             kvp.Value.Name.ToLower().Contains(query)).ToList();
 
         if (matches.Count == 0)
@@ -540,7 +537,7 @@ public class RelicDebugController : MonoBehaviour
     private void TakeDamage(int amount)
     {
         if (GameManager.Instance == null) return;
-        
+
         var ctx = new DamageContext
         {
             OriginalDamage = amount,
@@ -548,7 +545,7 @@ public class RelicDebugController : MonoBehaviour
             Source = "Debug"
         };
         GameEvents.RaiseBeforePlayerDamaged(ctx);
-        
+
         if (!ctx.Cancelled)
         {
             GameManager.Instance.PlayerHealth -= ctx.FinalDamage;
@@ -616,6 +613,19 @@ public class RelicDebugController : MonoBehaviour
         }
     }
 
+    private void ClearWave()
+    {
+        if (GameManager.Instance == null)
+        {
+            Log("<color=red>GameManager를 찾을 수 없습니다.</color>");
+            return;
+        }
+
+        // 웨이브 클리어 처리 (굴림 보너스 0)
+        GameManager.Instance.ProcessWaveClear(true, 0);
+        Log("<color=green>[치트] 웨이브 클리어! 다음 웨이브로 진행</color>");
+    }
+
     private void ShowStatus()
     {
         if (GameManager.Instance == null)
@@ -641,7 +651,7 @@ public class RelicDebugController : MonoBehaviour
         logHistory.Add(message);
         if (logHistory.Count > MAX_LOG_LINES)
             logHistory.RemoveAt(0);
-        
+
         scrollPosition = new Vector2(0, float.MaxValue); // 자동 스크롤
 
         // Unity 콘솔에도 출력

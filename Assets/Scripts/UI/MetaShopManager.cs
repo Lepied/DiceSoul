@@ -134,7 +134,10 @@ public class MetaShopManager : MonoBehaviour
         // 만렙 체크
         if (currentLevel >= data.maxLevel)
         {
-            detailEffect.text = LocalizationManager.Instance.GetText("META_MAX_LEVEL");
+            float curVal = data.GetTotalEffect(currentLevel);
+            string maxLevelText = LocalizationManager.Instance.GetText("META_MAX_LEVEL");
+            string effectLabel = LocalizationManager.Instance.GetText("META_CURRENT_EFFECT");
+            detailEffect.text = $"{maxLevelText} ({effectLabel}: {curVal})";
             buyCostText.text = "-";
             buyButton.interactable = false;
         }
