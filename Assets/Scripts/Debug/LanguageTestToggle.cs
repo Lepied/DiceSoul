@@ -1,9 +1,10 @@
+#if UNITY_EDITOR
 using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
 
 
-// 언어 변경 테스트용 F10으로 토글하기
+// 언어 변경 테스트용
 public class LanguageTestToggle : MonoBehaviour
 {
 
@@ -30,3 +31,4 @@ public class LanguageTestToggle : MonoBehaviour
     }
     
 }
+#endif

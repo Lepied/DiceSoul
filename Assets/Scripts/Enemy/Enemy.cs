@@ -83,8 +83,7 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
         {
             originalColor = Color.white; // 기본값
         }
-
-        Debug.Log($"[Enemy Awake] {enemyName} 생성됨, Collider: {GetComponent<Collider2D>() != null}");    }
+    }
     void OnEnable()
     {
         // 기본값 초기화
@@ -241,8 +240,7 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
         }
 
         currentHP -= finalDamage;
-        Debug.Log($"{enemyName} 피격! 데미지: {finalDamage}. 남은 체력: {currentHP}/{maxHP}");
-        
+
         // 런 통계: 데미지 기록
         if (GameManager.Instance != null)
         {
@@ -331,7 +329,6 @@ public class Enemy : MonoBehaviour, IPointerClickHandler
 
     protected virtual void OnDeath()
     {
-        Debug.Log($"{enemyName}이(가) 처치되었습니다!");
         blinkTween?.Kill();
         flashTween?.Kill();
         knockbackTween?.Kill();

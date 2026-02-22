@@ -11,6 +11,7 @@ public class SettingsPanelController : MonoBehaviour
 
     public Toggle fullscreenToggle;
     public TMP_Dropdown resolutionDropdown;
+    public TMP_Dropdown languageDropdown;
     public Button closeButton;
     public Button saveButton;
     public Button resetButton;
@@ -35,6 +36,7 @@ public class SettingsPanelController : MonoBehaviour
     private float tempSFXVolume;
     private bool tempFullscreen;
     private int tempResolutionIndex;
+    private Language tempLanguage;
 
     // 지원하는 해상도 목록 (16:9 비율)
     private readonly (int width, int height)[] resolutions = new (int, int)[]
@@ -115,6 +117,17 @@ public class SettingsPanelController : MonoBehaviour
             resolutionDropdown.onValueChanged.AddListener(OnResolutionChanged);
         }
 
+        // 언어 드롭다운 초기화 및 리스너 연결
+        if (languageDropdown != null)
+        {
+            languageDropdown.ClearOptions();
+            var languageOptions = new System.Collections.Generic.List<string>();
+            languageOptions.Add("한국어");
+            languageOptions.Add("English");
+            languageDropdown.AddOptions(languageOptions);
+            languageDropdown.onValueChanged.AddListener(OnLanguageChanged);
+        }
+
         // 초기 상태는 비활성화
         if (settingsPanel != null)
         {
@@ -138,10 +151,11 @@ public class SettingsPanelController : MonoBehaviour
 
         // 버튼 활성화/비활성화
         bool isRunActive = IsRunActive();
+        bool isTutorial = GameManager.Instance != null && GameManager.Instance.isTutorialMode;
     
         resumeButton.gameObject.SetActive(isRunActive);
-        returnToMainButton.gameObject.SetActive(isRunActive);
-        quitGameButton.gameObject.SetActive(true);
+        returnToMainButton.gameObject.SetActive(isRunActive && !isTutorial);
+        quitGameButton.gameObject.SetActive(!isTutorial);
         closeButton.gameObject.SetActive(!isRunActive);
         // 런 진행 중이면 일시정지
         if (isRunActive)
@@ -165,11 +179,19 @@ public class SettingsPanelController : MonoBehaviour
     // 변경사항 취소하고 닫기
     private void CancelAndClose()
     {
-        // 저장 안 하고 닫기
+        // 원래 설정으로 되돌리기
         if (SettingsManager.Instance != null)
         {
             SettingsManager.Instance.LoadSettings();
+            
+            // 볼륨을 원래 값으로 복원
+            if (SoundManager.Instance != null)
+            {
+                SoundManager.Instance.SetBGMVolume(SettingsManager.Instance.BGMVolume);
+                SoundManager.Instance.SetSFXVolume(SettingsManager.Instance.SFXVolume);
+            }
         }
+        
         CloseSettings();
     }
 
@@ -211,6 +233,14 @@ public class SettingsPanelController : MonoBehaviour
             // 전체화면이면 해상도 드롭다운 비활성화
             resolutionDropdown.interactable = !tempFullscreen;
         }
+
+        // 현재 언어 설정
+        if (languageDropdown != null && LocalizationManager.Instance != null)
+        {
+            tempLanguage = LocalizationManager.Instance.CurrentLanguage;
+            int languageIndex = tempLanguage == Language.Korean ? 0 : 1;
+            languageDropdown.SetValueWithoutNotify(languageIndex);
+        }
     }
 
     // 현재 해상도와 가장 가까운 옵션 찾기
@@ -232,9 +262,10 @@ public class SettingsPanelController : MonoBehaviour
         tempBGMVolume = value;
         UpdateBGMVolumeText(value);
 
-        if (SettingsManager.Instance != null)
+        // 미리듣기를 위해 임시 적용
+        if (SoundManager.Instance != null)
         {
-            SettingsManager.Instance.SetBGMVolume(value);
+            SoundManager.Instance.SetBGMVolume(value);
         }
     }
 
@@ -243,14 +274,10 @@ public class SettingsPanelController : MonoBehaviour
         tempSFXVolume = value;
         UpdateSFXVolumeText(value);
 
-        if (SettingsManager.Instance != null)
-        {
-            SettingsManager.Instance.SetSFXVolume(value);
-        }
-
-        // 테스트 사운드 재생
+        // 미리듣기를 위해 임시로만 적용 (저장하지 않음)
         if (SoundManager.Instance != null)
         {
+            SoundManager.Instance.SetSFXVolume(value);
             //ui클릭사운드 여기서 재생시키기
         }
     }
@@ -258,10 +285,6 @@ public class SettingsPanelController : MonoBehaviour
     private void OnFullscreenToggled(bool isOn)
     {
         tempFullscreen = isOn;
-        if (SettingsManager.Instance != null)
-        {
-            SettingsManager.Instance.SetFullscreen(isOn);
-        }
 
         // 전체화면이면 해상도 드롭다운 비활성화
         if (resolutionDropdown != null)
@@ -273,20 +296,35 @@ public class SettingsPanelController : MonoBehaviour
     private void OnResolutionChanged(int index)
     {
         tempResolutionIndex = index;
-        var selectedRes = resolutions[index];
+    }
 
-        if (SettingsManager.Instance != null && !tempFullscreen)
-        {
-            SettingsManager.Instance.SetResolution(selectedRes.width, selectedRes.height);
-        }
+    private void OnLanguageChanged(int index)
+    {
+        tempLanguage = index == 0 ? Language.Korean : Language.English;
     }
 
     private void OnSaveButton()
     {
-        // 설정 저장
+        // 모든 임시 설정을 실제로 적용하고 저장
         if (SettingsManager.Instance != null)
         {
+            SettingsManager.Instance.SetBGMVolume(tempBGMVolume);
+            SettingsManager.Instance.SetSFXVolume(tempSFXVolume);
+            SettingsManager.Instance.SetFullscreen(tempFullscreen);
+            
+            if (!tempFullscreen && tempResolutionIndex >= 0 && tempResolutionIndex < resolutions.Length)
+            {
+                var selectedRes = resolutions[tempResolutionIndex];
+                SettingsManager.Instance.SetResolution(selectedRes.width, selectedRes.height);
+            }
+            
             SettingsManager.Instance.SaveSettings();
+        }
+
+        // 언어 변경 적용
+        if (LocalizationManager.Instance != null)
+        {
+            LocalizationManager.Instance.ChangeLanguage(tempLanguage);
         }
 
         CloseSettings();

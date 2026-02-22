@@ -304,7 +304,6 @@ public class GameManager : MonoBehaviour
             if (UIManager.Instance != null)
             {
                 UIManager.Instance.StartMaintenancePhase();
-                Debug.Log("[LoadRun] 상점 페이즈 복원 완료");
             }
         }
         else
@@ -314,7 +313,6 @@ public class GameManager : MonoBehaviour
                 if (UIManager.Instance != null)
                 {
                     UIManager.Instance.StartMaintenancePhase();
-                    Debug.Log("[LoadRun] 이전 버전 세이브 - 상점 페이즈 복원");
                 }
             }
             else
@@ -358,7 +356,6 @@ public class GameManager : MonoBehaviour
 
 
         string selectedDeck = PlayerPrefs.GetString(selectedDeckKey, "Default");
-        Debug.Log($"[GameManager] '{selectedDeck}' 덱으로 새 런을 시작합니다.");
 
         switch (selectedDeck)
         {
@@ -513,7 +510,6 @@ public class GameManager : MonoBehaviour
     //UIManager업데이트 메서드
     public void StartNewWave()
     {
-        Debug.Log($"[Zone {CurrentZone} - Wave {CurrentWave}] 웨이브 시작.");
 
 
         // 메타업그레이드중에 이전 웨이브 Shield 저장
@@ -522,7 +518,6 @@ public class GameManager : MonoBehaviour
         {
             int carriedShield = Mathf.RoundToInt(CurrentShield * carryPercent / 100f);
             PlayerPrefs.SetInt("CarriedShield", carriedShield);
-            Debug.Log($"[보존의 장막] Shield {CurrentShield}의 {carryPercent}% ({carriedShield}) 저장");
         }
 
         // 웨이브 시작 시 실드 초기화
@@ -547,7 +542,6 @@ public class GameManager : MonoBehaviour
     public void AddGoldDirect(int finalGold)
     {
         CurrentGold += finalGold;
-        Debug.Log($"금화 획득(직접): +{finalGold} (총: {CurrentGold})");
 
         if (UIManager.Instance != null)
         {
@@ -578,8 +572,6 @@ public class GameManager : MonoBehaviour
         CurrentGold += finalGold;
         totalGoldEarned += finalGold;
 
-        Debug.Log($"금화 획득(보너스): +{finalGold} (기본: {goldToAdd}, 전역배율: {globalMultiplier}x) (총: {CurrentGold})");
-
         if (UIManager.Instance != null)
         {
             UIManager.Instance.UpdateGold(CurrentGold);
@@ -588,14 +580,11 @@ public class GameManager : MonoBehaviour
     public void AddNextZoneBuff(string buffKey)
     {
         nextZoneBuffs.Add(buffKey);
-        Debug.Log($"[GameManager] 다음 존 버프 획득: {buffKey}");
     }
 
     public void ApplyNextZoneBuffs(DiceController diceController)
     {
         if (nextZoneBuffs.Count == 0) return;
-
-        Debug.Log("다음 존 버프를 적용합니다...");
         foreach (string buff in nextZoneBuffs)
         {
             switch (buff)
@@ -605,10 +594,8 @@ public class GameManager : MonoBehaviour
                     break;
                 // DamageBoost와 GoldBoost는 GetAttackDamageModifiers에서 계산
                 case "DamageBoost":
-                    Debug.Log(">> 공격력 증가 적용됨!");
                     break;
                 case "GoldBoost":
-                    Debug.Log(">> 금화 획득량 증가 적용됨!");
                     break;
             }
         }
@@ -631,20 +618,17 @@ public class GameManager : MonoBehaviour
             if (rollsRemaining > 0)
             {
                 int bonus = rollsRemaining * bonusPerRollRemaining;
-                Debug.Log($"남은 굴림 횟수 보너스: +{bonus}점 (남은 횟수: {rollsRemaining})");
                 AddGold(bonus);
             }
             if (buffDuration > 0)
             {
                 buffDuration--;
-                Debug.Log($"남은 웨이브: {buffDuration}");
                 if (buffDuration == 0)
                 {
                     // 버프 종료 시 스탯 초기화
                     buffDamageValue = 0;
                     buffShieldValue = 0;
                     buffRerollValue = 0;
-                    Debug.Log("버프 효과 종료.");
                 }
             }
 
@@ -675,8 +659,6 @@ public class GameManager : MonoBehaviour
                     if (interestGold > 0)
                     {
                         AddGold(interestGold);
-                        Debug.Log($"[이자 수익] 골드 {currentGoldBeforeInterest}의 {interestRate}% = {interestGold} 골드 추가 획득!");
-
                         if (EffectManager.Instance != null && UIManager.Instance != null)
                         {
                             EffectManager.Instance.ShowText(
@@ -702,8 +684,6 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                Debug.Log("웨이브 클리어! 유물 보상.");
-
                 // 튜토리얼 모드이고 Wave 1이면 튜토리얼 완료 체크
                 if (isTutorialMode && CurrentWave == 2)
                 {
@@ -729,7 +709,6 @@ public class GameManager : MonoBehaviour
         {
             // 웨이브 실패하면 살아있는 적의 총 공격력만큼 피해입기
             int totalEnemyDamage = GetAllEnemyDamage();
-            Debug.Log($"웨이브 실패. 살아있는 적의 총 공격력 {totalEnemyDamage} 피해를 받습니다.");
 
             //피해 전 이벤트 발생 (유물이 피해 무효화/감소 가능)
             DamageContext damageCtx = new DamageContext
@@ -744,7 +723,7 @@ public class GameManager : MonoBehaviour
             // 유물이 피해를 취소했는지 확인
             if (damageCtx.Cancelled)
             {
-                Debug.Log("[이벤트] 유물 효과로 피해가 무효화되었습니다!");
+                Debug.Log("[이벤트] 유물 효과 피해 무효화");
             }
             else if (CurrentShield > 0)
             {
@@ -756,7 +735,6 @@ public class GameManager : MonoBehaviour
                     SoundManager.Instance.PlaySoundConfig(playerShieldHitSound);
                 }
 
-                Debug.Log($"쉴드 방어! 남은 쉴드: {CurrentShield}");
             }
             else
             {
@@ -814,7 +792,6 @@ public class GameManager : MonoBehaviour
                 if (deathCtx.Revived)
                 {
                     PlayerHealth = deathCtx.ReviveHP;
-                    Debug.Log($"[이벤트] {deathCtx.ReviveSource}에 의해 체력 {deathCtx.ReviveHP}로 부활!");
                     if (UIManager.Instance != null)
                     {
                         UIManager.Instance.UpdateHealth(PlayerHealth, MaxPlayerHealth);
@@ -827,7 +804,7 @@ public class GameManager : MonoBehaviour
                     return;
                 }
 
-                Debug.Log("게임 오버. 영구 재화를 저장하고 연출을 재생합니다.");
+                Debug.Log("게임 오버");
 
                 int earnedCurrency = CalculateAndSaveMetaCurrency();
 
@@ -851,17 +828,10 @@ public class GameManager : MonoBehaviour
 
     private void ShowRewardScreen()
     {
-        if (RelicDB.Instance == null)
-        {
-            Debug.LogError("RelicDB가 씬에 없습니다!");
-            return;
-        }
-
         List<Relic> rewardOptions = RelicDB.Instance.GetAcquirableRelics(3);
 
         if (rewardOptions.Count == 0)
         {
-            Debug.Log("모든 유물이 최대치 도달! 골드 보상 지급");
             AddGold(150);
             if (StageManager.Instance != null)
             {
@@ -963,7 +933,6 @@ public class GameManager : MonoBehaviour
         // 획득 가능 여부 체크
         if (!CanAcquireRelic(chosenRelic))
         {
-            Debug.LogWarning($"유물 획득 실패: {chosenRelic.Name} (최대 개수 도달)");
             return;
         }
 
@@ -972,7 +941,7 @@ public class GameManager : MonoBehaviour
         int currentCount = activeRelics.Count(r => r.RelicID == chosenRelic.RelicID);
         int effectiveMax = GetEffectiveMaxCount(chosenRelic.RelicID, chosenRelic.MaxCount);
         string maxInfo = effectiveMax > 0 ? $" ({currentCount}/{effectiveMax})" : "";
-        Debug.Log($"유물 획득: {chosenRelic.Name}{maxInfo}");
+
 
         if (UIManager.Instance != null)
         {
@@ -1000,8 +969,6 @@ public class GameManager : MonoBehaviour
 
     public void ApplyAllRelicEffects(DiceController diceController)
     {
-        Debug.Log("보유한 유물 효과를 모두 적용합니다...");
-
         ApplyZoneBuffs(diceController);
     }
 
@@ -1070,7 +1037,6 @@ public class GameManager : MonoBehaviour
         if (firstHitThisWave)
         {
             firstHitThisWave = false;
-            Debug.Log("첫 피격 무효화!");
             if (EffectManager.Instance != null && UIManager.Instance != null)
             {
                 EffectManager.Instance.ShowText(UIManager.Instance.transform, "무효", Color.cyan);
@@ -1084,7 +1050,7 @@ public class GameManager : MonoBehaviour
         // 유물이 피해를 취소했는지 확인
         if (damageCtx.Cancelled)
         {
-            Debug.Log($"[이벤트] {damageCtx.Source}의 피해가 무효화되었습니다!");
+            Debug.Log($"{damageCtx.Source}의 피해 무효화");
             return;
         }
 
@@ -1094,7 +1060,6 @@ public class GameManager : MonoBehaviour
         {
             int beforeReduce = damageCtx.FinalDamage;
             damageCtx.FinalDamage = Mathf.Max(1, damageCtx.FinalDamage - reduction);
-            Debug.Log($"[강철 피부] 피해 감소: {beforeReduce} → {damageCtx.FinalDamage} (-{reduction})");
         }
 
         // 쉴드 먼저 소모
@@ -1107,8 +1072,6 @@ public class GameManager : MonoBehaviour
             // 쉴드 피해 누적
             accumulatedShieldDamage += shieldAbsorb;
             hasPendingFeedback = true;
-
-            Debug.Log($"쉴드 방어! -{shieldAbsorb} (남은 쉴드: {CurrentShield})");
         }
 
         if (damageCtx.FinalDamage > 0)
@@ -1118,8 +1081,6 @@ public class GameManager : MonoBehaviour
             // 체력 피해 누적
             accumulatedMechanicDamage += damageCtx.FinalDamage;
             hasPendingFeedback = true;
-
-            Debug.Log($"[{damageCtx.Source}] 플레이어 피해: -{damageCtx.FinalDamage} (남은 체력: {PlayerHealth})");
 
             // 이벤트 시스템: 피격 후 이벤트
             GameEvents.RaiseAfterPlayerDamaged(damageCtx);
@@ -1148,7 +1109,6 @@ public class GameManager : MonoBehaviour
             {
                 hasRevived = true;
                 PlayerHealth = Mathf.RoundToInt(MaxPlayerHealth * 0.3f);
-                Debug.Log($"[수호천사] 부활! 체력 {PlayerHealth}로 회복");
                 EffectManager.Instance?.ShowText(UIManager.Instance.transform, "부활!", Color.yellow);
 
                 if (UIManager.Instance != null)
@@ -1172,7 +1132,6 @@ public class GameManager : MonoBehaviour
         if (deathCtx.Revived)
         {
             PlayerHealth = deathCtx.ReviveHP;
-            Debug.Log($"[이벤트] {deathCtx.ReviveSource}에 의해 체력 {deathCtx.ReviveHP}로 부활!");
             if (UIManager.Instance != null)
             {
                 UIManager.Instance.UpdateHealth(PlayerHealth, MaxPlayerHealth);
@@ -1181,7 +1140,7 @@ public class GameManager : MonoBehaviour
         }
 
         // 진짜 사망 처리
-        Debug.Log("게임 오버. 영구 재화를 저장하고 연출을 재생합니다.");
+        Debug.Log("게임 오버");
         int earnedCurrency = CalculateAndSaveMetaCurrency();
         SaveManager.Instance.DeleteSaveFile();
 
@@ -1272,7 +1231,6 @@ public class GameManager : MonoBehaviour
 
         if (healCtx.Cancelled)
         {
-            Debug.Log("[이벤트] 회복이 차단되었습니다!");
             return;
         }
 
@@ -1283,7 +1241,6 @@ public class GameManager : MonoBehaviour
     public void AddShield(int amount)
     {
         CurrentShield += amount;
-        Debug.Log($"실드 획듍: +{amount} (총: {CurrentShield})");
 
         if (UIManager.Instance != null)
         {
@@ -1295,7 +1252,6 @@ public class GameManager : MonoBehaviour
     {
         if (CurrentShield > 0)
         {
-            Debug.Log($"실드 제거: {CurrentShield} -> 0");
             CurrentShield = 0;
         }
     }
@@ -1326,11 +1282,9 @@ public class GameManager : MonoBehaviour
         if (playerDiceDeck.Count < maxDiceCount)
         {
             playerDiceDeck.Add(diceType);
-            Debug.Log($"덱 업그레이드: {diceType} 1개 추가. (현재 {playerDiceDeck.Count}개)");
         }
         else
         {
-            Debug.Log($"덱 업그레이드 실패: 최대 주사위 개수({maxDiceCount}) 도달");
         }
     }
 
@@ -1338,18 +1292,9 @@ public class GameManager : MonoBehaviour
     {
         if (playerDiceDeck.Count > minDiceCount)
         {
-            if (playerDiceDeck.Remove(diceTypeToRemove)) // (리스트에서 첫 번째 "D6"를 찾아 제거)
+            if (playerDiceDeck.Remove(diceTypeToRemove))
             {
-                Debug.Log($"덱 수정: {diceTypeToRemove} 1개 제거. (현재 {playerDiceDeck.Count}개)");
             }
-            else
-            {
-                Debug.LogWarning($"덱 수정 실패: 덱에서 {diceTypeToRemove}를 찾지 못했습니다.");
-            }
-        }
-        else
-        {
-            Debug.Log($"덱 수정 실패: 최소 주사위 개수({minDiceCount}) 도달");
         }
     }
 
@@ -1358,7 +1303,6 @@ public class GameManager : MonoBehaviour
         if (diceIndex >= 0 && diceIndex < playerDiceDeck.Count)
         {
             playerDiceDeck[diceIndex] = newDiceType;
-            Debug.Log($"덱 업그레이드: {diceIndex}번 주사위가 {newDiceType}이 되었습니다.");
         }
     }
 
@@ -1369,9 +1313,8 @@ public class GameManager : MonoBehaviour
 
         if (hasInsurance)
         {
-            int insuranceMoney = (int)(CurrentGold * 0.3f); // 30% 환급
+            int insuranceMoney = (int)(CurrentGold * 0.3f);
             earnedCurrency += insuranceMoney;
-            Debug.Log($"보험 아이템 추가 환급금: {insuranceMoney}");
         }
 
         totalMetaCurrency += earnedCurrency;
@@ -1387,8 +1330,6 @@ public class GameManager : MonoBehaviour
         {
             SaveManager.Instance.DeleteSaveFile();
         }
-
-        Debug.Log($"이번 런 획득 재화: {earnedCurrency}. 저장된 총 재화: {totalMetaCurrency}");
         return earnedCurrency;
     }
 
@@ -1504,7 +1445,6 @@ public class GameManager : MonoBehaviour
         {
             AddShield(carriedShield);
             PlayerPrefs.DeleteKey("CarriedShield");
-            Debug.Log($"[보존의 장막] 이월된 Shield +{carriedShield}");
         }
 
         //메타강화 절대 방어 - 첫 피격 무효화
@@ -1531,7 +1471,6 @@ public class GameManager : MonoBehaviour
         if (waveHeal > 0)
         {
             HealPlayer(waveHeal);
-            Debug.Log($"[재생성 장벽] 웨이브 종료 - 체력 +{waveHeal} 회복");
         }
     }
 

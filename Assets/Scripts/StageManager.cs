@@ -21,7 +21,7 @@ public class StageManager : MonoBehaviour
     public float spawnSpreadRadius = 0.5f;
     public float screenEdgePadding = 1.0f;
     public float minEnemySpacing = 1.5f;  // 적들 간 최소 거리
-    public int maxSpawnAttempts = 10;     // 스폰 위치 재시도 횟수
+    public int maxSpawnAttempts = 20;     // 스폰 위치 재시도 횟수
 
     public List<Enemy> activeEnemies = new List<Enemy>();
     private bool isAttackChoice = false;
@@ -55,14 +55,14 @@ public class StageManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    
+
     void OnDestroy()
     {
 
         if (Instance == this)
         {
             Instance = null;
-            
+
         }
     }
     void Start()
@@ -70,14 +70,8 @@ public class StageManager : MonoBehaviour
         if (diceController == null)
         {
             diceController = FindFirstObjectByType<DiceController>();
-            if (diceController == null)
-                Debug.LogError("씬에 DiceController가 없습니다!");
         }
-        if (GameManager.Instance == null)
-        {
-            Debug.LogError("GameManager가 없습니다!");
-            return;
-        }
+
         mainCam = Camera.main;
         if (mainCam != null)
         {
@@ -87,10 +81,6 @@ public class StageManager : MonoBehaviour
             minViewBoundary.y += screenEdgePadding;
             maxViewBoundary.x -= screenEdgePadding;
             maxViewBoundary.y -= screenEdgePadding;
-        }
-        else
-        {
-            Debug.LogError("Main Camera가 없습니다! 스폰 위치가 제한되지 않습니다.");
         }
 
         // 현재 Zone에 맞는 배경 설정 (이어하기 대응)
@@ -113,7 +103,7 @@ public class StageManager : MonoBehaviour
         {
             yield return null;
         }
-        
+
         PrepareNextWave();
     }
 
@@ -245,8 +235,6 @@ public class StageManager : MonoBehaviour
     {
         (int shieldAmount, _) = GetPreviewValues(hand);
 
-        Debug.Log($"[수비] {hand.Description} - 실드 {shieldAmount} 획득");
-
         diceController.RemoveDiceByIndices(hand.UsedDiceIndices);
 
         GameManager.Instance.AddShield(shieldAmount);
@@ -263,8 +251,6 @@ public class StageManager : MonoBehaviour
 
         // 실제 공격용 AttackContext 생성
         AttackContext attackCtx = CreateAttackContext(hand, finalDamage, finalGold);
-
-        Debug.Log($"[전체 공격] {hand.Description} - 데미지: {finalDamage}");
 
         List<Enemy> targets = activeEnemies.Where(e => e != null && !e.isDead).ToList();
         if (targets.Count == 0)
@@ -298,7 +284,6 @@ public class StageManager : MonoBehaviour
                         Enemy enemy = targets[targetIndex];
                         int damageToTake = enemy.CalculateDamageTaken(hand) + bonusDamage;
                         enemy.TakeDamage(damageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
-                        Debug.Log($"  → {enemy.name} - 데미지: {damageToTake}");
                     }
                 },
                 onComplete: () =>
@@ -317,7 +302,6 @@ public class StageManager : MonoBehaviour
             {
                 int damageToTake = enemy.CalculateDamageTaken(hand) + bonusDamage;
                 enemy.TakeDamage(damageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
-                Debug.Log($"  → {enemy.name} - 데미지: {damageToTake}");
             }
 
             GameManager.Instance.AddGoldDirect(finalGold);
@@ -357,8 +341,6 @@ public class StageManager : MonoBehaviour
 
         // 생존 적 수보다 많으면 조정
         randomTargetCount = Mathf.Min(randomTargetCount, aliveEnemies.Count);
-
-        Debug.Log($"[랜덤 공격] {hand.Description} → {randomTargetCount}명의 적 - 데미지: {finalDamage}");
 
         // 랜덤 타겟 선택
         List<Enemy> randomTargets = new List<Enemy>();
@@ -404,7 +386,7 @@ public class StageManager : MonoBehaviour
                         Enemy target = randomTargets[targetIndex];
                         int damageToTake = target.CalculateDamageTaken(hand) + bonusDamage;
                         target.TakeDamage(damageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
-                        Debug.Log($"  → {target.name} - 데미지: {damageToTake}");
+
                     }
                 },
                 onComplete: () =>
@@ -421,7 +403,6 @@ public class StageManager : MonoBehaviour
             {
                 int damageToTake = target.CalculateDamageTaken(hand) + bonusDamage;
                 target.TakeDamage(damageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
-                Debug.Log($"  → {target.name} - 데미지: {damageToTake}");
             }
 
             GameManager.Instance.AddGoldDirect(finalGold);
@@ -438,7 +419,6 @@ public class StageManager : MonoBehaviour
         int aliveEnemyCount = activeEnemies.Count(e => e != null && !e.isDead);
         if (aliveEnemyCount <= requiredTargetCount)
         {
-            Debug.Log($"[자동 타겟 선택] 적({aliveEnemyCount}명)이 요구 타겟 수({requiredTargetCount}명) 이하 - 모든 적 자동 선택");
             currentSelectedTargets.Clear();
             currentSelectedTargets.AddRange(activeEnemies.Where(e => e != null && !e.isDead));
 
@@ -459,8 +439,6 @@ public class StageManager : MonoBehaviour
         currentSelectedHand = hand;
         currentSelectedTargets.Clear();
 
-        Debug.Log($"[타겟 선택] {hand.Description} - {requiredTargetCount}명의 적을 선택하세요");
-
         // UI에 타겟 선택 표시
         if (UIManager.Instance != null)
         {
@@ -478,7 +456,6 @@ public class StageManager : MonoBehaviour
         if (currentSelectedTargets.Contains(selectedEnemy))
         {
             currentSelectedTargets.Remove(selectedEnemy);
-            Debug.Log($"[타겟 선택 해제] {selectedEnemy.name} - 남은 선택: {requiredTargetCount - currentSelectedTargets.Count}명");
 
             // UI 업데이트 (확인 버튼 활성화 상태도 업데이트)
             if (UIManager.Instance != null)
@@ -491,24 +468,15 @@ public class StageManager : MonoBehaviour
         // 필요한 수만큼만 선택 가능
         if (currentSelectedTargets.Count >= requiredTargetCount)
         {
-            Debug.Log($"[타겟 선택 제한] 이미 {requiredTargetCount}명을 선택했습니다");
             return;
         }
 
         // 타겟 추가
         currentSelectedTargets.Add(selectedEnemy);
-        Debug.Log($"[타겟 선택] {selectedEnemy.name} - 남은 선택: {requiredTargetCount - currentSelectedTargets.Count}명");
-
         // UI 업데이트 (확인 버튼 활성화 상태도 업데이트)
         if (UIManager.Instance != null)
         {
             UIManager.Instance.ShowTargetSelectionMode(requiredTargetCount, currentSelectedTargets.Count);
-        }
-
-        // 필요한 수만큼 선택되면 확인 버튼 활성화
-        if (currentSelectedTargets.Count >= requiredTargetCount)
-        {
-            Debug.Log($"[타겟 선택 완료] {requiredTargetCount}명 선택 완료 - 확인 버튼을 누르세요");
         }
     }
 
@@ -521,13 +489,11 @@ public class StageManager : MonoBehaviour
         int aliveEnemyCount = activeEnemies.Count(e => e != null && !e.isDead);
         if (aliveEnemyCount < requiredTargetCount)
         {
-            Debug.Log($"[자동 타겟 선택] 적({aliveEnemyCount}명)이 요구 타겟 수({requiredTargetCount}명)보다 적어 모든 적을 선택합니다");
             currentSelectedTargets.Clear();
             currentSelectedTargets.AddRange(activeEnemies.Where(e => e != null && !e.isDead));
         }
         else if (currentSelectedTargets.Count < requiredTargetCount)
         {
-            Debug.Log($"[확인 실패] {requiredTargetCount}명을 모두 선택해주세요");
             return;
         }
 
@@ -560,7 +526,6 @@ public class StageManager : MonoBehaviour
         currentSelectedTargets.Clear();
         requiredTargetCount = 0;
 
-        Debug.Log("[타겟 선택 취소]");
 
         // UI 타겟 선택 모드 종료
         if (UIManager.Instance != null)
@@ -659,8 +624,6 @@ public class StageManager : MonoBehaviour
         // 실제 공격용 AttackContext 생성
         AttackContext attackCtx = CreateAttackContext(hand, finalDamage, finalGold);
 
-        Debug.Log($"[복합 공격] {hand.Description} → 주공격: {mainTargets.Count}명 - 데미지: {finalDamage}");
-
         // VFX
         if (VFXManager.Instance != null && hand.VfxConfig != null)
         {
@@ -684,7 +647,7 @@ public class StageManager : MonoBehaviour
                         Enemy mainTarget = aliveMainTargets[targetIndex];
                         int mainDamageToTake = mainTarget.CalculateDamageTaken(hand) + bonusDamage;
                         mainTarget.TakeDamage(mainDamageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
-                        Debug.Log($"  → {mainTarget.name} - 주공격 데미지: {mainDamageToTake}");
+
                     }
                 },
                 onComplete: () =>
@@ -708,7 +671,6 @@ public class StageManager : MonoBehaviour
                 {
                     int mainDamageToTake = mainTarget.CalculateDamageTaken(hand) + bonusDamage;
                     mainTarget.TakeDamage(mainDamageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
-                    Debug.Log($"  → {mainTarget.name} - 데미지: {mainDamageToTake}");
                 }
             }
 
@@ -732,9 +694,6 @@ public class StageManager : MonoBehaviour
             onSubComplete?.Invoke();
             return;
         }
-
-        Debug.Log($"[복합 - 부가공격] 타입: {hand.SubTargetType}, 데미지: {subDamage}");
-
         var subHand = hand;
 
         switch (hand.SubTargetType)
@@ -759,7 +718,6 @@ public class StageManager : MonoBehaviour
                                 Enemy enemy = allTargets[targetIndex];
                                 int damageToTake = enemy.CalculateDamageTaken(subHand);
                                 enemy.TakeDamage(damageToTake, subHand, isSplash: false, isCritical: false);
-                                Debug.Log($"  → {enemy.name} - 부가공격 데미지: {damageToTake}");
                             }
                         },
                         onComplete: onSubComplete
@@ -817,7 +775,7 @@ public class StageManager : MonoBehaviour
                                 Enemy randomTarget = randomTargets[targetIndex];
                                 int damageToTake = randomTarget.CalculateDamageTaken(subHand);
                                 randomTarget.TakeDamage(damageToTake, subHand, isSplash: false, isCritical: false);
-                                Debug.Log($"  → 랜덤 타겟: {randomTarget.name} - 부가공격 데미지: {damageToTake}");
+
                             }
                         },
                         onComplete: onSubComplete
@@ -830,7 +788,7 @@ public class StageManager : MonoBehaviour
                     {
                         int damageToTake = randomTarget.CalculateDamageTaken(subHand);
                         randomTarget.TakeDamage(damageToTake, subHand, isSplash: false, isCritical: false);
-                        Debug.Log($"  → 랜덤 타겟: {randomTarget.name} - 데미지: {damageToTake}");
+
                     }
                     onSubComplete?.Invoke();
                 }
@@ -868,7 +826,6 @@ public class StageManager : MonoBehaviour
 
         // 연쇄 공격 카운터 증가
         currentChainCount++;
-        Debug.Log($"[연쇄 공격] 현재 연쇄 횟수: {currentChainCount}");
 
         // 런 통계: 연쇄 공격 기록
         if (GameManager.Instance != null)
@@ -1024,11 +981,6 @@ public class StageManager : MonoBehaviour
         }
         activeEnemies.Clear();
 
-        if (WaveGenerator.Instance == null || GameManager.Instance == null)
-        {
-            Debug.LogError("WaveGenerator 또는 GameManager가 씬에 없습니다!");
-            return;
-        }
         int currentZone = GameManager.Instance.CurrentZone;
         int currentWave = GameManager.Instance.CurrentWave;
 
@@ -1053,7 +1005,6 @@ public class StageManager : MonoBehaviour
 
         if (enemySpawnPoints.Length == 0)
         {
-            Debug.LogError("적 스폰 포인트가 1개 이상 필요합니다!");
             return;
         }
 
@@ -1072,10 +1023,6 @@ public class StageManager : MonoBehaviour
                 // 스케일링 시스템 적용
                 newEnemy.InitializeWithScaling(currentZone, currentWave);
                 activeEnemies.Add(newEnemy);
-            }
-            else
-            {
-                Debug.LogError($"{enemyPrefab.name} 프리팹에 Enemy 스크립트가 없습니다.");
             }
         }
 
@@ -1122,7 +1069,6 @@ public class StageManager : MonoBehaviour
 
             if (startDamage > 0)
             {
-                Debug.Log($"[메타 강화] 제압 사격 발동! 모든 적에게 {startDamage} 데미지.");
 
                 // 스폰된 모든 적에게 데미지 적용
                 foreach (Enemy enemy in activeEnemies.ToList())
@@ -1263,17 +1209,10 @@ public class StageManager : MonoBehaviour
 
     public void SpawnEnemiesForBoss(GameObject prefab, int count)
     {
-        if (prefab == null)
-        {
-            Debug.LogError("[StageManager] 보스가 소환할 프리팹이 null입니다.");
-            return;
-        }
-        Debug.Log($"[StageManager] 보스 기믹으로 {prefab.name} {count}마리 추가 스폰");
         for (int i = 0; i < count; i++)
         {
             if (enemySpawnPoints.Length == 0)
             {
-                Debug.LogError("적 스폰 포인트가 없습니다!");
                 return;
             }
             int spawnIndex = Random.Range(0, enemySpawnPoints.Length);
@@ -1345,7 +1284,6 @@ public class StageManager : MonoBehaviour
         }
 
         // 최대 시도 후에도 실패하면 마지막 시도한 위치 반환
-        Debug.LogWarning($"[스폰 경고] {maxSpawnAttempts}번 시도 후에도 겹치지 않는 위치를 찾지 못했습니다.");
         int finalIndex = Random.Range(0, enemySpawnPoints.Length);
         Vector3 finalPos = enemySpawnPoints[finalIndex].position;
         Vector2 finalOffset = Random.insideUnitCircle * spawnSpreadRadius;
@@ -1398,21 +1336,13 @@ public class StageManager : MonoBehaviour
 
         if (currentZoneData != null)
         {
-            if (currentZoneData.zoneBackground != null)
-            {
-                backgroundRenderer.sprite = currentZoneData.zoneBackground;
-                Debug.Log($"[StageManager] 배경 설정: {currentZoneData.zoneName} (Zone {currentZone})");
-            }
-            else
-            {
-                Debug.LogWarning($"[StageManager] {currentZoneData.name}에 'zoneBackground' 스프라이트가 없습니다.");
-            }
+
+            backgroundRenderer.sprite = currentZoneData.zoneBackground;
 
             // BGM 설정 (이어하기 대응)
             if (currentZoneData.zoneBGM != null && SoundManager.Instance != null)
             {
                 SoundManager.Instance.PlayBGMConfig(currentZoneData.zoneBGM);
-                Debug.Log($"[StageManager] BGM 설정: {currentZoneData.zoneName} (Zone {currentZone})");
             }
         }
     }

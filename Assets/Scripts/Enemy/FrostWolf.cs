@@ -11,10 +11,8 @@ public class FrostWolf : Enemy
     private int chillStacks = 0;
     public int damageReductionPerStack = 20;
 
-    /// <summary>
-    /// [기믹 1: 냉기 중첩]
-    /// 플레이어가 주사위를 굴릴 때마다 냉기 중첩이 쌓입니다.
-    /// </summary>
+    // 기믹 
+    // 플레이어가 주사위를 굴릴 때마다 냉기 중첩이 쌓입니다.
     public override void OnPlayerRoll(List<int> diceValues)
     {
         base.OnPlayerRoll(diceValues);
@@ -22,15 +20,12 @@ public class FrostWolf : Enemy
         if (isDead) return;
 
         chillStacks++;
-        Debug.Log($"[{enemyName}] 주변의 공기가 차가워집니다... (냉기 중첩: {chillStacks})");
         string text = LocalizationManager.Instance?.GetText("COMBAT_FROST") ?? "냉기";
         EffectManager.Instance.ShowText(transform, text, Color.cyan);
     }
 
-    /// <summary>
-    /// [기믹 1 적용: 데미지 감소]
-    /// '총합' 족보 공격 시, 중첩된 냉기만큼 데미지를 감소시킵니다.
-    /// </summary>
+    // 기믹
+    // '총합' 족보 공격 시, 중첩된 냉기만큼 데미지를 감소
     public override int CalculateDamageTaken(AttackHand hand)
     {
         int baseDamage = hand.BaseDamage;
@@ -42,7 +37,7 @@ public class FrostWolf : Enemy
 
             string text = LocalizationManager.Instance?.GetText("COMBAT_DECREASE") ?? "감소";
             EffectManager.Instance.ShowText(transform, text, Color.cyan);
-            Debug.Log($"[{enemyName}] 냉기로 인해 [총합] 데미지가 {reduction} 감소했습니다. ({baseDamage} -> {finalDamage})");
+            
             return finalDamage;
         }
 

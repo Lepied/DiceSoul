@@ -310,7 +310,6 @@ public class DiceController : MonoBehaviour
             {
                 int shieldAmount = (int)shieldPerReroll;
                 GameManager.Instance.AddShield(shieldAmount);
-                Debug.Log($"[구르기] 리롤 시 Shield +{shieldAmount}");
             }
         }
 
@@ -478,7 +477,6 @@ public class DiceController : MonoBehaviour
     public void ApplyRollBonus(int amount)
     {
         maxRolls += amount;
-        Debug.Log($"유물 효과 적용: 최대 굴림 +{amount}. (현재: {maxRolls})");
     }
 
     //유물 연출(뾰로롱)
@@ -530,7 +528,7 @@ public class DiceController : MonoBehaviour
                 {
                     diceToRemove.SetState(DiceState.Normal);
                     diceToRemove.PlayPreserveAnimation();
-                    Debug.Log($"[보존] 주사위 {diceToRemove.Type}:{diceToRemove.Value}가 보존되었습니다!");
+                   
                     continue; // 제거 스킵!
                 }
 
@@ -605,7 +603,7 @@ public class DiceController : MonoBehaviour
             dice.SetState(DiceState.Locked);
             dice.lockDuration = duration;
             dice.PlayLockAnimation();
-            Debug.Log($"[잠금] 주사위 {dice.Type}:{dice.Value}가 {duration}턴 동안 잠겼습니다!");
+
         }
     }
 
@@ -647,7 +645,6 @@ public class DiceController : MonoBehaviour
                 {
                     dice.SetState(DiceState.Normal);
                     dice.PlayUnlockAnimation();
-                    Debug.Log($"[해제] 주사위 {dice.Type}:{dice.Value}의 잠금이 해제되었습니다!");
                 }
             }
         }
@@ -698,7 +695,6 @@ public class DiceController : MonoBehaviour
     public void StartDoubleDiceSelectionMode()
     {
         isDoubleDiceSelectionMode = true;
-        Debug.Log("[DiceController] 이중 주사위 모드 활성화 - 주사위를 클릭하세요");
     }
 
     public bool TryUseDoubleDiceOn(int diceIndex)
@@ -715,7 +711,6 @@ public class DiceController : MonoBehaviour
 
         if (diceIndex < 0 || diceIndex >= activeDice.Count)
         {
-            Debug.LogWarning($"[DiceController] 잘못된 주사위 인덱스: {diceIndex}");
             return;
         }
 
@@ -731,7 +726,6 @@ public class DiceController : MonoBehaviour
             {
                 // 주사위 값 업데이트
                 selectedDice.UpdateVisual(newValue);
-                Debug.Log($"[DiceController] 주사위[{diceIndex}] {currentValue} → {newValue}");
 
                 // 족보 프리뷰 업데이트
                 if (StageManager.Instance != null)
@@ -755,7 +749,6 @@ public class DiceController : MonoBehaviour
     {
         if (newValues.Length != activeDice.Count)
         {
-            Debug.LogWarning($"[DiceController] 주사위 개수 불일치: {newValues.Length} vs {activeDice.Count}");
             return;
         }
 
@@ -765,7 +758,6 @@ public class DiceController : MonoBehaviour
             activeDice[i].UpdateVisual(newValues[i]);
         }
 
-        Debug.Log("[DiceController] 운명의 주사위 적용 완료!");
 
         // 족보 프리뷰 업데이트
         if (StageManager.Instance != null)

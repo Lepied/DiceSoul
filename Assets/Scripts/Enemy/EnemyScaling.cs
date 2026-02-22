@@ -44,13 +44,6 @@ public static class EnemyScaling
         
         int result = Mathf.RoundToInt(finalHP);
         
-        // 개발 중 밸런스 확인용
-        if (Application.isEditor)
-        {
-            Debug.Log($"[EnemyScaling] HP: {baseHP} → {result} " +
-                      $"(Zone×{zoneMult:F2} Wave×{waveMult:F2} Power×{playerPowerMult:F2} Boss×{bossMult:F2})");
-        }
-        
         return Mathf.Max(1, result); // 최소 1
     }
     

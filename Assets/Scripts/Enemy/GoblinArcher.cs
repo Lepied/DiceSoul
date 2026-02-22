@@ -9,8 +9,8 @@ public class GoblinArcher : Enemy
     [Range(0, 1)]
     public float attackChance = 0.3f; // 30%
 
-    /// [기믹 1: 기회 공격]
-    /// 플레이어가 주사위를 굴릴 때마다 30% 확률로 공격력만큼 피해를 줍니다.
+    // 기믹
+    // 플레이어가 주사위를 굴릴 때마다 30% 확률로 공격력만큼 피해
     public override void OnPlayerRoll(List<int> diceValues)
     {
         base.OnPlayerRoll(diceValues);

@@ -36,6 +36,7 @@ public class TutorialManager : MonoBehaviour
     private Vector2 cachedTargetCenter;
     private float cachedHalfWidth;
     private float cachedHalfHeight;
+    private RectTransform cachedTarget; 
 
     private void Awake()
     {
@@ -101,6 +102,7 @@ public class TutorialManager : MonoBehaviour
     // 타겟 정보 캐싱
     private void CacheTargetInfo(RectTransform target)
     {
+        cachedTarget = target;
         target.GetWorldCorners(targetCornersCache);
 
         cachedTargetWidth = Vector3.Distance(targetCornersCache[0], targetCornersCache[3]);
@@ -123,50 +125,71 @@ public class TutorialManager : MonoBehaviour
     // 마스크 위치 업데이트
     private void UpdateMaskPositions()
     {
-        float targetLeft = cachedTargetCenter.x - cachedHalfWidth;
-        float targetRight = cachedTargetCenter.x + cachedHalfWidth;
-        float targetBottom = cachedTargetCenter.y - cachedHalfHeight;
-        float targetTop = cachedTargetCenter.y + cachedHalfHeight;
-
-        // Canvas 좌표계ㄹ로
+        // Canvas RectTransform 가져오기
         Canvas canvas = topMask.GetComponentInParent<Canvas>();
         RectTransform canvasRect = canvas.GetComponent<RectTransform>();
 
-        float canvasWidth = Screen.width;
-        float canvasHeight = Screen.height;
+        float canvasWidth = canvasRect.rect.width;
+        float canvasHeight = canvasRect.rect.height;
 
+        // 월드 좌표를 Canvas 로컬 좌표로 변환
+        Vector2 localCenter;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            canvasRect, 
+            cachedTargetCenter, 
+            canvas.worldCamera, 
+            out localCenter
+        );
 
+        // Canvas 로컬 좌표계에서 타겟 영역 계산
+        float targetLeft = localCenter.x - cachedHalfWidth;
+        float targetRight = localCenter.x + cachedHalfWidth;
+        float targetBottom = localCenter.y - cachedHalfHeight;
+        float targetTop = localCenter.y + cachedHalfHeight;
+
+        // Canvas 중심 기준으로 변환 (0,0이 좌하단)
+        float canvasHalfWidth = canvasWidth / 2f;
+        float canvasHalfHeight = canvasHeight / 2f;
+
+        targetLeft += canvasHalfWidth;
+        targetRight += canvasHalfWidth;
+        targetBottom += canvasHalfHeight;
+        targetTop += canvasHalfHeight;
+
+        // Top Mask (상단 영역) - Stretch Anchor 사용
         if (topMask != null)
         {
-            topMask.anchorMin = Vector2.zero;
-            topMask.anchorMax = Vector2.zero;
-            topMask.pivot = new Vector2(0.5f, 0.5f);
-            topMask.position = new Vector2(canvasWidth / 2f, (targetTop + canvasHeight) / 2f);
-            topMask.sizeDelta = new Vector2(canvasWidth, Mathf.Max(0, canvasHeight - targetTop));
+            topMask.anchorMin = new Vector2(0, targetTop / canvasHeight);
+            topMask.anchorMax = new Vector2(1, 1);
+            topMask.offsetMin = Vector2.zero;
+            topMask.offsetMax = Vector2.zero;
         }
+
+        // Bottom Mask (하단 영역) - Stretch Anchor 사용
         if (bottomMask != null)
         {
-            bottomMask.anchorMin = Vector2.zero;
-            bottomMask.anchorMax = Vector2.zero;
-            bottomMask.pivot = new Vector2(0.5f, 0.5f);
-            bottomMask.position = new Vector2(canvasWidth / 2f, targetBottom / 2f);
-            bottomMask.sizeDelta = new Vector2(canvasWidth, Mathf.Max(0, targetBottom));
+            bottomMask.anchorMin = new Vector2(0, 0);
+            bottomMask.anchorMax = new Vector2(1, targetBottom / canvasHeight);
+            bottomMask.offsetMin = Vector2.zero;
+            bottomMask.offsetMax = Vector2.zero;
         }
+
+        // Left Mask (좌측 영역) - Stretch Anchor 사용
         if (leftMask != null)
         {
-            leftMask.anchorMin = Vector2.zero;
-            leftMask.anchorMax = Vector2.zero;
-            leftMask.pivot = new Vector2(0.5f, 0.5f);
-            leftMask.position = new Vector2(targetLeft / 2f, (targetBottom + targetTop) / 2f);
-            leftMask.sizeDelta = new Vector2(Mathf.Max(0, targetLeft), targetTop - targetBottom);
+            leftMask.anchorMin = new Vector2(0, targetBottom / canvasHeight);
+            leftMask.anchorMax = new Vector2(targetLeft / canvasWidth, targetTop / canvasHeight);
+            leftMask.offsetMin = Vector2.zero;
+            leftMask.offsetMax = Vector2.zero;
         }
+
+        // Right Mask (우측 영역) - Stretch Anchor 사용
         if (rightMask != null)
         {
-            rightMask.anchorMin = Vector2.zero;
-            rightMask.anchorMax = Vector2.zero;
-            rightMask.pivot = new Vector2(0.5f, 0.5f);
-            rightMask.position = new Vector2((targetRight + canvasWidth) / 2f, (targetBottom + targetTop) / 2f);
-            rightMask.sizeDelta = new Vector2(Mathf.Max(0, canvasWidth - targetRight), targetTop - targetBottom);
+            rightMask.anchorMin = new Vector2(targetRight / canvasWidth, targetBottom / canvasHeight);
+            rightMask.anchorMax = new Vector2(1, targetTop / canvasHeight);
+            rightMask.offsetMin = Vector2.zero;
+            rightMask.offsetMax = Vector2.zero;
         }
     }
 

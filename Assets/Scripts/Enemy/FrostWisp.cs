@@ -38,7 +38,6 @@ public class FrostWisp : Enemy
                         ? LocalizationManager.Instance.GetText("ENEMY_EFFECT_FREEZE") 
                         : "빙결!";
                     EffectManager.Instance.ShowText(transform, freezeText, Color.cyan);
-                    Debug.Log($"[{enemyName}] '빙결' 효과 발동! 주사위가 얼어붙습니다.");
                 }
             }
         }
