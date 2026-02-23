@@ -89,7 +89,7 @@ public class Lich : Enemy
 
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.AddGold(1000); // 보스 보너스 1000점
+            GameManager.Instance.AddGold(1000, GoldSource.Bonus); // 보스 보너스 1000점
         }
 
         base.OnDeath();

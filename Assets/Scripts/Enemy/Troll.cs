@@ -26,7 +26,7 @@ public class Troll : Enemy
         // GameManager에 추가 점수 부여
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.AddGold(500); // 보스 보너스 500점
+            GameManager.Instance.AddGold(500, GoldSource.Bonus); // 보스 보너스 500점
         }
 
         // 부모의 OnDeath()를 호출하여 오브젝트를 풀로 반환(비활성화)

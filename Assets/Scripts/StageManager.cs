@@ -289,7 +289,7 @@ public class StageManager : MonoBehaviour
                 onComplete: () =>
                 {
                     // VFX 완료 후
-                    GameManager.Instance.AddGoldDirect(finalGold);
+                    GameManager.Instance.AddGold(finalGold, GoldSource.Combat);
                     GameEvents.RaiseAfterAttack(attackCtx);
                     FinishAttackAndCheckChain();
                 }
@@ -304,7 +304,7 @@ public class StageManager : MonoBehaviour
                 enemy.TakeDamage(damageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
             }
 
-            GameManager.Instance.AddGoldDirect(finalGold);
+            GameManager.Instance.AddGold(finalGold, GoldSource.Combat);
             GameEvents.RaiseAfterAttack(attackCtx);
             FinishAttackAndCheckChain();
         }
@@ -391,7 +391,7 @@ public class StageManager : MonoBehaviour
                 },
                 onComplete: () =>
                 {
-                    GameManager.Instance.AddGoldDirect(finalGold);
+                    GameManager.Instance.AddGold(finalGold, GoldSource.Combat);
                     FinishAttackAndCheckChain();
                 }
             );
@@ -405,7 +405,7 @@ public class StageManager : MonoBehaviour
                 target.TakeDamage(damageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
             }
 
-            GameManager.Instance.AddGoldDirect(finalGold);
+            GameManager.Instance.AddGold(finalGold, GoldSource.Combat);
             FinishAttackAndCheckChain();
         }
     }
@@ -590,7 +590,7 @@ public class StageManager : MonoBehaviour
                 onComplete: () =>
                 {
                     // VFX 완료 후
-                    GameManager.Instance.AddGoldDirect(finalGold);
+                    GameManager.Instance.AddGold(finalGold, GoldSource.Combat);
                     GameEvents.RaiseAfterAttack(attackCtx);
                     FinishAttackAndCheckChain();
                 }
@@ -608,7 +608,7 @@ public class StageManager : MonoBehaviour
                 }
             }
 
-            GameManager.Instance.AddGoldDirect(finalGold);
+            GameManager.Instance.AddGold(finalGold, GoldSource.Combat);
             GameEvents.RaiseAfterAttack(attackCtx);
             FinishAttackAndCheckChain();
         }
@@ -652,7 +652,7 @@ public class StageManager : MonoBehaviour
                 },
                 onComplete: () =>
                 {
-                    GameManager.Instance.AddGoldDirect(finalGold);
+                    GameManager.Instance.AddGold(finalGold, GoldSource.Combat);
                     GameEvents.RaiseAfterAttack(attackCtx);
 
                     ExecuteSubAttack(hand, mainTargets, onSubComplete: () =>
@@ -674,7 +674,7 @@ public class StageManager : MonoBehaviour
                 }
             }
 
-            GameManager.Instance.AddGoldDirect(finalGold);
+            GameManager.Instance.AddGold(finalGold, GoldSource.Combat);
             GameEvents.RaiseAfterAttack(attackCtx);
 
             // 부가 공격 실행

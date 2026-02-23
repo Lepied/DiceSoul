@@ -262,7 +262,7 @@ public class SettingsPanelController : MonoBehaviour
         tempBGMVolume = value;
         UpdateBGMVolumeText(value);
 
-        // 미리듣기를 위해 임시 적용
+        // 미리듣기 임시 적용
         if (SoundManager.Instance != null)
         {
             SoundManager.Instance.SetBGMVolume(value);
@@ -274,7 +274,7 @@ public class SettingsPanelController : MonoBehaviour
         tempSFXVolume = value;
         UpdateSFXVolumeText(value);
 
-        // 미리듣기를 위해 임시로만 적용 (저장하지 않음)
+        // 미리듣기 임시 적용
         if (SoundManager.Instance != null)
         {
             SoundManager.Instance.SetSFXVolume(value);
@@ -305,7 +305,7 @@ public class SettingsPanelController : MonoBehaviour
 
     private void OnSaveButton()
     {
-        // 모든 임시 설정을 실제로 적용하고 저장
+        // 임시 설정을 실제 적용 저장
         if (SettingsManager.Instance != null)
         {
             SettingsManager.Instance.SetBGMVolume(tempBGMVolume);

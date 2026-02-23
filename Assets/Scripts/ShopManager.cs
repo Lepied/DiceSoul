@@ -305,7 +305,7 @@ public class ShopManager : MonoBehaviour
             //유물잇으면 리롤비용 되돌려줌
             if (checkCtx.FreeRefresh)
             {
-                GameManager.Instance.AddGoldDirect(paidCost);
+                GameManager.Instance.AddGold(paidCost, GoldSource.Event);
                 Debug.Log($"[유물] 스프링: 리롤 비용 {paidCost} 환불!");
             }
 

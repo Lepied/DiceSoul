@@ -560,7 +560,7 @@ public class RelicDebugController : MonoBehaviour
     private void AddGold(int amount)
     {
         if (GameManager.Instance == null) return;
-        GameManager.Instance.AddGold(amount);
+        GameManager.Instance.AddGold(amount, GoldSource.Bonus);
         Log($"<color=yellow>[치트] 골드 +{amount}</color>");
     }
 

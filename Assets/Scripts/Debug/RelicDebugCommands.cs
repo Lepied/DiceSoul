@@ -200,7 +200,7 @@ public static class RelicDebugCommands
     public static void Gold(int amount = 1000)
     {
         if (GameManager.Instance == null) return;
-        GameManager.Instance.AddGold(amount);
+        GameManager.Instance.AddGold(amount, GoldSource.Bonus);
         Debug.Log($"<color=yellow>[치트]</color> 골드 +{amount}");
     }
 

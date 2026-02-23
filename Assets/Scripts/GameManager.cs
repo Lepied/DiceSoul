@@ -2,6 +2,14 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
+// 골드 출처
+public enum GoldSource
+{
+    Combat,   // 전투 중
+    Bonus,    // 보스/이벤트 보너스
+    Event     // 유물 효과 등 이벤트
+}
+
 [DefaultExecutionOrder(-50)] //현재 WaveGenerator(-100) 다음, StageManager(0) 이전
 public class GameManager : MonoBehaviour
 {
@@ -538,37 +546,33 @@ public class GameManager : MonoBehaviour
     }
 
 
-    // 이벤트 시스템에서 이미 계산된 골드를 직접 추가 (중복 계산 방지)
-    public void AddGoldDirect(int finalGold)
+    // 골드 추가
+    public void AddGold(int goldAmount, GoldSource source = GoldSource.Bonus)
     {
-        CurrentGold += finalGold;
-
-        if (UIManager.Instance != null)
+        int finalGold = goldAmount;
+        
+        if (source != GoldSource.Combat) 
         {
-            UIManager.Instance.UpdateGold(CurrentGold);
+            // 유물 배율 계산
+            float globalMultiplier = 1.0f;
+            foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.AddGoldMultiplier))
+            {
+                globalMultiplier *= relic.FloatValue;
+            }
+            
+            //골드 획득 이벤트
+            GoldContext goldCtx = new GoldContext
+            {
+                OriginalAmount = goldAmount,
+                BaseAmount = goldAmount,
+                Multiplier = globalMultiplier,
+                FinalAmount = (int)(goldAmount * globalMultiplier),
+                Source = source.ToString()
+            };
+            GameEvents.RaiseGoldGain(goldCtx);
+            finalGold = goldCtx.FinalAmount;
         }
-    }
-
-    public void AddGold(int goldToAdd)
-    {
-        float globalMultiplier = 1.0f;
-        foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.AddGoldMultiplier))
-        {
-            globalMultiplier *= relic.FloatValue;
-        }
-
-        int finalGold = (int)(goldToAdd * globalMultiplier);
-
-        //이벤트 시스템: 골드 획득 이벤트
-        GoldContext goldCtx = new GoldContext
-        {
-            OriginalAmount = goldToAdd,
-            FinalAmount = finalGold,
-            Source = "Bonus"
-        };
-        GameEvents.RaiseGoldGain(goldCtx);
-        finalGold = goldCtx.FinalAmount;
-
+        
         CurrentGold += finalGold;
         totalGoldEarned += finalGold;
 

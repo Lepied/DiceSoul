@@ -98,7 +98,7 @@ public class UIManager : MonoBehaviour
 
     // Zone 연출중인지
     private bool isZoneTitlePlaying = false;
-    
+
     // 유물 효과 피드백 시스템
     private RelicSlotAnimator relicAnimator;
 
@@ -129,12 +129,12 @@ public class UIManager : MonoBehaviour
         {
             waveInfoToggleButton.onClick.AddListener(ToggleWaveInfoPanel);
         }
-        
+
         if (toggleAttackOptionsButton != null)
         {
             toggleAttackOptionsButton.onClick.AddListener(ToggleAttackOptionsPanel);
         }
-        
+
         if (prevHandPageButton != null)
         {
             prevHandPageButton.onClick.AddListener(ShowPrevHandPage);
@@ -143,7 +143,7 @@ public class UIManager : MonoBehaviour
         {
             nextHandPageButton.onClick.AddListener(ShowNextHandPage);
         }
-        
+
         // CanvasGroup 넣기
         if (attackOptionsPanel != null && attackOptionsPanelCanvasGroup == null)
         {
@@ -173,7 +173,7 @@ public class UIManager : MonoBehaviour
         {
             cancelTargetButton.onClick.AddListener(OnCancelTargetButton);
         }
-        
+
         // 유물 슬롯 애니메이터 가져오기
         relicAnimator = GetComponent<RelicSlotAnimator>();
         if (relicAnimator == null)
@@ -258,10 +258,10 @@ public class UIManager : MonoBehaviour
     private Dictionary<string, int> GetDiceDeckCounts()
     {
         var counts = new Dictionary<string, int>();
-        
+
         if (GameManager.Instance == null || GameManager.Instance.playerDiceDeck == null)
             return counts;
-        
+
         foreach (string diceType in GameManager.Instance.playerDiceDeck)
         {
             if (counts.ContainsKey(diceType))
@@ -269,7 +269,7 @@ public class UIManager : MonoBehaviour
             else
                 counts[diceType] = 1;
         }
-        
+
         return counts;
     }
 
@@ -282,24 +282,24 @@ public class UIManager : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
-        
+
         var diceCounts = GetDiceDeckCounts();
-        
-        var sortedCounts = diceCounts.OrderBy(kvp => 
+
+        var sortedCounts = diceCounts.OrderBy(kvp =>
         {
             string type = kvp.Key;
             if (type.StartsWith("D") && int.TryParse(type.Substring(1), out int sides))
                 return sides;
             return 0;
         });
-        
+
         foreach (var kvp in sortedCounts)
         {
             string diceType = kvp.Key;
             int count = kvp.Value;
-            
+
             GameObject item = Instantiate(diceInventoryItemPrefab, diceInventoryContainer);
-            
+
             // Icon 설정 (서브 스프라이트 로드하기)
             Transform iconTransform = item.transform.Find("Icon");
             if (iconTransform != null)
@@ -309,15 +309,15 @@ public class UIManager : MonoBehaviour
                 {
                     Sprite[] sprites = Resources.LoadAll<Sprite>("DiceIcons/white_dice_icons");
                     Sprite iconSprite = System.Array.Find(sprites, s => s.name == $"{diceType}_Icon");
-                    
+
                     icon.sprite = iconSprite;
                 }
             }
-            
+
             Transform countTextTransform = item.transform.Find("CountText");
             if (countTextTransform != null)
             {
-            TextMeshProUGUI countText = countTextTransform.GetComponent<TextMeshProUGUI>();
+                TextMeshProUGUI countText = countTextTransform.GetComponent<TextMeshProUGUI>();
                 if (countText != null)
                 {
                     countText.text = $"x{count}";
@@ -365,16 +365,17 @@ public class UIManager : MonoBehaviour
             zonePrefix = zoneName.Substring(0, index + 1).Trim();
             actualZoneName = zoneName.Substring(index + 1).Trim();
         }
-        
+
         string zoneKey = "ZONE_PLAINS";
         if (actualZoneName.Contains("평원")) zoneKey = "ZONE_PLAINS";
         else if (actualZoneName.Contains("묘지")) zoneKey = "ZONE_GRAVEYARD";
+        else if (actualZoneName.Contains("고블린")) zoneKey = "ZONE_GOBLIN_CAVE";
         else if (actualZoneName.Contains("얼음") || actualZoneName.Contains("빙하")) zoneKey = "ZONE_GLACIER";
         else if (actualZoneName.Contains("악마") || actualZoneName.Contains("지옥")) zoneKey = "ZONE_HELL";
         else if (actualZoneName.Contains("늪지")) zoneKey = "ZONE_SWAMP";
-        
+
         string localizedZoneName = LocalizationManager.Instance != null ? LocalizationManager.Instance.GetText(zoneKey) ?? actualZoneName : actualZoneName;
-        
+
         if (!string.IsNullOrEmpty(zonePrefix))
         {
             // "Zone" 텍스트 로컬라이징
@@ -401,9 +402,10 @@ public class UIManager : MonoBehaviour
 
         // 3. 사라짐
         seq.Append(zoneTitleGroup.DOFade(0, 0.5f));
-        
+
         // 4. 연출 완료
-        seq.OnComplete(() => {
+        seq.OnComplete(() =>
+        {
             isZoneTitlePlaying = false;
         });
     }
@@ -411,14 +413,14 @@ public class UIManager : MonoBehaviour
     public void UpdateWaveInfoPanel(List<Enemy> activeEnemies)
     {
         if (waveInfoPanel == null || enemyInfoIconPrefab == null) return;
-        
+
         // 이전에 생성한 적 아이콘만 삭제
         foreach (GameObject icon in spawnedEnemyIcons)
         {
             if (icon != null) Destroy(icon);
         }
         spawnedEnemyIcons.Clear();
-        
+
         var enemyGroups = activeEnemies.Where(e => e != null)
                                        .GroupBy(e => e.enemyName)
                                        .OrderBy(g => g.First().isBoss);
@@ -467,20 +469,20 @@ public class UIManager : MonoBehaviour
             SpriteRenderer enemySprite = enemy.GetComponent<SpriteRenderer>();
             if (enemySprite != null) enemyDetailIcon.sprite = enemySprite.sprite;
         }
-        
+
         if (enemyDetailName != null)
         {
             string bossSuffix = enemy.isBoss ? " " + LocalizationManager.Instance.GetText("INGAME_BOSS_SUFFIX") : "";
             enemyDetailName.text = enemy.GetLocalizedName() + bossSuffix;
         }
-        
+
         if (enemyDetailHP != null)
         {
             string hpLabel = LocalizationManager.Instance.GetText("INGAME_HP");
             string atkLabel = LocalizationManager.Instance.GetText("INGAME_ATK");
             enemyDetailHP.text = $"{hpLabel}: {enemy.maxHP} / {atkLabel}: {enemy.attackDamage}";
         }
-        
+
         if (enemyDetailType != null)
         {
             string typeLabel = LocalizationManager.Instance.GetText("INGAME_ENEMY_TYPE");
@@ -489,7 +491,7 @@ public class UIManager : MonoBehaviour
             string localizedTypeName = LocalizationManager.Instance.GetText(typeKey) ?? enemy.enemyType.ToString();
             enemyDetailType.text = $"{typeLabel}: {localizedTypeName}";
         }
-        
+
         if (enemyDetailGimmick != null)
         {
             enemyDetailGimmick.text = enemy.GetGimmickDescription();
@@ -530,15 +532,15 @@ public class UIManager : MonoBehaviour
             {
                 countText.text = (count > 1) ? $"x{count}" : "";
             }
-            
+
             // 수동 유물인지 확인
             bool isManualRelic = IsManualRelic(relicData.RelicID);
-            
+
             // EventTrigger 설정 (마우스 오버 툴팁)
             EventTrigger trigger = iconGO.GetComponent<EventTrigger>();
             if (trigger == null) trigger = iconGO.AddComponent<EventTrigger>();
             trigger.triggers.Clear();
-            
+
             EventTrigger.Entry entryEnter = new EventTrigger.Entry();
             entryEnter.eventID = EventTriggerType.PointerEnter;
             entryEnter.callback.AddListener((data) =>
@@ -546,7 +548,7 @@ public class UIManager : MonoBehaviour
                 ShowRelicDetail(relicData, iconGO.GetComponent<RectTransform>());
             });
             trigger.triggers.Add(entryEnter);
-            
+
             EventTrigger.Entry entryExit = new EventTrigger.Entry();
             entryExit.eventID = EventTriggerType.PointerExit;
             entryExit.callback.AddListener((data) =>
@@ -554,30 +556,30 @@ public class UIManager : MonoBehaviour
                 HideRelicDetail();
             });
             trigger.triggers.Add(entryExit);
-            
+
             // 수동 유물이면 클릭 이벤트 추가
             if (isManualRelic)
             {
                 Button relicButton = iconGO.GetComponent<Button>();
                 if (relicButton == null) relicButton = iconGO.AddComponent<Button>();
-                
+
                 // 클릭 이벤트 연결
                 relicButton.onClick.RemoveAllListeners();
                 string relicID = relicData.RelicID; // 람다 캡처용
                 relicButton.onClick.AddListener(() => OnManualRelicClicked(relicID));
-                
+
                 // 사용 가능 여부에 따라 시각 효과 업데이트
                 UpdateManualRelicVisual(iconGO, relicID);
             }
         }
     }
-    
+
     // 수동 유물 여부 확인
     private bool IsManualRelic(string relicID)
     {
         return relicID == "RLC_DOUBLE_DICE" || relicID == "RLC_FATE_DICE";
     }
-    
+
     // 수동 유물 클릭 핸들러
     private void OnManualRelicClicked(string relicID)
     {
@@ -586,7 +588,7 @@ public class UIManager : MonoBehaviour
             Debug.LogWarning("[UIManager] RelicEffectHandler가 없습니다.");
             return;
         }
-        
+
         switch (relicID)
         {
             case "RLC_DOUBLE_DICE":
@@ -600,7 +602,7 @@ public class UIManager : MonoBehaviour
                     Debug.Log("[유물] 이중 주사위: 이번 웨이브에서 이미 사용했습니다.");
                 }
                 break;
-                
+
             case "RLC_FATE_DICE":
                 if (RelicEffectHandler.Instance.CanUseFateDice())
                 {
@@ -612,23 +614,23 @@ public class UIManager : MonoBehaviour
                     Debug.Log("[유물] 운명의 주사위: 이번 런에서 이미 사용했습니다.");
                 }
                 break;
-                
+
 
         }
     }
-    
+
     // 이중 주사위 선택 모드 시작
     private void StartDoubleDiceSelection()
     {
         Debug.Log("[UI] 이중 주사위 사용 - 2배로 만들 주사위를 클릭하세요");
-        
+
         // DiceController에 선택 모드 활성화 신호 보내기
         if (DiceController.Instance != null)
         {
             DiceController.Instance.StartDoubleDiceSelectionMode();
         }
     }
-    
+
     // 운명의 주사위 사용
     private void UseFateDice()
     {
@@ -637,28 +639,28 @@ public class UIManager : MonoBehaviour
             Debug.LogWarning("[UIManager] DiceController가 없습니다.");
             return;
         }
-        
+
         // 현재 주사위 값 가져오기
         List<int> currentValues = DiceController.Instance.currentValues;
         List<string> diceTypes = DiceController.Instance.GetDiceTypes();
-        
+
         if (currentValues.Count == 0)
         {
             return;
         }
-        
+
         // 배열로 변환
         int[] values = currentValues.ToArray();
         string[] types = diceTypes.ToArray();
-        
+
         // 운명의 주사위 사용
         bool success = RelicEffectHandler.Instance.UseFateDice(values, types);
-        
+
         if (success)
         {
             // DiceController에 변경된 값 적용
             DiceController.Instance.ApplyFateDiceValues(values);
-            
+
             // 유물 패널 업데이트 (회색 처리)
             if (GameManager.Instance != null)
             {
@@ -666,17 +668,17 @@ public class UIManager : MonoBehaviour
             }
         }
     }
-    
+
     // 수동 유물 시각 효과 업데이트
     private void UpdateManualRelicVisual(GameObject iconGO, string relicID)
     {
         if (RelicEffectHandler.Instance == null) return;
-        
+
         Image relicImage = iconGO.GetComponent<Image>();
         if (relicImage == null) return;
-        
+
         bool canUse = false;
-        
+
         switch (relicID)
         {
             case "RLC_DOUBLE_DICE":
@@ -686,11 +688,11 @@ public class UIManager : MonoBehaviour
                 canUse = RelicEffectHandler.Instance.CanUseFateDice();
                 break;
         }
-        
+
         // 사용 가능하면 밝게, 불가능하면 어둡게
         Color color = canUse ? Color.white : new Color(0.5f, 0.5f, 0.5f, 1f);
         relicImage.color = color;
-        
+
         // 버튼 활성화 여부도 설정
         Button button = iconGO.GetComponent<Button>();
         if (button != null)
@@ -698,7 +700,7 @@ public class UIManager : MonoBehaviour
             button.interactable = canUse;
         }
     }
-    
+
     public void ShowRelicDetail(Relic relic, RectTransform iconRect)
     {
         if (relicDetailPopup == null) return;
@@ -722,18 +724,18 @@ public class UIManager : MonoBehaviour
     {
         if (attackOptionsPanel == null) return;
         attackOptionsPanel.SetActive(true);
-        
+
         // 족보 리스트 정렬 수비는 맨뒤로 보내기
         currentHandList = hands.OrderBy(j => j.TargetType == AttackTargetType.Defense ? 1 : 0).ToList();
         currentHandPage = 0;
-        
+
         RectTransform panelRect = attackOptionsPanel.GetComponent<RectTransform>();
-        
+
         if (attackOptionsPanelCanvasGroup != null)
         {
             attackOptionsPanelCanvasGroup.alpha = 1f;
         }
-        
+
         // 토글 버튼 활성화 및 패널 하단에 딱 붙여서 배치
         if (toggleAttackOptionsButton != null)
         {
@@ -746,23 +748,23 @@ public class UIManager : MonoBehaviour
                 buttonRect.anchoredPosition = new Vector2(buttonRect.anchoredPosition.x, panelBottom);
             }
         }
-        
+
         // 패널 펼침 상태로 초기화
         isAttackOptionsPanelOpen = true;
         UpdateToggleButtonArrow();
 
         if (StageManager.Instance != null) StageManager.Instance.HideAllAttackPreviews();
-        
+
         // 첫 페이지 표시
         ShowHandPage(currentHandPage);
     }
-    
+
     private void ShowHandPage(int pageIndex)
     {
         int totalPages = Mathf.CeilToInt((float)currentHandList.Count / handsPerPage);
         int startIndex = pageIndex * handsPerPage;
         int endIndex = Mathf.Min(startIndex + handsPerPage, currentHandList.Count);
-        
+
         // 페이지 버튼 표시/숨김 (이동 가능할 때만 표시)
         if (prevHandPageButton != null)
         {
@@ -772,12 +774,12 @@ public class UIManager : MonoBehaviour
         {
             nextHandPageButton.gameObject.SetActive(pageIndex < totalPages - 1);
         }
-        
+
         // 현재 페이지의 족보들 표시
         for (int i = 0; i < attackOptionButtons.Length; i++)
         {
             int handIndex = startIndex + i;
-            
+
             if (handIndex < endIndex)
             {
                 AttackHand hand = currentHandList[handIndex];
@@ -848,7 +850,7 @@ public class UIManager : MonoBehaviour
             ShowHandPage(currentHandPage);
         }
     }
-    
+
     private void ShowNextHandPage()
     {
         int totalPages = Mathf.CeilToInt((float)currentHandList.Count / handsPerPage);
@@ -862,48 +864,48 @@ public class UIManager : MonoBehaviour
     private void SelectAttack(AttackHand hand) // (원본 족보가 전달됨)
     {
         attackOptionsPanel.SetActive(false);
-        
+
         // 토글 버튼도 숨김
         if (toggleAttackOptionsButton != null)
         {
             toggleAttackOptionsButton.gameObject.SetActive(false);
         }
-        
+
         if (StageManager.Instance != null)
         {
             StageManager.Instance.HideAllAttackPreviews();
             StageManager.Instance.ProcessAttack(hand); // 원본 족보로 공격 실행
         }
     }
-    
+
     // 족보 UI 토글
     private bool isAttackOptionsPanelOpen = true;
-    
+
     public void ToggleAttackOptionsPanel()
     {
         if (attackOptionsPanel == null || attackOptionsPanelCanvasGroup == null) return;
         if (toggleAttackOptionsButton == null) return;
-        
+
         isAttackOptionsPanelOpen = !isAttackOptionsPanelOpen;
-        
+
         RectTransform panelRect = attackOptionsPanel.GetComponent<RectTransform>();
         RectTransform buttonRect = toggleAttackOptionsButton.GetComponent<RectTransform>();
         if (panelRect == null || buttonRect == null) return;
-        
+
         Sequence toggleSeq = DOTween.Sequence();
-        
+
         if (isAttackOptionsPanelOpen)
         {
             // 펼치기: 위에서 아래로 슬라이드 + 페이드인
             attackOptionsPanel.SetActive(true);
-            
+
             // 시작 위치 설정
             float hideYPos = panelRect.sizeDelta.y + 40;
             panelRect.anchoredPosition = new Vector2(panelRect.anchoredPosition.x, hideYPos);
             attackOptionsPanelCanvasGroup.alpha = 0;
             float buttonHideY = hideYPos - panelRect.sizeDelta.y;
             buttonRect.anchoredPosition = new Vector2(buttonRect.anchoredPosition.x, buttonHideY);
-            
+
             // 패널 애니메이션
             toggleSeq.Append(panelRect.DOAnchorPosY(0, 0.2f).SetEase(Ease.OutQuad));
             toggleSeq.Join(attackOptionsPanelCanvasGroup.DOFade(1f, 0.2f));
@@ -914,42 +916,42 @@ public class UIManager : MonoBehaviour
         {
             // 숨기기: 위로 슬라이드 + 페이드아웃
             float hideYPos = panelRect.sizeDelta.y + 40;
-            
+
             // 패널 애니메이션
             toggleSeq.Append(panelRect.DOAnchorPosY(hideYPos, 0.2f).SetEase(Ease.InQuad));
             toggleSeq.Join(attackOptionsPanelCanvasGroup.DOFade(0f, 0.2f));
             // 버튼 목표 위치
             float buttonTargetY = hideYPos - panelRect.sizeDelta.y;
             toggleSeq.Join(buttonRect.DOAnchorPosY(buttonTargetY, 0.2f).SetEase(Ease.InQuad));
-            
+
             // 프리뷰도 숨김
             if (StageManager.Instance != null)
             {
                 StageManager.Instance.HideAllAttackPreviews();
             }
         }
-        
+
         // 화살표 이미지 교체
         UpdateToggleButtonArrow();
     }
-    
+
     // 토글 버튼 화살표 이미지 업데이트
     private void UpdateToggleButtonArrow()
     {
         if (toggleAttackOptionsButton == null) return;
-        
+
         Image arrowImage = toggleAttackOptionsButton.GetComponent<Image>();
         if (arrowImage == null)
         {
             arrowImage = toggleAttackOptionsButton.GetComponentInChildren<Image>();
         }
-        
+
         if (arrowImage != null && arrowDownSprite != null && arrowUpSprite != null)
         {
             arrowImage.sprite = isAttackOptionsPanelOpen ? arrowDownSprite : arrowUpSprite;
         }
     }
-    
+
     // 족보 UI 강제로 숨기기
     public void HideAttackOptionsPanel()
     {
@@ -962,7 +964,7 @@ public class UIManager : MonoBehaviour
             }
         }
     }
-    
+
     // 족보 UI 표시 여부 확인
     public bool IsAttackOptionsPanelVisible()
     {
@@ -994,11 +996,11 @@ public class UIManager : MonoBehaviour
                     description += $"\n<color=#888888>{ownedLabel}: {currentCount}/{effectiveMax}</color>";
                 }
                 relicDescriptionTexts[i].text = description;
-                
+
                 // 버튼 설정
                 relicChoiceButtons[i].onClick.RemoveAllListeners();
                 relicChoiceButtons[i].interactable = canAcquire;
-                
+
                 if (canAcquire)
                 {
                     relicChoiceButtons[i].onClick.AddListener(() =>
@@ -1006,7 +1008,7 @@ public class UIManager : MonoBehaviour
                         GameManager.Instance.AddRelic(relic);
                         rewardScreenPanel.SetActive(false);
                         onRelicSelected?.Invoke();
-                        
+
                         // 튜토리얼 모드일 때 유물 선택 알림
                         if (GameManager.Instance.isTutorialMode)
                         {
@@ -1025,7 +1027,7 @@ public class UIManager : MonoBehaviour
                     colors.disabledColor = new Color(0.5f, 0.5f, 0.5f, 0.5f);
                     relicChoiceButtons[i].colors = colors;
                 }
-                
+
                 relicChoiceButtons[i].gameObject.SetActive(true);
             }
             else
@@ -1044,7 +1046,7 @@ public class UIManager : MonoBehaviour
         // UI 표시
         UpdateShopUI(ShopManager.Instance.currentShopItems, ShopManager.Instance.currentRerollCost);
         maintenancePanel.SetActive(true);
-        
+
         // 튜토리얼 모드이고 Zone 1 클리어 후라면 상점 튜토리얼 시작
         if (GameManager.Instance != null && GameManager.Instance.isTutorialMode)
         {
@@ -1055,7 +1057,7 @@ public class UIManager : MonoBehaviour
             }
         }
     }
-    
+
     private void StartShopTutorial()
     {
         TutorialShopController shopTutorial = FindFirstObjectByType<TutorialShopController>();
@@ -1067,6 +1069,20 @@ public class UIManager : MonoBehaviour
     public void UpdateShopUI(List<ShopItem> items, int rerollCost)
     {
         if (maintenancePanel == null) return;
+
+        // 버튼 텍스트 로컬라이징
+
+        TextMeshProUGUI rerollText = rerollButton.GetComponentInChildren<TextMeshProUGUI>();
+        if (rerollText != null && LocalizationManager.Instance != null)
+        {
+            rerollText.text = LocalizationManager.Instance.GetText("SHOP_REROLL_BUTTON");
+        }
+        TextMeshProUGUI exitText = exitShopButton.GetComponentInChildren<TextMeshProUGUI>();
+        if (exitText != null && LocalizationManager.Instance != null)
+        {
+            exitText.text = LocalizationManager.Instance.GetText("SHOP_NEXT_BUTTON");
+        }
+
 
         // 1. 기존 슬롯 제거
         foreach (Transform child in shopItemsContainer) Destroy(child.gameObject);
@@ -1116,7 +1132,7 @@ public class UIManager : MonoBehaviour
         if (GameManager.Instance.CurrentWave > GameManager.Instance.wavesPerZone)
         {
             // 승리 체크
-            if (WaveGenerator.Instance != null && 
+            if (WaveGenerator.Instance != null &&
                 WaveGenerator.Instance.IsLastZone(GameManager.Instance.CurrentZone))
             {
                 ProcessGameVictory();
@@ -1172,7 +1188,7 @@ public class UIManager : MonoBehaviour
     public bool IsShopOpen() { return maintenancePanel != null && maintenancePanel.activeSelf; }
 
     private void ProcessGameVictory()
-    {    
+    {
         // 존 종료 이벤트
         ZoneContext finalZoneCtx = new ZoneContext
         {
@@ -1180,7 +1196,7 @@ public class UIManager : MonoBehaviour
             ZoneName = WaveGenerator.Instance?.GetCurrentZoneData(GameManager.Instance.CurrentZone)?.zoneName ?? "Unknown"
         };
         GameEvents.RaiseZoneEnd(finalZoneCtx);
-        
+
         if (GameManager.Instance != null)
         {
             GameManager.Instance.ProcessVictory();
@@ -1218,14 +1234,14 @@ public class UIManager : MonoBehaviour
     public void ShowTypeInfoTooltip(RectTransform buttonRect)
     {
         if (LocalizationManager.Instance == null) return;
-        
+
         string title = LocalizationManager.Instance.GetText("INGAME_ENEMY_TYPE_INFO_TITLE") ?? "적 타입 정보";
-        string description = 
+        string description =
             "• " + LocalizationManager.Instance.GetText("ENEMY_TYPE_BIOLOGICAL") + "\n\n" +
             "• " + LocalizationManager.Instance.GetText("ENEMY_TYPE_SPIRIT") + "\n\n" +
             "• " + LocalizationManager.Instance.GetText("ENEMY_TYPE_UNDEAD") + "\n\n" +
             "• " + LocalizationManager.Instance.GetText("ENEMY_TYPE_ARMORED");
-        
+
         ShowGenericTooltip(title, description, buttonRect);
     }
 
@@ -1241,7 +1257,7 @@ public class UIManager : MonoBehaviour
         if (relicDetailPopup != null) relicDetailPopup.SetActive(false);
         if (genericTooltipPopup != null) genericTooltipPopup.SetActive(false);
         if (targetSelectionPanel != null) targetSelectionPanel.SetActive(false);
- 
+
         // RollPanel과 InfoButton 숨김
         if (rollPanel != null) rollPanel.SetActive(false);
         if (infoButton != null) infoButton.SetActive(false);
@@ -1274,16 +1290,16 @@ public class UIManager : MonoBehaviour
     }
 
     // === 타겟 선택 UI 메서드 ===
-    
+
     public void ShowTargetSelectionMode(int requiredCount, int currentCount)
     {
         if (targetSelectionPanel != null)
         {
             targetSelectionPanel.SetActive(true);
         }
-        
+
         UpdateTargetSelectionText(requiredCount, currentCount);
-        
+
         // 확인 버튼은 필요한 수만큼 선택되면 활성화
         if (confirmTargetButton != null)
         {
@@ -1323,7 +1339,7 @@ public class UIManager : MonoBehaviour
             StageManager.Instance.CancelTargetSelection();
         }
     }
-    
+
     /// <summary>
     /// 유물 발동 알림 (외부에서 호출)
     /// </summary>
@@ -1331,13 +1347,13 @@ public class UIManager : MonoBehaviour
     {
         var feedbackData = RelicEffectConfig.GetFeedbackData(relicId);
         if (feedbackData == null) return;
-        
+
         // 유물 슬롯 펄스 애니메이션
         if (relicAnimator != null && slotIndex >= 0)
         {
             relicAnimator.PlayActivationPulse(slotIndex);
         }
-        
+
         // 텍스트 알림
         if (feedbackData.showText && RelicEffectNotifier.Instance != null)
         {

@@ -78,7 +78,7 @@ public class Yeti : Enemy
     {
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.AddGold(2000); // 보스 클리어 보너스
+            GameManager.Instance.AddGold(2000, GoldSource.Bonus); // 보스 클리어 보너스
         }
         base.OnDeath();
     }

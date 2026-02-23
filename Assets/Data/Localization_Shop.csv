@@ -13,3 +13,5 @@ SHOP_POTION_POWER_NAME,힘의 물약,Potion of Power
 SHOP_POTION_POWER_DESC,다음 존(Zone) 동안 [모든 데미지 +15],For the next zone: [All Damage +15]
 SHOP_POTION_GREED_NAME,탐욕의 물약,Potion of Greed
 SHOP_POTION_GREED_DESC,다음 존(Zone) 동안 [금화 획득량 1.5배],For the next zone: [Gold Gain x1.5]
+SHOP_REROLL_BUTTON,품목 리롤,Reroll
+SHOP_NEXT_BUTTON,다음으로,Next

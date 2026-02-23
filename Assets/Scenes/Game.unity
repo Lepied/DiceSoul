@@ -19409,7 +19409,7 @@ MonoBehaviour:
   unknownDiceIcon: {fileID: -1960991164949311925, guid: 3ca11f0b9ec3bc9478a7e71c216151c1, type: 3}
   relicBagIcon: {fileID: 4827251267500832607, guid: 48362e4d170b8ea4fa3dfdf621bbe4f1, type: 3}
   purchaseSound:
-    primarySound: {fileID: 8300000, guid: 516838a37f85a4d4d8884b9464ecd939, type: 3}
+    primarySound: {fileID: 8300000, guid: 26f8b6e381366c84289116e24f2d024b, type: 3}
     layeredSounds: []
     volume: 0.5
     useRandomPitch: 1
@@ -21905,6 +21905,7 @@ GameObject:
   - component: {fileID: 1723007140}
   - component: {fileID: 1723007142}
   - component: {fileID: 1723007141}
+  - component: {fileID: 1723007143}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -22031,6 +22032,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1723007139}
   m_CullTransparentMesh: 1
+--- !u!114 &1723007143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1723007139}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 018c02dc78c741a46805f3b1b29c192b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LocalizedText
+  key: 
 --- !u!1 &1725660446
 GameObject:
   m_ObjectHideFlags: 0

@@ -611,7 +611,7 @@ public class RelicEffectHandler : MonoBehaviour
         if (HasRelic("RLC_PIGGY_BANK") && GameManager.Instance != null)
         {
             int bonusGold = Mathf.RoundToInt(GameManager.Instance.CurrentGold * 0.1f);
-            GameManager.Instance.AddGold(bonusGold);
+            GameManager.Instance.AddGold(bonusGold, GoldSource.Event);
             Debug.Log($"[유물] 돼지 저금통: 골드 +{bonusGold}");
         }
     }

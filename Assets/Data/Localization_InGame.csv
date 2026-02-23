@@ -17,6 +17,7 @@ INGAME_ENEMY_TYPE_INFO_TITLE,적 타입 정보,Enemy Type Info
 INGAME_ZONE,Zone,Zone
 ZONE_PLAINS,평원,Plains
 ZONE_GRAVEYARD,묘지,Graveyard
+ZONE_GOBLIN_CAVE,고블린 동굴,Goblin Cave
 ZONE_GLACIER,빙하,Glacier
 ZONE_HELL,지옥,Hell
 ZONE_SWAMP,늪지대,Swamp

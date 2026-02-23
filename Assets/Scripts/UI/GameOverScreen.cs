@@ -42,6 +42,14 @@ public class GameOverScreen : MonoBehaviour
     public Color defeatTitleColor = Color.white;
 
     private bool isVictory = false;
+    
+    // 런 통계 로컬 복사본
+    private int cachedTotalGoldEarned;
+    private int cachedTotalKills;
+    private int cachedMaxDamage;
+    private int cachedMaxChain;
+    private string cachedMostUsedHand;
+    private int cachedMostUsedCount;
 
     void Awake()
     {
@@ -86,6 +94,20 @@ public class GameOverScreen : MonoBehaviour
         if (gameOverPanel == null)
         {
             return;
+        }
+
+        // GameManager 통계를 로컬에 복사
+        if (GameManager.Instance != null)
+        {
+            cachedTotalGoldEarned = GameManager.Instance.totalGoldEarned;
+            cachedTotalKills = GameManager.Instance.totalKills;
+            cachedMaxDamage = GameManager.Instance.maxDamageDealt;
+            cachedMaxChain = GameManager.Instance.maxChainCount;
+            cachedMostUsedHand = GameManager.Instance.GetMostUsedHand();
+            if (GameManager.Instance.handUsageCount.ContainsKey(cachedMostUsedHand))
+            {
+                cachedMostUsedCount = GameManager.Instance.handUsageCount[cachedMostUsedHand];
+            }
         }
 
         DOVirtual.DelayedCall(delay, () =>
@@ -150,15 +172,10 @@ public class GameOverScreen : MonoBehaviour
         {
             string killsLabel = LocalizationManager.Instance.GetText("RESULT_KILLS");
             string killsUnit = LocalizationManager.Instance.GetText("RESULT_KILLS_UNIT");
-            killsText.text = $"{killsLabel}: {GameManager.Instance.totalKills}{killsUnit}";
+            killsText.text = $"{killsLabel}: {cachedTotalKills}{killsUnit}";
         }
 
-        // 자원
-        if (goldEarnedText != null)
-        {
-            string goldLabel = LocalizationManager.Instance.GetText("RESULT_GOLD_EARNED");
-            goldEarnedText.text = $"{goldLabel}: {GameManager.Instance.totalGoldEarned}G";
-        }
+
 
         // 메타 재화 계산
         int metaCurrency = CalculateMetaCurrency();
@@ -172,34 +189,28 @@ public class GameOverScreen : MonoBehaviour
         if (maxDamageText != null)
         {
             string damageLabel = LocalizationManager.Instance.GetText("RESULT_MAX_DAMAGE");
-            maxDamageText.text = $"{damageLabel}: {GameManager.Instance.maxDamageDealt}";
+            maxDamageText.text = $"{damageLabel}: {cachedMaxDamage}";
         }
 
         if (maxChainText != null)
         {
             string chainLabel = LocalizationManager.Instance.GetText("RESULT_MAX_CHAIN");
-            maxChainText.text = $"{chainLabel}: {GameManager.Instance.maxChainCount}";
+            maxChainText.text = $"{chainLabel}: {cachedMaxChain}";
         }
 
         if (mostUsedHandText != null)
         {
-            string mostUsed = GameManager.Instance.GetMostUsedHand();
-            int count = 0;
-            if (GameManager.Instance.handUsageCount.ContainsKey(mostUsed))
-            {
-                count = GameManager.Instance.handUsageCount[mostUsed];
-            }
             string mostUsedLabel = LocalizationManager.Instance.GetText("RESULT_MOST_USED");
             
             // 족보 이름 로컬라이제이션
-            string localizedHand = mostUsed;
-            string handKey = AttackHand.DescriptionToKey(mostUsed);
+            string localizedHand = cachedMostUsedHand;
+            string handKey = AttackHand.DescriptionToKey(cachedMostUsedHand);
             if (!string.IsNullOrEmpty(handKey) && LocalizationManager.Instance != null)
             {
                 localizedHand = LocalizationManager.Instance.GetText(handKey);
             }
             
-            mostUsedHandText.text = $"{mostUsedLabel}: {localizedHand} x {count}";
+            mostUsedHandText.text = $"{mostUsedLabel}: {localizedHand} x {cachedMostUsedCount}";
         }
 
         // 유물 표시
@@ -223,7 +234,7 @@ public class GameOverScreen : MonoBehaviour
         total += GameManager.Instance.bossesDefeated * 10;
 
         // 획득한 인게임 골드
-        int goldBonus = GameManager.Instance.totalGoldEarned / 10;
+        int goldBonus = cachedTotalGoldEarned / 10;
         total += goldBonus;
 
         // 완벽한 웨이브(안맞고 깬 웨이브)
@@ -314,9 +325,8 @@ public class GameOverScreen : MonoBehaviour
         // 골드 카운트업
         if (goldEarnedText != null)
         {
-            int targetGold = GameManager.Instance.totalGoldEarned;
             string goldLabel = LocalizationManager.Instance.GetText("RESULT_GOLD_EARNED");
-            DOVirtual.Int(0,targetGold, countUpDuration, value =>
+            DOVirtual.Int(0, cachedTotalGoldEarned, countUpDuration, value =>
             {
                 goldEarnedText.text = $"{goldLabel}: {value}G";
             }).SetEase(Ease.OutQuad);
@@ -325,10 +335,9 @@ public class GameOverScreen : MonoBehaviour
         // 처치 수 카운트업
         if (killsText != null)
         {
-            int targetKills = GameManager.Instance.totalKills;
             string killsLabel = LocalizationManager.Instance.GetText("RESULT_KILLS");
             string killsUnit = LocalizationManager.Instance.GetText("RESULT_KILLS_UNIT");
-            DOVirtual.Int(0, targetKills, countUpDuration, value =>
+            DOVirtual.Int(0, cachedTotalKills, countUpDuration, value =>
             {
                 killsText.text = $"{killsLabel}: {value}{killsUnit}";
             }).SetEase(Ease.OutQuad);

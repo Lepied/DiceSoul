@@ -16,7 +16,7 @@ MonoBehaviour:
   zoneTier: 2
   zoneBackground: {fileID: -1555677016636740388, guid: 02a337368442661418c2374bbbcb2f5b, type: 3}
   zoneBGM:
-    primarySound: {fileID: 8300000, guid: 565ddfe6588eba74396881e87b46c663, type: 3}
+    primarySound: {fileID: 8300000, guid: ece53a0fbfdda25428a3420b436a2822, type: 3}
     layeredSounds: []
     volume: 1
     useRandomPitch: 0
