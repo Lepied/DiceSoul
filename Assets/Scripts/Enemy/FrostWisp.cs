@@ -48,6 +48,16 @@ public class FrostWisp : Enemy
 
     public override string GetGimmickDescription()
     {
-        return LocalizationManager.Instance.GetText("ENEMY_GIMMICK_FROSTWISP");
+        string baseDesc = LocalizationManager.Instance.GetText("ENEMY_GIMMICK_FROSTWISP");
+        
+        // 잠금 설명 추가
+        if (LocalizationManager.Instance != null)
+        {
+            string lockTitle = LocalizationManager.Instance.GetText("MECHANIC_LOCK_TITLE");
+            string lockDesc = LocalizationManager.Instance.GetText("MECHANIC_LOCK_DESC");
+            baseDesc += $"\n\n{lockTitle}: {lockDesc}";
+        }
+        
+        return baseDesc;
     }
 }

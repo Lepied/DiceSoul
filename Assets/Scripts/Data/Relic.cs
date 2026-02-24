@@ -148,4 +148,30 @@ public class Relic
         }
         return Description;
     }
+    
+    // 수동 발동 유물인지 확인
+    public bool IsManualRelic()
+    {
+        return EffectType == RelicEffectType.FixDiceBeforeRoll ||     // 주사위 컵
+               EffectType == RelicEffectType.DoubleDiceValue ||        // 이중 주사위
+               EffectType == RelicEffectType.SetAllToMax;              // 운명의 주사위
+    }
+    
+    // 메커니즘 설명이 필요한지 확인
+    public string GetExplanation()
+    {
+        if (LocalizationManager.Instance == null) return string.Empty;
+        
+        string explanation = "";
+        
+        // 보존 메커니즘
+        if (EffectType == RelicEffectType.FixDiceBeforeRoll)
+        {
+            string preserveTitle = LocalizationManager.Instance.GetText("MECHANIC_PRESERVE_TITLE");
+            string preserveDesc = LocalizationManager.Instance.GetText("MECHANIC_PRESERVE_DESC");
+            explanation += $"\n\n{preserveTitle}: {preserveDesc}";
+        }
+        
+        return explanation;
+    }
 }

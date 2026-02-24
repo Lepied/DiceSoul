@@ -57,3 +57,8 @@ SETTINGS_RESUME,뒤로,Resume
 SETTINGS_ABANDON,포기,Abandon
 SETTINGS_CONFIRM_ABANDON,이번 출정을 포기하시겠습니까?,Do you want to abandon this expedition?
 SETTINGS_CONFIRM_QUIT,게임을 종료하시겠습니까?,Do you want to quit the game?
+UI_MANUAL_ACTIVATION,[눌러서 사용],[Click to Use]
+MECHANIC_PRESERVE_TITLE,[보존],[Preserve]
+MECHANIC_PRESERVE_DESC,보존된 주사위는 다음 족보에 사용되어도 사라지지 않습니다,Preserved dice are not consumed when used in a hand
+MECHANIC_LOCK_TITLE,[잠금],[Lock]
+MECHANIC_LOCK_DESC,잠긴 주사위는 특정 턴 동안 족보에 사용할 수 없습니다,Locked dice cannot be used in hands for specific turns

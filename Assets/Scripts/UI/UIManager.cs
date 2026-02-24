@@ -102,17 +102,31 @@ public class UIManager : MonoBehaviour
     // 유물 효과 피드백 시스템
     private RelicSlotAnimator relicAnimator;
 
+    private Dictionary<string, Sprite> cachedDiceSprites;
+
 
     void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
+            CacheDiceSprites();
         }
         else
         {
             Destroy(gameObject);
         }
+    }
+
+    private void CacheDiceSprites()
+    {
+        cachedDiceSprites = new Dictionary<string, Sprite>();
+        Sprite[] sprites = Resources.LoadAll<Sprite>("DiceIcons/white_dice_icons");
+        foreach (Sprite sprite in sprites)
+        {
+            cachedDiceSprites[sprite.name] = sprite;
+        }
+
     }
 
     void Start()
@@ -300,17 +314,18 @@ public class UIManager : MonoBehaviour
 
             GameObject item = Instantiate(diceInventoryItemPrefab, diceInventoryContainer);
 
-            // Icon 설정 (서브 스프라이트 로드하기)
+            // Icon 설정 
             Transform iconTransform = item.transform.Find("Icon");
             if (iconTransform != null)
             {
                 Image icon = iconTransform.GetComponent<Image>();
                 if (icon != null)
                 {
-                    Sprite[] sprites = Resources.LoadAll<Sprite>("DiceIcons/white_dice_icons");
-                    Sprite iconSprite = System.Array.Find(sprites, s => s.name == $"{diceType}_Icon");
-
-                    icon.sprite = iconSprite;
+                    string spriteKey = $"{diceType}_Icon";
+                    if (cachedDiceSprites != null && cachedDiceSprites.ContainsKey(spriteKey))
+                    {
+                        icon.sprite = cachedDiceSprites[spriteKey];
+                    }
                 }
             }
 
@@ -421,13 +436,33 @@ public class UIManager : MonoBehaviour
         }
         spawnedEnemyIcons.Clear();
 
-        var enemyGroups = activeEnemies.Where(e => e != null)
-                                       .GroupBy(e => e.enemyName)
-                                       .OrderBy(g => g.First().isBoss);
-        foreach (var group in enemyGroups)
+        Dictionary<string, List<Enemy>> enemyGroups = new Dictionary<string, List<Enemy>>();
+        
+        foreach (Enemy e in activeEnemies)
         {
-            Enemy enemyData = group.First();
-            int count = group.Count();
+            if (e == null) continue;
+            
+            if (!enemyGroups.ContainsKey(e.enemyName))
+            {
+                enemyGroups[e.enemyName] = new List<Enemy>();
+            }
+            enemyGroups[e.enemyName].Add(e);
+        }
+        
+        // 보스를 먼저, 일반 적을 나중에 표시
+        List<string> sortedKeys = new List<string>(enemyGroups.Keys);
+        sortedKeys.Sort((a, b) => 
+        {
+            bool aIsBoss = enemyGroups[a][0].isBoss;
+            bool bIsBoss = enemyGroups[b][0].isBoss;
+            return bIsBoss.CompareTo(aIsBoss); // 보스가 먼저
+        });
+        
+        foreach (string enemyName in sortedKeys)
+        {
+            List<Enemy> group = enemyGroups[enemyName];
+            Enemy enemyData = group[0];
+            int count = group.Count;
             GameObject iconGO = Instantiate(enemyInfoIconPrefab, waveInfoPanel.transform);
             spawnedEnemyIcons.Add(iconGO);
             Image faceImage = iconGO.GetComponentInChildren<Image>();
@@ -706,7 +741,28 @@ public class UIManager : MonoBehaviour
         if (relicDetailPopup == null) return;
         relicDetailPopup.SetActive(true);
         if (relicDetailName != null) relicDetailName.text = relic.GetLocalizedName();
-        if (relicDetailDescription != null) relicDetailDescription.text = relic.GetLocalizedDescription();
+        
+        if (relicDetailDescription != null) 
+        {
+            string description = relic.GetLocalizedDescription();
+            
+            // 수동 발동 유물이면?
+            if (relic.IsManualRelic() && LocalizationManager.Instance != null)
+            {
+                string manualText = LocalizationManager.Instance.GetText("UI_MANUAL_ACTIVATION");
+                description += $"\n\n{manualText}";
+            }
+            
+            // 메커니즘 설명 추가하기
+            string mechanicExplanation = relic.GetExplanation();
+            if (!string.IsNullOrEmpty(mechanicExplanation))
+            {
+                description += mechanicExplanation;
+            }
+            
+            relicDetailDescription.text = description;
+        }
+        
         Vector3 iconBottomPosition = iconRect.transform.position - new Vector3(0, iconRect.rect.height / 2 * iconRect.lossyScale.y, 0);
         relicDetailPopup.transform.position = iconBottomPosition;
         float yOffset = (relicDetailPopup.GetComponent<RectTransform>().rect.height / 2 * relicDetailPopup.GetComponent<RectTransform>().lossyScale.y) + 5f;
