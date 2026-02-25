@@ -43,6 +43,18 @@ public class StageManager : MonoBehaviour
     private Vector2 minViewBoundary;
     private Vector2 maxViewBoundary;
 
+    // 주공격용 타겟
+    private List<Enemy> _cachedMainTargets = new List<Enemy>();
+    // 부가공격용 타겟
+    private List<Enemy> _cachedSubTargets = new List<Enemy>();
+    // 랜덤 결과
+    private List<Enemy> _cachedRandomTargets = new List<Enemy>();
+    // 랜덤 풀
+    private List<Enemy> _cachedAvailableEnemies = new List<Enemy>();
+    // 배열 변환용
+    private Vector3[] _cachedPositionArray = new Vector3[30];
+    private Transform[] _cachedTransformArray = new Transform[30];
+
 
     void Awake()
     {
@@ -118,9 +130,13 @@ public class StageManager : MonoBehaviour
         // 1. 적 턴 반응 / 기믹 처리 (수동 리롤 버튼을 누른 경우만)
         if (isManualRoll)
         {
-            foreach (Enemy enemy in activeEnemies.Where(e => e != null && !e.isDead))
+            for (int i = 0; i < activeEnemies.Count; i++)
             {
-                enemy.OnPlayerRoll(initialValues);
+                Enemy enemy = activeEnemies[i];
+                if (enemy != null && !enemy.isDead)
+                {
+                    enemy.OnPlayerRoll(initialValues);
+                }
             }
         }
 
@@ -159,7 +175,7 @@ public class StageManager : MonoBehaviour
             HandContext handCtx = new HandContext
             {
                 achievedHands = achievableHands,
-                DiceValues = finalValues.ToArray(),
+                DiceValuesList = finalValues,
                 BonusDamage = 0,
                 BonusGold = 0
             };
@@ -252,8 +268,15 @@ public class StageManager : MonoBehaviour
         // 실제 공격용 AttackContext 생성
         AttackContext attackCtx = CreateAttackContext(hand, finalDamage, finalGold);
 
-        List<Enemy> targets = activeEnemies.Where(e => e != null && !e.isDead).ToList();
-        if (targets.Count == 0)
+        _cachedMainTargets.Clear();
+        for (int i = 0; i < activeEnemies.Count; i++)
+        {
+            if (activeEnemies[i] != null && !activeEnemies[i].isDead)
+            {
+                _cachedMainTargets.Add(activeEnemies[i]);
+            }
+        }
+        if (_cachedMainTargets.Count == 0)
         {
             FinishAttackAndCheckChain();
             return;
@@ -266,7 +289,7 @@ public class StageManager : MonoBehaviour
             Vector3[] dicePos = diceController.GetDicePositions(hand.UsedDiceIndices);
 
             // 적 위치들
-            Vector3[] targetPos = targets.Select(e => e.transform.position).ToArray();
+            Vector3[] targetPos = GetPositionsArray(_cachedMainTargets);
 
             // 주사위 제거 시작 (VFX와 동시)
             diceController.RemoveDiceByIndices(hand.UsedDiceIndices);
@@ -279,9 +302,9 @@ public class StageManager : MonoBehaviour
                 onImpact: (int targetIndex) =>
                 {
                     // 각 타겟에 데미지 적용
-                    if (targetIndex < targets.Count)
+                    if (targetIndex < _cachedMainTargets.Count)
                     {
-                        Enemy enemy = targets[targetIndex];
+                        Enemy enemy = _cachedMainTargets[targetIndex];
                         int damageToTake = enemy.CalculateDamageTaken(hand) + bonusDamage;
                         enemy.TakeDamage(damageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
                     }
@@ -295,26 +318,20 @@ public class StageManager : MonoBehaviour
                 }
             );
         }
-        else
-        {
-            // VFX 없으면 즉시 데미지
-            foreach (Enemy enemy in targets)
-            {
-                int damageToTake = enemy.CalculateDamageTaken(hand) + bonusDamage;
-                enemy.TakeDamage(damageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
-            }
-
-            GameManager.Instance.AddGold(finalGold, GoldSource.Combat);
-            GameEvents.RaiseAfterAttack(attackCtx);
-            FinishAttackAndCheckChain();
-        }
     }
 
     // 랜덤 공격 실행
     private void ExecuteRandomAttack(AttackHand hand)
     {
-        List<Enemy> aliveEnemies = activeEnemies.Where(e => e != null && !e.isDead).ToList();
-        if (aliveEnemies.Count == 0)
+        _cachedMainTargets.Clear();
+        for (int i = 0; i < activeEnemies.Count; i++)
+        {
+            if (activeEnemies[i] != null && !activeEnemies[i].isDead)
+            {
+                _cachedMainTargets.Add(activeEnemies[i]);
+            }
+        }
+        if (_cachedMainTargets.Count == 0)
         {
             FinishAttackAndCheckChain();
             return;
@@ -340,20 +357,20 @@ public class StageManager : MonoBehaviour
         }
 
         // 생존 적 수보다 많으면 조정
-        randomTargetCount = Mathf.Min(randomTargetCount, aliveEnemies.Count);
+        randomTargetCount = Mathf.Min(randomTargetCount, _cachedMainTargets.Count);
 
-        // 랜덤 타겟 선택
-        List<Enemy> randomTargets = new List<Enemy>();
-        List<Enemy> availableEnemies = new List<Enemy>(aliveEnemies);
+        _cachedRandomTargets.Clear();
+        _cachedAvailableEnemies.Clear();
+        _cachedAvailableEnemies.AddRange(_cachedMainTargets);
 
         for (int i = 0; i < randomTargetCount; i++)
         {
-            if (availableEnemies.Count == 0) break;
+            if (_cachedAvailableEnemies.Count == 0) break;
 
-            int randomIndex = Random.Range(0, availableEnemies.Count);
-            Enemy target = availableEnemies[randomIndex];
-            randomTargets.Add(target);
-            availableEnemies.RemoveAt(randomIndex);  // 중복 방지
+            int randomIndex = Random.Range(0, _cachedAvailableEnemies.Count);
+            Enemy target = _cachedAvailableEnemies[randomIndex];
+            _cachedRandomTargets.Add(target);
+            _cachedAvailableEnemies.RemoveAt(randomIndex);  // 중복 방지
         }
 
         int bonusDamage = finalDamage - hand.BaseDamage;
@@ -361,13 +378,11 @@ public class StageManager : MonoBehaviour
         // VFX 통합 버전
         if (VFXManager.Instance != null && hand.VfxConfig != null)
         {
-            // 주사위 위치
             Vector3[] dicePos = diceController.GetDicePositions(hand.UsedDiceIndices);
             Vector3 centerPos = dicePos.Length > 0 ? CalculateCenterPosition(dicePos) : Vector3.zero;
 
-            // 타겟 위치들
-            Vector3[] targetPos = randomTargets.Select(e => e.transform.position).ToArray();
-            Transform[] targetTransforms = randomTargets.Select(e => e.transform).ToArray();
+            Vector3[] targetPos = GetPositionsArray(_cachedRandomTargets);
+            Transform[] targetTransforms = GetTransformsArray(_cachedRandomTargets);
 
             // 주사위 제거 시작
             diceController.RemoveDiceByIndices(hand.UsedDiceIndices);
@@ -383,7 +398,7 @@ public class StageManager : MonoBehaviour
                     // 각 투사체가 도착할 때 데미지
                     if (targetIndex < randomTargets.Count)
                     {
-                        Enemy target = randomTargets[targetIndex];
+                        Enemy target = _cachedRandomTargets[targetIndex];
                         int damageToTake = target.CalculateDamageTaken(hand) + bonusDamage;
                         target.TakeDamage(damageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
 
@@ -396,18 +411,6 @@ public class StageManager : MonoBehaviour
                 }
             );
         }
-        else
-        {
-            // VFX 없으면 즉시 데미지
-            foreach (Enemy target in randomTargets)
-            {
-                int damageToTake = target.CalculateDamageTaken(hand) + bonusDamage;
-                target.TakeDamage(damageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
-            }
-
-            GameManager.Instance.AddGold(finalGold, GoldSource.Combat);
-            FinishAttackAndCheckChain();
-        }
     }
 
     // 타겟 선택 모드 시작 (Single/Hybrid 공격용)
@@ -415,12 +418,25 @@ public class StageManager : MonoBehaviour
     {
         requiredTargetCount = hand.RequiredTargetCount;
 
-        // 적의 수가 요구 타겟 수보다 적으면 자동으로 모든 적 선택 후 바로 공격
-        int aliveEnemyCount = activeEnemies.Count(e => e != null && !e.isDead);
+        int aliveEnemyCount = 0;
+        for (int i = 0; i < activeEnemies.Count; i++)
+        {
+            if (activeEnemies[i] != null && !activeEnemies[i].isDead)
+            {
+                aliveEnemyCount++;
+            }
+        }
+        
         if (aliveEnemyCount <= requiredTargetCount)
         {
             currentSelectedTargets.Clear();
-            currentSelectedTargets.AddRange(activeEnemies.Where(e => e != null && !e.isDead));
+            for (int i = 0; i < activeEnemies.Count; i++)
+            {
+                if (activeEnemies[i] != null && !activeEnemies[i].isDead)
+                {
+                    currentSelectedTargets.Add(activeEnemies[i]);
+                }
+            }
 
             // 바로 공격 실행
             if (hand.TargetType == AttackTargetType.Single)
@@ -485,12 +501,25 @@ public class StageManager : MonoBehaviour
     {
         if (!isWaitingForTargetSelection || currentSelectedHand == null) return;
 
-        // 적의 수가 요구 타겟 수보다 적으면 모든 적을 자동 선택
-        int aliveEnemyCount = activeEnemies.Count(e => e != null && !e.isDead);
+        int aliveEnemyCount = 0;
+        for (int i = 0; i < activeEnemies.Count; i++)
+        {
+            if (activeEnemies[i] != null && !activeEnemies[i].isDead)
+            {
+                aliveEnemyCount++;
+            }
+        }
+        
         if (aliveEnemyCount < requiredTargetCount)
         {
             currentSelectedTargets.Clear();
-            currentSelectedTargets.AddRange(activeEnemies.Where(e => e != null && !e.isDead));
+            for (int i = 0; i < activeEnemies.Count; i++)
+            {
+                if (activeEnemies[i] != null && !activeEnemies[i].isDead)
+                {
+                    currentSelectedTargets.Add(activeEnemies[i]);
+                }
+            }
         }
         else if (currentSelectedTargets.Count < requiredTargetCount)
         {
@@ -563,10 +592,17 @@ public class StageManager : MonoBehaviour
             Vector3[] dicePos = diceController.GetDicePositions(hand.UsedDiceIndices);
             Vector3 centerPos = dicePos.Length > 0 ? CalculateCenterPosition(dicePos) : Vector3.zero;
 
-            // 살아있는 적만 필터링
-            List<Enemy> aliveTargets = targets.Where(t => t != null && !t.isDead).ToList();
-            Vector3[] targetPos = aliveTargets.Select(t => t.transform.position).ToArray();
-            Transform[] targetTransforms = aliveTargets.Select(t => t.transform).ToArray();
+            _cachedMainTargets.Clear();
+            for (int i = 0; i < targets.Count; i++)
+            {
+                if (targets[i] != null && !targets[i].isDead)
+                {
+                    _cachedMainTargets.Add(targets[i]);
+                }
+            }
+            
+            Vector3[] targetPos = GetPositionsArray(_cachedMainTargets);
+            Transform[] targetTransforms = GetTransformsArray(_cachedMainTargets);
 
 
             diceController.RemoveDiceByIndices(hand.UsedDiceIndices);
@@ -580,9 +616,9 @@ public class StageManager : MonoBehaviour
                 onEachReach: (int targetIndex) =>
                 {
                     // 각 타겟에 데미지 적용
-                    if (targetIndex < aliveTargets.Count)
+                    if (targetIndex < _cachedMainTargets.Count)
                     {
-                        Enemy enemy = aliveTargets[targetIndex];
+                        Enemy enemy = _cachedMainTargets[targetIndex];
                         int damageToTake = enemy.CalculateDamageTaken(hand) + bonusDamage;
                         enemy.TakeDamage(damageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
                     }
@@ -595,22 +631,6 @@ public class StageManager : MonoBehaviour
                     FinishAttackAndCheckChain();
                 }
             );
-        }
-        else
-        {
-            // VFX 없으면 즉시 데미지
-            foreach (Enemy target in targets)
-            {
-                if (target != null && !target.isDead)
-                {
-                    int damageToTake = target.CalculateDamageTaken(hand) + bonusDamage;
-                    target.TakeDamage(damageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
-                }
-            }
-
-            GameManager.Instance.AddGold(finalGold, GoldSource.Combat);
-            GameEvents.RaiseAfterAttack(attackCtx);
-            FinishAttackAndCheckChain();
         }
     }
 
@@ -630,9 +650,17 @@ public class StageManager : MonoBehaviour
             Vector3[] dicePos = diceController.GetDicePositions(hand.UsedDiceIndices);
             Vector3 centerPos = dicePos.Length > 0 ? CalculateCenterPosition(dicePos) : Vector3.zero;
 
-            List<Enemy> aliveMainTargets = mainTargets.Where(t => t != null && !t.isDead).ToList();
-            Vector3[] mainTargetPos = aliveMainTargets.Select(t => t.transform.position).ToArray();
-            Transform[] mainTargetTransforms = aliveMainTargets.Select(t => t.transform).ToArray();
+            _cachedMainTargets.Clear();
+            for (int i = 0; i < mainTargets.Count; i++)
+            {
+                if (mainTargets[i] != null && !mainTargets[i].isDead)
+                {
+                    _cachedMainTargets.Add(mainTargets[i]);
+                }
+            }
+            
+            Vector3[] mainTargetPos = GetPositionsArray(_cachedMainTargets);
+            Transform[] mainTargetTransforms = GetTransformsArray(_cachedMainTargets);
 
             diceController.RemoveDiceByIndices(hand.UsedDiceIndices);
             VFXManager.Instance.PlayMultiProjectileAttack(
@@ -642,9 +670,9 @@ public class StageManager : MonoBehaviour
                 targets: mainTargetTransforms,
                 onEachReach: (int targetIndex) =>
                 {
-                    if (targetIndex < aliveMainTargets.Count)
+                    if (targetIndex < _cachedMainTargets.Count)
                     {
-                        Enemy mainTarget = aliveMainTargets[targetIndex];
+                        Enemy mainTarget = _cachedMainTargets[targetIndex];
                         int mainDamageToTake = mainTarget.CalculateDamageTaken(hand) + bonusDamage;
                         mainTarget.TakeDamage(mainDamageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
 
@@ -661,27 +689,6 @@ public class StageManager : MonoBehaviour
                     });
                 }
             );
-        }
-        else
-        {
-            // VFX 없으면 즉시 데미지
-            foreach (Enemy mainTarget in mainTargets)
-            {
-                if (mainTarget != null && !mainTarget.isDead)
-                {
-                    int mainDamageToTake = mainTarget.CalculateDamageTaken(hand) + bonusDamage;
-                    mainTarget.TakeDamage(mainDamageToTake, hand, isSplash: false, isCritical: attackCtx.IsCritical);
-                }
-            }
-
-            GameManager.Instance.AddGold(finalGold, GoldSource.Combat);
-            GameEvents.RaiseAfterAttack(attackCtx);
-
-            // 부가 공격 실행
-            ExecuteSubAttack(hand, mainTargets, onSubComplete: () =>
-            {
-                FinishAttackAndCheckChain();
-            });
         }
     }
 
@@ -700,12 +707,20 @@ public class StageManager : MonoBehaviour
         {
             case AttackTargetType.AoE:
                 // 전체 공격 (주공격 대상 제외)
-                List<Enemy> allTargets = activeEnemies.Where(e => e != null && !e.isDead && !mainTargets.Contains(e)).ToList();
+                _cachedSubTargets.Clear();
+                for (int i = 0; i < activeEnemies.Count; i++)
+                {
+                    Enemy e = activeEnemies[i];
+                    if (e != null && !e.isDead && !mainTargets.Contains(e))
+                    {
+                        _cachedSubTargets.Add(e);
+                    }
+                }
 
-                if (VFXManager.Instance != null && hand.SubVfxConfig != null && allTargets.Count > 0)
+                if (VFXManager.Instance != null && hand.SubVfxConfig != null && _cachedSubTargets.Count > 0)
                 {
                     // 부가공격 VFX 있으면 사용
-                    Vector3[] targetPos = allTargets.Select(e => e.transform.position).ToArray();
+                    Vector3[] targetPos = GetPositionsArray(_cachedSubTargets);
 
                     VFXManager.Instance.PlayAoEAttack(
                         config: hand.SubVfxConfig,
@@ -713,9 +728,9 @@ public class StageManager : MonoBehaviour
                         targetPositions: targetPos,
                         onImpact: (int targetIndex) =>
                         {
-                            if (targetIndex < allTargets.Count)
+                            if (targetIndex < _cachedSubTargets.Count)
                             {
-                                Enemy enemy = allTargets[targetIndex];
+                                Enemy enemy = _cachedSubTargets[targetIndex];
                                 int damageToTake = enemy.CalculateDamageTaken(subHand);
                                 enemy.TakeDamage(damageToTake, subHand, isSplash: false, isCritical: false);
                             }
@@ -723,45 +738,52 @@ public class StageManager : MonoBehaviour
                         onComplete: onSubComplete
                     );
                 }
-                else
-                {
-                    // VFX 없으면 즉시 데미지
-                    foreach (Enemy enemy in allTargets)
-                    {
-                        int damageToTake = enemy.CalculateDamageTaken(subHand);
-                        enemy.TakeDamage(damageToTake, subHand, isSplash: false, isCritical: false);
-                    }
-                    onSubComplete?.Invoke();
-                }
                 break;
 
             case AttackTargetType.Random:
                 // 랜덤 타겟
-                List<Enemy> otherEnemies = activeEnemies.Where(e => e != null && !e.isDead && !mainTargets.Contains(e)).ToList();
-                if (otherEnemies.Count == 0)
+                _cachedSubTargets.Clear();
+                for (int i = 0; i < activeEnemies.Count; i++)
                 {
-                    otherEnemies = activeEnemies.Where(e => e != null && !e.isDead).ToList();
+                    Enemy e = activeEnemies[i];
+                    if (e != null && !e.isDead && !mainTargets.Contains(e))
+                    {
+                        _cachedSubTargets.Add(e);
+                    }
+                }
+                
+                if (_cachedSubTargets.Count == 0)
+                {
+                    for (int i = 0; i < activeEnemies.Count; i++)
+                    {
+                        Enemy e = activeEnemies[i];
+                        if (e != null && !e.isDead)
+                        {
+                            _cachedSubTargets.Add(e);
+                        }
+                    }
                 }
 
-                int subRandomCount = Mathf.Min(hand.SubRandomTargetCount, otherEnemies.Count);
-                List<Enemy> randomTargets = new List<Enemy>();
-                List<Enemy> availableEnemies = new List<Enemy>(otherEnemies);
+                int subRandomCount = Mathf.Min(hand.SubRandomTargetCount, _cachedSubTargets.Count);
+                _cachedRandomTargets.Clear();
+                _cachedAvailableEnemies.Clear();
+                _cachedAvailableEnemies.AddRange(_cachedSubTargets);
 
                 for (int i = 0; i < subRandomCount; i++)
                 {
-                    if (availableEnemies.Count == 0) break;
+                    if (_cachedAvailableEnemies.Count == 0) break;
 
-                    int randomIndex = Random.Range(0, availableEnemies.Count);
-                    Enemy randomTarget = availableEnemies[randomIndex];
-                    randomTargets.Add(randomTarget);
-                    availableEnemies.RemoveAt(randomIndex);  // 중복 방지
+                    int randomIndex = Random.Range(0, _cachedAvailableEnemies.Count);
+                    Enemy randomTarget = _cachedAvailableEnemies[randomIndex];
+                    _cachedRandomTargets.Add(randomTarget);
+                    _cachedAvailableEnemies.RemoveAt(randomIndex);  // 중복 방지
                 }
 
-                if (VFXManager.Instance != null && hand.SubVfxConfig != null && randomTargets.Count > 0)
+                if (VFXManager.Instance != null && hand.SubVfxConfig != null && _cachedRandomTargets.Count > 0)
                 {
                     // 부가공격 VFX 있으면 사용
-                    Vector3[] targetPos = randomTargets.Select(e => e.transform.position).ToArray();
-                    Transform[] targetTransforms = randomTargets.Select(e => e.transform).ToArray();
+                    Vector3[] targetPos = GetPositionsArray(_cachedRandomTargets);
+                    Transform[] targetTransforms = GetTransformsArray(_cachedRandomTargets);
 
                     VFXManager.Instance.PlayMultiProjectileAttack(
                         config: hand.SubVfxConfig,
@@ -770,9 +792,9 @@ public class StageManager : MonoBehaviour
                         targets: targetTransforms,
                         onEachReach: (int targetIndex) =>
                         {
-                            if (targetIndex < randomTargets.Count)
+                            if (targetIndex < _cachedRandomTargets.Count)
                             {
-                                Enemy randomTarget = randomTargets[targetIndex];
+                                Enemy randomTarget = _cachedRandomTargets[targetIndex];
                                 int damageToTake = randomTarget.CalculateDamageTaken(subHand);
                                 randomTarget.TakeDamage(damageToTake, subHand, isSplash: false, isCritical: false);
 
@@ -780,17 +802,6 @@ public class StageManager : MonoBehaviour
                         },
                         onComplete: onSubComplete
                     );
-                }
-                else
-                {
-                    // VFX 없으면 즉시 데미지
-                    foreach (Enemy randomTarget in randomTargets)
-                    {
-                        int damageToTake = randomTarget.CalculateDamageTaken(subHand);
-                        randomTarget.TakeDamage(damageToTake, subHand, isSplash: false, isCritical: false);
-
-                    }
-                    onSubComplete?.Invoke();
                 }
                 break;
         }
@@ -834,7 +845,14 @@ public class StageManager : MonoBehaviour
         }
 
         // 적이 모두 죽었는지 확인
-        int aliveEnemyCount = activeEnemies.Count(e => e != null && !e.isDead);
+        int aliveEnemyCount = 0;
+        for (int i = 0; i < activeEnemies.Count; i++)
+        {
+            if (activeEnemies[i] != null && !activeEnemies[i].isDead)
+            {
+                aliveEnemyCount++;
+            }
+        }
         if (aliveEnemyCount == 0)
         {
             CheckWaveStatus();
@@ -861,8 +879,16 @@ public class StageManager : MonoBehaviour
         List<int> availableValues = diceController.GetAvailableValues();
         if (availableValues.Count == 0)
         {
-            // 잠긴 주사위가 있는지 확인하고 잇으면 잠금풀고 자동공격나가게 
-            bool hasLockedDice = diceController.activeDice.Any(d => d.State == DiceState.Locked);
+            // 잠긴 주사위가 있는지 확인하고 있으면 잠금풀고 자동공격나가게 
+            bool hasLockedDice = false;
+            for (int i = 0; i < diceController.activeDice.Count; i++)
+            {
+                if (diceController.activeDice[i].State == DiceState.Locked)
+                {
+                    hasLockedDice = true;
+                    break;
+                }
+            }
 
             if (hasLockedDice)
             {
@@ -891,7 +917,15 @@ public class StageManager : MonoBehaviour
             List<AttackHand> autoAttackHands = AttackDB.Instance.GetAchievableHands(availableValues);
 
             // 총합 족보 찾기
-            AttackHand sumHand = autoAttackHands.FirstOrDefault(j => j.Description.Contains("총합"));
+            AttackHand sumHand = null;
+            for (int i = 0; i < autoAttackHands.Count; i++)
+            {
+                if (autoAttackHands[i].Description.Contains("총합"))
+                {
+                    sumHand = autoAttackHands[i];
+                    break;
+                }
+            }
             if (sumHand != null)
             {
                 sumHand.CheckAndCalculate(availableValues);
@@ -934,7 +968,17 @@ public class StageManager : MonoBehaviour
             diceController.DecreaseLockDurations();
         }
 
-        if (activeEnemies.All(e => e == null || e.isDead))
+        bool allEnemiesDead = true;
+        for (int i = 0; i < activeEnemies.Count; i++)
+        {
+            if (activeEnemies[i] != null && !activeEnemies[i].isDead)
+            {
+                allEnemiesDead = false;
+                break;
+            }
+        }
+        
+        if (allEnemiesDead)
         {
             // 런 통계: 웨이브 완료
             if (GameManager.Instance != null)
@@ -1036,8 +1080,9 @@ public class StageManager : MonoBehaviour
             }
         }
 
-        foreach (Enemy enemy in activeEnemies.ToArray())
+        for (int i = 0; i < activeEnemies.Count; i++)
         {
+            Enemy enemy = activeEnemies[i];
             if (enemy != null)
             {
                 enemy.OnWaveStart(activeEnemies);
@@ -1071,8 +1116,9 @@ public class StageManager : MonoBehaviour
             {
 
                 // 스폰된 모든 적에게 데미지 적용
-                foreach (Enemy enemy in activeEnemies.ToList())
+                for (int i = 0; i < activeEnemies.Count; i++)
                 {
+                    Enemy enemy = activeEnemies[i];
                     if (enemy != null && !enemy.isDead)
                     {
                         // 족보 정보 없이 고정 데미지 주는 방식 (null 전달)
@@ -1193,17 +1239,25 @@ public class StageManager : MonoBehaviour
         // 원본 Hand 사용
         var modifiedHand = hand;
 
-        foreach (Enemy enemy in activeEnemies.Where(e => e != null && !e.isDead))
+        for (int i = 0; i < activeEnemies.Count; i++)
         {
-            enemy.ShowDamagePreview(modifiedHand);
+            Enemy enemy = activeEnemies[i];
+            if (enemy != null && !enemy.isDead)
+            {
+                enemy.ShowDamagePreview(modifiedHand);
+            }
         }
     }
 
     public void HideAllAttackPreviews()
     {
-        foreach (Enemy enemy in activeEnemies.Where(e => e != null && !e.isDead))
+        for (int i = 0; i < activeEnemies.Count; i++)
         {
-            enemy.HideDamagePreview();
+            Enemy enemy = activeEnemies[i];
+            if (enemy != null && !enemy.isDead)
+            {
+                enemy.HideDamagePreview();
+            }
         }
     }
 
@@ -1299,15 +1353,13 @@ public class StageManager : MonoBehaviour
         return finalPos;
     }
 
-    // 연쇄 공격 카운터 getter
+    // 연쇄 공격 카운터
     public int GetCurrentChainCount()
     {
         return currentChainCount;
     }
 
-    /// <summary>
-    /// 여러 위치의 중심점 계산 (VFX용)
-    /// </summary>
+    // 여러 위치의 중심점 계산 (VFX용)
     private Vector3 CalculateCenterPosition(Vector3[] positions)
     {
         if (positions == null || positions.Length == 0)
@@ -1321,9 +1373,7 @@ public class StageManager : MonoBehaviour
         return sum / positions.Length;
     }
 
-    /// <summary>
-    /// 현재 Zone에 맞는 배경 설정 (이어하기 대응)
-    /// </summary>
+    // 현재 Zone에 맞는 배경 설정
     private void SetBackgroundForCurrentZone()
     {
         if (WaveGenerator.Instance == null || GameManager.Instance == null || backgroundRenderer == null)
@@ -1354,5 +1404,45 @@ public class StageManager : MonoBehaviour
         {
             wave2Tutorial.StartWave2Tutorial();
         }
+    }
+
+    private Vector3[] GetPositionsArray(List<Enemy> enemies)
+    {
+        int count = enemies.Count;
+        
+        if (_cachedPositionArray.Length < count)
+            _cachedPositionArray = new Vector3[count * 2];
+        
+        for (int i = 0; i < count; i++)
+        {
+            _cachedPositionArray[i] = enemies[i].transform.position;
+        }
+        
+        if (_cachedPositionArray.Length == count)
+            return _cachedPositionArray;
+        
+        Vector3[] result = new Vector3[count];
+        Array.Copy(_cachedPositionArray, result, count);
+        return result;
+    }
+
+    private Transform[] GetTransformsArray(List<Enemy> enemies)
+    {
+        int count = enemies.Count;
+        
+        if (_cachedTransformArray.Length < count)
+            _cachedTransformArray = new Transform[count * 2];
+        
+        for (int i = 0; i < count; i++)
+        {
+            _cachedTransformArray[i] = enemies[i].transform;
+        }
+        
+        if (_cachedTransformArray.Length == count)
+            return _cachedTransformArray;
+        
+        Transform[] result = new Transform[count];
+        Array.Copy(_cachedTransformArray, result, count);
+        return result;
     }
 }

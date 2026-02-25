@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
 
 // 늪지 거인 Swamp 보스
 public class SwampGiant : Enemy
@@ -11,8 +10,9 @@ public class SwampGiant : Enemy
     public float enrageHealthPercent = 0.5f; // 50%
     public int enrageHealPercent = 5; // 5%
 
-    private bool isEnraged = false;
-
+    private bool isEnraged = false;    
+    // 최고 값 주사위 찾기용
+    private List<Dice> _cachedTopDice = new List<Dice>();
     // 기믹
     // 플레이어가 주사위를 굴릴 때마다 가장 높은 주사위의 눈을 깎음
     // HP 50% 이하 시 2개로 증가하고 재생 효과
@@ -35,10 +35,37 @@ public class SwampGiant : Enemy
 
         // 분노 상태면 주사위 2개, 아니면 1개
         int crushCount = isEnraged ? 2 : 1;
-        var topDice = activeDice.OrderByDescending(d => d.Value).Take(crushCount).ToList();
-
-        foreach (var dice in topDice)
+        
+        // 최고 값 주사위 찾기
+        _cachedTopDice.Clear();
+        
+        for (int i = 0; i < crushCount; i++)
         {
+            Dice maxDice = null;
+            int maxValue = -1;
+            
+            for (int j = 0; j < activeDice.Count; j++)
+            {
+                Dice dice = activeDice[j];
+                // 이미 선택된 주사위는 제외
+                if (_cachedTopDice.Contains(dice)) continue;
+                
+                if (dice.Value > maxValue)
+                {
+                    maxValue = dice.Value;
+                    maxDice = dice;
+                }
+            }
+            
+            if (maxDice != null)
+            {
+                _cachedTopDice.Add(maxDice);
+            }
+        }
+
+        for (int i = 0; i < _cachedTopDice.Count; i++)
+        {
+            Dice dice = _cachedTopDice[i];
             int newValue = Mathf.Max(1, dice.Value - crushAmount);
 
             if (dice.Value != newValue)
@@ -48,7 +75,7 @@ public class SwampGiant : Enemy
         }
 
         // 짓누르기 텍스트 표시
-        if (topDice.Count > 0)
+        if (_cachedTopDice.Count > 0)
         {
             string crushText = LocalizationManager.Instance?.GetText("COMBAT_CRUSH") ?? "짓누름!";
             EffectManager.Instance.ShowText(transform, crushText, new Color(0.6f, 0.4f, 0.2f)); // 갈색

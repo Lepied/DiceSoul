@@ -553,11 +553,13 @@ public class GameManager : MonoBehaviour
         
         if (source != GoldSource.Combat) 
         {
-            // 유물 배율 계산
             float globalMultiplier = 1.0f;
-            foreach (Relic relic in activeRelics.Where(r => r.EffectType == RelicEffectType.AddGoldMultiplier))
+            for (int i = 0; i < activeRelics.Count; i++)
             {
-                globalMultiplier *= relic.FloatValue;
+                if (activeRelics[i].EffectType == RelicEffectType.AddGoldMultiplier)
+                {
+                    globalMultiplier *= activeRelics[i].FloatValue;
+                }
             }
             
             //골드 획득 이벤트

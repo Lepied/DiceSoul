@@ -1,12 +1,11 @@
 using UnityEngine;
-using System.Linq;
+using System.Collections.Generic;
 
-/// <summary>
-/// 슬라임 (평원 몬스터)
-/// [기믹]: 피격 시 50% 확률로 주사위 1개를 1턴 동안 잠급니다.
-/// </summary>
+// 슬라임 (평원 몬스터) 피격 시 50% 확률로 주사위 1개를 1턴 동안 잠급니다.
 public class Slime : Enemy
 {
+    // 주사위 필터링
+    private List<Dice> _cachedAvailableDice = new List<Dice>();
 
     public override void OnDamageTaken(int damageTaken, AttackHand hand)
     {
@@ -20,11 +19,18 @@ public class Slime : Enemy
             if (DiceController.Instance != null)
             {
                 var activeDice = DiceController.Instance.activeDice;
-                var availableDice = activeDice.Where(d => d.State == DiceState.Normal).ToList();
-
-                if (availableDice.Count > 0)
+                _cachedAvailableDice.Clear();
+                for (int i = 0; i < activeDice.Count; i++)
                 {
-                    int randomIdx = activeDice.IndexOf(availableDice[Random.Range(0, availableDice.Count)]);
+                    if (activeDice[i].State == DiceState.Normal)
+                    {
+                        _cachedAvailableDice.Add(activeDice[i]);
+                    }
+                }
+
+                if (_cachedAvailableDice.Count > 0)
+                {
+                    int randomIdx = activeDice.IndexOf(_cachedAvailableDice[Random.Range(0, _cachedAvailableDice.Count)]);
                     DiceController.Instance.LockDice(randomIdx, 1); // 1턴 동안 잠금
                     string text = LocalizationManager.Instance?.GetText("COMBAT_STICKY") ?? "끈끈이!";
                     EffectManager.Instance.ShowText(transform, text, Color.green);

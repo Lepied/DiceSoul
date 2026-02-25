@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
 
 
 [DefaultExecutionOrder(-100)] //Awake같은거 먼저 실행시키기
@@ -29,6 +28,11 @@ public class WaveGenerator : MonoBehaviour
 
     //이번 런에서 플레이할 존 순서 (티어별로 모든 존을 셔플해서 구성)
     private List<ZoneData> currentRunZoneOrder = new List<ZoneData>();
+    
+    // GenerateWave 캐시
+    private List<GameObject> _cachedEnemiesToSpawn = new List<GameObject>();
+    private List<CachedEnemyData> _cachedAvailableEnemies = new List<CachedEnemyData>();
+    private List<CachedEnemyData> _cachedPurchasable = new List<CachedEnemyData>();
 
     void Start()
     {
@@ -63,16 +67,26 @@ public class WaveGenerator : MonoBehaviour
             return;
         }
 
-        // Linq를 사용하여 티어(Tier)별로 분류
-        var zonesByTier = allGameZones.Where(z => z != null)
-                                      .GroupBy(z => z.zoneTier)
-                                      .OrderBy(g => g.Key)
-                                      .ToDictionary(g => g.Key, g => g.ToList());
-
-        // 각 티어의 랜덤으로 배치
-        foreach (var tierPair in zonesByTier.OrderBy(kv => kv.Key))
+        Dictionary<int, List<ZoneData>> zonesByTier = new Dictionary<int, List<ZoneData>>();
+        for (int i = 0; i < allGameZones.Count; i++)
         {
-            int tier = tierPair.Key;
+            if (allGameZones[i] != null)
+            {
+                int tier = allGameZones[i].zoneTier;
+                if (!zonesByTier.ContainsKey(tier))
+                {
+                    zonesByTier[tier] = new List<ZoneData>();
+                }
+                zonesByTier[tier].Add(allGameZones[i]);
+            }
+        }
+        
+        List<int> sortedTiers = new List<int>(zonesByTier.Keys);
+        sortedTiers.Sort();
+
+        foreach (int tier in sortedTiers)
+        {
+            List<ZoneData> zones = new List<ZoneData>(zonesByTier[tier]);
             List<ZoneData> zones = new List<ZoneData>(tierPair.Value);
             
             ShuffleList(zones);
@@ -177,14 +191,14 @@ public class WaveGenerator : MonoBehaviour
 
     public List<GameObject> GenerateWave(int currentZone, int currentWave)
     {
-        List<GameObject> enemiesToSpawn = new List<GameObject>();
+        _cachedEnemiesToSpawn.Clear();
 
         //  '셔플된' 런 순서에서 현재 존(Zone) 데이터 찾기
         ZoneData zoneData = GetCurrentZoneData(currentZone);
         if (zoneData == null)
         {
             Debug.LogError($"[WaveGenerator] Zone {currentZone}에 해당하는 'ZoneData'를 찾을 수 없습니다! (InitializeNewRun() 또는 allGameZones 인스펙터를 확인하세요)");
-            return enemiesToSpawn;
+            return _cachedEnemiesToSpawn;
         }
 
         // 2. 현재 웨이브(Wave) 데이터 찾기
@@ -192,7 +206,7 @@ public class WaveGenerator : MonoBehaviour
         if (zoneData.waves == null || zoneData.waves.Count <= waveIndex || zoneData.waves[waveIndex] == null)
         {
             Debug.LogError($"[WaveGenerator] {zoneData.name}에 Wave {currentWave}에 해당하는 'WaveData.asset'이 등록되지 않았습니다!");
-            return enemiesToSpawn;
+            return _cachedEnemiesToSpawn;
         }
         WaveData waveData = zoneData.waves[waveIndex];
 
@@ -203,7 +217,7 @@ public class WaveGenerator : MonoBehaviour
 
             for (int i = 0; i < spawnData.count; i++)
             {
-                enemiesToSpawn.Add(spawnData.enemyPrefab);
+                _cachedEnemiesToSpawn.Add(spawnData.enemyPrefab);
             }
         }
 
@@ -211,30 +225,44 @@ public class WaveGenerator : MonoBehaviour
         int budget = waveData.bonusBudget;
         if (budget > 0 && zoneGeneralPoolCache.ContainsKey(zoneData.name))
         {
-            List<CachedEnemyData> availableEnemies = zoneGeneralPoolCache[zoneData.name]
-               .Where(e => e.minZoneLevel <= currentZone &&
-                           e.cost > 0 &&
-                           !e.isBoss)
-               .ToList();
+            _cachedAvailableEnemies.Clear();
+            List<CachedEnemyData> cachedList = zoneGeneralPoolCache[zoneData.name];
+            
+            for (int i = 0; i < cachedList.Count; i++)
+            {
+                CachedEnemyData e = cachedList[i];
+                if (e.minZoneLevel <= currentZone && e.cost > 0 && !e.isBoss)
+                {
+                    _cachedAvailableEnemies.Add(e);
+                }
+            }
 
-            if (availableEnemies.Count > 0)
+            if (_cachedAvailableEnemies.Count > 0)
             {
                 int safetyNet = 50;
                 while (budget > 0 && safetyNet > 0)
                 {
-                    List<CachedEnemyData> purchasable = availableEnemies.Where(e => e.cost <= budget).ToList();
-                    if (purchasable.Count == 0) break;
+                    _cachedPurchasable.Clear();
+                    for (int i = 0; i < _cachedAvailableEnemies.Count; i++)
+                    {
+                        if (_cachedAvailableEnemies[i].cost <= budget)
+                        {
+                            _cachedPurchasable.Add(_cachedAvailableEnemies[i]);
+                        }
+                    }
+                    
+                    if (_cachedPurchasable.Count == 0) break;
 
-                    CachedEnemyData chosenData = purchasable[Random.Range(0, purchasable.Count)];
-                    enemiesToSpawn.Add(chosenData.prefab);
+                    CachedEnemyData chosenData = _cachedPurchasable[Random.Range(0, _cachedPurchasable.Count)];
+                    _cachedEnemiesToSpawn.Add(chosenData.prefab);
                     budget -= chosenData.cost;
                     safetyNet--;
                 }
             }
         }
 
-        Debug.Log($"[WaveGenerator] 웨이브 생성 완료 ({zoneData.name} - Wave {currentWave}). / 총 {enemiesToSpawn.Count}마리");
-        return enemiesToSpawn;
+        Debug.Log($"[WaveGenerator] 웨이브 생성 완료 ({zoneData.name} - Wave {currentWave}). / 총 {_cachedEnemiesToSpawn.Count}마리");
+        return _cachedEnemiesToSpawn;
     }
 
     // --- 오브젝트 풀링 함수들 ---

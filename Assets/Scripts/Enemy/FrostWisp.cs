@@ -1,22 +1,19 @@
 using UnityEngine;
-using System.Linq;
+using System.Collections.Generic;
 
-/// <summary>
-/// (신규 파일) 서리 위스프 (Zone 3: 얼음 동굴 일반 몹)
-/// 대체: IceMephit -> FrostWisp
-/// [기믹]: OnDamageTaken - 피격 시 50% 확률로 주사위 1개를 1턴 동안 잠급니다.
-/// (스탯은 인스펙터에서 설정: Spirit 타입)
-/// </summary>
+// 서리 위스프
+// 기믹- 피격 시 50% 확률로 주사위 1개를 1턴 동안 잠급니다.
+
 public class FrostWisp : Enemy
 {
-    [Header("서리 위스프 기믹")]
+    [Header("서리 위습 기믹")]
     [Range(0, 1)]
-    public float freezeChance = 0.5f; 
+    public float freezeChance = 0.5f;
+    
+    // 주사위 필터링용
+    private List<Dice> _cachedAvailableDice = new List<Dice>(); 
 
-    /// <summary>
-    /// [기믹: 빙결]
-    /// 피격 시, 50% 확률로 플레이어의 주사위 1개를 얼려서(잠금)
-    /// </summary>
+    // 피격 시, 50% 확률로 플레이어의 주사위 1개를 얼려
     public override void OnDamageTaken(int damageTaken, AttackHand hand)
     {
         base.OnDamageTaken(damageTaken, hand);
@@ -28,11 +25,18 @@ public class FrostWisp : Enemy
             if (DiceController.Instance != null)
             {
                 var activeDice = DiceController.Instance.activeDice;
-                var availableDice = activeDice.Where(d => d.State == DiceState.Normal).ToList();
-                
-                if (availableDice.Count > 0)
+                _cachedAvailableDice.Clear();
+                for (int i = 0; i < activeDice.Count; i++)
                 {
-                    int randomIdx = activeDice.IndexOf(availableDice[Random.Range(0, availableDice.Count)]);
+                    if (activeDice[i].State == DiceState.Normal)
+                    {
+                        _cachedAvailableDice.Add(activeDice[i]);
+                    }
+                }
+                
+                if (_cachedAvailableDice.Count > 0)
+                {
+                    int randomIdx = activeDice.IndexOf(_cachedAvailableDice[Random.Range(0, _cachedAvailableDice.Count)]);
                     DiceController.Instance.LockDice(randomIdx, 1); // 1턴 동안 잠금
                     string freezeText = LocalizationManager.Instance != null 
                         ? LocalizationManager.Instance.GetText("ENEMY_EFFECT_FREEZE") 
@@ -43,8 +47,6 @@ public class FrostWisp : Enemy
         }
     }
     
-    // CalculateDamageTaken은 부모(Spirit 타입) 로직을 따름
-    // (물리 면역, 마법 약점)
 
     public override string GetGimmickDescription()
     {
