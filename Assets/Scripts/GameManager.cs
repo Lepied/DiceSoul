@@ -84,6 +84,12 @@ public class GameManager : MonoBehaviour
     private int accumulatedMechanicDamage = 0;
     private int accumulatedShieldDamage = 0;
     private bool hasPendingFeedback = false;
+    
+    private WaveContext _cachedWaveContext = new WaveContext();
+    private GoldContext _cachedGoldContext = new GoldContext();
+    private DamageContext _cachedDamageContext = new DamageContext();
+    private DeathContext _cachedDeathContext = new DeathContext();
+    private HealContext _cachedHealContext = new HealContext();
 
     void Awake()
     {
@@ -531,13 +537,13 @@ public class GameManager : MonoBehaviour
         // 웨이브 시작 시 실드 초기화
         ClearShield();
 
-        //이벤트 시스템: 웨이브 시작 이벤트
-        WaveContext waveCtx = new WaveContext
-        {
-            ZoneNumber = CurrentZone,
-            WaveNumber = CurrentWave
-        };
-        GameEvents.RaiseWaveStart(waveCtx);
+        //이벤트 시스템: 웨이브 시작 이벤트 재사용
+        _cachedWaveContext.Reset();
+        _cachedWaveContext.ZoneNumber = CurrentZone;
+        _cachedWaveContext.WaveNumber = CurrentWave;
+        _cachedWaveContext.IsBossWave = false;
+        
+        GameEvents.RaiseWaveStart(_cachedWaveContext);
 
         if (UIManager.Instance != null)
         {
@@ -562,17 +568,16 @@ public class GameManager : MonoBehaviour
                 }
             }
             
-            //골드 획득 이벤트
-            GoldContext goldCtx = new GoldContext
-            {
-                OriginalAmount = goldAmount,
-                BaseAmount = goldAmount,
-                Multiplier = globalMultiplier,
-                FinalAmount = (int)(goldAmount * globalMultiplier),
-                Source = source.ToString()
-            };
-            GameEvents.RaiseGoldGain(goldCtx);
-            finalGold = goldCtx.FinalAmount;
+            //골드 획득 이벤트 재사용
+            _cachedGoldContext.Reset();
+            _cachedGoldContext.OriginalAmount = goldAmount;
+            _cachedGoldContext.BaseAmount = goldAmount;
+            _cachedGoldContext.Multiplier = globalMultiplier;
+            _cachedGoldContext.FinalAmount = (int)(goldAmount * globalMultiplier);
+            _cachedGoldContext.Source = source.ToString();
+            
+            GameEvents.RaiseGoldGain(_cachedGoldContext);
+            finalGold = _cachedGoldContext.FinalAmount;
         }
         
         CurrentGold += finalGold;
@@ -611,13 +616,13 @@ public class GameManager : MonoBehaviour
     {
         if (isSuccess)
         {
-            //이벤트 시스템: 웨이브 종료 이벤트
-            WaveContext waveEndCtx = new WaveContext
-            {
-                ZoneNumber = CurrentZone,
-                WaveNumber = CurrentWave
-            };
-            GameEvents.RaiseWaveEnd(waveEndCtx);
+            //이벤트 시스템: 웨이브 종료 이벤트 재사용
+            _cachedWaveContext.Reset();
+            _cachedWaveContext.ZoneNumber = CurrentZone;
+            _cachedWaveContext.WaveNumber = CurrentWave;
+            _cachedWaveContext.IsBossWave = false;
+            
+            GameEvents.RaiseWaveEnd(_cachedWaveContext);
 
             CurrentWave++;
 
@@ -716,18 +721,17 @@ public class GameManager : MonoBehaviour
             // 웨이브 실패하면 살아있는 적의 총 공격력만큼 피해입기
             int totalEnemyDamage = GetAllEnemyDamage();
 
-            //피해 전 이벤트 발생 (유물이 피해 무효화/감소 가능)
-            DamageContext damageCtx = new DamageContext
-            {
-                OriginalDamage = totalEnemyDamage,
-                FinalDamage = totalEnemyDamage,
-                Source = "WaveFail",
-                Cancelled = false
-            };
-            GameEvents.RaiseBeforePlayerDamaged(damageCtx);
+            //피해 전 이벤트 발생 재사용
+            _cachedDamageContext.Reset();
+            _cachedDamageContext.OriginalDamage = totalEnemyDamage;
+            _cachedDamageContext.FinalDamage = totalEnemyDamage;
+            _cachedDamageContext.Source = "WaveFail";
+            _cachedDamageContext.Cancelled = false;
+            
+            GameEvents.RaiseBeforePlayerDamaged(_cachedDamageContext);
 
             // 유물이 피해를 취소했는지 확인
-            if (damageCtx.Cancelled)
+            if (_cachedDamageContext.Cancelled)
             {
                 Debug.Log("[이벤트] 유물 효과 피해 무효화");
             }
@@ -744,10 +748,10 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                PlayerHealth -= damageCtx.FinalDamage;
+                PlayerHealth -= _cachedDamageContext.FinalDamage;
 
                 // 피해량 체크 (40 기준)
-                bool isHeavyHit = damageCtx.FinalDamage >= 40;
+                bool isHeavyHit = _cachedDamageContext.FinalDamage >= 40;
 
                 // 플레이어 피격 사운드 (피해량에 따라 다름)
                 if (SoundManager.Instance != null)
@@ -775,7 +779,7 @@ public class GameManager : MonoBehaviour
                 OnPlayerDamaged();
 
                 //이벤트 시스템: 피격 후 이벤트
-                GameEvents.RaiseAfterPlayerDamaged(damageCtx);
+                GameEvents.RaiseAfterPlayerDamaged(_cachedDamageContext);
             }
 
             if (UIManager.Instance != null)
@@ -785,19 +789,18 @@ public class GameManager : MonoBehaviour
 
             if (PlayerHealth <= 0)
             {
-                //이벤트 시스템: 사망 이벤트 발생 (유물이 부활 가능)
-                DeathContext deathCtx = new DeathContext
-                {
-                    Revived = false,
-                    ReviveHP = 0,
-                    ReviveSource = null
-                };
-                GameEvents.RaisePlayerDeath(deathCtx);
+                //이벤트 시스템: 사망 이벤트 발생 재사용
+                _cachedDeathContext.Reset();
+                _cachedDeathContext.Revived = false;
+                _cachedDeathContext.ReviveHP = 0;
+                _cachedDeathContext.ReviveSource = null;
+                
+                GameEvents.RaisePlayerDeath(_cachedDeathContext);
 
                 // 유물이 부활시켰는지 확인
-                if (deathCtx.Revived)
+                if (_cachedDeathContext.Revived)
                 {
-                    PlayerHealth = deathCtx.ReviveHP;
+                    PlayerHealth = _cachedDeathContext.ReviveHP;
                     if (UIManager.Instance != null)
                     {
                         UIManager.Instance.UpdateHealth(PlayerHealth, MaxPlayerHealth);
@@ -1007,14 +1010,14 @@ public class GameManager : MonoBehaviour
     // 플레이어에게 데미지 (간단한 호출용)
     public void DamagePlayer(int damage, string source = "Unknown")
     {
-        DamageContext ctx = new DamageContext
-        {
-            OriginalDamage = damage,
-            FinalDamage = damage,
-            Source = source,
-            Cancelled = false
-        };
-        DamagePlayer(ctx);
+        // 캐시 재사용
+        _cachedDamageContext.Reset();
+        _cachedDamageContext.OriginalDamage = damage;
+        _cachedDamageContext.FinalDamage = damage;
+        _cachedDamageContext.Source = source;
+        _cachedDamageContext.Cancelled = false;
+        
+        DamagePlayer(_cachedDamageContext);
     }
 
     // 살아있는 적의 총 공격력 합산
@@ -1125,19 +1128,18 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // 이벤트 시스템: 사망 이벤트 (유물로부활)
-        DeathContext deathCtx = new DeathContext
-        {
-            Revived = false,
-            ReviveHP = 0,
-            ReviveSource = null
-        };
-        GameEvents.RaisePlayerDeath(deathCtx);
+        // 이벤트 시스템: 사망 이벤트 재사용
+        _cachedDeathContext.Reset();
+        _cachedDeathContext.Revived = false;
+        _cachedDeathContext.ReviveHP = 0;
+        _cachedDeathContext.ReviveSource = null;
+        
+        GameEvents.RaisePlayerDeath(_cachedDeathContext);
 
         // 유물이 부활시켰는지 확인
-        if (deathCtx.Revived)
+        if (_cachedDeathContext.Revived)
         {
-            PlayerHealth = deathCtx.ReviveHP;
+            PlayerHealth = _cachedDeathContext.ReviveHP;
             if (UIManager.Instance != null)
             {
                 UIManager.Instance.UpdateHealth(PlayerHealth, MaxPlayerHealth);
@@ -1226,21 +1228,20 @@ public class GameManager : MonoBehaviour
 
     public void HealPlayer(int amount)
     {
-        //이벤트 시스템: 회복 이벤트
-        HealContext healCtx = new HealContext
-        {
-            OriginalAmount = amount,
-            FinalAmount = amount,
-            Cancelled = false
-        };
-        GameEvents.RaisePlayerHeal(healCtx);
+        //회복 이벤트 재사용
+        _cachedHealContext.Reset();
+        _cachedHealContext.OriginalAmount = amount;
+        _cachedHealContext.FinalAmount = amount;
+        _cachedHealContext.Cancelled = false;
+        
+        GameEvents.RaisePlayerHeal(_cachedHealContext);
 
-        if (healCtx.Cancelled)
+        if (_cachedHealContext.Cancelled)
         {
             return;
         }
 
-        PlayerHealth = Mathf.Min(PlayerHealth + healCtx.FinalAmount, MaxPlayerHealth);
+        PlayerHealth = Mathf.Min(PlayerHealth + _cachedHealContext.FinalAmount, MaxPlayerHealth);
         UIManager.Instance.UpdateHealth(PlayerHealth, MaxPlayerHealth);
     }
 
@@ -1395,7 +1396,9 @@ public class GameManager : MonoBehaviour
         ResetRunStatistics();
 
         hasInitializedRun = false;
-
+        
+        // 이벤트 시스템 정리
+        GameEvents.ClearAllEvents();
     }
 
     // 적 처치 기록

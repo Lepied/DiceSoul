@@ -54,6 +54,9 @@ public class StageManager : MonoBehaviour
     // 배열 변환용
     private Vector3[] _cachedPositionArray = new Vector3[30];
     private Transform[] _cachedTransformArray = new Transform[30];
+    
+    private AttackContext _cachedAttackContext = new AttackContext();
+    private HandContext _cachedHandContext = new HandContext();
 
 
     void Awake()
@@ -172,14 +175,12 @@ public class StageManager : MonoBehaviour
         if (achievableHands.Count > 0)
         {
             // 이벤트 시스템: 족보 완성 이벤트
-            HandContext handCtx = new HandContext
-            {
-                achievedHands = achievableHands,
-                DiceValuesList = finalValues,
-                BonusDamage = 0,
-                BonusGold = 0
-            };
-            GameEvents.RaiseHandComplete(handCtx);
+            _cachedHandContext.Reset();
+            _cachedHandContext.achievedHands = achievableHands;
+            _cachedHandContext.DiceValuesList = finalValues;
+            _cachedHandContext.BonusDamage = 0;
+            _cachedHandContext.BonusGold = 0;
+            GameEvents.RaiseHandComplete(_cachedHandContext);
 
             diceController.SetRollButtonInteractable(false);
             isAttackChoice = true;
@@ -396,7 +397,7 @@ public class StageManager : MonoBehaviour
                 onEachReach: (int targetIndex) =>
                 {
                     // 각 투사체가 도착할 때 데미지
-                    if (targetIndex < randomTargets.Count)
+                    if (targetIndex < _cachedRandomTargets.Count)
                     {
                         Enemy target = _cachedRandomTargets[targetIndex];
                         int damageToTake = target.CalculateDamageTaken(hand) + bonusDamage;
@@ -717,7 +718,14 @@ public class StageManager : MonoBehaviour
                     }
                 }
 
-                if (VFXManager.Instance != null && hand.SubVfxConfig != null && _cachedSubTargets.Count > 0)
+                // 부가 공격 대상이 없으면 바로 완료
+                if (_cachedSubTargets.Count == 0)
+                {
+                    onSubComplete?.Invoke();
+                    break;
+                }
+
+                if (VFXManager.Instance != null && hand.SubVfxConfig != null)
                 {
                     // 부가공격 VFX 있으면 사용
                     Vector3[] targetPos = GetPositionsArray(_cachedSubTargets);
@@ -737,6 +745,17 @@ public class StageManager : MonoBehaviour
                         },
                         onComplete: onSubComplete
                     );
+                }
+                else
+                {
+                    // VFX가 없으면 즉시 데미지
+                    for (int i = 0; i < _cachedSubTargets.Count; i++)
+                    {
+                        Enemy enemy = _cachedSubTargets[i];
+                        int damageToTake = enemy.CalculateDamageTaken(subHand);
+                        enemy.TakeDamage(damageToTake, subHand, isSplash: false, isCritical: false);
+                    }
+                    onSubComplete?.Invoke();
                 }
                 break;
 
@@ -764,6 +783,13 @@ public class StageManager : MonoBehaviour
                     }
                 }
 
+                // 부가 공격 대상이 없으면 바로 완료
+                if (_cachedSubTargets.Count == 0)
+                {
+                    onSubComplete?.Invoke();
+                    break;
+                }
+
                 int subRandomCount = Mathf.Min(hand.SubRandomTargetCount, _cachedSubTargets.Count);
                 _cachedRandomTargets.Clear();
                 _cachedAvailableEnemies.Clear();
@@ -779,7 +805,14 @@ public class StageManager : MonoBehaviour
                     _cachedAvailableEnemies.RemoveAt(randomIndex);  // 중복 방지
                 }
 
-                if (VFXManager.Instance != null && hand.SubVfxConfig != null && _cachedRandomTargets.Count > 0)
+                // 랜덤 타겟도 없으면 완료
+                if (_cachedRandomTargets.Count == 0)
+                {
+                    onSubComplete?.Invoke();
+                    break;
+                }
+
+                if (VFXManager.Instance != null && hand.SubVfxConfig != null)
                 {
                     // 부가공격 VFX 있으면 사용
                     Vector3[] targetPos = GetPositionsArray(_cachedRandomTargets);
@@ -797,12 +830,26 @@ public class StageManager : MonoBehaviour
                                 Enemy randomTarget = _cachedRandomTargets[targetIndex];
                                 int damageToTake = randomTarget.CalculateDamageTaken(subHand);
                                 randomTarget.TakeDamage(damageToTake, subHand, isSplash: false, isCritical: false);
-
                             }
                         },
                         onComplete: onSubComplete
                     );
                 }
+                else
+                {
+                    // VFX가 없으면 즉시 데미지
+                    for (int i = 0; i < _cachedRandomTargets.Count; i++)
+                    {
+                        Enemy randomTarget = _cachedRandomTargets[i];
+                        int damageToTake = randomTarget.CalculateDamageTaken(subHand);
+                        randomTarget.TakeDamage(damageToTake, subHand, isSplash: false, isCritical: false);
+                    }
+                    onSubComplete?.Invoke();
+                }
+                break;
+                
+            default:
+                onSubComplete?.Invoke();
                 break;
         }
     }
@@ -810,20 +857,21 @@ public class StageManager : MonoBehaviour
     // AttackContext 생성 헬퍼 메서드
     private AttackContext CreateAttackContext(AttackHand hand, int baseDamage, int baseGold)
     {
-        return new AttackContext
-        {
-            hand = hand,
-            BaseDamage = baseDamage,
-            BaseGold = baseGold,
-            FlatDamageBonus = 0,
-            FlatGoldBonus = 0,
-            DamageMultiplier = 1.0f,
-            GoldMultiplier = 1.0f,
-            IsFirstRoll = (diceController.currentRollCount == 1),
-            RemainingRolls = diceController.maxRolls - diceController.currentRollCount,
-            HealAfterAttack = 0,
-            IsFirstAttackThisWave = (currentChainCount == 0)
-        };
+        //재사용
+        _cachedAttackContext.Reset();
+        _cachedAttackContext.hand = hand;
+        _cachedAttackContext.BaseDamage = baseDamage;
+        _cachedAttackContext.BaseGold = baseGold;
+        _cachedAttackContext.FlatDamageBonus = 0;
+        _cachedAttackContext.FlatGoldBonus = 0;
+        _cachedAttackContext.DamageMultiplier = 1.0f;
+        _cachedAttackContext.GoldMultiplier = 1.0f;
+        _cachedAttackContext.IsFirstRoll = (diceController.currentRollCount == 1);
+        _cachedAttackContext.RemainingRolls = diceController.maxRolls - diceController.currentRollCount;
+        _cachedAttackContext.HealAfterAttack = 0;
+        _cachedAttackContext.IsFirstAttackThisWave = (currentChainCount == 0);
+        
+        return _cachedAttackContext;
     }
 
     // 공격 완료 후 연쇄 공격 체크
@@ -1138,20 +1186,20 @@ public class StageManager : MonoBehaviour
     // 유물 효과가 적용된 최종 데미지/골드 미리보기 계산
     public (int finalDamage, int finalGold) GetPreviewValues(AttackHand hand)
     {
-        // AttackContext를 통해 이벤트 시스템으로 계산
-        AttackContext ctx = new AttackContext
-        {
-            hand = hand,
-            BaseDamage = hand.BaseDamage,
-            BaseGold = hand.BaseGold,
-            FlatDamageBonus = 0,
-            FlatGoldBonus = 0,
-            DamageMultiplier = 1.0f,
-            GoldMultiplier = 1.0f,
-            IsFirstRoll = (diceController.currentRollCount == 1),
-            RemainingRolls = diceController.maxRolls - diceController.currentRollCount,
-            HealAfterAttack = 0
-        };
+        // 재사용
+        _cachedAttackContext.Reset();
+        _cachedAttackContext.hand = hand;
+        _cachedAttackContext.BaseDamage = hand.BaseDamage;
+        _cachedAttackContext.BaseGold = hand.BaseGold;
+        _cachedAttackContext.FlatDamageBonus = 0;
+        _cachedAttackContext.FlatGoldBonus = 0;
+        _cachedAttackContext.DamageMultiplier = 1.0f;
+        _cachedAttackContext.GoldMultiplier = 1.0f;
+        _cachedAttackContext.IsFirstRoll = (diceController.currentRollCount == 1);
+        _cachedAttackContext.RemainingRolls = diceController.maxRolls - diceController.currentRollCount;
+        _cachedAttackContext.HealAfterAttack = 0;
+        
+        AttackContext ctx = _cachedAttackContext;
 
         // 치명타 판정
         ctx.IsCritical = RollCritical();

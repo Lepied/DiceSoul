@@ -229,7 +229,7 @@ public class GoldContext
 // 상점 컨텍스트
 public class ShopContext
 {
-    public System.Collections.Generic.List<ShopItem> Items; // 현재 상점 아이템 목록
+    public List<ShopItem> Items;         // 현재 상점 아이템 목록
     public int RerollCost;               // 리롤 비용
     public int RefreshCost;              // 새로고침 비용 (RerollCost와 동일)
     public float PriceMultiplier = 1f;   // 가격 배율 (할인 등)

@@ -68,6 +68,7 @@ public class DiceController : MonoBehaviour
             return activeDice.Select(d => d.Value).ToList();
         }
     }
+    private RollContext _cachedRollContext = new RollContext();
 
     void Awake()
     {
@@ -363,32 +364,32 @@ public class DiceController : MonoBehaviour
             }
         }
 
-        //이벤트 시스템: 주사위 굴림 완료 이벤트 발생
-        RollContext rollCtx = new RollContext
-        {
-            DiceValues = activeDice.Select(d => d.Value).ToArray(),
-            DiceTypes = activeDice.Select(d => d.Type).ToArray(),
-            IsFirstRoll = (currentRollCount == 1),
-            RerollIndices = new List<int>()
-        };
-        GameEvents.RaiseDiceRolled(rollCtx);
+        //재사용
+        _cachedRollContext.Reset();
+        _cachedRollContext.DiceValues = activeDice.Select(d => d.Value).ToArray();
+        _cachedRollContext.DiceTypes = activeDice.Select(d => d.Type).ToArray();
+        _cachedRollContext.IsFirstRoll = (currentRollCount == 1);
+        _cachedRollContext.RollCount = currentRollCount;
+        _cachedRollContext.RerollIndices = new List<int>();
+        
+        GameEvents.RaiseDiceRolled(_cachedRollContext);
 
         // 유물이 주사위 값을 변환했으면 UI에 반영
-        for (int i = 0; i < activeDice.Count && i < rollCtx.DiceValues.Length; i++)
+        for (int i = 0; i < activeDice.Count && i < _cachedRollContext.DiceValues.Length; i++)
         {
-            if (activeDice[i].Value != rollCtx.DiceValues[i])
+            if (activeDice[i].Value != _cachedRollContext.DiceValues[i])
             {
                 // 값이 바뀌었으면 마법 연출로 업데이트
-                activeDice[i].PlayMagicAnimation(rollCtx.DiceValues[i]);
+                activeDice[i].PlayMagicAnimation(_cachedRollContext.DiceValues[i]);
             }
         }
 
         // 유물이 재굴림을 요청했으면 처리
-        if (rollCtx.RerollIndices != null && rollCtx.RerollIndices.Count > 0)
+        if (_cachedRollContext.RerollIndices != null && _cachedRollContext.RerollIndices.Count > 0)
         {
             yield return new WaitForSeconds(0.3f); // 연출 대기
 
-            foreach (int idx in rollCtx.RerollIndices.Distinct())
+            foreach (int idx in _cachedRollContext.RerollIndices.Distinct())
             {
                 if (idx >= 0 && idx < activeDice.Count && activeDice[idx].State == DiceState.Normal)
                 {
@@ -401,8 +402,8 @@ public class DiceController : MonoBehaviour
             yield return new WaitForSeconds(0.4f); // 재굴림 연출 대기
 
             // 재굴림 후 이벤트 (값 변환 유물이 다시 적용될 수 있음)
-            rollCtx.DiceValues = activeDice.Select(d => d.Value).ToArray();
-            GameEvents.RaiseDiceRerolled(rollCtx);
+            _cachedRollContext.DiceValues = activeDice.Select(d => d.Value).ToArray();
+            GameEvents.RaiseDiceRerolled(_cachedRollContext);
         }
 
         isRolling = false;

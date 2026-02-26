@@ -87,7 +87,6 @@ public class WaveGenerator : MonoBehaviour
         foreach (int tier in sortedTiers)
         {
             List<ZoneData> zones = new List<ZoneData>(zonesByTier[tier]);
-            List<ZoneData> zones = new List<ZoneData>(tierPair.Value);
             
             ShuffleList(zones);
         
@@ -154,11 +153,7 @@ public class WaveGenerator : MonoBehaviour
             return enemyDataCache[key];
         }
         Enemy enemyScript = prefab.GetComponent<Enemy>();
-        if (enemyScript == null)
-        {
-            Debug.LogError($"[WaveGenerator] {key} 프리팹에 Enemy 스크립트가 없습니다!");
-            return null;
-        }
+
         CachedEnemyData newData = new CachedEnemyData
         {
             prefab = prefab,
@@ -170,19 +165,16 @@ public class WaveGenerator : MonoBehaviour
         if (!poolDictionary.ContainsKey(key))
         {
             poolDictionary.Add(key, new Queue<GameObject>());
-            Debug.Log($"[WaveGenerator] 오브젝트 풀 등록: {key}");
         }
         return newData;
     }
 
     public ZoneData GetCurrentZoneData(int currentZone)
     {
-        // (기획서: Zone 1 (Tier 1), Zone 2/3 (Tier 2), Zone 4/5 (Tier 3))
-        int zoneIndex = currentZone - 1; // (Zone 1 -> 인덱스 0)
+        int zoneIndex = currentZone - 1; 
 
         if (currentRunZoneOrder == null || currentRunZoneOrder.Count <= zoneIndex || currentRunZoneOrder[zoneIndex] == null)
         {
-            Debug.LogError($"[WaveGenerator] 'currentRunZoneOrder'에서 Zone {currentZone} (인덱스 {zoneIndex})에 해당하는 ZoneData를 찾을 수 없습니다.");
             return null;
         }
 

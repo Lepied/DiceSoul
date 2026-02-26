@@ -21,10 +21,6 @@ public class RelicEffectHandler : MonoBehaviour
     private bool fateDiceUsedThisZone = false; // 존당 1회로 변경
     private int preserveChargesRemaining = 0; // 주사위 보존 남은 기회
 
-    // 캐싱된 Context (GC 방지)
-    private RollContext cachedRollContext = new RollContext();
-    private AttackContext cachedAttackContext = new AttackContext();
-    private DamageContext cachedDamageContext = new DamageContext();
 
     void Awake()
     {
