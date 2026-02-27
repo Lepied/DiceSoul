@@ -93,12 +93,9 @@ public class RelicCSVImporter : EditorWindow
                 string relicName = values[1].Trim();
                 string rarityStr = values[2].Trim();
                 string dropPoolStr = values[3].Trim();
-                string description = values[4].Trim().Replace(";", ""); // 세미콜론 제거
+                string description = values[4].Trim().Replace(";", ""); // 세미콜론 뜯어내
                 string maxCountStr = values[5].Trim();
                 string categoryStr = values[6].Trim();
-                // values[7] = 구현여부
-                
-                // 새 컬럼들
                 string effectTypeStr = values.Length > 8 ? values[8].Trim() : "";
                 string intValueStr = values.Length > 9 ? values[9].Trim() : "0";
                 string floatValueStr = values.Length > 10 ? values[10].Trim() : "0";
@@ -123,15 +120,8 @@ public class RelicCSVImporter : EditorWindow
                 relicData.category = ParseCategory(categoryStr);
                 relicData.maxCount = ParseMaxCount(maxCountStr);
                 
-                // 효과 값 설정 (CSV에서 직접 파싱)
-                if (!string.IsNullOrEmpty(effectTypeStr))
-                {
-                    relicData.effectType = ParseEffectType(effectTypeStr);
-                }
-                else
-                {
-                    relicData.effectType = InferEffectType(relicID, description);
-                }
+                // 효과 값 설정
+                relicData.effectType = ParseEffectType(effectTypeStr);
                 
                 // IntValue, FloatValue, StringValue 파싱
                 if (int.TryParse(intValueStr, out int intVal))
@@ -254,63 +244,17 @@ public class RelicCSVImporter : EditorWindow
     // CSV의 EffectType 문자열을 enum으로 변환
     private RelicEffectType ParseEffectType(string str)
     {
+        if (string.IsNullOrEmpty(str))
+        {
+            Debug.LogWarning("EffectType이 비어있습니다. CSV를 확인하세요.");
+            return RelicEffectType.None;
+        }
+        
         if (System.Enum.TryParse<RelicEffectType>(str, true, out var result))
         {
             return result;
         }
         return RelicEffectType.None;
-    }
-
-    // RelicID를 기반으로 EffectType 추론 (fallback용)
-
-    private RelicEffectType InferEffectType(string relicID, string description)
-    {
-        // 기존 구현된 유물들 매핑
-        return relicID switch
-        {
-            "RLC_CLOVER" => RelicEffectType.AddMaxRolls,
-            "RLC_WHETSTONE" => RelicEffectType.AddBaseDamage,
-            "RLC_RUSTY_GEAR" => RelicEffectType.HandGoldAdd,
-            "RLC_EXTRA_DICE" => RelicEffectType.AddDice,
-            "RLC_TINY_DICE" => RelicEffectType.AddDice,
-            "RLC_FOUNDATION" => RelicEffectType.HandDamageAdd,
-            "RLC_GOLD_DICE" => RelicEffectType.AddGoldMultiplier,
-            "RLC_GLASS_CANNON" => RelicEffectType.AddBaseDamage,
-            "RLC_PLUTOCRACY" => RelicEffectType.DynamicDamage_Gold,
-            "RLC_BLOODLUST" => RelicEffectType.DynamicDamage_LostHealth,
-            "RLC_FOCUS" => RelicEffectType.AddBaseDamage,
-            "RLC_ALCHEMY" => RelicEffectType.ModifyDiceValue,
-            "RLC_LODESTONE" => RelicEffectType.RerollOdds,
-            "RLC_TANZANITE" => RelicEffectType.RerollEvens,
-            "RLC_FEATHER" => RelicEffectType.RerollSixes,
-            "RLC_COUNTERWEIGHT" => RelicEffectType.BonusOnLowD20,
-            "RLC_PERFECTIONIST" => RelicEffectType.DisableHand,
-            "RLC_SWORD_BOOK" => RelicEffectType.HandDamageAdd,
-            "RLC_SPIKE_GLOVE" => RelicEffectType.HandDamageAdd,
-            "RLC_WHITEBOOK" => RelicEffectType.HandGoldMultiplier,
-            "RLC_DARKBOOK" => RelicEffectType.HandGoldMultiplier,
-            "RLC_GEM_CROWN" => RelicEffectType.HandGoldMultiplier,
-            "RLC_SQUARE_PEG" => RelicEffectType.HandDamageAdd,
-            "RLC_TRIPOD" => RelicEffectType.HandGoldMultiplier,
-            "RLC_HOUSE" => RelicEffectType.HandDamageAdd,
-            "RLC_ROYAL_SEAL" => RelicEffectType.HandGoldMultiplier,
-            "RLC_HEAVY_DICE" => RelicEffectType.HandDamageAdd,
-            "RLC_BUSINESS_CARD" => RelicEffectType.RollCountBonus,
-            // 새로 추가할 유물들
-            "RLC_VAMPIRE_FANG" => RelicEffectType.HealOnHand,
-            "RLC_REGENERATION" => RelicEffectType.HealOnRoll,
-            "RLC_PHOENIX_FEATHER" => RelicEffectType.ReviveOnDeath,
-            "RLC_SMALL_SHIELD" => RelicEffectType.DamageImmuneLowHP,
-            "RLC_SWIFT_HANDS" => RelicEffectType.FreeRollOnZero,
-            "RLC_DICE_CUP" => RelicEffectType.FixDiceBeforeRoll,
-            "RLC_DOUBLE_DICE" => RelicEffectType.DoubleDiceValue,
-            "RLC_FATE_DICE" => RelicEffectType.SetAllToMax,
-            "RLC_LUCKY_CHARM" => RelicEffectType.ShopDiscount,
-            "RLC_MERCHANT_CARD" => RelicEffectType.ShopRefreshFreeze,
-            "RLC_TIME_RIFT" => RelicEffectType.SaveRollChance,
-            "RLC_HOURGLASS" => RelicEffectType.DynamicDamage_LowRolls,
-            _ => RelicEffectType.None
-        };
     }
     
     private RelicTriggerTiming InferTriggerTiming(RelicEffectType effectType)

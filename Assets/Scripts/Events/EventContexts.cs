@@ -4,7 +4,7 @@ using System.Collections.Generic;
 public class RollContext
 {
     public int[] DiceValues;              // 주사위 값 배열
-    public string[] DiceTypes;            // 주사위 타입 (D4, D6, D20 등)
+    public string[] DiceTypes;            // 주사위 타입
     public bool IsFirstRoll;              // 첫 굴림인지
     public int RollCount;                 // 현재 몇 번째 굴림인지
     public List<int> RerollIndices;       // 재굴림할 인덱스 목록

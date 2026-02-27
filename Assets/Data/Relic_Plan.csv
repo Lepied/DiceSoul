@@ -1,40 +1,40 @@
 ID,이름,등급,획득경로,효과,최대개수,비고,구현여부,EffectType,IntValue,FloatValue,StringValue
 RLC_CLOVER,네잎클로버,Common,WaveReward,최대 굴림 횟수 +1,3,유틸리티,O,AddMaxRolls,1,0,
 RLC_WHETSTONE,숫돌,Common,WaveReward,모든 족보 데미지 +5,무제한,캐릭터 스탯,O,AddBaseDamage,5,0,
-RLC_RUSTY_GEAR,녹슨 톱니,Common,WaveReward,모든 족보 골드 +10,무제한,캐릭터 스탯,O,JokboGoldAdd,3,0,ALL
+RLC_RUSTY_GEAR,녹슨 톱니,Common,WaveReward,모든 족보 골드 +10,무제한,캐릭터 스탯,O,HandGoldAdd,3,0,ALL
 RLC_EXTRA_DICE,여분의 주사위,Common,WaveReward,덱에 D6 추가,3,주사위 관련,O,AddDice,0,0,D6
 RLC_TINY_DICE,작은 주사위,Common,WaveReward,덱에 D4 추가,3,주사위 관련,O,AddDice,0,0,D4
 RLC_QUICK_RELOAD,빠른 장전,Common,WaveReward,첫 굴림 시 주사위 2개 즉시 재굴림,5,주사위 관련,O,RerollFirst,2,0,
-RLC_FOUNDATION,기틀,Common,WaveReward,총합 족보 데미지 +10,무제한,족보 특화,O,JokboDamageAdd,10,0,총합
-RLC_SHARP_BLADE,날카로운 칼날,Common,WaveReward,스트레이트 족보 데미지 +20,무제한,족보 특화,O,JokboDamageAdd,20,0,스트레이트
+RLC_FOUNDATION,기틀,Common,WaveReward,총합 족보 데미지 +10,무제한,족보 특화,O,HandDamageAdd,10,0,총합
+RLC_SHARP_BLADE,날카로운 칼날,Common,WaveReward,스트레이트 족보 데미지 +20,무제한,족보 특화,O,HandDamageAdd,20,0,스트레이트
 RLC_POLISHED_ORB,광택 구슬,Common,WaveReward,연쇄 공격 시 공격마다 데미지 +30%,3,캐릭터 스탯,O,ChainDamageBonus,0,0.3,
-RLC_SPIKE_GLOVE,가시 돋친 장갑,Common,WaveReward,투 페어 족보 데미지 +15,무제한,족보 특화,O,JokboDamageAdd,15,0,투 페어
-RLC_TRIPOD,삼각대,Common,WaveReward,트리플 족보 골드 2배,3,족보 특화,O,JokboGoldMultiplier,0,2.0,트리플
-RLC_HOUSE,집 모형,Common,WaveReward,풀 하우스 족보 데미지 +25,무제한,족보 특화,O,JokboDamageAdd,25,0,풀 하우스
+RLC_SPIKE_GLOVE,가시 돋친 장갑,Common,WaveReward,투 페어 족보 데미지 +15,무제한,족보 특화,O,HandDamageAdd,15,0,투 페어
+RLC_TRIPOD,삼각대,Common,WaveReward,트리플 족보 골드 2배,3,족보 특화,O,HandGoldMultiplier,0,2.0,트리플
+RLC_HOUSE,집 모형,Common,WaveReward,풀 하우스 족보 데미지 +25,무제한,족보 특화,O,HandDamageAdd,25,0,풀 하우스
 RLC_SMALL_SHIELD,작은 방패,Uncommon,WaveReward,최대 체력 20% 이하일 때 피해 무효화 (존 당 1회),3,생존 유틸리티,O,DamageImmuneLowHP,0,0.2,
 RLC_SWIFT_HANDS,날쌘 손놀림,Uncommon,WaveReward,굴림 가능 횟수가 0일 때 웨이브당 1회 충전,3,유틸리티,O,FreeRollAtZero,1,0,
-RLC_WHITEBOOK,백마법서,Uncommon,WaveReward,모두 짝수 족보 골드 2배,1,족보 특화,O,JokboGoldMultiplier,0,2.0,모두 짝수
-RLC_DARKBOOK,흑마법서,Uncommon,WaveReward,모두 홀수 족보 골드 2배,1,족보 특화,O,JokboGoldMultiplier,0,2.0,모두 홀수
-RLC_SWORD_BOOK,검술 교본,Uncommon,WaveReward,모든 스트레이트 족보 데미지 +30,무제한,족보 특화,O,JokboDamageAdd,30,0,스트레이트
-RLC_SPIKED_HAMMER,가시 망치,Uncommon,WaveReward,포카드 족보 데미지 +20,무제한,족보 특화,O,JokboDamageAdd,20,0,포카드
-RLC_EVEN_BOOK,짝수의 서,Uncommon,WaveReward,모두 짝수일 때 데미지 1.5배,무제한,족보 특화,O,JokboDamageMultiplier,0,1.5,모두 짝수
-RLC_ODD_BOOK,홀수의 서,Uncommon,WaveReward,모두 홀수일 때 데미지 1.5배,무제한,족보 특화,O,JokboDamageMultiplier,0,1.5,모두 홀수
-RLC_LUCKY_RING,행운의 반지,Uncommon,WaveReward,트리플 족보 데미지 +20,무제한,족보 특화,O,JokboDamageAdd,20,0,트리플
-RLC_IRON_FIST,철제 주먹,Uncommon,WaveReward,투 페어 족보 데미지 +10,무제한,족보 특화,O,JokboDamageAdd,10,0,투 페어
+RLC_WHITEBOOK,백마법서,Uncommon,WaveReward,모두 짝수 족보 골드 2배,1,족보 특화,O,HandGoldMultiplier,0,2.0,모두 짝수
+RLC_DARKBOOK,흑마법서,Uncommon,WaveReward,모두 홀수 족보 골드 2배,1,족보 특화,O,HandGoldMultiplier,0,2.0,모두 홀수
+RLC_SWORD_BOOK,검술 교본,Uncommon,WaveReward,모든 스트레이트 족보 데미지 +30,무제한,족보 특화,O,HandDamageAdd,30,0,스트레이트
+RLC_SPIKED_HAMMER,가시 망치,Uncommon,WaveReward,포카드 족보 데미지 +20,무제한,족보 특화,O,HandDamageAdd,20,0,포카드
+RLC_EVEN_BOOK,짝수의 서,Uncommon,WaveReward,모두 짝수일 때 데미지 1.5배,무제한,족보 특화,O,HandDamageMultiplier,0,1.5,모두 짝수
+RLC_ODD_BOOK,홀수의 서,Uncommon,WaveReward,모두 홀수일 때 데미지 1.5배,무제한,족보 특화,O,HandDamageMultiplier,0,1.5,모두 홀수
+RLC_LUCKY_RING,행운의 반지,Uncommon,WaveReward,트리플 족보 데미지 +20,무제한,족보 특화,O,HandDamageAdd,20,0,트리플
+RLC_IRON_FIST,철제 주먹,Uncommon,WaveReward,투 페어 족보 데미지 +10,무제한,족보 특화,O,HandDamageAdd,10,0,투 페어
 RLC_GAMBLER_RING,도박사의 반지,Rare,WaveReward,모든 족보 데미지+20%; 최대 체력 -9,1,캐릭터 스탯,O,DamageMultiplierWithHealthCost,9,1.2,
 RLC_LUCKY_CLOVER,행운의 네잎클로버,Rare,WaveReward,재굴림 시 반드시 이전보다 높은 숫자가 나옴,1,주사위 관련,O,RerollHigher,0,0,
 RLC_TOUGH_ARMOR,튼튼한 갑옷,Common,ShopOnly,방어력 +3,5,캐릭터 스탯,O,AddArmor,3,0,
 RLC_LIGHTWEIGHT_BAG,가벼운 가방,Uncommon,ShopOnly,고유 유물을 제외한 유물 보유 한도+1,3,유틸리티,O,AddRelicSlot,1,0,
 RLC_FOCUS,집중,Uncommon,ShopOnly,모든 족보 데미지 +20; D6 1개 제거,3,캐릭터 스탯,O,AddBaseDamage,20,0,
 RLC_REGENERATION,재생의 팔찌,Uncommon,ShopOnly,매 굴림 시 5% 확률로 체력 1 회복,3,생존 유틸리티,O,HealOnRoll,1,0.05,
-RLC_VAMPIRE_FANG,흡혈귀의 이빨,Uncommon,ShopOnly,족보 완성 시마다 체력 +1,3,생존 유틸리티,O,HealOnJokbo,1,0,
+RLC_VAMPIRE_FANG,흡혈귀의 이빨,Uncommon,ShopOnly,족보 완성 시마다 체력 +1,3,생존 유틸리티,O,HealOnHand,1,0,
 RLC_MERCHANT_CARD,상인의 인장,Uncommon,ShopOnly,상점 새로고침 비용 동결,3,경제 관련,O,FreezeRerollCost,0,0,
 RLC_LUCKY_CHARM,행운의 동전,Rare,ShopOnly,상점 판매가 25% 할인,1,경제 관련,O,ShopDiscount,0,0.25,
 RLC_GOLD_DICE,황금 주사위,Rare,ShopOnly,골드 획득 1.5배,1,경제 관련,O,AddGoldMultiplier,0,1.5,
 RLC_GLASS_CANNON,유리 대포,Rare,ShopOnly,모든 족보 데미지 +50; 최대 체력 -5,1,캐릭터 스탯,O,AddBaseDamage,50,0,
 RLC_PLUTOCRACY,금권 정치,Rare,ShopOnly,보유 골드 100당 데미지 +1 (최대 +50),1,캐릭터 스탯,O,DynamicDamage_Gold,0,0,
 RLC_BLOODLUST,피의 갈증,Rare,ShopOnly,잃은 체력 1당 데미지 +1%(최대 20%),1,캐릭터 스탯,O,DynamicDamage_LostHealth,0,0,
-RLC_GEM_CROWN,보석 박힌 왕관,Rare,ShopOnly,야찌 족보 골드 3배,1,족보 특화,O,JokboGoldMultiplier,0,3.0,야찌
+RLC_GEM_CROWN,보석 박힌 왕관,Rare,ShopOnly,야찌 족보 골드 3배,1,족보 특화,O,HandGoldMultiplier,0,3.0,야찌
 RLC_PHOENIX_FEATHER,불사조의 깃털,Rare,ShopOnly,게임오버 시 체력 50%로 1회 부활,1,생존 유틸리티,O,Revive,0,0.5,
 RLC_DEMON_CONTRACT,악마의 계약서,Rare,ShopOnly,모든 족보 데미지 +15%; 체력 회복 불가,1,캐릭터 스탯,O,DamageMultiplierNoHeal,0,1.15,
 RLC_DIAMOND_DICE,다이아몬드 주사위,Common,MaintenanceReward,모든 주사위의 최소 눈 결정값이 2로 고정,1,주사위 관련,O,MinDiceValue,2,0,
@@ -47,12 +47,12 @@ RLC_DICE_CUP,주사위 컵,Uncommon,MaintenanceReward,주사위 보존 횟수 +1
 RLC_COUNTERWEIGHT,균형추,Rare,MaintenanceReward,D20이 10 이하면 +5,1,주사위 관련,O,BonusOnLowD20,5,0,
 RLC_HOURGLASS,시간의 모래시계,Rare,MaintenanceReward,남은 굴림 횟수가 적을수록 데미지 상승 (회당 +10%/최대 30%),1,캐릭터 스탯,O,DamageByRemainingRolls,0,0.1,
 RLC_ALCHEMY,연금술사의 돌,Rare,MaintenanceReward,1이 나온 주사위를 7로 취급,1,주사위 관련,O,ModifyDiceValue,7,0,
-RLC_PERFECTIONIST,완벽주의자,Rare,MaintenanceReward,4연속 스트레이트 삭제; 5연속 스트레이트 데미지 +50,1,족보 특화,O,JokboDamageAdd,50,0,스트레이트 (5연속)
-RLC_HEAVY_DICE,무거운 주사위,Rare,MaintenanceReward,총합 족보 데미지 +30; 굴림 횟수 -1,1,족보 특화,O,JokboDamageAdd,30,0,총합
+RLC_PERFECTIONIST,완벽주의자,Rare,MaintenanceReward,4연속 스트레이트 삭제; 5연속 스트레이트 데미지 +50,1,족보 특화,O,HandDamageAdd,50,0,스트레이트 (5연속)
+RLC_HEAVY_DICE,무거운 주사위,Rare,MaintenanceReward,총합 족보 데미지 +30; 굴림 횟수 -1,1,족보 특화,O,HandDamageAdd,30,0,총합
 RLC_LODESTONE,자철석,Rare,MaintenanceReward,홀수가 나온 주사위 재굴림,1,주사위 관련,O,RerollOdds,0,0,
 RLC_TANZANITE,탄자나이트,Rare,MaintenanceReward,짝수가 나온 주사위 재굴림,1,주사위 관련,O,RerollEvens,0,0,
-RLC_SQUARE_PEG,네모난 못,Rare,MaintenanceReward,포카드 족보 데미지 +40,무제한,족보 특화,O,JokboDamageAdd,40,0,포카드
-RLC_ROYAL_SEAL,왕실의 인장,Rare,MaintenanceReward,풀 하우스 족보 골드 3배,무제한,족보 특화,O,JokboGoldMultiplier,0,3.0,풀 하우스
+RLC_SQUARE_PEG,네모난 못,Rare,MaintenanceReward,포카드 족보 데미지 +40,무제한,족보 특화,O,HandDamageAdd,40,0,포카드
+RLC_ROYAL_SEAL,왕실의 인장,Rare,MaintenanceReward,풀 하우스 족보 골드 3배,무제한,족보 특화,O,HandGoldMultiplier,0,3.0,풀 하우스
 RLC_BUSINESS_CARD,명함,Epic,MaintenanceReward,첫 굴림 데미지골드 2배,1,유틸리티,O,RollCountBonus,0,2.0,
 RLC_TIME_RIFT,시공의 틈,Epic,MaintenanceReward,족보 완성 시 20% 확률로 현재 굴림 횟수를 소모하지 않음,1,유틸리티,O,FreeRollChance,0,0.2,
 RLC_FATE_DICE,운명의 주사위,Epic,MaintenanceReward,모든 주사위를 가장 높은 눈으로 변경 (1회),1,주사위 관련,O,MaxAllDice,0,0,
