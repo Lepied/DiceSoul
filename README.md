@@ -3,8 +3,6 @@
 **DiceSoul**은 주사위 기반의 로그라이크 덱빌딩 게임으로, 주사위 값을 통한 전략적인 전투와 다양한 유물 시스템이 어우러진 게임입니다.
 
 [![Unity](https://img.shields.io/badge/Unity-2022.3+-black.svg?style=flat&logo=unity)](https://unity.com/)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-
 
 ---
 
